@@ -1,7 +1,13 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 
-export function Editor({ obj, className, children, onSave, onSubmit, onCancel, onDelete, ...props }) {
+const Editor : React.FC<{
+  className ?: string,
+  onSubmit ?: (e : any) => void,
+  onCancel ?: (e : any) => void,
+  onDelete ?: (e : any) => void,
+  children : React.ReactElement[],
+}> = ({ className, children, onSubmit, onCancel, onDelete, ...props }) => {
   const contents = <>
     {children}
 
@@ -16,4 +22,6 @@ export function Editor({ obj, className, children, onSave, onSubmit, onCancel, o
   return <Form onSubmit={onSubmit} className={`editor ${className || ''}`} {...props}>
         {contents}
       </Form>;
-}
+};
+
+export default Editor;

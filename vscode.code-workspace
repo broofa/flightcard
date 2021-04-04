@@ -5,6 +5,7 @@
 		}
   ],
   "settings": {
-    "eslint.lintTask.enable": true
+    "eslint.lintTask.enable": true,
+    "search.useGlobalIgnoreFiles": true
   }
 }

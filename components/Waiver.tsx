@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import db from '../db.js';
-import { APPNAME } from './App.js';
+import db, { tRole } from '../db';
+import { APPNAME } from './App';
 
 export function Waiver({ userId, launchId }) {
   const history = useHistory();
@@ -12,7 +12,8 @@ export function Waiver({ userId, launchId }) {
     const launchUser = {
       launchId,
       userId,
-      permissions: ['lco', 'rso', 'flier'],
+      verified: false,
+      permissions: ['lco', 'rso', 'flier'] as tRole[],
       agreedAt: (new Date()).toISOString()
     };
     db.launchUsers.put(launchUser);

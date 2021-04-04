@@ -4,25 +4,28 @@
   "description": "Flight Card Management for Model Rocket Launches",
   "main": "index.js",
   "dependencies": {
-    "@babel/eslint-parser": "7.13.10",
     "bootstrap": "4.6.0",
     "dexie": "3.1.0-alpha.8",
     "dexie-react-hooks": "1.0.6",
     "react": "^16.13.1",
     "react-bootstrap": "1.5.2",
     "react-dom": "^16.13.1",
-    "react-router-dom": "5.2.0",
-    "uuid": "8.3.2"
+    "react-router-dom": "5.2.0"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-jsx": "7.12.13",
+    "@parcel/babel-plugin-transform-runtime": "2.0.0-nightly.1823",
+    "@types/react-dom": "17.0.3",
+    "@types/react-router-dom": "5.1.7",
+    "@typescript-eslint/eslint-plugin": "4.20.0",
+    "@typescript-eslint/parser": "4.20.0",
     "eslint": "7.21.0",
     "eslint-config-standard": "16.0.2",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "4.3.1",
     "eslint-plugin-react": "7.22.0",
-    "parcel": "2.0.0-beta.1"
+    "parcel": "2.0.0-beta.1",
+    "typescript": "4.2.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

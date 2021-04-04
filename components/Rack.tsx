@@ -1,5 +1,5 @@
 import React from 'react';
-import Pad from './Pad.js';
+import Pad from './Pad';
 
 export default function Launch({ rack }) {
   return <div>

@@ -6,6 +6,10 @@ body {
   margin-bottom: 2em;
 }
 
+.cursor-default {
+  cursor: default;
+}
+
 .nav-active {
   color: black;
   font-weight: bold;
