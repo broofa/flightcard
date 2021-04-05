@@ -64,7 +64,7 @@ export interface iCard {
   userId : number;
   lcoId ?: number;
   rsoId ?: number;
-  verified : boolean;
+  padId ?: number;
   rocket : iRocket;
   flight : iFlight;
 }
@@ -75,10 +75,12 @@ export interface iSession {
 export interface iRack {
   id ?: number;
   name : string;
+  launchId : number;
 }
 export interface iPad {
   id ?: number;
   name : string;
+  launchId : number;
   rackId : number;
 }
 
@@ -109,7 +111,7 @@ class FlightCardDB extends Dexie {
       cards: '++id, [launchId+userId], userId',
       launches: '++id',
       launchUsers: '[launchId+userId]',
-      pads: '++id, rackId',
+      pads: '++id, launchId',
       racks: '++id, launchId',
       sessions: '&id',
       users: '++id, &email, launchId'
@@ -131,7 +133,7 @@ db.on('populate', async () => {
   // Seed users
 
   const users : iUser[] = (new Array(40)).fill(0).map(() => {
-    const name = USER_NAMES.splice(rnd(USER_NAMES.length), 1)[0];
+    const name = USER_NAMES.splice(50, 1)[0];
     const certLevel = rndItem([undefined, undefined, 1, 1, 1, 2, 2, 2, 3]);
     const certType = certLevel && rndItem(['tra', 'nar']);
     const certNumber = certLevel && (3000 + rnd(15000));
@@ -211,8 +213,8 @@ db.on('populate', async () => {
     const permissions : tRole[] = [];
     if (user.certLevel) permissions.push('flier');
     if ((user.certLevel ?? -1) >= 2) {
-      if (Math.random() > 0.5) permissions.push('lco');
-      if (Math.random() > 0.5) permissions.push('rso');
+      if (Math.random() < 0.4) permissions.push('lco');
+      if (Math.random() < 0.2) permissions.push('rso');
     }
 
     launchUsers.push({
@@ -234,10 +236,42 @@ db.on('populate', async () => {
 
   await db.launchUsers.bulkAdd(launchUsers);
 
+  // Seed racks
+  const RACKS = [
+    'Low-Power',
+    'Mid-Power',
+    'High Power (West)',
+    'High Power (East)',
+    'Away Cell',
+    'Hilltop'
+  ];
+  const pads : iPad[] = [];
+  const racks = RACKS.map(name => ({
+    name,
+    launchId: LAUNCHES[0].id
+  } as iRack));
+
+  await db.racks.bulkAdd(racks, { allKeys: true })
+    .then(assignIds(racks));
+
+  // Seed pads
+  for (const rack of racks) {
+    const padNames = /Low|Mid|High/.test(rack.name) ? ['1', '2', '3', '4'] : ['1'];
+    for (const name of padNames) {
+      pads.push({
+        name,
+        launchId: LAUNCHES[0].id,
+        rackId: rack.id as number
+      });
+    }
+  }
+  await db.pads.bulkAdd(pads, { allKeys: true })
+    .then(assignIds(pads));
+
   // Seed cards
-  const cards : iCard[] = users.slice(0, 5).map(user => {
+  const cards : iCard[] = launchUsers.slice(0, 5).map(launchUser => {
     const launchId = LAUNCHES[0].id;
-    const userId = user.id as number;
+    const userId = launchUser.userId;
 
     const rocket = createRocket();
     const { motor, _mImpulse } = rocket;
@@ -254,9 +288,12 @@ db.on('populate', async () => {
 
     if (motor) flight.motor = motor;
 
+    const pad = rndItem(pads);
+
     return {
       launchId,
       userId,
+      padId: pad.id,
       verified: false,
       rocket,
       flight
@@ -264,36 +301,6 @@ db.on('populate', async () => {
   });
 
   await db.cards.bulkAdd(cards);
-
-  // Seed racks
-  const racks : iRack[] = [
-    'Rack #1, Low-Power',
-    'Rack #2, Mid-Power',
-    'Rack #3, High Power (West)',
-    'Rack #4, High Power (East)',
-    'Rack #5, Away pad',
-    'Rack #6, Hilltop'
-  ].map(name => ({
-    name,
-    launchId: LAUNCHES[0].id
-  }));
-  await db.racks.bulkAdd(racks, { allKeys: true })
-    .then(assignIds(racks));
-
-  // Seed pads
-  const pads : iPad[] = [];
-  for (const rack of racks) {
-    /(\d)/.test(rack.name);
-    const rackNum = parseInt(RegExp.$1);
-    for (const padName of rackNum <= 4 ? ['1', '2', '3', '4'] : ['1']) {
-      pads.push({
-        name: padName,
-        rackId: rack.id as number
-      });
-    }
-  }
-  await db.pads.bulkAdd(pads, { allKeys: true })
-    .then(assignIds(pads));
 });
 
 db.open();

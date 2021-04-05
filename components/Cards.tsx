@@ -73,19 +73,14 @@ const CardEditor : React.FC<{create ?: boolean}> = ({ create }) => {
   const launchId = parseInt(match.params.launchId);
 
   const launchUsers = useLaunchUsers(launchId);
-  const flierIds = launchUsers ? launchUsers.map(u => u.userId) : [];
-  const fliers = useLiveQuery(() => db.users.bulkGet(flierIds), [flierIds.join()]);
+  const fliers = [...Object.values(launchUsers)];
 
   const dbCard = useLiveQuery(() => cardId ? db.cards.get(cardId) : null, [cardId]);
-
-  if (!user || !fliers) return <p>Loading ...</p>;
 
   const [card, setCard] = useState(dbCard || {
     id: 0,
     launchId,
     userId: user?.id || 0, // Flier
-
-    verified: false,
 
     rocket: {
       id: 0,
@@ -105,9 +100,11 @@ const CardEditor : React.FC<{create ?: boolean}> = ({ create }) => {
     }
   } as iCard);
 
+  if (!user || !fliers) return <p>Loading ...</p>;
+
   fliers.sort(nameComparator);
 
-  const flier = fliers.find(f => f?.id == card.userId) || {} as iUser;
+  const flier = fliers.find(f => f.id && f.id == card.userId) || {} as iUser;
 
   function access(path : string) {
     const parts : string[] = path.split('.');
@@ -141,7 +138,7 @@ const CardEditor : React.FC<{create ?: boolean}> = ({ create }) => {
     e.preventDefault();
 
     card.launchId = Number(launchId);
-    card.userId = user?.id;
+    card.userId = user.id as number;
     db.cards.put(card).then(() => history.goBack());
   };
 
@@ -150,7 +147,7 @@ const CardEditor : React.FC<{create ?: boolean}> = ({ create }) => {
         // TODO: Disallow deletion of cards that are racked, or that have been flown
 
         if (!confirm(`Really delete '${card.rocket.name}'?`)) return;
-        db.cards.delete(card.id);
+        db.cards.delete(card.id as number);
       }
     : null;
 
@@ -250,10 +247,10 @@ function CardList({ cards }) {
 export default function Cards() {
   const user = useCurrentUser();
 
-  const previousCards = useLiveQuery(
-    () => user && db.cards.where('userId').equals(user.id).toArray(),
+  const previousCards : iCard[] = useLiveQuery(
+    () => user?.id != null ? db.cards.where('userId').equals(user.id).toArray() : null,
     [user?.id]
-  );
+  ) || [];
 
   return <>
     {previousCards?.length ? <CardList cards={previousCards} /> : null}

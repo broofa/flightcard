@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Switch, Route, useParams } from 'react-router-dom';
-import { Form, Modal, Button, Tabs, Tab, Badge } from 'react-bootstrap';
-import db, { iUser, tRole } from '../db';
+import { Form, Modal, Button, Tabs, Tab, Badge, Card } from 'react-bootstrap';
+import db, { iUser, iCard, tRole } from '../db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Cards from './Cards';
 import { Waiver } from './Waiver';
 import { useCurrentUser, useLaunchUser, useLaunchUsers } from './hooks';
+import Dexie from 'dexie';
+
+const { minKey, maxKey } = Dexie;
 
 export function nameComparator(a, b) : number {
   a = a?.name;
@@ -53,12 +56,12 @@ const UserEditor : React.FC<{user : iUser, onHide : () => void }> = ({ user, onH
 
     <Modal.Body>
 
+    {verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
     <Form.Switch inline id={'verified'}
       className='ml-2'
-      label='High power certified (NAR/TRA card presented to LCO, RSO, or event host)'
+      label='Certification card verified by LCO, RSO, or event host'
       onChange={onVerify}
       checked={verified} />
-    {verified ? null : <span className='text-danger font-weight-bold ml-1'>{'\u26a0'}</span>}
     <h5 className='mt-3'>Qualified For:</h5>
     {
       (['lco', 'rso'] as tRole[]).map(perm => {
@@ -102,8 +105,8 @@ const UserGroup : React.FC<{role ?: tRole, users : iUser[]}> = ({ role, users, c
 
         return <div key={id} className={cn} onClick={() => setEditingUser(user)}>
             <span className='flex-grow-1'>
+              {launchUser.verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
               {name || '(anonymous)'}
-              {launchUser.verified ? null : <span className='text-danger font-weight-bold ml-1'>{'\u26a0'}</span>}
             </span>
             {displayRole ? <span className='mx-2'>{}</span> : null}
             {role && _role === role ? <Badge className='mx-2' variant='success'>On Duty</Badge> : null}
@@ -115,30 +118,65 @@ const UserGroup : React.FC<{role ?: tRole, users : iUser[]}> = ({ role, users, c
   </>;
 };
 
+const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ launchId, rackId, cards, ...props }) => {
+  const rack = useLiveQuery(() => rackId != null ? db.racks.get(parseInt(rackId)) : null, [rackId]);
+  const pads = useLiveQuery(() => launchId != null ? db.pads.where({ launchId }).toArray() : null, [launchId])
+    ?.filter(pad => pad.rackId == rackId);
+
+  return <>
+    <h5 className='mt-5 text-center text-secondary' >{rack?.name || 'Unnamed Rack'}</h5>
+    <div className='deck' {...props}>
+      {
+        pads?.map(pad => {
+          const card = cards?.find(c => c.padId === pad.id);
+
+          if (!card) return null;
+
+          return <Card key={pad.id} className='p-2 text-nowrap'>
+            <Card.Title className={card ? undefined : 'text-secondary'}>Pad {pad.name}: {card?.user?.name}</Card.Title>
+            {
+              card
+                ? <>
+                 <Card.Text>
+                  {card?.rocket?.manufacturer} - {card?.rocket?.name}
+                 </Card.Text>
+                <Button size='sm'>Announce</Button>
+              </>
+                : null
+            }
+          </Card>;
+        })
+      }
+    </div>
+  </>;
+};
+
 const Launch : React.FC<{match, history}> = ({ match, history }) => {
   const user = useCurrentUser();
 
   const launchId = parseInt(useParams<{launchId : string }>().launchId);
   const launch = useLiveQuery(() => db.launches.get(launchId), [launchId]);
-  // const cards = useLiveQuery(() => db.cards.get(launchId), [launchId]);
+  const lcoCards = useLiveQuery(
+    () => db.cards.where('[launchId+userId]')
+      .between([launchId, minKey], [launchId, maxKey])
+      .toArray(),
+    [launchId]);
+
   const launchUser = useLaunchUser(launchId, user?.id);
 
-  const launchUsers = useLaunchUsers(launchId) || [];
-  const userIds = launchUsers.map(u => u.userId).sort();
+  const launchUsers = useLaunchUsers(launchId);
+  const users = Object.values(launchUsers);
 
-  const users = useLiveQuery(
-    () => db.users.where('id').anyOf(userIds).toArray(),
-    [userIds.join()]
+  lcoCards?.forEach((c : any) => c.user = launchUsers[c.userId]);
+
+  const racks = useLiveQuery(
+    () => db.racks.where({ launchId }).toArray(),
+    [launchId]
   );
 
-  if (!launch || !user || !users) return <p>Loading...</p>;
+  if (!launch || !user) return <p>Loading...</p>;
 
   users.sort(nameComparator);
-
-  for (const launchUser of launchUsers) {
-    const u = users.find(({ id }) => id === launchUser.userId);
-    if (u) { u.launchUser = launchUser; }
-  }
 
   if (!launchUser) return <Waiver userId={user.id} launchId={launch.id} />;
 
@@ -163,10 +201,15 @@ const Launch : React.FC<{match, history}> = ({ match, history }) => {
       </Route>
 
       <Route path={`${match.path}/lco`}>
-        {
-          <Button href={`${match.url}/cards/create`}>New Flight Card</Button>
-        }
         <UserGroup users={users} role='lco'>Launch Control Officers</UserGroup>
+        {
+          launchUser.role == 'flier'
+            ? <Button className='mt-3' href={`${match.url}/cards/create`}>New Flight Card</Button>
+            : null
+        }
+        {
+          racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
+        }
       </Route>
     </Switch>
   </>;
