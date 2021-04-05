@@ -5,9 +5,9 @@ import USER_NAMES from './mock_data/names';
 export type tRole = 'flier' | 'lco' | 'rso';
 
 export interface iUser {
-  id : number;
+  id ?: number;
   launchUser ?: iLaunchUser;
-  name : string | undefined;
+  name : string;
   email : string | undefined;
   certLevel ?: number;
   certType ?: string;
@@ -16,6 +16,7 @@ export interface iUser {
   lat ?: number;
   lon ?: number;
 }
+
 export interface iLaunch {
   id : number;
   name : string;
@@ -58,11 +59,11 @@ export interface iFlight {
 }
 
 export interface iCard {
-  id : number;
+  id ?: number;
   launchId : number;
   userId : number;
-  lcoId ?: number | null;
-  rsoId ?: number | null;
+  lcoId ?: number;
+  rsoId ?: number;
   verified : boolean;
   rocket : iRocket;
   flight : iFlight;
@@ -72,16 +73,16 @@ export interface iSession {
   userId : number;
 }
 export interface iRack {
+  id ?: number;
   name : string;
-  id : number;
 }
 export interface iPad {
+  id ?: number;
   name : string;
-  id : number;
   rackId : number;
 }
 
-function assignIds(target : ({id : string | number}[])) {
+function assignIds(target : ({id ?: string | number}[])) {
   return function(ids : (string|number)[]) {
     ids.forEach((id, i) => target[i].id = id);
   };
@@ -216,7 +217,7 @@ db.on('populate', async () => {
 
     launchUsers.push({
       launchId: launch.id,
-      userId: user.id,
+      userId: user.id as number,
       verified: rndItem([true, true, true, false]),
       permissions,
       agreedAt: (new Date()).toISOString()
@@ -236,7 +237,7 @@ db.on('populate', async () => {
   // Seed cards
   const cards : iCard[] = users.slice(0, 5).map(user => {
     const launchId = LAUNCHES[0].id;
-    const userId = user.id;
+    const userId = user.id as number;
 
     const rocket = createRocket();
     const { motor, _mImpulse } = rocket;
@@ -254,7 +255,6 @@ db.on('populate', async () => {
     if (motor) flight.motor = motor;
 
     return {
-      id: 0, // ignored
       launchId,
       userId,
       verified: false,
@@ -274,7 +274,6 @@ db.on('populate', async () => {
     'Rack #5, Away pad',
     'Rack #6, Hilltop'
   ].map(name => ({
-    id: 0,
     name,
     launchId: LAUNCHES[0].id
   }));
@@ -288,9 +287,8 @@ db.on('populate', async () => {
     const rackNum = parseInt(RegExp.$1);
     for (const padName of rackNum <= 4 ? ['1', '2', '3', '4'] : ['1']) {
       pads.push({
-        id: 0,
         name: padName,
-        rackId: rack.id
+        rackId: rack.id as number
       });
     }
   }

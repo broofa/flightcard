@@ -5,11 +5,11 @@ import { iRocket } from '../db';
 const MOTORS = 'ABCDEFGHIJKLMNO'.split('');
 
 export function rnd(n : number) : number {
-  return Math.random() * n as number;
+  return Math.floor(Math.random() * n) as number;
 }
 
-export function rndItem<Type>(n : Type[]) : Type {
-  return n[rnd(n.length) as number];
+export function rndItem<Type>(arr : Type[]) : Type {
+  return arr[rnd(arr.length)];
 }
 
 export function createRocket() : iRocket {

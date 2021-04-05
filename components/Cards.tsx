@@ -166,7 +166,6 @@ const CardEditor : React.FC<{create ?: boolean}> = ({ create }) => {
           onChange={
             e => {
               const u = { ...card, userId: parseInt(e.target.value) };
-              console.log('SET', e.target.value, u);
               setCard(u);
             }
           }>

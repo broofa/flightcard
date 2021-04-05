@@ -32,6 +32,7 @@ const CertBadge : React.FC<{user : iUser}> = ({ user, ...props }) => {
     {certType.toUpperCase()} {certLevel}
   </Badge>;
 };
+
 const UserEditor : React.FC<{user : iUser, onHide : () => void }> = ({ user, onHide }) => {
   if (!user) throw Error('Invalid user');
 
