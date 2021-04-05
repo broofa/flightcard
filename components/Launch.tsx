@@ -128,12 +128,14 @@ const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ laun
     <div className='deck' {...props}>
       {
         pads?.map(pad => {
-          const card = cards?.find(c => c.padId === pad.id);
+          const card : any = cards?.find(c => c.padId === pad.id);
 
           if (!card) return null;
 
           return <Card key={pad.id} className='p-2 text-nowrap'>
-            <Card.Title className={card ? undefined : 'text-secondary'}>Pad {pad.name}: {card?.user?.name}</Card.Title>
+            <Card.Title className={card ? undefined : 'text-secondary'}>
+              Pad {pad.name}: {card?.user?.name}
+            </Card.Title>
             {
               card
                 ? <>
