@@ -2,7 +2,10 @@
   "name": "flightcard",
   "version": "1.0.0",
   "description": "Flight Card Management for Model Rocket Launches",
-  "dependencies": {
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
+"dependencies": {
     "bootstrap": "4.6.0",
     "dexie": "3.1.0-alpha.8",
     "dexie-react-hooks": "1.0.6",
