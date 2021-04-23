@@ -67,6 +67,7 @@ export interface iCard {
   padId ?: number;
   rocket : iRocket;
   flight : iFlight;
+  _user ?: iUser, // Cached in Launch.tsx
 }
 export interface iSession {
   id : string;
@@ -256,7 +257,9 @@ db.on('populate', async () => {
 
   // Seed pads
   for (const rack of racks) {
-    const padNames = /Low|Mid|High/.test(rack.name) ? ['1', '2', '3', '4'] : ['1'];
+    const padNames = /Low/.test(rack.name)
+      ? '123456'.split('')
+      : /Mid|High/.test(rack.name) ? '1234'.split('') : ['1'];
     for (const name of padNames) {
       pads.push({
         name,
@@ -269,7 +272,7 @@ db.on('populate', async () => {
     .then(assignIds(pads));
 
   // Seed cards
-  const cards : iCard[] = launchUsers.slice(0, 5).map(launchUser => {
+  const cards : iCard[] = launchUsers.slice(0, 10).map(launchUser => {
     const launchId = LAUNCHES[0].id;
     const userId = launchUser.userId;
 

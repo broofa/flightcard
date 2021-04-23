@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Switch, Route, useParams } from 'react-router-dom';
-import { Form, Modal, Button, Tabs, Tab, Badge, Card } from 'react-bootstrap';
+import { Form, Modal, Button, Tabs, Tab, Badge } from 'react-bootstrap';
 import db, { iUser, iCard, tRole } from '../db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Cards from './Cards';
@@ -104,7 +104,7 @@ const UserGroup : React.FC<{role ?: tRole, users : iUser[]}> = ({ role, users, c
         const cn = 'd-flex border-bottom rounded border-dark text-nowrap py-1 px-3';
 
         return <div key={id} className={cn} onClick={() => setEditingUser(user)}>
-            <span className='flex-grow-1'>
+            <span className='flex-grow-1 cursor-default'>
               {launchUser.verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
               {name || '(anonymous)'}
             </span>
@@ -119,34 +119,40 @@ const UserGroup : React.FC<{role ?: tRole, users : iUser[]}> = ({ role, users, c
 };
 
 const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ launchId, rackId, cards, ...props }) => {
-  const rack = useLiveQuery(() => rackId != null ? db.racks.get(parseInt(rackId)) : null, [rackId]);
-  const pads = useLiveQuery(() => launchId != null ? db.pads.where({ launchId }).toArray() : null, [launchId])
-    ?.filter(pad => pad.rackId == rackId);
+  const rack = useLiveQuery(() => rackId != null ? db.racks.get(parseInt(rackId)) : undefined, [rackId]);
+  const pads = useLiveQuery(() => launchId != null
+    ? db.pads
+      .where({ launchId })
+      .filter(pad => pad.rackId == rackId)
+      .toArray()
+    : undefined, [launchId]);
 
   return <>
     <h5 className='mt-5 text-center text-secondary' >{rack?.name || 'Unnamed Rack'}</h5>
-    <div className='deck' {...props}>
+    <div className='deck' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(5em, 2fr))' }} {...props}>
       {
         pads?.map(pad => {
-          const card : any = cards?.find(c => c.padId === pad.id);
+          const padCards = cards?.filter(c => c.padId === pad.id) ?? [];
+          const card = padCards.length == 1 ? padCards[0] : undefined;
 
-          if (!card) return null;
+          let body;
+          if (padCards?.length > 1) {
+            body = <h3 className='text-danger text-center'>{'\u26a0'}</h3>;
+          } else if (padCards.length == 1) {
+            body = <span className='cursor-default'>
+              {card?._user?.name}
+              {/* {card?.rocket?.manufacturer} - {card?.rocket?.name} */}
+            </span>;
+          }
 
-          return <Card key={pad.id} className='p-2 text-nowrap'>
-            <Card.Title className={card ? undefined : 'text-secondary'}>
-              Pad {pad.name}: {card?.user?.name}
-            </Card.Title>
-            {
-              card
-                ? <>
-                 <Card.Text>
-                  {card?.rocket?.manufacturer} - {card?.rocket?.name}
-                 </Card.Text>
-                <Button size='sm'>Announce</Button>
-              </>
-                : null
-            }
-          </Card>;
+          // if (!card) return null;
+
+          return <div key={pad.id} style={{ opacity: padCards.length ? 1 : 0.5 }} className='border border-dark rounded p-2'>
+              <span style={{ cssFloat: 'left' }} className='bg-dark text-white rounded px-2 mr-2'>
+                Pad {pad.name}
+              </span>
+            {body}
+          </div>;
         })
       }
     </div>
@@ -169,7 +175,7 @@ const Launch : React.FC<{match, history}> = ({ match, history }) => {
   const launchUsers = useLaunchUsers(launchId);
   const users = Object.values(launchUsers);
 
-  lcoCards?.forEach((c : any) => c.user = launchUsers[c.userId]);
+  lcoCards?.forEach((c : any) => c._user = launchUsers[c.userId]);
 
   const racks = useLiveQuery(
     () => db.racks.where({ launchId }).toArray(),
