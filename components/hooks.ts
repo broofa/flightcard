@@ -50,12 +50,12 @@ export function useCurrentUser() : iUser | undefined {
 }
 
 export function setCurrentUser(user : iUser | null) {
-  const sessionId = getSessionCookie();
-  if (!sessionId) return;
+  const id = getSessionCookie();
+  if (!id) return;
 
   if (!user) {
-    db.sessions.where({ id: sessionId }).delete();
+    db.sessions.where({ id }).delete();
   } else {
-    db.sessions.add({ id: sessionId, userId: user.id as number });
+    db.sessions.put({ id, userId: user.id as number });
   }
 }
