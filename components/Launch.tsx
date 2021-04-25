@@ -137,7 +137,7 @@ const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ laun
 
           let body;
           if (padCards?.length > 1) {
-            body = <h3 className='text-danger text-center'>{'\u26a0'}</h3>;
+            body = <span className='text-danger text-center'>  Multiple fliers {'\u26a0'}</span>;
           } else if (padCards.length == 1) {
             body = <span className='cursor-default'>
               {card?._user?.name}
@@ -148,7 +148,7 @@ const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ laun
           // if (!card) return null;
 
           return <div key={pad.id} style={{ opacity: padCards.length ? 1 : 0.5 }} className='border border-dark rounded p-2'>
-              <span style={{ cssFloat: 'left' }} className='bg-dark text-white rounded px-2 mr-2'>
+              <span style={{ float: 'left' }} className='bg-dark text-white rounded px-2 mr-2'>
                 Pad {pad.name}
               </span>
             {body}

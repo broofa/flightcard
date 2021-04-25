@@ -24,15 +24,15 @@
        inkscape:collect="always"
        id="linearGradient966">
       <stop
-         style="stop-color:#b3b3b3;stop-opacity:1"
+         style="stop-color:#ffffff;stop-opacity:1"
          offset="0"
          id="stop962" />
       <stop
-         style="stop-color:#ffffff;stop-opacity:1"
-         offset="0.44444451"
+         style="stop-color:#808080;stop-opacity:1"
+         offset="0.5"
          id="stop974" />
       <stop
-         style="stop-color:#808080;stop-opacity:1"
+         style="stop-color:#ffffff;stop-opacity:1"
          offset="1"
          id="stop964" />
     </linearGradient>
@@ -149,14 +149,14 @@
        ry="0.52916658"
        rx="0.52916694" />
     <rect
-       style="fill:url(#linearGradient968);stroke:none;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:round;stop-color:#000000;fill-opacity:1"
+       style="fill:url(#linearGradient968);fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:round;stop-color:#000000"
        id="rect909"
        width="7.9374995"
        height="5.8208327"
        x="0.26458332"
        y="1.3229165"
-       ry="0.52916658"
-       rx="0.52916694"
+       ry="0.26458335"
+       rx="0.26458335"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <path
