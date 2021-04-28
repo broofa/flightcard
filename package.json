@@ -5,10 +5,12 @@
   "browserslist": [
     "last 2 Chrome versions"
   ],
-"dependencies": {
+  "dependencies": {
     "bootstrap": "4.6.0",
     "dexie": "3.1.0-alpha.8",
     "dexie-react-hooks": "1.0.6",
+    "firebase": "8.4.2",
+    "firebaseui": "4.8.0",
     "react": "^16.13.1",
     "react-bootstrap": "1.5.2",
     "react-dom": "^16.13.1",

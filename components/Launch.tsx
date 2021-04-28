@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Switch, Route, useParams } from 'react-router-dom';
 import { Form, Modal, Button, Tabs, Tab, Badge } from 'react-bootstrap';
-import db, { iUser, iCard, tRole } from '../db';
+import { iUser, iCard, tRole } from '../types';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Cards from './Cards';
 import { Waiver } from './Waiver';
-import { useCurrentUser, useLaunchUser, useLaunchUsers } from './hooks';
-import Dexie from 'dexie';
-
-const { minKey, maxKey } = Dexie;
+import { appContext } from './App';
+import { Loading } from './util';
+import { db } from '../firebase';
 
 export function nameComparator(a, b) : number {
   a = a?.name;
@@ -36,7 +35,7 @@ const CertBadge : React.FC<{user : iUser}> = ({ user, ...props }) => {
   </Badge>;
 };
 
-const UserEditor : React.FC<{user : iUser, onHide : () => void }> = ({ user, onHide }) => {
+function UserEditor({ user, onHide } : {user : iUser, onHide : () => void }) {
   if (!user) throw Error('Invalid user');
 
   const { name, id, launchUser } = user;
@@ -80,13 +79,11 @@ const UserEditor : React.FC<{user : iUser, onHide : () => void }> = ({ user, onH
     }
     </Modal.Body>
   </Modal>;
-};
+}
 
 const UserGroup : React.FC<{role ?: tRole, users : iUser[]}> = ({ role, users, children, ...props }) => {
   const [editingUser, setEditingUser] = useState<iUser | null>(null);
-
   return <>
-
     <h3 className="d-flex mt-4">{children}</h3>
 
     {editingUser ? <UserEditor user={editingUser} onHide={() => setEditingUser(null)} /> : null}
@@ -159,34 +156,24 @@ const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ laun
   </>;
 };
 
-const Launch : React.FC<{match, history}> = ({ match, history }) => {
-  const user = useCurrentUser();
+function Launch({ match, history }) {
+  const { currentUserId } = useContext(appContext);
 
-  const launchId = parseInt(useParams<{launchId : string }>().launchId);
-  const launch = useLiveQuery(() => db.launches.get(launchId), [launchId]);
-  const lcoCards = useLiveQuery(
-    () => db.cards.where('[launchId+userId]')
-      .between([launchId, minKey], [launchId, maxKey])
-      .toArray(),
-    [launchId]);
+  const launchId = useParams<{launchId : string }>().launchId;
+  const launch = db.launches.useValue(launchId);
 
-  const launchUser = useLaunchUser(launchId, user?.id);
+  const launchUsers = db.launchUsers.useValue(launchId);
+  const pads = db.pads.useValue<Record<string, iPad>>(launchId);
 
-  const launchUsers = useLaunchUsers(launchId);
-  const users = Object.values(launchUsers);
+  const launchUser = launchUsers?.[currentUserId];
 
-  lcoCards?.forEach((c : any) => c._user = launchUsers[c.userId]);
+  const users = launchUsers ? Object.values(launchUsers) : [];
 
-  const racks = useLiveQuery(
-    () => db.racks.where({ launchId }).toArray(),
-    [launchId]
-  );
-
-  if (!launch || !user) return <p>Loading...</p>;
+  if (!launch) return <Loading wat='Launch data' />;
 
   users.sort(nameComparator);
 
-  if (!launchUser) return <Waiver userId={user.id} launchId={launch.id} />;
+  if (!launchUser) return <Waiver userId={currentUserId} launchId={launchId} />;
 
   return <>
     <Tabs defaultActiveKey='lco' onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
@@ -216,11 +203,11 @@ const Launch : React.FC<{match, history}> = ({ match, history }) => {
             : null
         }
         {
-          racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
+          // racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
         }
       </Route>
     </Switch>
   </>;
-};
+}
 
 export default Launch;

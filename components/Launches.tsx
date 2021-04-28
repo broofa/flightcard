@@ -1,27 +1,47 @@
-import React from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import db, { iLaunch } from '../db';
+import React, { useContext } from 'react';
 import { Card, Button } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
+import { db } from '../firebase';
+import { iLaunch } from '../types';
+import { appContext } from './App';
+import { Loading } from './util';
 
-export default function Launches() : React.ReactElement {
-  const launches = useLiveQuery(() => db.launches.toArray());
+export default function Launches() {
+  const launches = db.launches.useValue<Record <string, iLaunch>>('');
+  const ctx = useContext(appContext);
+  const { currentUser } = ctx;
 
-  if (!launches) return <p>Loading</p>;
+  const history = useHistory();
+
+  if (!launches) return <Loading wat='Launches' />;
+  if (!currentUser) return <Loading wat='User' />;
 
   return <>
     <p>The following launches are currently available for checkin:</p>
     <div className="deck">
-      {launches.map((l : iLaunch) => <Card key={l.id}>
-        <Card.Body>
-          <Card.Title >{l.name}</Card.Title>
-          <Card.Text>
-            Location: {l.location}
-            <br />
-            Host: {l.host}
-          </Card.Text>
-          <Button href={`launches/${l.id}`}>Check in to {l.name}</Button>
-        </Card.Body>
-      </Card>)}
+      {
+        Object.entries(launches).map(([launchId, l]) => {
+          async function onClick() {
+            if (currentUser) {
+              await db.users.set(`${currentUser.id}/currentLaunchId`, launchId);
+            }
+
+            history.push(`/launches/${launchId}`);
+          }
+
+          return <Card key={launchId}>
+            <Card.Body>
+              <Card.Title >{l.name}</Card.Title>
+              <Card.Text>
+                Location: {l.location}
+                <br />
+                Host: {l.host}
+              </Card.Text>
+              <Button onClick={onClick}>Check in to {l.name}</Button>
+            </Card.Body>
+          </Card>;
+        })
+      }
     </div>
   </>;
 }

@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import { Link, useHistory, useRouteMatch } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import db, { iUser, iCard } from '../db';
+import { iUser, iCard } from '../types';
 import Editor from './Editor';
-import { useLaunchUsers, useCurrentUser } from './hooks';
+import useCurrentUser from './App';
 import { Form, Col } from 'react-bootstrap';
 import { nameComparator } from './Launch';
+import { db } from '../firebase';
 
 const { Label, Control, Group, Row, Check, Switch } = Form;
 
@@ -75,7 +76,7 @@ const CardEditor : React.FC<{create ?: boolean}> = ({ create }) => {
   const launchUsers = useLaunchUsers(launchId);
   const fliers = [...Object.values(launchUsers)];
 
-  const dbCard = useLiveQuery(() => cardId ? db.cards.get(cardId) : null, [cardId]);
+  const dbCard = db.cards.useValue(cardId);
 
   const [card, setCard] = useState(dbCard || {
     id: 0,
