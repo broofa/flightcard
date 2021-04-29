@@ -2,12 +2,11 @@ import React, { useContext } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { db } from '../firebase';
-import { iLaunch } from '../types';
 import { appContext } from './App';
 import { Loading } from './util';
 
 export default function Launches() {
-  const launches = db.launches.useValue<Record <string, iLaunch>>('');
+  const launches = db.launches.useValue();
   const ctx = useContext(appContext);
   const { currentUser } = ctx;
 
@@ -18,12 +17,12 @@ export default function Launches() {
 
   return <>
     <p>The following launches are currently available for checkin:</p>
-    <div className="deck">
+    <div className='deck'>
       {
         Object.entries(launches).map(([launchId, l]) => {
           async function onClick() {
             if (currentUser) {
-              await db.users.set(`${currentUser.id}/currentLaunchId`, launchId);
+              await db.user.update(currentUser.id, { currentLaunchId: launchId });
             }
 
             history.push(`/launches/${launchId}`);

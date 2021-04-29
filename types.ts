@@ -1,7 +1,14 @@
 export type tRole = 'flier' | 'lco' | 'rso';
 
+export interface iPerm {
+  admin ?: boolean;
+  lco ?: boolean;
+  rso ?: boolean;
+}
+export type iPerms = Record<string, iPerm>;
+
 export interface iUser {
-  id : string,
+  id : string;
   name : string;
   // email ?: string | undefined;
   currentLaunchId ?: string;
@@ -10,6 +17,7 @@ export interface iUser {
   certNumber ?: number;
   certExpires ?: string;
 }
+export type iUsers = Record<string, iUser>;
 
 export interface iLaunch {
   name : string;
@@ -19,21 +27,22 @@ export interface iLaunch {
   endDate : string;
   rangeOpen : boolean;
 }
+export type iLaunchs = Record<string, iLaunch>;
 
 export interface iLaunchUser extends iUser {
-  lat ?: number;
-  lon ?: number;
   waiverSignedDate : string;
   verified : boolean;
-  permissions ?: tRole[];
-  role ?: tRole | undefined;
+  lat ?: number;
+  lon ?: number;
 }
+export type iLaunchUsers = Record<string, iLaunchUser>;
 
 export interface iPad {
   launchId : string;
   name ?: string;
   group ?: string;
 }
+export type iPads = Record<string, iPad>;
 
 export interface iRocket {
   name : string,
@@ -66,3 +75,4 @@ export interface iCard {
   flight : iFlight;
   _user ?: iUser, // Cached in Launch.tsx
 }
+export type iCards = Record<string, iCard>;

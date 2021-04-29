@@ -18,5 +18,5 @@ body {
 .deck {
   display: grid;
   gap: 1em;
-  grid-template-columns: repeat(auto-fit, minmax(15em, 2fr));
+  grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
 }

@@ -1,8 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { Switch, Route, useParams } from 'react-router-dom';
-import { Form, Modal, Button, Tabs, Tab, Badge } from 'react-bootstrap';
-import { iUser, iCard, tRole } from '../types';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { Switch, Route, useParams, Link } from 'react-router-dom';
+import { Form, Modal, Button, Tabs, Tab, Badge, ButtonGroup } from 'react-bootstrap';
+import { iUser, tRole, iLaunchUser, iPerm } from '../types';
 import Cards from './Cards';
 import { Waiver } from './Waiver';
 import { appContext } from './App';
@@ -15,12 +14,6 @@ export function nameComparator(a, b) : number {
   return a < b ? -1 : b < a ? 1 : 0;
 }
 
-const ROLE_NAMES = {
-  flier: 'Flier',
-  rso: 'RSO',
-  lco: 'LCO'
-};
-
 const CertBadge : React.FC<{user : iUser}> = ({ user, ...props }) => {
   if (!user?.certType) return null;
 
@@ -29,7 +22,7 @@ const CertBadge : React.FC<{user : iUser}> = ({ user, ...props }) => {
   if (certLevel == 2) backgroundColor = 'chocolate';
   if (certLevel == 3) backgroundColor = 'brown';
 
-  return <Badge className='mx-2 text-uppercase' style={{ backgroundColor }}
+  return <Badge pill className='mx-2 text-uppercase' style={{ backgroundColor }}
     variant='secondary' {...props}>
     {certType.toUpperCase()} {certLevel}
   </Badge>;
@@ -45,7 +38,7 @@ function UserEditor({ user, onHide } : {user : iUser, onHide : () => void }) {
 
   const onVerify = function(e) {
     launchUser.verified = e.target.checked;
-    db.launchUsers.put(launchUser);
+    // db.launchUsers.put(launchUser);
   };
 
   return <Modal size='lg' show={true} onHide={onHide}>
@@ -67,7 +60,7 @@ function UserEditor({ user, onHide } : {user : iUser, onHide : () => void }) {
         const onChange = function(e) {
           launchUser.permissions = launchUser.permissions.filter(p => p != perm);
           if (e.target.checked) launchUser.permissions.push(perm);
-          db.launchUsers.put(launchUser);
+          // db.launchUsers.put(launchUser);
         };
 
         return <Form.Switch inline key={id + perm} id={id + perm}
@@ -81,99 +74,71 @@ function UserEditor({ user, onHide } : {user : iUser, onHide : () => void }) {
   </Modal>;
 }
 
-const UserGroup : React.FC<{role ?: tRole, users : iUser[]}> = ({ role, users, children, ...props }) => {
+function UserGroup({ launchId, filter, children, ...props } :
+  {launchId : string, filter ?: (user : iLaunchUser, perm : iPerm) => boolean, children : any}) {
   const [editingUser, setEditingUser] = useState<iUser | null>(null);
+  const launchUsers = db.launchUsers.useValue(launchId);
+  const perms = db.launchPerms.useValue(launchId);
+  const launch = db.launch.useValue(launchId);
+
+  if (!launch || !launchUsers || !perms) return <Loading wat='User data' />;
+
   return <>
-    <h3 className="d-flex mt-4">{children}</h3>
+    <h3 className='d-flex mt-4'>{children}</h3>
 
     {editingUser ? <UserEditor user={editingUser} onHide={() => setEditingUser(null)} /> : null}
 
     <div className='deck' {...props}>
       {
-      users.map(user => {
-        const { id, name, launchUser } = user;
-        if (!launchUser) return null;
+      Object.values(launchUsers).map(lu => {
+        const perm = perms[lu.id];
+        if (filter && !filter(lu, perm)) return null;
 
-        const { permissions, role: _role } = launchUser;
-        if (role && !permissions.includes(role)) return null;
-        const displayRole = ROLE_NAMES[launchUser.role ?? ''];
+        const { id, name } = lu;
+
+        const badges = [];
+        if (perm?.lco !== undefined) badges.push(<Badge key='lco' pill variant={perm.lco ? 'success' : 'light'}>LCO</Badge>);
+        if (perm?.rso !== undefined) badges.push(<Badge key='rso' pill variant={perm.rso ? 'info' : 'light'}>RSO</Badge>);
 
         const cn = 'd-flex border-bottom rounded border-dark text-nowrap py-1 px-3';
 
-        return <div key={id} className={cn} onClick={() => setEditingUser(user)}>
-            <span className='flex-grow-1 cursor-default'>
-              {launchUser.verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
+        return <div key={id} className={cn} onClick={() => setEditingUser(lu)}>
+            <span className='flex-grow-1 cursor-default mr-2' style={{ lineHeight: 1 }}>
+              {lu.verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
               {name || '(anonymous)'}
             </span>
-            {displayRole ? <span className='mx-2'>{}</span> : null}
-            {role && _role === role ? <Badge className='mx-2' variant='success'>On Duty</Badge> : null}
-            <CertBadge user={user} />
+            {badges}
+            <CertBadge user={lu} />
           </div>;
       })
     }
     </div>
   </>;
-};
+}
 
-const Rack : React.FC<{launchId, rackId, cards : iCard[] | undefined}> = ({ launchId, rackId, cards, ...props }) => {
-  const rack = useLiveQuery(() => rackId != null ? db.racks.get(parseInt(rackId)) : undefined, [rackId]);
-  const pads = useLiveQuery(() => launchId != null
-    ? db.pads
-      .where({ launchId })
-      .filter(pad => pad.rackId == rackId)
-      .toArray()
-    : undefined, [launchId]);
+function rsoUsers(user : iUser, perm : iPerm) {
+  return perm?.rso !== undefined;
+}
 
-  return <>
-    <h5 className='mt-5 text-center text-secondary' >{rack?.name || 'Unnamed Rack'}</h5>
-    <div className='deck' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(5em, 2fr))' }} {...props}>
-      {
-        pads?.map(pad => {
-          const padCards = cards?.filter(c => c.padId === pad.id) ?? [];
-          const card = padCards.length == 1 ? padCards[0] : undefined;
-
-          let body;
-          if (padCards?.length > 1) {
-            body = <span className='text-danger text-center'>  Multiple fliers {'\u26a0'}</span>;
-          } else if (padCards.length == 1) {
-            body = <span className='cursor-default'>
-              {card?._user?.name}
-              {/* {card?.rocket?.manufacturer} - {card?.rocket?.name} */}
-            </span>;
-          }
-
-          // if (!card) return null;
-
-          return <div key={pad.id} style={{ opacity: padCards.length ? 1 : 0.5 }} className='border border-dark rounded p-2'>
-              <span style={{ float: 'left' }} className='bg-dark text-white rounded px-2 mr-2'>
-                Pad {pad.name}
-              </span>
-            {body}
-          </div>;
-        })
-      }
-    </div>
-  </>;
-};
+function lcoUsers(user : iUser, perm : iPerm) {
+  return perm?.lco !== undefined;
+}
 
 function Launch({ match, history }) {
   const { currentUserId } = useContext(appContext);
+  const [userFilter, setUserFilter] = useState<(user : iUser, perm : iPerm) => boolean>();
 
   const launchId = useParams<{launchId : string }>().launchId;
-  const launch = db.launches.useValue(launchId);
+  const launchUser = db.launchUser.useValue(launchId, currentUserId);
 
-  const launchUsers = db.launchUsers.useValue(launchId);
-  const pads = db.pads.useValue<Record<string, iPad>>(launchId);
+  if (!currentUserId || !launchId || !launchUser) return <Waiver userId={currentUserId as string} launchId={launchId} />;
 
-  const launchUser = launchUsers?.[currentUserId];
-
-  const users = launchUsers ? Object.values(launchUsers) : [];
-
-  if (!launch) return <Loading wat='Launch data' />;
-
-  users.sort(nameComparator);
-
-  if (!launchUser) return <Waiver userId={currentUserId} launchId={launchId} />;
+  let title;
+  switch (userFilter) {
+    case lcoUsers: title = 'Launch Control Officers (LCOs)'; break;
+    case rsoUsers: title = 'Range Safety Officers (RSOs)'; break;
+    default: title = 'All Attendees';
+  }
 
   return <>
     <Tabs defaultActiveKey='lco' onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
@@ -187,16 +152,13 @@ function Launch({ match, history }) {
         <Cards />
       </Route>
 
-      <Route path={`${match.path}/rso`}>
-        <UserGroup users={users} role='rso'>Range Safety</UserGroup>
-      </Route>
-
       <Route path={`${match.path}/users`}>
-        <UserGroup users={users} >Attendees</UserGroup>
-      </Route>
-
-      <Route path={`${match.path}/lco`}>
-        <UserGroup users={users} role='lco'>Launch Control Officers</UserGroup>
+        <ButtonGroup className='mt-4'>
+          <Button active={!userFilter} onClick={() => setUserFilter(undefined)}>All</Button>
+          <Button active={userFilter === lcoUsers} onClick={() => setUserFilter(() => lcoUsers)}>LCOs</Button>
+          <Button active={userFilter === rsoUsers} onClick={() => setUserFilter(() => rsoUsers)}>RSOs</Button>
+        </ButtonGroup>
+        <UserGroup launchId={launchId} filter={userFilter}>{title}</UserGroup>
         {
           launchUser.role == 'flier'
             ? <Button className='mt-3' href={`${match.url}/cards/create`}>New Flight Card</Button>
@@ -206,6 +168,13 @@ function Launch({ match, history }) {
           // racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
         }
       </Route>
+
+      <Route path={`${match.path}/lco`}>
+      </Route>
+
+      <Route path={`${match.path}/rso`}>
+      </Route>
+
     </Switch>
   </>;
 }

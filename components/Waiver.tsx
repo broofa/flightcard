@@ -13,13 +13,12 @@ function launchAgree(launchId : string, user : iUser) {
     verified: false,
     waiverSignedDate: (new Date()).toISOString()
   };
-  db.launchUsers.set(`${launchId}/${user.id}`, launchUser);
+  db.launchUser.update(launchId, user.id, launchUser);
 }
 
 export function Waiver({ userId, launchId } : {userId : string, launchId : string}) {
-  console.log(launchId, userId);
   const history = useHistory();
-  const user = db.users.useValue(userId);
+  const user = db.user.useValue(userId);
   const TERMS = [
     'I understand and agree to the above terms',
     'I meet all requirements set by the event organizers (e.g. membership, release forms, age requirements, etc.)'
