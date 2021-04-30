@@ -5,16 +5,18 @@ import 'firebase/auth';
 
 import { useState, useEffect } from 'react';
 
-firebase.initializeApp({
-  apiKey: 'AIzaSyARx6u575DX4gjtzhHzT86DJ34s5GHxmRo',
-  authDomain: 'flightcard-63595.firebaseapp.com',
-  projectId: 'flightcard-63595',
-  databaseURL: 'https://flightcard-63595-default-rtdb.firebaseio.com/',
-  storageBucket: 'flightcard-63595.appspot.com',
-  messagingSenderId: '816049894238',
-  appId: '1:816049894238:web:1ff228f2c97ad5ecc215cf',
-  measurementId: 'G-HFR5HRJG36'
-});
+if (!firebase.apps.length) { // Prevents duplicate DBs with HMR'ing
+  firebase.initializeApp({
+    apiKey: 'AIzaSyARx6u575DX4gjtzhHzT86DJ34s5GHxmRo',
+    authDomain: 'flightcard-63595.firebaseapp.com',
+    projectId: 'flightcard-63595',
+    databaseURL: 'https://flightcard-63595-default-rtdb.firebaseio.com/',
+    storageBucket: 'flightcard-63595.appspot.com',
+    messagingSenderId: '816049894238',
+    appId: '1:816049894238:web:1ff228f2c97ad5ecc215cf',
+    measurementId: 'G-HFR5HRJG36'
+  });
+}
 
 (window as any).firebase = firebase;
 
@@ -44,6 +46,7 @@ function set<T>(...args) {
 function update<T>(...args) {
   args = [...args];
   const state : T = args.pop();
+  for (const k in state) if (state[k] === undefined) (state as any)[k] = null;
   return _ref(...args).update(state);
 }
 
@@ -63,7 +66,7 @@ function useValue<T>(...args) {
     const onValue = s => setVal(s.val());
     ref.on('value', onValue);
     return () => ref.off('value', onValue);
-  }, [key]);
+  }, [...args]);
 
   return val;
 }

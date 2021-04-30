@@ -3,72 +3,68 @@ import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
 import { Switch, Route, useHistory } from 'react-router-dom';
-import { iLaunch, iUser, tRole } from '../types';
-import { Navbar, Nav, NavDropdown, Button } from 'react-bootstrap';
-import { Loading, usePrevious } from './util';
+import { iLaunch, iLaunchUser, iUser, tRole } from '../types';
+import { Navbar, Nav, NavDropdown, Button, ButtonGroup } from 'react-bootstrap';
+import { CLOSE_SOUND, Loading, OPEN_SOUND, playSound, usePrevious } from './util';
 import { auth, db } from '../firebase';
 import Admin from './Admin';
-// Search "Game tone digital slightly futuristic" on zapsplat
-import openSoundUrl from 'url:/sounds/zapsplat_53870.mp3';
-import closeSoundUrl from 'url:/sounds/zapsplat_53869.mp3';
-
-const audOpen = window.aud = new Audio(openSoundUrl);
-const audClose = window.aud = new Audio(closeSoundUrl);
 
 export const APPNAME = 'FlightCard';
 
 type AppContextState = {
-  currentUserId ?: string,
   currentUser ?: iUser
-
-  currentLaunchId ?: string,
   currentLaunch ?: iLaunch
+  currentLaunchUser ?: iLaunchUser
 };
 
 export const appContext = React.createContext<AppContextState>({});
 
-function RangeStatus({ launchId, rangeOpen, enabled }) {
+function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) {
+  const [muted, setMuted] = useState(false);
+  const { rangeOpen } = launch;
   const prev = usePrevious(rangeOpen);
 
-  if (prev != rangeOpen) {
-    const snd = rangeOpen ? audOpen : audClose;
-    snd.currentTime = 0;
-    snd.play();
-    console.log('Sound for', rangeOpen);
-  }
-
   async function rangeClick() {
-    await db.launch.update(launchId, { rangeOpen: !rangeOpen });
+    await db.launch.update(launch.id, { rangeOpen: !rangeOpen });
   }
 
-  const rangeClass = rangeOpen ? 'success' : 'danger';
-  const rangeText = `Range is ${rangeOpen ? 'Open' : 'Closed'}`;
+  if (!muted && prev !== undefined && prev != rangeOpen) playSound(rangeOpen ? OPEN_SOUND : CLOSE_SOUND);
 
-  return enabled
-    ? <Button className={`flex-grow-1 bg-${rangeClass}`} onClick={rangeClick}>{rangeText}</Button>
-    : <span className={`flex-grow-1 cursor-default text-center font-weight-bold  text-${rangeClass}`}>{rangeText}</span>;
+  const variant = rangeOpen ? 'success' : 'danger';
+  const text = `Range is ${rangeOpen ? 'Open' : 'Closed'}`;
+
+  return <ButtonGroup className='flex-grow-1'>
+      {
+        isLCO
+          ? <Button variant={variant} onClick={rangeClick}>{text}</Button>
+          : <Button variant={`outline-${variant}`} style={{ opacity: 1 }} disabled>{text}</Button>
+      }
+    <Button variant={ variant } title='Toggle announcement volume' className='flex-grow-0' onClick={() => setMuted(!muted)}>{muted ? '\u{1F507}' : '\u{1F508}'}</Button>
+  </ButtonGroup>
+  ;
 }
 
-function RoleDropdown({ userId, launchId }) {
+function RoleDropdown({ launch, user } : {launch : iLaunch, user : iUser}) {
+  const perm = db.launchPerm.useValue(launch.id, user.id);
+  const launchUser = db.launchUser.useValue(launch.id, user.id);
+
   function setRole(role : tRole | undefined) {
-    // db.launchUser.update(launchId, userId, { role });
+    db.launchUser.update(launch.id, user.id, { role });
   }
 
-  const canFly = true; // launchUser.permissions?.includes('flier');
-  const canLCO = true; // launchUser.permissions?.includes('lco');
-  const canRSO = true; // launchUser.permissions?.includes('rso');
-  const roleTitle = 'TBD'; // launchUser?.role?.toUpperCase() ?? 'Spectator'
+  if (!perm || !launchUser) return null;
 
-  return <NavDropdown title={`My Role: ${roleTitle}`} id='collasible-nav-dropdown'>
-    <NavDropdown.Item onClick={() => setRole(undefined)}>Spectator</NavDropdown.Item>
-    {canFly ? <NavDropdown.Item onClick={() => setRole('flier')}>Flier</NavDropdown.Item> : null }
-    {canLCO ? <NavDropdown.Item onClick={() => setRole('lco')}>Launch Control Officer</NavDropdown.Item> : null }
-    {canRSO ? <NavDropdown.Item onClick={() => setRole('rso')}>Range Safety Officer</NavDropdown.Item> : null }
+  const roleTitle = launchUser.role?.toUpperCase() ?? 'Off Duty';
+
+  return <NavDropdown title={roleTitle} id='collasible-nav-dropdown'>
+    <NavDropdown.Item onClick={() => setRole(undefined)}>Off Duty</NavDropdown.Item>
+    {perm?.lco && <NavDropdown.Item onClick={() => setRole('lco')}>LCO</NavDropdown.Item> }
+    {perm?.rso && <NavDropdown.Item onClick={() => setRole('rso')}>RSO</NavDropdown.Item> }
   </NavDropdown>;
 }
 
 export default function App() {
-  const [currentUserId, setCurrentUserId] = useState<string>();
+  const [userId, setUserId] = useState<string>();
   // const [ctx, setCtx] = useState({});
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const history = useHistory();
@@ -80,55 +76,59 @@ export default function App() {
         id: authUser.uid,
         name: authUser.displayName ?? '(guest)'
       });
-      setCurrentUserId(authUser.uid);
+      setUserId(authUser.uid);
     } else {
-      setCurrentUserId(undefined);
+      setUserId(undefined);
     }
 
     setIsLoadingUser(false);
   }), []);
 
-  const currentUser = db.user.useValue(currentUserId);
-  const currentLaunchId = currentUser?.currentLaunchId;
-  const currentLaunch = db.launch.useValue(currentLaunchId);
+  const currentUser = db.user.useValue(userId);
+  const currentLaunch = db.launch.useValue(currentUser?.currentLaunchId);
+  const currentLaunchUser = db.launchUser.useValue(currentLaunch?.id, currentUser?.id);
 
-  const ctx : AppContextState = {
-    currentUserId,
-    currentUser,
-    currentLaunchId,
-    currentLaunch
-  };
+  const ctx : AppContextState = { currentUser, currentLaunch, currentLaunchUser };
 
-  const atLaunch = currentUser && currentLaunch;
-
-  const canUpdateRange = true; // /lco/.test(launchUser?.role ?? '');
+  console.log('LOD', currentLaunch?.id, currentUser?.id, currentLaunchUser?.id);
 
   return <appContext.Provider value={ctx}>
     <Navbar expand='md' bg='dark' variant='dark'>
-      <Navbar.Brand onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
-      {currentLaunchId && currentLaunch
-        ? <div className='flex-grow-1 d-flex align-items-baseline'>
-            <Nav.Link onClick={() => history.push(`/launches/${currentLaunchId}`)} className='mr-3 flex-grow-0 text-nowrap'>{currentLaunch?.name}</Nav.Link>
-            <RangeStatus rangeOpen={currentLaunch.rangeOpen} launchId={currentLaunchId} enabled={canUpdateRange} />
-          </div>
-        : <div className='flex-grow-1' />
-      }
       <Navbar.Toggle aria-controls='responsive-navbar-nav' />
+
+      <Navbar.Brand onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
+
+      {
+        currentLaunch
+          ? <div className='flex-grow-1 d-flex align-items-baseline'>
+              <Nav.Link onClick={() => history.push(`/launches/${currentLaunch.id}`)} className='mr-3 flex-grow-0 text-nowrap'>{currentLaunch?.name}</Nav.Link>
+              <RangeStatus launch={currentLaunch} isLCO={currentLaunchUser?.role == 'lco'} />
+            </div>
+          : <div className='flex-grow-1' />
+      }
+
       <Navbar.Collapse id='responsive-navbar-nav' className='flex-grow-0'>
-        {atLaunch ? <RoleDropdown userId={currentUserId} launchId={currentLaunchId} launch={currentLaunch} /> : null}
+        {
+          currentUser && currentLaunch && <RoleDropdown user={currentUser} launch={currentLaunch} />
+        }
+
         {
           currentUser?.id == '2ec4MLwSZ2dwRBIjGzTVIxDU09i1'
             ? <Nav.Link onClick={() => history.push('/admin')}>{'\u2620'}</Nav.Link>
             : null
         }
-        <Nav.Link onClick={() => auth().signOut()}>Logout</Nav.Link>
+
+        {
+          currentUser && <Nav.Link onClick={() => auth().signOut()}>Logout</Nav.Link>
+        }
       </Navbar.Collapse>
+
     </Navbar>
 
     <div style={{ margin: '.5em 1em 0 1em' }}>
     {
       isLoadingUser
-        ? <Loading wat='User' />
+        ? <Loading wat='User (App)' />
         : !currentUser
             ? <Login />
             : <Switch>

@@ -1,4 +1,4 @@
-export type tRole = 'flier' | 'lco' | 'rso';
+export type tRole = 'lco' | 'rso';
 
 export interface iPerm {
   admin ?: boolean;
@@ -20,6 +20,7 @@ export interface iUser {
 export type iUsers = Record<string, iUser>;
 
 export interface iLaunch {
+  id : string;
   name : string;
   location : string;
   host : string;
@@ -32,6 +33,7 @@ export type iLaunchs = Record<string, iLaunch>;
 export interface iLaunchUser extends iUser {
   waiverSignedDate : string;
   verified : boolean;
+  role ?: tRole;
   lat ?: number;
   lon ?: number;
 }
@@ -66,6 +68,7 @@ export interface iFlight {
 }
 
 export interface iCard {
+  id : string;
   launchId : string;
   userId : string;
   lcoId ?: string;

@@ -6,14 +6,12 @@ import { appContext } from './App';
 import { Loading } from './util';
 
 export default function Launches() {
-  const launches = db.launches.useValue();
-  const ctx = useContext(appContext);
-  const { currentUser } = ctx;
-
   const history = useHistory();
+  const launches = db.launches.useValue();
+  const { currentUser } = useContext(appContext);
 
+  if (!currentUser) return <Loading wat='User (Launches)' />;
   if (!launches) return <Loading wat='Launches' />;
-  if (!currentUser) return <Loading wat='User' />;
 
   return <>
     <p>The following launches are currently available for checkin:</p>

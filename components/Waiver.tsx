@@ -16,17 +16,16 @@ function launchAgree(launchId : string, user : iUser) {
   db.launchUser.update(launchId, user.id, launchUser);
 }
 
-export function Waiver({ userId, launchId } : {userId : string, launchId : string}) {
+export function Waiver({ user, launchId } : {user : iUser, launchId : string}) {
   const history = useHistory();
-  const user = db.user.useValue(userId);
   const TERMS = [
     'I understand and agree to the above terms',
     'I meet all requirements set by the event organizers (e.g. membership, release forms, age requirements, etc.)'
   ];
   const checkStates = TERMS.map(() => useState(false));
 
-  if (!user) return <Loading wat="User" />;
-  if (!launchId) return <Loading wat="Launch ID" />;
+  if (!user) return <Loading wat='User' />;
+  if (!launchId) return <Loading wat='Launch ID' />;
 
   const allChecked = checkStates.reduce((a, [b]) => a && b, true);
 
@@ -49,17 +48,17 @@ export function Waiver({ userId, launchId } : {userId : string, launchId : strin
 
     <ul>{checkStates.map(([checked, setChecked], i) => <li key={i} style={{ listStyle: 'none', color: checked ? 'green' : 'red' }}>
       <label>
-        <input type="checkbox" style={{ marginRight: '.5em' }}
-          className="waiver-check"
+        <input type='checkbox' style={{ marginRight: '.5em' }}
+          className='waiver-check'
           onChange={e => setChecked(e.target.checked)} />
         {TERMS[i]}
       </label>
     </li>
     )}</ul>
 
-    <div className="d-flex">
+    <div className='d-flex'>
       <Button disabled={!allChecked} onClick={() => launchAgree(launchId, user)}>I Agree</Button>
-      <span className="flex-grow-1" />
+      <span className='flex-grow-1' />
       <Button variant='danger' onClick={() => history.goBack()}>I Do Not Agree</Button>
     </div>
   </>;

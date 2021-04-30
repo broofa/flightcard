@@ -70,7 +70,7 @@ async function seedLaunches() : Promise<iLaunchs> {
     // { name: 'Sod Blaster (TCR)', startDate: 'Sep 4', endDate: 'Sep 6' },
     // { name: 'Fillible\'s Folly', startDate: 'Sep 17', endDate: 'Sep 19' },
     // { name: 'Rocketober', startDate: 'Oct 15', endDate: 'Oct 17' }
-  ].map(l => ({ host: 'OROC', location: 'Brothers, Oregon', ...l } as iLaunch));
+  ].map(l => ({ id: genId('launch'), host: 'OROC', location: 'Brothers, Oregon', ...l } as iLaunch));
 
   const entries = await Promise.all(
     ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
@@ -209,6 +209,7 @@ async function purge(path) {
 let seeding = false;
 async function seedDB() {
   if (seeding) return;
+  if (!confirm('Are you sure?  This will remove all previously seeded launch state.')) return;
   seeding = true;
   log.clear();
   seedId = 0;
@@ -253,7 +254,7 @@ export default function Admin() {
   _log.onLog = () => setLogLength(_log.length);
 
   return <>
-    <Button onClick={seedDB}>Seed DB</Button>
+    <Button variant='warning' onClick={seedDB} >Seed DB</Button>
     <div className='mt-4 text-dark text-monospace' style={{ fontSize: '9pt' }}>
       {
         _log.map((args, i) => {

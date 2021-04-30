@@ -1,12 +1,12 @@
-import React, { useState, useContext } from 'react';
-import { Switch, Route, useParams, Link } from 'react-router-dom';
+import React, { useState, ReactNode, useContext } from 'react';
+import { Switch, Route, useParams, Redirect } from 'react-router-dom';
 import { Form, Modal, Button, Tabs, Tab, Badge, ButtonGroup } from 'react-bootstrap';
 import { iUser, tRole, iLaunchUser, iPerm } from '../types';
 import Cards from './Cards';
 import { Waiver } from './Waiver';
-import { appContext } from './App';
 import { Loading } from './util';
 import { db } from '../firebase';
+import { appContext } from './App';
 
 export function nameComparator(a, b) : number {
   a = a?.name;
@@ -14,7 +14,7 @@ export function nameComparator(a, b) : number {
   return a < b ? -1 : b < a ? 1 : 0;
 }
 
-const CertBadge : React.FC<{user : iUser}> = ({ user, ...props }) => {
+const CertBadge : React.FC<{user : iUser, className : string}> = ({ user, className, ...props }) => {
   if (!user?.certType) return null;
 
   const { certType, certLevel } = user;
@@ -22,52 +22,49 @@ const CertBadge : React.FC<{user : iUser}> = ({ user, ...props }) => {
   if (certLevel == 2) backgroundColor = 'chocolate';
   if (certLevel == 3) backgroundColor = 'brown';
 
-  return <Badge pill className='mx-2 text-uppercase' style={{ backgroundColor }}
+  return <Badge pill className={`${className ?? ''} text-uppercase`} style={{ backgroundColor }}
     variant='secondary' {...props}>
     {certType.toUpperCase()} {certLevel}
   </Badge>;
 };
 
-function UserEditor({ user, onHide } : {user : iUser, onHide : () => void }) {
-  if (!user) throw Error('Invalid user');
+function UserEditor({ launchId, user, onHide } : {launchId : string, user : iLaunchUser, onHide : () => void }) {
+  const perm = db.launchPerm.useValue(launchId, user.id);
 
-  const { name, id, launchUser } = user;
-  if (!launchUser) throw Error('Invalid launch user');
-
-  const { permissions, verified } = launchUser;
+  if (!user) throw Error('User not defined');
+  if (!perm === undefined) return <Loading wat='User permissions' />;
 
   const onVerify = function(e) {
-    launchUser.verified = e.target.checked;
-    // db.launchUsers.put(launchUser);
+    user.verified = e.target.checked;
+    db.launchUser.update(launchId, user.id, { verified: !!e.target.checked });
   };
 
   return <Modal size='lg' show={true} onHide={onHide}>
     <Modal.Header closeButton>
-      <Modal.Title>{name || '(anonymous)'} <CertBadge user={user}/> </Modal.Title>
+      <Modal.Title>{user.name || '(anonymous)'} <CertBadge className='' user={user}/> </Modal.Title>
     </Modal.Header>
 
     <Modal.Body>
 
-    {verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
+    {user.verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
     <Form.Switch inline id={'verified'}
       className='ml-2'
       label='Certification card verified by LCO, RSO, or event host'
       onChange={onVerify}
-      checked={verified} />
+      checked={user.verified} />
     <h5 className='mt-3'>Qualified For:</h5>
     {
-      (['lco', 'rso'] as tRole[]).map(perm => {
+      (['lco', 'rso'] as tRole[]).map(role => {
         const onChange = function(e) {
-          launchUser.permissions = launchUser.permissions.filter(p => p != perm);
-          if (e.target.checked) launchUser.permissions.push(perm);
-          // db.launchUsers.put(launchUser);
+          const up = { [role]: e.target.checked ? true : null };
+          db.launchPerm.update(launchId, user.id, up);
         };
 
-        return <Form.Switch inline key={id + perm} id={id + perm}
+        return <Form.Switch inline key={user.id + role} id={user.id + role}
           className='ml-2'
-          label={perm.toUpperCase()}
+          label={role.toUpperCase()}
           onChange={onChange}
-          checked={permissions?.includes(perm)} />;
+          checked={perm?.[role] !== undefined} />;
       })
     }
     </Modal.Body>
@@ -76,7 +73,7 @@ function UserEditor({ user, onHide } : {user : iUser, onHide : () => void }) {
 
 function UserGroup({ launchId, filter, children, ...props } :
   {launchId : string, filter ?: (user : iLaunchUser, perm : iPerm) => boolean, children : any}) {
-  const [editingUser, setEditingUser] = useState<iUser | null>(null);
+  const [editUser, setEditUser] = useState<iLaunchUser>();
   const launchUsers = db.launchUsers.useValue(launchId);
   const perms = db.launchPerms.useValue(launchId);
   const launch = db.launch.useValue(launchId);
@@ -86,29 +83,29 @@ function UserGroup({ launchId, filter, children, ...props } :
   return <>
     <h3 className='d-flex mt-4'>{children}</h3>
 
-    {editingUser ? <UserEditor user={editingUser} onHide={() => setEditingUser(null)} /> : null}
+    {editUser ? <UserEditor launchId={launchId} user={editUser} onHide={() => setEditUser(undefined)} /> : null}
 
     <div className='deck' {...props}>
       {
-      Object.values(launchUsers).map(lu => {
+      Object.values(launchUsers).sort(nameComparator).map(lu => {
         const perm = perms[lu.id];
         if (filter && !filter(lu, perm)) return null;
 
         const { id, name } = lu;
 
-        const badges = [];
-        if (perm?.lco !== undefined) badges.push(<Badge key='lco' pill variant={perm.lco ? 'success' : 'light'}>LCO</Badge>);
-        if (perm?.rso !== undefined) badges.push(<Badge key='rso' pill variant={perm.rso ? 'info' : 'light'}>RSO</Badge>);
+        const badges : ReactNode[] = [];
+        if (perm?.lco !== undefined) badges.push(<Badge key='lco' className='ml-1' pill variant={lu.role == 'lco' ? 'primary' : 'light'}>LCO</Badge>);
+        if (perm?.rso !== undefined) badges.push(<Badge key='rso' className='ml-1' pill variant={lu.role == 'rso' ? 'primary' : 'light'}>RSO</Badge>);
 
         const cn = 'd-flex border-bottom rounded border-dark text-nowrap py-1 px-3';
 
-        return <div key={id} className={cn} onClick={() => setEditingUser(lu)}>
+        return <div key={id} className={cn} onClick={() => setEditUser(lu)}>
             <span className='flex-grow-1 cursor-default mr-2' style={{ lineHeight: 1 }}>
               {lu.verified ? null : <span className='text-danger font-weight-bold mr-1'>{'\u26a0'}</span>}
               {name || '(anonymous)'}
             </span>
             {badges}
-            <CertBadge user={lu} />
+            <CertBadge className='ml-1' user={lu} />
           </div>;
       })
     }
@@ -125,13 +122,14 @@ function lcoUsers(user : iUser, perm : iPerm) {
 }
 
 function Launch({ match, history }) {
-  const { currentUserId } = useContext(appContext);
   const [userFilter, setUserFilter] = useState<(user : iUser, perm : iPerm) => boolean>();
 
+  const { currentUser } = useContext(appContext);
   const launchId = useParams<{launchId : string }>().launchId;
-  const launchUser = db.launchUser.useValue(launchId, currentUserId);
+  const launchUser = db.launchUser.useValue(launchId, currentUser?.id);
 
-  if (!currentUserId || !launchId || !launchUser) return <Waiver userId={currentUserId as string} launchId={launchId} />;
+  if (!currentUser) return <Loading wat='User (Launch)' />;
+  if (!launchId || !launchUser) return <Waiver user={currentUser} launchId={launchId} />;
 
   let title;
   switch (userFilter) {
@@ -159,20 +157,16 @@ function Launch({ match, history }) {
           <Button active={userFilter === rsoUsers} onClick={() => setUserFilter(() => rsoUsers)}>RSOs</Button>
         </ButtonGroup>
         <UserGroup launchId={launchId} filter={userFilter}>{title}</UserGroup>
-        {
-          launchUser.role == 'flier'
-            ? <Button className='mt-3' href={`${match.url}/cards/create`}>New Flight Card</Button>
-            : null
-        }
+        <Button className='mt-3' onClick={() => history.push(`${match.url}/cards/create`)}>New Flight Card</Button>
         {
           // racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
         }
       </Route>
 
-      <Route path={`${match.path}/lco`}>
-      </Route>
-
-      <Route path={`${match.path}/rso`}>
+      <Route path={`${match.path}/lco`} />
+      <Route path={`${match.path}/rso`} />
+      <Route>
+          <Redirect to={`${match.url}/users`} />
       </Route>
 
     </Switch>

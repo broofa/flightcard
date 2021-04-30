@@ -20,3 +20,12 @@ body {
   gap: 1em;
   grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
 }
+
+.privileged { /*  For admin-only features */
+  background: repeating-linear-gradient(-45deg,
+    rgba(128, 128, 0, .8),
+    rgba(128, 128, 0, .8) 10px,
+    rgba(0, 0, 0, .1) 10px,
+    rgba(0, 0, 0, .1) 20px
+  );
+}
