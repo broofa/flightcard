@@ -1,29 +1,32 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import db, { tRole } from '../db';
+import { db } from '../firebase';
 import { APPNAME } from './App';
+import { iLaunchUser, iUser } from '../types';
+import { Loading } from './util';
 
-export function Waiver({ userId, launchId }) {
+function launchAgree(launchId : string, user : iUser) {
+  // TODO: Vet this for legal discoverability?
+  const launchUser : iLaunchUser = {
+    ...user,
+    waiverSignedDate: (new Date()).toISOString()
+  };
+  db.launchUser.update(launchId, user.id, launchUser);
+}
+
+export function Waiver({ user, launchId } : {user : iUser, launchId : string}) {
   const history = useHistory();
-
-  function agree() {
-    // IMPORTANT: This action needs to be legally discoverable!
-    const launchUser = {
-      launchId,
-      userId,
-      verified: false,
-      permissions: ['lco', 'rso', 'flier'] as tRole[],
-      agreedAt: (new Date()).toISOString()
-    };
-    db.launchUsers.put(launchUser);
-  }
-
-  const terms = [
+  const TERMS = [
     'I understand and agree to the above terms',
     'I meet all requirements set by the event organizers (e.g. membership, release forms, age requirements, etc.)'
   ];
-  const checkStates = terms.map(() => useState(false));
+  const checkStates = TERMS.map(() => useState(false));
+  const launch = db.launch.useValue(launchId);
+
+  if (!user) return <Loading wat='User' />;
+  if (!launch) return <Loading wat='Launch' />;
+
   const allChecked = checkStates.reduce((a, [b]) => a && b, true);
 
   return <>
@@ -45,17 +48,17 @@ export function Waiver({ userId, launchId }) {
 
     <ul>{checkStates.map(([checked, setChecked], i) => <li key={i} style={{ listStyle: 'none', color: checked ? 'green' : 'red' }}>
       <label>
-        <input type="checkbox" style={{ marginRight: '.5em' }}
-          className="waiver-check"
+        <input type='checkbox' style={{ marginRight: '.5em' }}
+          className='waiver-check'
           onChange={e => setChecked(e.target.checked)} />
-        {terms[i]}
+        {TERMS[i]}
       </label>
     </li>
     )}</ul>
 
-    <div className="d-flex">
-      <Button disabled={!allChecked} onClick={agree}>I Agree</Button>
-      <span className="flex-grow-1" />
+    <div className='d-flex'>
+      <Button disabled={!allChecked} onClick={() => launchAgree(launchId, user)}>I Agree</Button>
+      <span className='flex-grow-1' />
       <Button variant='danger' onClick={() => history.goBack()}>I Do Not Agree</Button>
     </div>
   </>;

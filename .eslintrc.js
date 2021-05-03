@@ -21,6 +21,8 @@ module.exports = {
   },
   rules: {
     eqeqeq: 'off',
+    'jsx-quotes': ['error', 'prefer-single'],
+    'no-redeclare': 'off',
     'no-return-assign': 'off',
     'no-use-before-define': 'off',
     'no-var': ['error'],
