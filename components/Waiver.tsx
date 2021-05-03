@@ -7,10 +7,9 @@ import { iLaunchUser, iUser } from '../types';
 import { Loading } from './util';
 
 function launchAgree(launchId : string, user : iUser) {
-  // IMPORTANT: This action needs to be legally discoverable!
+  // TODO: Vet this for legal discoverability?
   const launchUser : iLaunchUser = {
     ...user,
-    verified: false,
     waiverSignedDate: (new Date()).toISOString()
   };
   db.launchUser.update(launchId, user.id, launchUser);
@@ -23,9 +22,10 @@ export function Waiver({ user, launchId } : {user : iUser, launchId : string}) {
     'I meet all requirements set by the event organizers (e.g. membership, release forms, age requirements, etc.)'
   ];
   const checkStates = TERMS.map(() => useState(false));
+  const launch = db.launch.useValue(launchId);
 
   if (!user) return <Loading wat='User' />;
-  if (!launchId) return <Loading wat='Launch ID' />;
+  if (!launch) return <Loading wat='Launch' />;
 
   const allChecked = checkStates.reduce((a, [b]) => a && b, true);
 

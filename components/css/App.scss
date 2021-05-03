@@ -6,8 +6,12 @@ body {
   margin-bottom: 2em;
 }
 
-.cursor-default {
-  cursor: default;
+h1 {}
+h2 {font-size: 1.5rem}
+h3 {font-size: 1.25rem}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 .nav-active {

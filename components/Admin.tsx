@@ -1,8 +1,9 @@
+import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { iUser, iLaunchUser, iCard, iPad, iFlight, iUsers, iLaunchs, iLaunchUsers, iPads, iPerm, iPerms, iLaunch } from '../types';
-import { NAMES, createRocket, rnd, rndItem } from './mock_data';
-import { database } from '../firebase';
+import { database, DELETE } from '../firebase';
+import { iCard, iCert, iLaunch, iLaunchs, iLaunchUser, iLaunchUsers, iPad, iPads, iPerm, iPerms, iUser, iUsers } from '../types';
+import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
@@ -14,7 +15,6 @@ function genId(path) {
 // "Hey, some sort of logging would be nice, but I don't want to think too hard about it...""
 const _log : any = [];
 function log(...args) {
-  args = [...args];
   _log.push(args);
   _log.onLog?.();
   console.log(...args);
@@ -33,20 +33,24 @@ async function seedUsers() : Promise<iUsers> {
   const RESOURCE = 'users';
   log('Seeding', RESOURCE);
 
-  const ALL : iUser[] = NAMES.slice(0, 25).map((name, i) => {
+  const ALL : iUser[] = NAMES.slice(0, 100).map((name, i) => {
+    name = name + ' \u0307'; // Add a superscript dot so we know who the seeded users are
+    const n = Math.random();
+    let photoURL : string | null = null;
+
+    if (n < 0.3) {
+      photoURL = `https://randomuser.me/api/portraits/men/${rnd(100)}.jpg`;
+    } else if (n < 0.6) {
+      photoURL = `https://randomuser.me/api/portraits/women/${rnd(100)}.jpg`;
+    } else if (n < 0.7) {
+      photoURL = `https://randomuser.me/api/portraits/lego/${rnd(10)}.jpg`;
+    }
+
     const user = {
       name,
-      id: genId('user')
+      id: genId('user'),
+      photoURL
     };
-
-    if (i % 10 < 8) {
-      Object.assign(user, {
-        certLevel: rndItem([1, 1, 1, 2, 2, 2, 3]),
-        certType: rndItem(['tra', 'nar']),
-        certNumber: (3000 + rnd(15000)),
-        certExpires: (new Date(Date.now() + rnd(365 * 24 * 3600e3))).toLocaleDateString()
-      });
-    }
 
     return user as iUser;
   });
@@ -83,16 +87,33 @@ async function seedLaunchUsers(launchId : string, users : iUsers) : Promise<iLau
 
   log('Seeding', RESOURCE);
 
-  // Seed launchUsers
-  const ALL : iLaunchUser[] = Object.values(users).slice(0, 10).map(u => ({
-    ...u,
-    verified: rndItem([true, true, true, false]),
-    waiverSignedDate: (new Date()).toISOString(),
+  const LAUNCH_USERS = Object.values(users).slice(0, 20);
 
-    // Coords around Brothers, OR
-    lat: 43.7954 + Math.random() * 0.0072,
-    lon: -120.6535 + Math.random() * 0.0109
-  } as iLaunchUser));
+  // Seed launchUsers
+  const ALL : iLaunchUser[] = LAUNCH_USERS.map(user => {
+    const cert = {
+      level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3])
+    } as iCert;
+
+    if (cert.level) {
+      cert.type = rndItem(['tra', 'nar']);
+      cert.number = (3000 + rnd(15000));
+      cert.expires = (new Date(Date.now() + rnd(365 * 24 * 3600e3))).toLocaleDateString();
+      if (Math.random() < 0.3) {
+        cert.verifiedId = rndItem(LAUNCH_USERS).id;
+        cert.verifiedDate = (new Date()).toISOString();
+      }
+    }
+
+    return {
+      ...user,
+      cert
+
+      // Coords around Brothers, OR
+      // lat: 43.7954 + Math.random() * 0.0072,
+      // lon: -120.6535 + Math.random() * 0.0109
+    } as iLaunchUser;
+  });
 
   const entries = await Promise.all(
     ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
@@ -106,9 +127,9 @@ async function seedPermissions(launchId : string, users : iLaunchUsers) {
   log('Seeding', RESOURCE);
 
   const perms : iPerms = {};
-  Object.values(users).forEach((lu, i) => {
-    const perm : iPerm = perms[lu.id] = {};
-    if ((lu.certLevel ?? -1) >= 2) {
+  Object.values(users).forEach((launchUser, i) => {
+    const perm : iPerm = perms[launchUser.id] = {};
+    if ((launchUser.cert?.level ?? -1) >= 2) {
       if (i % 10 < 4) perm.lco = Math.random() < 0.5;
       if (i % 5 < 1) perm.rso = Math.random() < 0.5;
     }
@@ -159,31 +180,25 @@ async function seedCards(launchId : string, launchUsers : iLaunchUsers, pads : i
 
   // Seed launchUsers
   const ALL : iCard[] = [];
-  for (const lu of Object.values(launchUsers).slice(0, 10)) {
-    const { id } = lu;
-
+  for (const userId of Object.keys(launchUsers).slice(0, 10)) {
     const rocket = createRocket();
-    const { motor, _mImpulse } = rocket;
-    delete rocket._mImpulse;
-    delete rocket._mBurn;
-    delete rocket._mThrust;
 
-    const flight = {
-      firstFlight: rndItem([true, false]),
-      headsUp: rndItem([true, false]),
-      impulse: _mImpulse,
-      notes: 'Randomly generated flight card'
-    } as iFlight;
+    const { _motor: motor } = rocket;
+    delete rocket._motor;
 
-    if (motor) flight.motor = motor;
-
-    const padId = rndItem(Object.keys(pads));
     ALL.push({
+      id: `${SEED_PREFIX}${nanoid().substr(0, 4)}`,
       launchId,
-      userId: id,
-      padId,
+      userId,
+      padId: rndItem(Object.keys(pads)),
+
+      firstFlight: Math.random() < 0.2 || DELETE,
+      headsUp: Math.random() < 0.2 || DELETE,
+      complex: Math.random() < 0.2 || DELETE,
+      notes: 'Randomly generated flight card',
+
       rocket,
-      flight
+      motor
     } as iCard);
   }
 

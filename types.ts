@@ -1,3 +1,7 @@
+export type DeepPartial<T> = {
+  [P in keyof T] ?: DeepPartial<T[P]>;
+};
+
 export type tRole = 'lco' | 'rso';
 
 export interface iPerm {
@@ -10,12 +14,7 @@ export type iPerms = Record<string, iPerm>;
 export interface iUser {
   id : string;
   name : string;
-  // email ?: string | undefined;
-  currentLaunchId ?: string;
-  certLevel ?: number;
-  certType ?: string;
-  certNumber ?: number;
-  certExpires ?: string;
+  photoURL ?: string;
 }
 export type iUsers = Record<string, iUser>;
 
@@ -30,12 +29,20 @@ export interface iLaunch {
 }
 export type iLaunchs = Record<string, iLaunch>;
 
+export interface iCert {
+  level : number;
+  type : string;
+  number : number;
+  expires : string;
+
+  verifiedId : string; // Id of LaunchUser that verified the ID
+  verifiedDate : string;
+}
+
 export interface iLaunchUser extends iUser {
   waiverSignedDate : string;
-  verified : boolean;
+  cert ?: iCert;
   role ?: tRole;
-  lat ?: number;
-  lon ?: number;
 }
 export type iLaunchUsers = Record<string, iLaunchUser>;
 
@@ -46,36 +53,38 @@ export interface iPad {
 }
 export type iPads = Record<string, iPad>;
 
-export interface iRocket {
-  name : string,
-  manufacturer : string,
-  color : string,
-  diameter : number,
-  length : number,
-  weight : number,
-  motor ?: string,
-  _mImpulse ?: number,
-  _mBurn ?: number,
-  _mThrust ?: number
+export interface iMotor {
+  name ?: string;
+  impulse ?: number; // newton-secs
+  burn ?: number; // secs
+  thrust ?: number // newtons
 }
 
-export interface iFlight {
-  firstFlight : boolean,
-  headsUp : boolean,
-  motor : string,
-  impulse ?: number,
-  notes ?: string
+export interface iRocket {
+  name ?: string;
+  manufacturer ?: string;
+  color ?: string;
+  diameter ?: number; // meters
+  length ?: number; // meters
+  weight ?: number; // kg
+  _motor ?: iMotor;
 }
 
 export interface iCard {
   id : string;
+
   launchId : string;
   userId : string;
   lcoId ?: string;
   rsoId ?: string;
   padId ?: string;
-  rocket : iRocket;
-  flight : iFlight;
-  _user ?: iUser, // Cached in Launch.tsx
+
+  firstFlight ?: boolean;
+  headsUp ?: boolean;
+  complex ?: boolean;
+  notes ?: string;
+
+  rocket ?: iRocket;
+  motor ?: iMotor;
 }
 export type iCards = Record<string, iCard>;

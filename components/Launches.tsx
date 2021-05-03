@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
-import { Card, Button } from 'react-bootstrap';
+import React from 'react';
+import { Button, Card } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { db } from '../firebase';
-import { appContext } from './App';
+import { useCurrentUser } from './App';
 import { Loading } from './util';
 
 export default function Launches() {
   const history = useHistory();
   const launches = db.launches.useValue();
-  const { currentUser } = useContext(appContext);
+  const [currentUser] = useCurrentUser();
 
   if (!currentUser) return <Loading wat='User (Launches)' />;
   if (!launches) return <Loading wat='Launches' />;
@@ -19,9 +19,8 @@ export default function Launches() {
       {
         Object.entries(launches).map(([launchId, l]) => {
           async function onClick() {
-            if (currentUser) {
-              await db.user.update(currentUser.id, { currentLaunchId: launchId });
-            }
+            sessionStorage.setItem('currentLaunchId', launchId);
+            dispatchEvent(new Event('storage')); // storage events don't happen for same-window
 
             history.push(`/launches/${launchId}`);
           }

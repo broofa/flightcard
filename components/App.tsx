@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { auth, db, DELETE } from '../firebase';
+import { iLaunch, iLaunchUser, iUser, tRole } from '../types';
+import Admin from './Admin';
+import './css/App.scss';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
-import { Switch, Route, useHistory } from 'react-router-dom';
-import { iLaunch, iLaunchUser, iUser, tRole } from '../types';
-import { Navbar, Nav, NavDropdown, Button, ButtonGroup } from 'react-bootstrap';
+import sharedStateHook from './sharedStateHook';
 import { CLOSE_SOUND, Loading, OPEN_SOUND, playSound, usePrevious } from './util';
-import { auth, db } from '../firebase';
-import Admin from './Admin';
-
 export const APPNAME = 'FlightCard';
 
-type AppContextState = {
-  currentUser ?: iUser
-  currentLaunch ?: iLaunch
-  currentLaunchUser ?: iLaunchUser
-};
-
-export const appContext = React.createContext<AppContextState>({});
+export const useCurrentUser = sharedStateHook<iUser | undefined>(undefined, 'currentUser');
+export const useCurrentLaunch = sharedStateHook<iLaunch | undefined>(undefined, 'currentLaunch');
+export const useCurrentLaunchUser = sharedStateHook<iLaunchUser | undefined>(undefined, 'currentLaunchUser');
 
 function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) {
   const [muted, setMuted] = useState(false);
@@ -39,7 +36,7 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
           ? <Button variant={variant} onClick={rangeClick}>{text}</Button>
           : <Button variant={`outline-${variant}`} style={{ opacity: 1 }} disabled>{text}</Button>
       }
-    <Button variant={ variant } title='Toggle announcement volume' className='flex-grow-0' onClick={() => setMuted(!muted)}>{muted ? '\u{1F507}' : '\u{1F508}'}</Button>
+    <Button variant={`outline-${variant}`} title='Toggle announcement volume' className='flex-grow-0' onClick={() => setMuted(!muted)}>{muted ? '\u{1F507}' : '\u{1F508}'}</Button>
   </ButtonGroup>
   ;
 }
@@ -64,75 +61,88 @@ function RoleDropdown({ launch, user } : {launch : iLaunch, user : iUser}) {
 }
 
 export default function App() {
-  const [userId, setUserId] = useState<string>();
+  const [authId, setAuthId] = useState<string>();
+  const location = useLocation();
+  const match = matchPath<{currentLaunchId : string}>(location.pathname, '/launches/:currentLaunchId');
+  const { currentLaunchId } = match?.params ?? {};
+
   // const [ctx, setCtx] = useState({});
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const history = useHistory();
 
+  const [currentUser, setCurrentUser] = useCurrentUser();
+  const [currentLaunch, setCurrentLaunch] = useCurrentLaunch();
+  const [currentLaunchUser, setCurrentLaunchUser] = useCurrentLaunchUser();
+
+  const user = db.user.useValue(authId);
+  const launch = db.launch.useValue(currentLaunchId);
+  const launchUser = db.launchUser.useValue(currentLaunchId, user?.id);
+
+  // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
     if (authUser) {
       // Save/Update in-app user state
       await db.user.update(authUser.uid, {
         id: authUser.uid,
-        name: authUser.displayName ?? '(guest)'
+        name: authUser.displayName ?? '(guest)',
+        photoURL: authUser.photoURL ?? DELETE
       });
-      setUserId(authUser.uid);
+      setAuthId(authUser.uid);
     } else {
-      setUserId(undefined);
+      setAuthId(undefined);
     }
 
     setIsLoadingUser(false);
   }), []);
 
-  const currentUser = db.user.useValue(userId);
-  const currentLaunch = db.launch.useValue(currentUser?.currentLaunchId);
-  const currentLaunchUser = db.launchUser.useValue(currentLaunch?.id, currentUser?.id);
+  // Effect: Update shared state if/when it changes
+  useEffect(() => {
+    setCurrentUser(user);
+    setCurrentLaunch(launch);
+    setCurrentLaunchUser(launchUser);
+  }, [user, launch, launchUser]);
 
-  const ctx : AppContextState = { currentUser, currentLaunch, currentLaunchUser };
-
-  console.log('LOD', currentLaunch?.id, currentUser?.id, currentLaunchUser?.id);
-
-  return <appContext.Provider value={ctx}>
-    <Navbar expand='md' bg='dark' variant='dark'>
-      <Navbar.Toggle aria-controls='responsive-navbar-nav' />
-
-      <Navbar.Brand onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
-
+  return <>
+    <Navbar expand='md' bg='dark' variant='dark' className='flex-grow-1 d-flex align-items-baseline'>
+      <Navbar.Brand className='flex-grow-0' onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
       {
         currentLaunch
-          ? <div className='flex-grow-1 d-flex align-items-baseline'>
-              <Nav.Link onClick={() => history.push(`/launches/${currentLaunch.id}`)} className='mr-3 flex-grow-0 text-nowrap'>{currentLaunch?.name}</Nav.Link>
+          ? < >
+              <Nav.Link onClick={() => history.push(`/launches/${currentLaunch.id}`)} className='mr-3 flex-grow-0'>{currentLaunch?.name}</Nav.Link>
               <RangeStatus launch={currentLaunch} isLCO={currentLaunchUser?.role == 'lco'} />
-            </div>
+            </>
           : <div className='flex-grow-1' />
-      }
+        }
+
+      <Navbar.Toggle aria-controls='responsive-navbar-nav' />
 
       <Navbar.Collapse id='responsive-navbar-nav' className='flex-grow-0'>
         {
           currentUser && currentLaunch && <RoleDropdown user={currentUser} launch={currentLaunch} />
         }
 
-        {
-          currentUser?.id == '2ec4MLwSZ2dwRBIjGzTVIxDU09i1'
-            ? <Nav.Link onClick={() => history.push('/admin')}>{'\u2620'}</Nav.Link>
-            : null
-        }
-
-        {
-          currentUser && <Nav.Link onClick={() => auth().signOut()}>Logout</Nav.Link>
-        }
+        <NavDropdown id='settings-dropdown' title='Account...' >
+          {
+            currentUser?.id == '2ec4MLwSZ2dwRBIjGzTVIxDU09i1'
+              ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
+              : null
+          }
+          {
+            currentUser && <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
+          }
+        </NavDropdown>
       </Navbar.Collapse>
 
     </Navbar>
 
-    <div style={{ margin: '.5em 1em 0 1em' }}>
+    <div style={{ margin: '1rem 1em 0 1em' }}>
     {
       isLoadingUser
         ? <Loading wat='User (App)' />
         : !currentUser
             ? <Login />
             : <Switch>
-          <Route path='/launches/:launchId' component={Launch} />
+          <Route path='/launches/:launchId/:tabKey?' component={Launch} />
 
           <Route path='/admin'>
             <Admin />
@@ -144,5 +154,5 @@ export default function App() {
         </Switch>
     }
     </div>
-  </appContext.Provider>;
+  </>;
 }

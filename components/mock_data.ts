@@ -4,12 +4,40 @@ export const NAMES = ['Shirley Baker', 'Tomas Wood', 'Herbert Moran', 'Lucy John
 
 export const COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Cyan', 'Purple', 'White', 'Black', 'Brown', 'Magenta', 'Tan', 'Olive', 'Maroon', 'Navy', 'Aquamarine', 'Turquoise', 'Silver', 'Lime', 'Teal', 'Indigo', 'Violet', 'Pink', 'Gray'];
 
-const ROCKET_NAMES = ['220 Swift', '3 Bandits', 'AGM-57X Heatseeker', 'Alpha', 'Alpha III', 'Altimeter', 'Apollo Little Joe II', 'Apollo 11 Saturn V', 'Argent', 'Ascender', 'Asteroid Hunter', 'Astron Skydart II', 'Astron Sprint XL', 'Athena', 'Atomic Aqua', 'Baby Bertha', 'Bandito', 'Banshee', 'Big Bertha', 'Big Daddy', 'Black Diamond', 'Black Hole', 'Black Star Voyager', 'Blast-off Blue', 'Blenders', 'Booster-55', 'Booster-60', 'Bull Pup 12D', 'Centuri', 'Chiller', 'Chuter-Two', 'Cobra', 'Code Red', 'Comanche-3', 'Conquest', 'Cosmic Interceptor', 'Crossbow SST', 'Crossfire ISX', 'Curvilinear', 'Dark Silver', 'Dark Zero', 'Dazzler', 'Der Red Max', 'Designer Special', 'Dragonite', 'Drifter', 'Eggscaliber', 'EPM-010', 'Estes Jetliner', 'Estes SLV', 'Estes Shuttle', 'Extreme 12', 'Fat Jax', 'Firehawk', 'Firebolt', 'Firestreak SST', 'Firestorm', 'Fletcher', 'Flip Flyer', 'Flutter-By', 'Flying Colors', 'Fractured', 'Freefall', 'Galaxy Gold', 'Generic E2X', 'Goblin', 'Helios', 'Hi-Flier', 'Hi-Flier XL', 'Honest John', 'Hornet', 'Humdinger', 'Hyper Bat', 'Hyper Dart', 'Indicator', 'Journey', 'L.G.M. 0095', 'LoadStar II', 'Lynx', 'Magician', 'Majestic', 'Mammoth', 'Mega Der Red Max', 'Mercury Redstone', 'Metalizer', 'Meteorite White', 'Mini Blaster Air', 'Mini Comanche-3', 'Mini Fat Boy', 'Mini Honest John', 'Mini Max', 'MIRV', 'Mix-n-Match-50', 'Mix-n-Match-55', 'Mix-n-Match-60', 'Mongoose', 'Mosquito', 'Nike Smoke', 'Nike Smoke', 'Nitro', 'No. 2 Estes Sky Writer', 'Nova', 'Odyssey', 'Orange Crush', 'Outer-space Orange', 'Partizon', 'Phantom Blue', 'Phoenix Bird', 'Photon Probe', 'Power Patrol', 'Prospector', 'Puma', 'QCC Explorer', 'Quinstar', 'Red Flare', 'Red Rider', 'Rogue Voyager', 'Rookie', 'Satellite Silver', 'Savage', 'Scorpion', 'Sequoia', 'Shattered', 'Shootig Star', 'Show Stopper', 'Shuttle Xpress', 'Sizzler', 'Sky Cruiser', 'Sky Duster', 'Sky Hawker', 'Sky Shark', 'Sky Twister', 'Sky Warrior', 'Solar Warrior', 'Solaris', 'Spectra', 'Spirit', 'Star Orbiter', 'Star Trooper', 'STM-012', 'Super Neon', 'Super Neon XL', 'Supernova', 'Taser Twin', 'Trajector', 'Tercel Boost Glider', 'Top Shot', 'U.S. Army Patriot M-104', 'UP Aerospace SpaceLoft', 'V2', 'Vagabond', 'Ventris', 'Viking', 'Whirlwind', 'Wild Flyer', 'Wizard', 'Xarconian Cruiser', 'Yankee', 'Yellow Star', 'Zinger', '40'];
+const ROCKET_NAMES = ['220 Swift', '3 Bandits', 'AGM-57X Heatseeker', 'Alpha', 'Alpha III', 'Altimeter', 'Apollo Little Joe II', 'Apollo 11 Saturn V', 'Argent', 'Ascender', 'Asteroid Hunter', 'Astron Skydart II', 'Astron Sprint XL', 'Athena', 'Atomic Aqua', 'Baby Bertha', 'Bandito', 'Banshee', 'Big Bertha', 'Big Daddy', 'Black Diamond', 'Black Hole', 'Black Star Voyager', 'Blast-off Blue', 'Blenders', 'Booster-55', 'Booster-60', 'Bull Pup 12D', 'Centuri', 'Chiller', 'Chuter-Two', 'Cobra', 'Code Red', 'Comanche-3', 'Conquest', 'Cosmic Interceptor', 'Crossbow SST', 'Crossfire ISX', 'Curvilinear', 'Dark Silver', 'Dark Zero', 'Dazzler', 'Der Red Max', 'Designer Special', 'Dragonite', 'Drifter', 'Eggscaliber', 'EPM-010', 'Estes Jetliner', 'Estes SLV', 'Estes Shuttle', 'Extreme 12', 'Fat Jax', 'Firehawk', 'Firebolt', 'Firestreak SST', 'Firestorm', 'Fletcher', 'Flip Flyer', 'Flutter-By', 'Flying Colors', 'Fractured', 'Freefall', 'Galaxy Gold', 'Generic E2X', 'Goblin', 'Helios', 'Hi-Flier', 'Hi-Flier XL', 'Honest John', 'Hornet', 'Humdinger', 'Hyper Bat', 'Hyper Dart', 'Indicator', 'Journey', 'L.G.M. 0095', 'LoadStar II', 'Lynx', 'Magician', 'Majestic', 'Mammoth', 'Mega Der Red Max', 'Mercury Redstone', 'Metalizer', 'Meteorite White', 'Mini Blaster Air', 'Mini Comanche-3', 'Mini Fat Boy', 'Mini Honest John', 'Mini Max', 'MIRV', 'Mix-n-Match-50', 'Mix-n-Match-55', 'Mix-n-Match-60', 'Mongoose', 'Mosquito', 'Nike Smoke', 'Nike Smoke', 'Nitro', 'No. 2 Estes Sky Writer', 'Nova', 'Odyssey', 'Orange Crush', 'Outer-space Orange', 'Partizon', 'Phantom Blue', 'Phoenix Bird', 'Photon Probe', 'Power Patrol', 'Prospector', 'Puma', 'QCC Explorer', 'Quinstar', 'Red Flare', 'Red Rider', 'Rogue Voyager', 'Rookie', 'Satellite Silver', 'Savage', 'Scorpion', 'Sequoia', 'Shattered', 'Shooting Star', 'Show Stopper', 'Shuttle Xpress', 'Sizzler', 'Sky Cruiser', 'Sky Duster', 'Sky Hawker', 'Sky Shark', 'Sky Twister', 'Sky Warrior', 'Solar Warrior', 'Solaris', 'Spectra', 'Spirit', 'Star Orbiter', 'Star Trooper', 'STM-012', 'Super Neon', 'Super Neon XL', 'Supernova', 'Taser Twin', 'Trajector', 'Tercel Boost Glider', 'Top Shot', 'U.S. Army Patriot M-104', 'UP Aerospace SpaceLoft', 'V2', 'Vagabond', 'Ventris', 'Viking', 'Whirlwind', 'Wild Flyer', 'Wizard', 'Xarconian Cruiser', 'Yankee', 'Yellow Star', 'Zinger', '40'];
 
-const MOTORS = 'ABCDEFGHIJKLMNO'.split('');
+const MOTOR_SIZES = [ // min/max impulse (MKS units)
+  { name: '1/8A', min: 0.05, max: 0.3125 },
+  { name: '1/4A', min: 0.3125, max: 0.625 },
+  { name: '1/2A', min: 0.625, max: 1.25 },
+  { name: 'A', min: 1.25, max: 2.5 },
+  { name: 'B', min: 2.50, max: 5 },
+  { name: 'C', min: 5, max: 10 },
+  { name: 'D', min: 10, max: 20 },
+  { name: 'E', min: 20, max: 40 },
+  { name: 'F', min: 40, max: 80 },
+  { name: 'G', min: 80, max: 160 },
 
-export function rnd(n : number) : number {
-  return Math.floor(Math.random() * n) as number;
+  { name: 'H', min: 160, max: 320 },
+  { name: 'I', min: 320, max: 640 },
+
+  { name: 'J', min: 640, max: 1280 },
+  { name: 'K', min: 1280, max: 2560 },
+  { name: 'L', min: 2560, max: 5120 },
+
+  { name: 'M', min: 5120, max: 10240 },
+  { name: 'N', min: 10240, max: 20480 },
+  { name: 'O', min: 20480, max: 40960 }
+];
+
+export function frnd(min : number, max ?: number) : number {
+  return (max == null)
+    ? Math.random() * min
+    : min + Math.random() * (max - min);
+}
+
+export function rnd(min : number, max ?: number) : number {
+  return Math.floor(frnd(min, max));
 }
 
 export function rndItem<Type>(arr : Type[]) : Type {
@@ -19,20 +47,30 @@ export function rndItem<Type>(arr : Type[]) : Type {
 export function createRocket() : iRocket {
   const name = rndItem(ROCKET_NAMES);
   const manufacturer = rndItem(['Estes', 'Mad Cow', 'Binder', 'LOC', 'Dynasoar']);
-  const mClass = Math.floor(Math.random() ** 2 * MOTORS.length);
 
-  const mRnd = () => (0.2 + 0.8 * Math.random()) * (1 + mClass);
+  // "Build" rocket around randomly selected motor class
+  // (Using MKS units)
+  const category = rndItem(MOTOR_SIZES);
+  const impulse = frnd(category.min, category.max);
+  const burn = frnd(Math.pow(impulse, 0.25), Math.pow(impulse, 0.25));
+  const thrust = impulse / burn;
+  const delay = Math.pow(impulse, 1 / 2.5);
+  const mass = thrust / frnd(5, 20); // "mass <= thrust / 5"
+  const aspectRatio = frnd(10, 0);
+  const length = Math.pow(mass, 1 / 3);
+  const diameter = Math.pow(mass, 1 / 3) / aspectRatio * 20;
 
-  const _mImpulse = 0.3125 * Math.pow(2, mClass + Math.random()); // n-s
-  const _mBurn = mRnd() / 4;
-  const _mThrust = _mImpulse / _mBurn;
+  let { name: motorName } = category;
+  motorName = `${motorName}${thrust.toFixed(thrust < 1 ? 1 : 0)}`;
+  if (delay <= 20) motorName = `${motorName}-${Math.ceil(delay)}`;
 
-  const aspect = 6 + rnd(34); // cm
-  const length = mRnd() * 30; // cm
-  const diameter = length / aspect;
-  const weight = Math.random() * diameter * length; // kg
+  const motor = {
+    name: motorName,
+    _impulse: impulse,
+    _thrust: thrust,
+    _burn: burn
+  };
 
-  const motor = `${MOTORS[mClass]}${Math.round(_mThrust)}`;
   const color = rndItem(COLORS);
 
   const rocket = {
@@ -40,13 +78,10 @@ export function createRocket() : iRocket {
     name,
     manufacturer,
     color,
-    diameter: Math.round(diameter),
-    length: Math.round(length),
-    weight: Math.round(weight),
-    motor,
-    _mImpulse,
-    _mBurn,
-    _mThrust
+    diameter,
+    length,
+    mass,
+    _motor: motor
   };
 
   return rocket;
