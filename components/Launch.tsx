@@ -46,7 +46,7 @@ function CertForm({ user, launchId } : {user : iUser, launchId : string}) {
         { type: 'tra', level: 2 },
         { type: 'nar', level: 3 },
         { type: 'tra', level: 3 }
-      ].map((cert, i) => <label key={i} className='mr-5'>
+      ].map((cert, i) => <label key={i} className='mr-5 d-block'>
           <input type='radio' data-cert={JSON.stringify(cert)} className='mr-2' name='certLevel'></input>
           <CertDot cert={{ verifiedDate: '-', ...cert }} expand={true} />
         </label>)
