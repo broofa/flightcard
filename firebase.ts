@@ -32,6 +32,10 @@ function createAPI<T>(pathTemplate) {
   type Part = string | undefined;
 
   interface DataAPI {
+    get() : Promise<T>;
+    get(a : Part) : Promise<T>;
+    get(a : Part, b : Part) : Promise<T>;
+
     set(state : T) : Promise<T>;
     set(a : Part, state : T) : Promise<T>;
     set(a : Part, b : Part, state : T) : Promise<T>;
@@ -83,6 +87,11 @@ function createAPI<T>(pathTemplate) {
   }
 
   const api : DataAPI = {
+    get(...args : string[]) : Promise<T> {
+      console.log(_ref(args));
+      return _ref(args).get().then(ref => ref.val());
+    },
+
     set(...parts : (string | T | undefined)[]) {
       const state = parts.pop();
       return _ref(parts as string[]).set(state);

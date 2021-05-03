@@ -30,13 +30,20 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
   const variant = rangeOpen ? 'success' : 'danger';
   const text = `Range is ${rangeOpen ? 'Open' : 'Closed'}`;
 
+  function toggleSound() {
+    // Test to see if we can get sound to play on iOS
+    playSound(OPEN_SOUND);
+
+    setMuted(!muted);
+  }
+
   return <ButtonGroup className='flex-grow-1'>
       {
         isLCO
           ? <Button variant={variant} onClick={rangeClick}>{text}</Button>
           : <Button variant={`outline-${variant}`} style={{ opacity: 1 }} disabled>{text}</Button>
       }
-    <Button variant={`outline-${variant}`} title='Toggle announcement volume' className='flex-grow-0' onClick={() => setMuted(!muted)}>{muted ? '\u{1F507}' : '\u{1F508}'}</Button>
+    <Button variant={`outline-${variant}`} title='Toggle announcement volume' className='flex-grow-0' onClick={toggleSound}>{muted ? '\u{1F507}' : '\u{1F508}'}</Button>
   </ButtonGroup>
   ;
 }

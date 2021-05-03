@@ -262,6 +262,12 @@ async function seedDB() {
   }
 }
 
+async function testDB() {
+  log('Starting test');
+
+  console.log('USERS', await (await database().ref('/users').get()).val());
+}
+
 export default function Admin() {
   const [, setLogLength] = useState(_log.length);
 
@@ -269,7 +275,10 @@ export default function Admin() {
   _log.onLog = () => setLogLength(_log.length);
 
   return <>
-    <Button variant='warning' onClick={seedDB} >Seed DB</Button>
+    <div className='deck'>
+      <Button variant='warning' onClick={seedDB} >Seed DB</Button>
+      <Button variant='warning' onClick={testDB} >Test Access</Button>
+    </div>
     <div className='mt-4 text-dark text-monospace' style={{ fontSize: '9pt' }}>
       {
         _log.map((args, i) => {
