@@ -41,11 +41,19 @@ export { default as OPEN_SOUND } from 'url:../sounds/rangeOpen.mp3';
 
 const _sndCache = {};
 let _activeSound : HTMLAudioElement;
-export function playSound(soundUrl) {
-  _activeSound?.pause();
-
+export function playSound(soundUrl, init = false) {
+  if (!init) _activeSound?.pause();
   if (!_sndCache[soundUrl]) _sndCache[soundUrl] = new Audio(soundUrl);
-  const snd = _activeSound = _sndCache[soundUrl] as HTMLAudioElement;
+  const snd = _sndCache[soundUrl] as HTMLAudioElement;
+  if (init) {
+    const stop = () => {
+      snd.pause();
+      snd.removeEventListener('canplay', stop);
+    };
+    snd.addEventListener('canplay', stop);
+  } else {
+    _activeSound = snd;
+  }
   snd.currentTime = 0;
   snd.play();
 }

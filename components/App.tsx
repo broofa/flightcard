@@ -32,7 +32,8 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
 
   function toggleSound() {
     // Test to see if we can get sound to play on iOS
-    playSound(OPEN_SOUND);
+    playSound(OPEN_SOUND, true);
+    playSound(CLOSE_SOUND, true);
 
     setMuted(!muted);
   }
