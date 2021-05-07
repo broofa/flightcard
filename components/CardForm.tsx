@@ -72,8 +72,8 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   const [currentUser] = useCurrentUser();
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
-  const launchUsers = db.launchUsers.useValue(launchId);
-  const fliers = launchUsers ? Object.values(launchUsers) : [];
+  const attendees = db.attendees.useValue(launchId);
+  const fliers = attendees ? Object.values(attendees) : [];
 
   const dbCard = db.launchCards.useValue(launchId, cardId);
 
@@ -88,7 +88,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   if (cardId != 'create' && !card) return <Loading wat='Launch card' />;
 
   if (!currentUser) return <Loading wat='Current user' />;
-  if (!launchUsers) return <Loading wat='Launch Users' />;
+  if (!attendees) return <Loading wat='Launch Users' />;
 
   sortArray(fliers, 'name');
 
@@ -150,17 +150,17 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
         <Control as='select' value={flier?.id || ''}
           onChange={
             e => {
-              const lu = launchUsers[e?.target.value];
-              if (lu) {
-                setCard({ ...card, userId: lu.id });
+              const attendee = attendees[e?.target.value];
+              if (attendee) {
+                setCard({ ...card, userId: attendee.id });
               }
             }
           }>
           <option value=''>Select Flier ...</option>
            {
-             sortArray(Object.values(launchUsers), name)
-               .map(lu => {
-                 return <option key={lu.id} value={lu.id}>{lu.name}</option>;
+             sortArray(Object.values(attendees), name)
+               .map(attendee => {
+                 return <option key={attendee.id} value={attendee.id}>{attendee.name}</option>;
                })
            }
         </Control>
@@ -176,21 +176,13 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     </div>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field label='Name' placeholder='Rocket name' access={access('rocket.name')} />
       <Field label='Manufacturer' access={access('rocket.manufacturer')} />
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field label='Length' access={access('rocket.length')} />
       <Field label='Diameter' access={access('rocket.diameter')} />
-    </Group>
-
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
-      <Field label='Motor' access={access('flight.motor')} />
-      <Field label='Impulse' access={access('flight.impulse')} />
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
@@ -200,8 +192,12 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field type='radio(chute, streamer, dual-deploy, shovel)' label='Recovery' access={access('rocket.recovery')} />
+    </Group>
+
+    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+      <Field label='Motor' access={access('flight.motor')} />
+      <Field label='Impulse' access={access('flight.impulse')} />
     </Group>
 
     <FormSection >Flight Info</FormSection>
@@ -216,7 +212,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
       {/* @ts-expect-error `as` att comes from react-bootstrap */}
-      <Field label='Notes' as='textarea' rows='5' access={access('flight.notes')} />
+      <Field label='Notes' as='textarea' rows='3' access={access('flight.notes')} />
     </Group>
   </Editor>;
 }

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
-import { iLaunch, iLaunchUser, iUser, tRole } from '../types';
+import { iAttendee, iLaunch, iUser, tRole } from '../types';
 import Admin from './Admin';
 import './css/App.scss';
 import Launch from './Launch';
@@ -14,7 +14,52 @@ export const APPNAME = 'FlightCard';
 
 export const useCurrentUser = sharedStateHook<iUser | undefined>(undefined, 'currentUser');
 export const useCurrentLaunch = sharedStateHook<iLaunch | undefined>(undefined, 'currentLaunch');
-export const useCurrentLaunchUser = sharedStateHook<iLaunchUser | undefined>(undefined, 'currentLaunchUser');
+export const useCurrentAttendee = sharedStateHook<iAttendee | undefined>(undefined, 'currentAttendee');
+
+// Wrapper function that surfaces errors in ErrorFlash
+interface tErrTrap {
+  (action : (...args : any[]) => Promise<any>) : any;
+  onError ?: ((err : Error) => void)
+}
+export const errTrap : tErrTrap = (action) => {
+  return async function(...args) {
+    try {
+      return await (action as any)(...args);
+    } catch (err) {
+      console.log('ERRR', err);
+      (errTrap as unknown as any)?.onError(err);
+    }
+  };
+};
+
+function ErrorFlash() {
+  const [err, setErr] = useState<Error>();
+  useEffect(() => {
+    function handleError(err) {
+      setErr(err);
+      setTimeout(() => setErr(undefined), 3000);
+    }
+    errTrap.onError = handleError;
+
+    return () => {
+      if (errTrap.onError === handleError) {
+        delete errTrap.onError;
+      }
+    };
+  }, []);
+
+  return err
+    ? <Alert variant='danger' style={{
+      position: 'fixed',
+      zIndex: 9999,
+      bottom: 0,
+      left: '20%',
+      right: '20%'
+    }}>
+        {(err as any).code ?? err.message}
+      </Alert>
+    : null;
+}
 
 function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) {
   const [muted, setMuted] = useState(false);
@@ -50,21 +95,27 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
 }
 
 function RoleDropdown({ launch, user } : {launch : iLaunch, user : iUser}) {
-  const perm = db.launchPerm.useValue(launch.id, user.id);
-  const launchUser = db.launchUser.useValue(launch.id, user.id);
+  const isOfficer = db.officer.useValue(launch.id, user.id);
+  const attendee = db.attendee.useValue(launch.id, user.id);
 
   function setRole(role : tRole | undefined) {
-    db.launchUser.update(launch.id, user.id, { role });
+    db.attendee.update(launch.id, user.id, { role });
   }
 
-  if (!perm || !launchUser) return null;
+  if (!attendee) return null;
 
-  const roleTitle = launchUser.role?.toUpperCase() ?? 'Off Duty';
+  const roleTitle = attendee.role?.toUpperCase() ?? 'Off Duty';
 
   return <NavDropdown title={roleTitle} id='collasible-nav-dropdown'>
     <NavDropdown.Item onClick={() => setRole(undefined)}>Off Duty</NavDropdown.Item>
-    {perm?.lco && <NavDropdown.Item onClick={() => setRole('lco')}>LCO</NavDropdown.Item> }
-    {perm?.rso && <NavDropdown.Item onClick={() => setRole('rso')}>RSO</NavDropdown.Item> }
+    {
+      isOfficer
+        ? <>
+        <NavDropdown.Item onClick={() => setRole('lco')}>LCO</NavDropdown.Item>
+        <NavDropdown.Item onClick={() => setRole('rso')}>RSO</NavDropdown.Item>
+      </>
+        : null
+    }
   </NavDropdown>;
 }
 
@@ -80,11 +131,11 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useCurrentUser();
   const [currentLaunch, setCurrentLaunch] = useCurrentLaunch();
-  const [currentLaunchUser, setCurrentLaunchUser] = useCurrentLaunchUser();
+  const [currentAttendee, setCurrentAttendee] = useCurrentAttendee();
 
   const user = db.user.useValue(authId);
   const launch = db.launch.useValue(currentLaunchId);
-  const launchUser = db.launchUser.useValue(currentLaunchId, user?.id);
+  const attendee = db.attendee.useValue(currentLaunchId, user?.id);
 
   // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
@@ -100,15 +151,24 @@ export default function App() {
       setAuthId(undefined);
     }
 
+    function handleError(e) {
+      console.log('unhandledrejection', e);
+    }
+    window.addEventListener('unhandledrejection', handleError);
+
     setIsLoadingUser(false);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleError);
+    };
   }), []);
 
   // Effect: Update shared state if/when it changes
   useEffect(() => {
     setCurrentUser(user);
     setCurrentLaunch(launch);
-    setCurrentLaunchUser(launchUser);
-  }, [user, launch, launchUser]);
+    setCurrentAttendee(attendee);
+  }, [user, launch, attendee]);
 
   return <>
     <Navbar expand='md' bg='dark' variant='dark' className='flex-grow-1 d-flex align-items-baseline'>
@@ -117,7 +177,7 @@ export default function App() {
         currentLaunch
           ? < >
               <Nav.Link onClick={() => history.push(`/launches/${currentLaunch.id}`)} className='mr-3 flex-grow-0'>{currentLaunch?.name}</Nav.Link>
-              <RangeStatus launch={currentLaunch} isLCO={currentLaunchUser?.role == 'lco'} />
+              <RangeStatus launch={currentLaunch} isLCO={currentAttendee?.role == 'lco'} />
             </>
           : <div className='flex-grow-1' />
         }
@@ -129,18 +189,20 @@ export default function App() {
           currentUser && currentLaunch && <RoleDropdown user={currentUser} launch={currentLaunch} />
         }
 
-        <NavDropdown id='settings-dropdown' title='Account...' >
-          {
+       {
+         currentUser
+           ? <NavDropdown alignRight id='settings-dropdown' title='Account &hellip;' >
+            {
             currentUser?.id == '2ec4MLwSZ2dwRBIjGzTVIxDU09i1'
               ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
               : null
-          }
-          {
-            currentUser && <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
-          }
-        </NavDropdown>
+             }
+              <NavDropdown.Item onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
+            <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
+            </NavDropdown>
+           : null
+        }
       </Navbar.Collapse>
-
     </Navbar>
 
     <div style={{ margin: '1rem 1em 0 1em' }}>
@@ -162,5 +224,7 @@ export default function App() {
         </Switch>
     }
     </div>
+
+    <ErrorFlash />
   </>;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export type tProps = React.HTMLAttributes<any>;
 export type tChildren = tChildren[] | React.ReactElement | string | null | undefined;
@@ -27,6 +27,22 @@ export function sortArray<T>(arr : T[], extractor) : T[] {
     };
 
   return arr.sort(comparator);
+}
+
+export function Flash({ result, ...props } : {result : Promise<any>} & tProps) {
+  const [message, setMessage] = useState();
+  useEffect(() => {
+    result.catch(err => {
+      setMessage(err.message);
+      setTimeout(() => setMessage(undefined), 5000);
+    });
+  }, []);
+
+  return message
+    ? <div className='alert alert-error' {...props} >
+    {message}
+  </div>
+    : null;
 }
 
 //
