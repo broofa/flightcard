@@ -1,6 +1,6 @@
 {
   "rules": {
-    // If/when database needs to be seeded (TODO: STOP DOING THIS)
+    // Uncomment when seeding database
     // ".read": "auth.email === 'broofa@gmail.com'",
     // ".write": "auth.email === 'broofa@gmail.com'",
 
