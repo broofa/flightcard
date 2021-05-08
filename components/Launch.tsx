@@ -98,6 +98,16 @@ function Launch() {
   if (!currentUser) return <Loading wat='User (Launch)' />;
   if (!launchId || !attendee) return <Waiver user={currentUser} />;
 
+  function LaunchTabs() {
+    return <>
+      <Tabs className='mb-3' defaultActiveKey={tabKey} onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
+        <Tab eventKey='rso' title='Range Safety' />
+        <Tab eventKey='lco' title='Launch Control' />
+        <Tab eventKey='users' title='Attendees' />
+      </Tabs>
+    </>;
+  }
+
   return <>
     {
       !attendee?.cert
@@ -105,30 +115,27 @@ function Launch() {
         : null
     }
 
-    <Tabs className='mb-3' defaultActiveKey={tabKey} onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
-      <Tab eventKey='rso' title='Range Safety' />
-      <Tab eventKey='lco' title='Launch Control' />
-      <Tab eventKey='users' title='Attendees' />
-    </Tabs>
-
     <Switch>
       <Route path={`${match.path}/cards/:cardId`}>
         <CardForm />
       </Route>
 
       <Route path={`${match.path}/profile`}>
-        <CertForm user={currentUser} launchId={launchId} />
+        <CertForm user={attendee} launchId={launchId} />
       </Route>
 
       <Route path={`${match.path}/rso`}>
+        <LaunchTabs />
         <RangeSafetyPane launchId={launchId}/>
       </Route>
 
       <Route path={`${match.path}/lco`}>
+        <LaunchTabs />
         <LaunchControlPane launchId={launchId} />
       </Route>
 
       <Route path={`${match.path}/users`}>
+        <LaunchTabs />
         <UsersPane launchId={launchId} />
       </Route>
 

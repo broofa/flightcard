@@ -21,10 +21,10 @@ export default function Editor(
     {children}
 
     <div style={{ marginTop: '2em', display: 'flex' }}>
-      {onDelete ? <Button onClick={onDelete} variant='danger'>Delete</Button> : null}
+      {onSave ? <Button type='submit' className='mr-5'>Save</Button> : null}
       <div style={{ flexGrow: 1 }} />
       {onCancel ? <Button onClick={onCancel} variant='secondary'>Cancel</Button> : null}
-      {onSave ? <Button type='submit' style={{ marginLeft: '1em' }}>Save</Button> : null}
+      {onDelete ? <Button onClick={onDelete} variant='danger' className='ml-5'>Delete</Button> : null}
     </div>
   </>;
 

@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router';
 import { db, DELETE } from '../firebase';
-import { iUser } from '../types';
+import { iAttendee } from '../types';
 import { CertDot } from './CertDot';
 import Editor from './Editor';
 import { tChildren } from './util';
 
-export function CertForm({ user, launchId } : { user : iUser; launchId : string; }) {
-  const [selectedCert, setSelectedCert] = useState('');
-  const history = useHistory();
-
+export function CertForm({ user, launchId } : { user : iAttendee; launchId : string; }) {
   const CERTS = {
     none: { level: 0 },
     NAR1: { type: 'nar', level: 1 },
@@ -19,6 +16,13 @@ export function CertForm({ user, launchId } : { user : iUser; launchId : string;
     TRA2: { type: 'tra', level: 2 },
     TRA3: { type: 'tra', level: 3 }
   };
+
+  const currentCert = Object.keys(CERTS).find(c =>
+    CERTS[c].type == user.cert?.type &&
+    CERTS[c].level == user.cert?.level);
+
+  const [selectedCert, setSelectedCert] = useState(currentCert ?? 'none');
+  const history = useHistory();
 
   function onSave() {
     const cert = CERTS[selectedCert];
@@ -38,7 +42,7 @@ export function CertForm({ user, launchId } : { user : iUser; launchId : string;
     </label>;
   }
 
-  return <Editor onSave={onSave}>
+  return <Editor onSave={onSave} onCancel={() => history.goBack()}>
     <h2>Certification</h2>
 
     <p>Please select your high power certification:</p>
