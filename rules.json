@@ -1,0 +1,72 @@
+{
+  "rules": {
+    // If/when database needs to be seeded (TODO: STOP DOING THIS)
+    // ".read": "auth.email === 'broofa@gmail.com'",
+    // ".write": "auth.email === 'broofa@gmail.com'",
+
+    "users": {
+      "$userId": {
+        // User info is visible to the user
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid"
+      }
+    },
+
+    "attendees":  {
+      "$launchId": {
+      	".read" : true, 
+        "$userId": {
+					// User may only change their cert if it is set to unverified
+          // Officers may only change (verify) other users' certs
+          ".write": "(
+            $userId === auth.uid 
+            && !newData.child('cert').child('verifiedDate').exists()
+          )
+          || (
+            $userId !== auth.uid 
+            && root.child('officers').child($launchId).child(auth.uid).val() === true
+          )"
+        }
+      }
+    },
+
+    "officers":  {
+      "$launchId": {
+      	".read" : true,
+        "$userId": {
+			      ".validate": "newData.val() === true || newData.val() === null",
+            // Officer status can only be set by another officer
+            ".write": "$userId != auth.uid && data.parent().child(auth.uid).val() === true"
+        }
+      }
+    },
+
+    "cards":        {
+      ".read" : true,
+      "$launchId": {
+        "$cardId": {
+          // Only card owners or officers may change cards
+          ".write": "!data.exists()
+            || data.child('userId').val() === auth.uid
+            || root.child('officers').child($launchId).child(auth.uid).val() === true"
+        }
+      }
+    },
+
+    "launches": {
+      ".read" : true,
+      "$launchId": {
+        // Only officers may edit launch
+        ".write": "root.child('officers').child($launchId).child(auth.uid).val() === true"
+      }
+    },
+      
+    "pads": {
+      ".read" : true,
+      "$launchId": {
+        // Only officers may edit launch pads
+        ".write": "root.child('officers').child($launchId).child(auth.uid).val() === true"
+      }
+    }
+  }
+}

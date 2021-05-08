@@ -2,7 +2,10 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import { useEffect, useState } from 'react';
-import { iCard, iLaunch, iLaunchs, iLaunchUser, iLaunchUsers, iPerm, iPerms, iUser } from './types';
+import { errorTrap } from './components/ErrorFlash';
+import { iAttendee, iAttendees, iCard, iLaunch, iLaunchs, iPerm, iPerms, iUser } from './types';
+
+firebase.setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
 (window as any).firebase = firebase;
 
@@ -32,6 +35,10 @@ function createAPI<T>(pathTemplate) {
   type Part = string | undefined;
 
   interface DataAPI {
+    get() : Promise<T>;
+    get(a : Part) : Promise<T>;
+    get(a : Part, b : Part) : Promise<T>;
+
     set(state : T) : Promise<T>;
     set(a : Part, state : T) : Promise<T>;
     set(a : Part, b : Part, state : T) : Promise<T>;
@@ -83,23 +90,28 @@ function createAPI<T>(pathTemplate) {
   }
 
   const api : DataAPI = {
+    get(...args : string[]) : Promise<T> {
+      console.log(_ref(args));
+      return errorTrap(_ref(args).get().then(ref => ref.val()));
+    },
+
     set(...parts : (string | T | undefined)[]) {
       const state = parts.pop();
-      return _ref(parts as string[]).set(state);
+      return errorTrap(_ref(parts as string[]).set(state));
     },
 
     update(...args : (string | Partial<T> | undefined)[]) : Promise<T> {
       const state = args.pop();
-      return _ref(args as string[]).update(_deletify(state));
+      return errorTrap(_ref(args as string[]).update(_deletify(state)));
     },
 
     updateChild(...args) {
       const state = args.pop();
-      return database().ref(_fullPath(args, [...pathTemplate, ':child'])).update(state);
+      return errorTrap(database().ref(_fullPath(args, [...pathTemplate, ':child'])).update(state));
     },
 
     remove(...args : string[]) : Promise<any> {
-      return _ref(args).remove();
+      return errorTrap(_ref(args).remove());
     },
 
     useValue<T>(...args : string[]) {
@@ -134,12 +146,12 @@ export const db = {
   launches: createAPI<iLaunchs>('launches'),
   launch: createAPI<iLaunch>('launches/:userId'),
 
-  launchPerms: createAPI<iPerms>('launchPerms/:launchId'),
-  launchPerm: createAPI<iPerm>('launchPerms/:launchId/:userId'),
+  officers: createAPI<iPerms>('officers/:launchId'),
+  officer: createAPI<iPerm>('officers/:launchId/:userId'),
 
-  launchUsers: createAPI<iLaunchUsers>('launchUsers/:launchId'),
-  launchUser: createAPI<iLaunchUser>('launchUsers/:launchId/:userId'),
+  attendees: createAPI<iAttendees>('attendees/:launchId'),
+  attendee: createAPI<iAttendee>('attendees/:launchId/:userId'),
 
-  launchCards: createAPI<iCard>('cards/:launchId'),
-  launchCard: createAPI<iCard>('cards/:launchId/:cardId')
+  cards: createAPI<iCard>('cards/:launchId'),
+  card: createAPI<iCard>('cards/:launchId/:cardId')
 };

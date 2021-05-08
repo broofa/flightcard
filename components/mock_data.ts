@@ -1,4 +1,4 @@
-import { iRocket } from '../types';
+import { iMotor, iRocket } from '../types';
 
 export const NAMES = ['Shirley Baker', 'Tomas Wood', 'Herbert Moran', 'Lucy Johnson', 'Patricia Maxwell', 'Kent Ross', 'Julie Valdez', 'Patty Curry', 'Shawna Watkins', 'Lillian Webb', 'Darren Reese', 'Maggie Becker', 'Krista Perez', 'Sam Butler', 'Natasha Gilbert', 'Irving Campbell', 'Adrienne Palmer', 'Marianne Horton', 'Woodrow Murphy', 'Pearl Higgins', 'Arlene Kennedy', 'Nick Hamilton', 'Wilson Garrett', 'Domingo Riley', 'Doyle Fuller', 'Mathew Davidson', 'Tricia Hansen', 'Tamara Floyd', 'Jack Klein', 'Tommy Hampton', 'Shelia Howard', 'Johanna Owens', 'Harvey Tucker', 'Earl Lambert', 'Cody Gutierrez', 'Mildred Banks', 'Desiree Glover', 'Jared Arnold', 'Maureen Bennett', 'Rachael Summers', 'Jon Walters', 'Pauline Walsh', 'Melvin Curtis', 'Misty Gill', 'Melody Holmes', 'Brandi Pena', 'Alvin Jensen', 'Theodore Washington', 'Laurie Fowler', 'Lynn Gonzalez', 'Nina Barton', 'Jasmine Romero', 'Armando Strickland', 'Clarence Sparks', 'Beatrice Hicks', 'Barbara Bryan', 'Yolanda Nunez', 'Cesar Brewer', 'Irvin Cohen', 'Tracey Saunders', 'Levi Buchanan', 'Virgil Ortiz', 'June Barnett', 'Edna Sims', 'Greg Wheeler', 'Javier Medina', 'Lyle Coleman', 'Raul Guerrero', 'Willard Bates', 'Roman Farmer', 'Norma Peterson', 'Lillie Bush', 'Lydia Little', 'Edgar Bridges', 'Cheryl Olson', 'Stacey Burton', 'Kenny Jimenez', 'Genevieve Simpson', 'Debbie Diaz', 'Guy Murray', 'Hannah Graham', 'Marian Hawkins', 'Arthur Perry', 'Otis Mclaughlin', 'Jenna Cooper', 'Roberta Lynch', 'Roderick Silva', 'Brendan Harvey', 'Constance Maldonado', 'Franklin Ramos', 'Adrian Meyer', 'Fred Porter', 'Jamie Hayes', 'Pete Townsend', 'Tanya Neal', 'Ron French', 'Yvonne Wilkins', 'Jodi Brock'];
 
@@ -44,7 +44,7 @@ export function rndItem<Type>(arr : Type[]) : Type {
   return arr[rnd(arr.length)];
 }
 
-export function createRocket() : iRocket {
+export function createRocket() : iRocket & {_motor ?: iMotor} {
   const name = rndItem(ROCKET_NAMES);
   const manufacturer = rndItem(['Estes', 'Mad Cow', 'Binder', 'LOC', 'Dynasoar']);
 

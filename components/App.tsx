@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
-import { iLaunch, iLaunchUser, iUser, tRole } from '../types';
+import { iAttendee, iLaunch, iUser, tRole } from '../types';
 import Admin from './Admin';
 import './css/App.scss';
+import { ErrorFlash } from './ErrorFlash';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
@@ -14,7 +15,7 @@ export const APPNAME = 'FlightCard';
 
 export const useCurrentUser = sharedStateHook<iUser | undefined>(undefined, 'currentUser');
 export const useCurrentLaunch = sharedStateHook<iLaunch | undefined>(undefined, 'currentLaunch');
-export const useCurrentLaunchUser = sharedStateHook<iLaunchUser | undefined>(undefined, 'currentLaunchUser');
+export const useCurrentAttendee = sharedStateHook<iAttendee | undefined>(undefined, 'currentAttendee');
 
 function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) {
   const [muted, setMuted] = useState(false);
@@ -42,21 +43,27 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
 }
 
 function RoleDropdown({ launch, user } : {launch : iLaunch, user : iUser}) {
-  const perm = db.launchPerm.useValue(launch.id, user.id);
-  const launchUser = db.launchUser.useValue(launch.id, user.id);
+  const isOfficer = db.officer.useValue(launch.id, user.id);
+  const attendee = db.attendee.useValue(launch.id, user.id);
 
   function setRole(role : tRole | undefined) {
-    db.launchUser.update(launch.id, user.id, { role });
+    db.attendee.update(launch.id, user.id, { role });
   }
 
-  if (!perm || !launchUser) return null;
+  if (!attendee) return null;
 
-  const roleTitle = launchUser.role?.toUpperCase() ?? 'Off Duty';
+  const roleTitle = attendee.role?.toUpperCase() ?? 'Off Duty';
 
   return <NavDropdown title={roleTitle} id='collasible-nav-dropdown'>
     <NavDropdown.Item onClick={() => setRole(undefined)}>Off Duty</NavDropdown.Item>
-    {perm?.lco && <NavDropdown.Item onClick={() => setRole('lco')}>LCO</NavDropdown.Item> }
-    {perm?.rso && <NavDropdown.Item onClick={() => setRole('rso')}>RSO</NavDropdown.Item> }
+    {
+      isOfficer
+        ? <>
+        <NavDropdown.Item onClick={() => setRole('lco')}>LCO</NavDropdown.Item>
+        <NavDropdown.Item onClick={() => setRole('rso')}>RSO</NavDropdown.Item>
+      </>
+        : null
+    }
   </NavDropdown>;
 }
 
@@ -72,11 +79,11 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useCurrentUser();
   const [currentLaunch, setCurrentLaunch] = useCurrentLaunch();
-  const [currentLaunchUser, setCurrentLaunchUser] = useCurrentLaunchUser();
+  const [currentAttendee, setCurrentAttendee] = useCurrentAttendee();
 
   const user = db.user.useValue(authId);
   const launch = db.launch.useValue(currentLaunchId);
-  const launchUser = db.launchUser.useValue(currentLaunchId, user?.id);
+  const attendee = db.attendee.useValue(currentLaunchId, user?.id);
 
   // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
@@ -99,8 +106,8 @@ export default function App() {
   useEffect(() => {
     setCurrentUser(user);
     setCurrentLaunch(launch);
-    setCurrentLaunchUser(launchUser);
-  }, [user, launch, launchUser]);
+    setCurrentAttendee(attendee);
+  }, [user, launch, attendee]);
 
   return <>
     <Navbar expand='md' bg='dark' variant='dark' className='flex-grow-1 d-flex align-items-baseline'>
@@ -109,7 +116,7 @@ export default function App() {
         currentLaunch
           ? < >
               <Nav.Link onClick={() => history.push(`/launches/${currentLaunch.id}`)} className='mr-3 flex-grow-0'>{currentLaunch?.name}</Nav.Link>
-              <RangeStatus launch={currentLaunch} isLCO={currentLaunchUser?.role == 'lco'} />
+              <RangeStatus launch={currentLaunch} isLCO={currentAttendee?.role == 'lco'} />
             </>
           : <div className='flex-grow-1' />
         }
@@ -121,16 +128,19 @@ export default function App() {
           currentUser && currentLaunch && <RoleDropdown user={currentUser} launch={currentLaunch} />
         }
 
-        <NavDropdown id='settings-dropdown' title='Account...' >
-          {
-            currentUser?.id == '2ec4MLwSZ2dwRBIjGzTVIxDU09i1'
+       {
+         currentUser
+           ? <NavDropdown alignRight id='settings-dropdown' title='Account &hellip;' >
+            {
+            currentUser?.id == 'onLzrICBjwXrvbdmwGl0M9rtlI63'
               ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
               : null
-          }
-          {
-            currentUser && <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
-          }
-        </NavDropdown>
+             }
+              <NavDropdown.Item onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
+            <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
+            </NavDropdown>
+           : null
+        }
       </Navbar.Collapse>
 
     </Navbar>
@@ -154,5 +164,7 @@ export default function App() {
         </Switch>
     }
     </div>
+
+    <ErrorFlash />
   </>;
 }

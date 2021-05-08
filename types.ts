@@ -4,11 +4,7 @@ export type DeepPartial<T> = {
 
 export type tRole = 'lco' | 'rso';
 
-export interface iPerm {
-  admin ?: boolean;
-  lco ?: boolean;
-  rso ?: boolean;
-}
+export type iPerm = boolean;
 export type iPerms = Record<string, iPerm>;
 
 export interface iUser {
@@ -35,16 +31,16 @@ export interface iCert {
   number : number;
   expires : string;
 
-  verifiedId : string; // Id of LaunchUser that verified the ID
+  verifiedId : string; // Id of attendee that verified the ID
   verifiedDate : string;
 }
 
-export interface iLaunchUser extends iUser {
+export interface iAttendee extends iUser {
   waiverSignedDate : string;
   cert ?: iCert;
   role ?: tRole;
 }
-export type iLaunchUsers = Record<string, iLaunchUser>;
+export type iAttendees = Record<string, iAttendee>;
 
 export interface iPad {
   launchId : string;

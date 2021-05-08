@@ -72,10 +72,10 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   const [currentUser] = useCurrentUser();
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
-  const launchUsers = db.launchUsers.useValue(launchId);
-  const fliers = launchUsers ? Object.values(launchUsers) : [];
+  const attendees = db.attendees.useValue(launchId);
+  const fliers = attendees ? Object.values(attendees) : [];
 
-  const dbCard = db.launchCards.useValue(launchId, cardId);
+  const dbCard = db.cards.useValue(launchId, cardId);
 
   const initialState : iCard = {
     id: nanoid(),
@@ -85,10 +85,10 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
 
   const [card, setCard] = useState(dbCard || initialState);
 
-  if (cardId != 'create' && !card) return <Loading wat='Launch card' />;
+  if (cardId != 'create' && !card) return <Loading wat='Card' />;
 
   if (!currentUser) return <Loading wat='Current user' />;
-  if (!launchUsers) return <Loading wat='Launch Users' />;
+  if (!attendees) return <Loading wat='Attendees' />;
 
   sortArray(fliers, 'name');
 
@@ -125,7 +125,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   const onSave = async e => {
     card.launchId = launchId;
     card.userId = currentUser.id;
-    await db.launchCards.set(card.launchId, card.id, card);
+    await db.cards.set(card.launchId, card.id, card);
     history.goBack();
   };
 
@@ -134,7 +134,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
         // TODO: Disallow deletion of cards that are racked, or that have been flown
 
         if (!confirm(`Really delete '${card.rocket?.name ?? '(unnamed rocket)'}'?`)) return;
-        db.launchCards.remove(card.launchId, card.id);
+        db.cards.remove(card.launchId, card.id);
       }
     : null;
 
@@ -150,7 +150,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
         <Control as='select' value={flier?.id || ''}
           onChange={
             e => {
-              const lu = launchUsers[e?.target.value];
+              const lu = attendees[e?.target.value];
               if (lu) {
                 setCard({ ...card, userId: lu.id });
               }
@@ -158,7 +158,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
           }>
           <option value=''>Select Flier ...</option>
            {
-             sortArray(Object.values(launchUsers), name)
+             sortArray(Object.values(attendees), name)
                .map(lu => {
                  return <option key={lu.id} value={lu.id}>{lu.name}</option>;
                })

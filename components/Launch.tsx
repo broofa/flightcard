@@ -1,57 +1,26 @@
 import React, { useState } from 'react';
-import { Button, ButtonGroup, Tab, Tabs } from 'react-bootstrap';
-import { Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from 'react-router-dom';
-import { db, DELETE } from '../firebase';
-import { iLaunchUser, iPerm, iUser } from '../types';
+import { Alert, Button, ButtonGroup, Tab, Tabs } from 'react-bootstrap';
+import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from 'react-router-dom';
+import { db } from '../firebase';
+import { iAttendee, iPerm } from '../types';
 import { useCurrentUser } from './App';
 import CardForm from './CardForm';
 import { CertDot } from './CertDot';
-import Editor from './Editor';
+import { CertForm } from './CertForm';
 import { UserFilterFunction, UserList } from './UserList';
 import { Loading, sortArray } from './util';
 import { Waiver } from './Waiver';
 
-function rsoUsers(user ?: iLaunchUser, perm ?: iPerm) {
-  return perm?.rso !== undefined;
+function officerUsers(user ?: iAttendee, isOfficer ?: iPerm) {
+  return isOfficer ?? false;
 }
 
-function lcoUsers(user ?: iLaunchUser, perm ?: iPerm) {
-  return perm?.lco !== undefined;
-}
-
-function lowPowerUsers(user : iLaunchUser) {
+function lowPowerUsers(user : iAttendee) {
   return (user.cert?.level ?? 0) == 0;
 }
 
-function highPowerUsers(user : iLaunchUser) {
+function highPowerUsers(user : iAttendee) {
   return (user.cert?.level ?? 0) > 0;
-}
-
-function CertForm({ user, launchId } : {user : iUser, launchId : string}) {
-  function onSave() {
-    const el = document.querySelector('input[name=certLevel]:checked') as HTMLElement;
-    const cert = JSON.parse(el?.dataset.cert ?? 'null');
-    if (!cert) return;
-    db.launchUser.updateChild(launchId, user.id, 'cert', { ...cert, verifiedDate: DELETE });
-  }
-
-  return <Editor onSave={onSave}>
-    <p>Select your high power certification, please &hellip;</p>
-    {
-      [
-        { level: 0 },
-        { type: 'nar', level: 1 },
-        { type: 'tra', level: 1 },
-        { type: 'nar', level: 2 },
-        { type: 'tra', level: 2 },
-        { type: 'nar', level: 3 },
-        { type: 'tra', level: 3 }
-      ].map((cert, i) => <label key={i} className='mr-5 d-block'>
-          <input type='radio' data-cert={JSON.stringify(cert)} className='mr-2' name='certLevel'></input>
-          <CertDot cert={{ verifiedDate: '-', ...cert }} expand={true} />
-        </label>)
-    }
-  </Editor>;
 }
 
 function UsersPane({ launchId }) {
@@ -59,8 +28,7 @@ function UsersPane({ launchId }) {
 
   let title;
   switch (userFilter) {
-    case lcoUsers: title = 'Launch Control Officers (LCOs)'; break;
-    case rsoUsers: title = 'Range Safety Officers (RSOs)'; break;
+    case officerUsers: title = '\u2605 Officers (LCOs & RSOs)'; break;
     case lowPowerUsers: title = 'Low Power'; break;
     case highPowerUsers: title = 'High Power'; break;
     default: title = 'All Attendees';
@@ -69,8 +37,7 @@ function UsersPane({ launchId }) {
   return <>
       <ButtonGroup className='mt-4'>
       <Button active={!userFilter} onClick={() => setUserFilter(undefined)}>All</Button>
-      <Button active={userFilter === lcoUsers} onClick={() => setUserFilter(() => lcoUsers)}>LCOs</Button>
-      <Button active={userFilter === rsoUsers} onClick={() => setUserFilter(() => rsoUsers)}>RSOs</Button>
+      <Button active={userFilter === officerUsers} onClick={() => setUserFilter(() => officerUsers)}>{'\u2605'}</Button>
       <Button active={userFilter === lowPowerUsers} onClick={() => setUserFilter(() => lowPowerUsers)}><span className='cert-dot'>LP</span></Button>
       <Button active={userFilter === highPowerUsers} onClick={() => setUserFilter(() => highPowerUsers)}><span className='cert-dot'>HP</span></Button>
     </ButtonGroup>
@@ -87,8 +54,8 @@ function RangeSafetyPane({ launchId }) {
   const history = useHistory();
   const match = useRouteMatch();
 
-  const cards = db.launchCards.useValue(launchId);
-  const users = db.launchUsers.useValue(launchId);
+  const cards = db.cards.useValue(launchId);
+  const users = db.attendees.useValue(launchId);
 
   if (!cards) return <Loading wat='Flight cards' />;
   if (!users) return <Loading wat='Users' />;
@@ -112,6 +79,7 @@ function RangeSafetyPane({ launchId }) {
   </>;
 }
 function LaunchControlPane({ launchId }) {
+  console.log('LANCH', launchId);
   // racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
   return <>
     <p>Coming soon</p>
@@ -125,13 +93,18 @@ function Launch() {
   const params = useParams<{launchId : string, tabKey : string }>();
 
   const { launchId, tabKey } = params;
-  const launchUser = db.launchUser.useValue(launchId, currentUser?.id);
+  const attendee = db.attendee.useValue(launchId, currentUser?.id);
 
   if (!currentUser) return <Loading wat='User (Launch)' />;
-  if (!launchId || !launchUser) return <Waiver user={currentUser} launchId={launchId} />;
-  if (!launchUser.cert) return <CertForm user={currentUser} launchId={launchId} />;
+  if (!launchId || !attendee) return <Waiver user={currentUser} />;
 
   return <>
+    {
+      !attendee?.cert
+        ? <Alert variant='warning'>Please set your certification level in <Link to={`/launches/${launchId}/profile`}>your profile page</Link></Alert>
+        : null
+    }
+
     <Tabs className='mb-3' defaultActiveKey={tabKey} onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
       <Tab eventKey='rso' title='Range Safety' />
       <Tab eventKey='lco' title='Launch Control' />
@@ -141,6 +114,10 @@ function Launch() {
     <Switch>
       <Route path={`${match.path}/cards/:cardId`}>
         <CardForm />
+      </Route>
+
+      <Route path={`${match.path}/profile`}>
+        <CertForm user={currentUser} launchId={launchId} />
       </Route>
 
       <Route path={`${match.path}/rso`}>
@@ -156,7 +133,7 @@ function Launch() {
       </Route>
 
       <Route>
-          <Redirect to={`${match.url}/users`} />
+        <Redirect to={`${match.url}/users`} />
       </Route>
 
     </Switch>

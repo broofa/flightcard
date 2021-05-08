@@ -1,8 +1,8 @@
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { database, DELETE } from '../firebase';
-import { iCard, iCert, iLaunch, iLaunchs, iLaunchUser, iLaunchUsers, iPad, iPads, iPerm, iPerms, iUser, iUsers } from '../types';
+import { auth, database, DELETE } from '../firebase';
+import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRocket, iUser, iUsers } from '../types';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
@@ -17,7 +17,6 @@ const _log : any = [];
 function log(...args) {
   _log.push(args);
   _log.onLog?.();
-  console.log(...args);
 }
 log.clear = () => _log.length = 0;
 
@@ -33,7 +32,7 @@ async function seedUsers() : Promise<iUsers> {
   const RESOURCE = 'users';
   log('Seeding', RESOURCE);
 
-  const ALL : iUser[] = NAMES.slice(0, 100).map((name, i) => {
+  const ALL : iUser[] = NAMES.slice(0, 100).map(name => {
     name = name + ' \u0307'; // Add a superscript dot so we know who the seeded users are
     const n = Math.random();
     let photoURL : string | null = null;
@@ -82,15 +81,15 @@ async function seedLaunches() : Promise<iLaunchs> {
   return Object.fromEntries(entries);
 }
 
-async function seedLaunchUsers(launchId : string, users : iUsers) : Promise<iLaunchUsers> {
-  const RESOURCE = `launchUsers/${launchId}`;
+async function seedAttendees(launchId : string, users : iUsers) : Promise<iAttendees> {
+  const RESOURCE = `attendees/${launchId}`;
 
   log('Seeding', RESOURCE);
 
-  const LAUNCH_USERS = Object.values(users).slice(0, 20);
+  const ATTENDEES = Object.values(users).slice(0, 20);
 
-  // Seed launchUsers
-  const ALL : iLaunchUser[] = LAUNCH_USERS.map(user => {
+  // Seed attendees
+  const ALL : iAttendee[] = ATTENDEES.map(user => {
     const cert = {
       level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3])
     } as iCert;
@@ -100,7 +99,7 @@ async function seedLaunchUsers(launchId : string, users : iUsers) : Promise<iLau
       cert.number = (3000 + rnd(15000));
       cert.expires = (new Date(Date.now() + rnd(365 * 24 * 3600e3))).toLocaleDateString();
       if (Math.random() < 0.3) {
-        cert.verifiedId = rndItem(LAUNCH_USERS).id;
+        cert.verifiedId = rndItem(ATTENDEES).id;
         cert.verifiedDate = (new Date()).toISOString();
       }
     }
@@ -112,7 +111,7 @@ async function seedLaunchUsers(launchId : string, users : iUsers) : Promise<iLau
       // Coords around Brothers, OR
       // lat: 43.7954 + Math.random() * 0.0072,
       // lon: -120.6535 + Math.random() * 0.0109
-    } as iLaunchUser;
+    } as iAttendee;
   });
 
   const entries = await Promise.all(
@@ -121,20 +120,18 @@ async function seedLaunchUsers(launchId : string, users : iUsers) : Promise<iLau
   return Object.fromEntries(entries);
 }
 
-async function seedPermissions(launchId : string, users : iLaunchUsers) {
-  const RESOURCE = `launchPerms/${launchId}`;
+async function seedOfficers(launchId : string, users : iAttendees) {
+  const RESOURCE = `officers/${launchId}`;
 
   log('Seeding', RESOURCE);
 
-  const perms : iPerms = {};
-  Object.values(users).forEach((launchUser, i) => {
-    const perm : iPerm = perms[launchUser.id] = {};
-    if ((launchUser.cert?.level ?? -1) >= 2) {
-      if (i % 10 < 4) perm.lco = Math.random() < 0.5;
-      if (i % 5 < 1) perm.rso = Math.random() < 0.5;
+  const officers : iPerms = {};
+  Object.values(users).forEach((attendee, i) => {
+    if ((attendee.cert?.level ?? -1) >= 2) {
+      officers[attendee.id] = (i % 10) < 4;
     }
   });
-  await database().ref(RESOURCE).set(perms);
+  await database().ref(RESOURCE).set(officers);
 }
 
 async function seedPads(launchId : string) {
@@ -142,7 +139,7 @@ async function seedPads(launchId : string) {
 
   log('Seeding', RESOURCE);
 
-  // Seed launchUsers
+  // Seed pads
   const ALL : iPad[] = [];
   const GROUPS = [
     'Low-Power',
@@ -173,17 +170,17 @@ async function seedPads(launchId : string) {
   return Object.fromEntries(entries);
 }
 
-async function seedCards(launchId : string, launchUsers : iLaunchUsers, pads : iPads) {
+async function seedCards(launchId : string, attendees : iAttendees, pads : iPads) {
   const RESOURCE = `cards/${launchId}`;
 
   log('Seeding', RESOURCE);
 
-  // Seed launchUsers
+  // Seed cards
   const ALL : iCard[] = [];
-  for (const userId of Object.keys(launchUsers).slice(0, 10)) {
+  for (const userId of Object.keys(attendees).slice(0, 10)) {
     const rocket = createRocket();
 
-    const { _motor: motor } = rocket;
+    const { _motor: motor } = rocket as iRocket & {_motor ?: iMotor};
     delete rocket._motor;
 
     ALL.push({
@@ -230,14 +227,17 @@ async function seedDB() {
   seedId = 0;
 
   try {
-    await Promise.all([
+    for (const att of [
       'users',
       'launches',
-      'launchUsers',
-      'launchPerms',
+      'attendees',
+      'officers',
       'pads',
       'cards'
-    ].map(purge));
+    ]) {
+      log('Purging', att);
+      await purge(att);
+    }
 
     const [users, launches] = await Promise.all([
       seedUsers(),
@@ -245,12 +245,12 @@ async function seedDB() {
     ]);
 
     for (const launchId of Object.keys(launches)) {
-      const launchUsers = await seedLaunchUsers(launchId, users);
+      const attendees = await seedAttendees(launchId, users);
 
-      await seedPermissions(launchId, launchUsers);
+      await seedOfficers(launchId, attendees);
 
       const pads = await seedPads(launchId);
-      await seedCards(launchId, launchUsers, pads);
+      await seedCards(launchId, attendees, pads);
     }
 
     await Promise.all(Object.keys(launches).map(seedPads));
@@ -262,6 +262,54 @@ async function seedDB() {
   }
 }
 
+async function testDB() {
+  const user = auth().currentUser;
+  console.log(user);
+  const uid = user?.uid;
+
+  log.clear();
+
+  async function testAccess(path) {
+    const ref = database().ref(path);
+
+    let canRead, canWrite;
+    try {
+      (await ref.get()).val();
+      canRead = true;
+    } catch (err) { }
+
+    try {
+      await ref.update({ _temp: true });
+      await ref.update({ _temp: null });
+      canWrite = true;
+    } catch (err) { }
+
+    return `${canRead ? '\u2705' : '\u274c'} ${canWrite ? '\u2705' : '\u274c'} ${path}`;
+  }
+
+  await Promise.all([
+    testAccess('test/foo'),
+    '---',
+    testAccess('users'),
+    testAccess('users/otherUser'),
+    testAccess(`users/${uid}`),
+    '---',
+    testAccess('attendees'),
+    testAccess('attendees/otherLaunch'),
+    testAccess('attendees/otherLaunch/otherUser'),
+    testAccess(`attendees/fc_launch098/${uid}`),
+    '---',
+    testAccess('officers'),
+    testAccess('officers/testLaunch'),
+    testAccess('officers/testLaunch/testUser'),
+    testAccess(`officers/testLaunch/${uid}`),
+    '---',
+    testAccess('cards'),
+    testAccess('cards/testLaunch'),
+    testAccess('cards/testLaunch/testCard')
+  ]).then(results => results.forEach(v => log(v)));
+}
+
 export default function Admin() {
   const [, setLogLength] = useState(_log.length);
 
@@ -269,7 +317,10 @@ export default function Admin() {
   _log.onLog = () => setLogLength(_log.length);
 
   return <>
-    <Button variant='warning' onClick={seedDB} >Seed DB</Button>
+    <div className='deck'>
+      <Button variant='warning' onClick={seedDB} >Seed DB</Button>
+      <Button variant='warning' onClick={testDB} >Test Access</Button>
+    </div>
     <div className='mt-4 text-dark text-monospace' style={{ fontSize: '9pt' }}>
       {
         _log.map((args, i) => {
