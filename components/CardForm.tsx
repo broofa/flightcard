@@ -125,7 +125,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   const onSave = async e => {
     card.launchId = launchId;
     card.userId = currentUser.id;
-    await db.cards.set(card.launchId, card.id, card);
+    await db.card.set(card.launchId, card.id, card);
     history.goBack();
   };
 
@@ -144,7 +144,6 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     onDelete={(!edit && card.id !== null && onDelete) ? onDelete : undefined}>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <FieldCol><Label>Flier</Label></FieldCol>
       <Col>
         <Control as='select' value={flier?.id || ''}
@@ -176,32 +175,27 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     </div>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field label='Name' placeholder='Rocket name' access={access('rocket.name')} />
       <Field label='Manufacturer' access={access('rocket.manufacturer')} />
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field label='Length' access={access('rocket.length')} />
       <Field label='Diameter' access={access('rocket.diameter')} />
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field label='Motor' access={access('flight.motor')} />
       <Field label='Impulse' access={access('flight.impulse')} />
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
       <Field label='Mass (incl. motor)' access={access('rocket.mass')} />
       <Field label='Color' access={access('rocket.color')} />
     </Group>
 
     <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-
-      <Field type='radio(chute, streamer, dual-deploy, shovel)' label='Recovery' access={access('rocket.recovery')} />
+      <Field type='radio(chute, streamer, dual-deploy, shovel )' label='Recovery' access={access('rocket.recovery')} />
     </Group>
 
     <FormSection >Flight Info</FormSection>

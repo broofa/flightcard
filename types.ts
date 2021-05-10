@@ -1,3 +1,4 @@
+
 export type DeepPartial<T> = {
   [P in keyof T] ?: DeepPartial<T[P]>;
 };
@@ -22,6 +23,7 @@ export interface iLaunch {
   startDate : string;
   endDate : string;
   rangeOpen : boolean;
+  racks ?: iRack[];
 }
 export type iLaunchs = Record<string, iLaunch>;
 
@@ -43,11 +45,16 @@ export interface iAttendee extends iUser {
 export type iAttendees = Record<string, iAttendee>;
 
 export interface iPad {
-  launchId : string;
+  id : string,
   name ?: string;
-  group ?: string;
+  cardId ?: string;
 }
 export type iPads = Record<string, iPad>;
+
+export interface iRack {
+  name ?: string;
+  padIds ?: string[];
+}
 
 export interface iMotor {
   name ?: string;

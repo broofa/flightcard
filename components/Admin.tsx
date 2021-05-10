@@ -1,8 +1,7 @@
-import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
-import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRocket, iUser, iUsers } from '../types';
+import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
@@ -121,27 +120,33 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
 }
 
 async function seedOfficers(launchId : string, users : iAttendees) {
+  const user = auth().currentUser;
   const RESOURCE = `officers/${launchId}`;
+
+  // This should never happen
+  if (!user) throw Error('No current user(?!?)');
 
   log('Seeding', RESOURCE);
 
-  const officers : iPerms = {};
+  // Make sure current owner is an officer
+  const officers : iPerms = { [user.uid]: true };
+
   Object.values(users).forEach((attendee, i) => {
-    if ((attendee.cert?.level ?? -1) >= 2) {
-      officers[attendee.id] = (i % 10) < 4;
+    if ((attendee.cert?.level ?? -1) >= 2 && (i % 10) < 4) {
+      officers[attendee.id] = true;
     }
   });
   await database().ref(RESOURCE).set(officers);
 }
 
 async function seedPads(launchId : string) {
-  const RESOURCE = `pads/${launchId}`;
+  const RESOURCE = 'pads';
 
   log('Seeding', RESOURCE);
 
   // Seed pads
   const ALL : iPad[] = [];
-  const GROUPS = [
+  const RACKS = [
     'Low-Power',
     'Mid-Power',
     'High Power (West)',
@@ -150,19 +155,31 @@ async function seedPads(launchId : string) {
     'Hilltop'
   ];
 
+  const racks : iRack[] = [];
+
   // Seed pads
-  for (const group of GROUPS) {
-    const padNames = /Low/.test(group)
+  for (const rackName of RACKS) {
+    const padNames = /Low/.test(rackName)
       ? '123456'.split('')
-      : /Mid|High/.test(group) ? '1234'.split('') : ['1'];
+      : /Mid|High/.test(rackName) ? '1234'.split('') : ['1'];
+
+    const padIds : string[] = [];
     for (const name of padNames) {
+      const id = genId('pad');
+      padIds.push(id);
       ALL.push({
+        id,
         name,
         launchId,
-        group
+        group: rackName
       } as iPad);
     }
+
+    racks.push({ name: rackName, padIds });
   }
+
+  // Configure launch racks
+  await database().ref(`launches/${launchId}`).update({ racks });
 
   const entries = await Promise.all(
     ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
@@ -183,11 +200,16 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
     const { _motor: motor } = rocket as iRocket & {_motor ?: iMotor};
     delete rocket._motor;
 
+    const id = genId('card');
+    const padId = rndItem(Object.keys(pads));
+    console.log('PAD', padId, id);
+    await database().ref(`pads/${padId}`).update({ cardId: id });
+
     ALL.push({
-      id: `${SEED_PREFIX}${nanoid().substr(0, 4)}`,
+      id,
       launchId,
       userId,
-      padId: rndItem(Object.keys(pads)),
+      padId,
 
       firstFlight: Math.random() < 0.2 || DELETE,
       headsUp: Math.random() < 0.2 || DELETE,
@@ -250,10 +272,9 @@ async function seedDB() {
       await seedOfficers(launchId, attendees);
 
       const pads = await seedPads(launchId);
+
       await seedCards(launchId, attendees, pads);
     }
-
-    await Promise.all(Object.keys(launches).map(seedPads));
   } catch (err) {
     log(err);
   } finally {
