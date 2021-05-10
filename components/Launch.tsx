@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Alert, Button, ButtonGroup, Tab, Tabs } from 'react-bootstrap';
-import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from 'react-router-dom';
+import { Alert, Button, ButtonGroup, Card, Tab, Tabs } from 'react-bootstrap';
+import { Link, Redirect, Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iPerm } from '../types';
 import { useCurrentUser } from './App';
 import CardForm from './CardForm';
-import { CertDot } from './CertDot';
-import { CertForm } from './CertForm';
-import { UserFilterFunction, UserList } from './UserList';
+import CertForm from './CertForm';
+import { LaunchCard } from './LaunchCard';
+import { AttendeeInfo, UserFilterFunction, UserList } from './UserList';
 import { Loading, sortArray } from './util';
 import { Waiver } from './Waiver';
 
@@ -52,43 +52,81 @@ function UsersPane({ launchId }) {
 
 function RangeSafetyPane({ launchId }) {
   const history = useHistory();
-  const match = useRouteMatch();
-
   const cards = db.cards.useValue(launchId);
-  const users = db.attendees.useValue(launchId);
+  const attendees = db.attendees.useValue(launchId);
 
   if (!cards) return <Loading wat='Flight cards' />;
-  if (!users) return <Loading wat='Users' />;
+  if (!attendees) return <Loading wat='Users' />;
 
   return <>
-    <Button className='mb-4' onClick={() => history.push(`${match.url}/cards/create`)}>Create Flight Card</Button>
+    <Button className='mb-4' onClick={() => history.push(`/launches/${launchId}/cards/create`)}>Create Flight Card</Button>
     <h2>Awaiting Approval</h2>
     <div className='deck'>
       {
-        sortArray(Object.values(cards), c => users[c.userId].name)
+        sortArray(Object.values(cards), card => attendees[card.userId].name)
           .filter(card => !card.rsoId)
-          .map(card => {
-            const user = users[card.userId];
-            return <Button variant='outline-dark' key={card.id}>
-                <h3>{user.name}<CertDot cert={user.cert} /></h3>
-                <div>{card.rocket?.name ?? '(no name)'} &mdash; {card.motor?.name ?? '(motor?)'}</div>
-            </Button>;
-          })
+          .map(card => <LaunchCard key={card.id} card={card} attendee={attendees[card.userId]} />)
       }
     </div>
   </>;
 }
+
+function PadCard({ padId, launchId }) {
+  const pad = db.pad.useValue(padId);
+  const card = db.card.useValue(launchId, pad?.cardId);
+  const attendee = db.attendee.useValue(launchId, card?.userId);
+
+  if (!pad) return <Loading wat='Pad' />;
+  if (pad.cardId && !card) return <Loading wat='Card' />;
+  if (card?.userId && !attendee) return <Loading wat='User' />;
+
+  return <Card className='position-relative rounded cursor-pointer' style={{ opacity: card ? 1 : 0.33 }}>
+    <div className='d-flex mt-1' style={{ fontSize: '1.3em' }}>
+      <span className='flex-grow-0 p-1 mr-2 bg-dark text-light text-center' style={{ minWidth: '2em' }}>{pad?.name}</span>
+
+      {
+        attendee
+          ? <AttendeeInfo className='flex-grow-1 mr-1' hidePhoto attendee={attendee} />
+          : <span className='flex-grow-1' />
+      }
+    </div>
+
+    <div className='mt-1 p-2 text-center'>
+      {
+        card?.rocket
+          ? <>
+          <div>
+            {card.rocket?.name ?? ''}
+            </div>
+          <div className='font-weight-bold'>
+            {card?.motor?.name}
+            </div>
+        </>
+          : null
+      }
+      </div>
+  </Card>;
+}
+
 function LaunchControlPane({ launchId }) {
-  console.log('LANCH', launchId);
-  // racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
+  const launch = db.launch.useValue(launchId);
+
   return <>
-    <p>Coming soon</p>
+    {
+      launch?.racks?.map((rack, rackIndex) => <div key={rackIndex}>
+        <h2 className='mt-5 mb-2'>{rack.name}</h2>
+        <div className='deck ml-5'>
+        {
+          rack.padIds?.map((padId, padIndex) => <PadCard key={padIndex} padId={padId} launchId={launchId} />)
+        }
+        </div>
+      </div>)
+    }
   </>;
 }
 
 function Launch() {
   const history = useHistory();
-  const match = useRouteMatch();
   const [currentUser] = useCurrentUser();
   const params = useParams<{launchId : string, tabKey : string }>();
 
@@ -116,33 +154,30 @@ function Launch() {
     }
 
     <Switch>
-      <Route path={`${match.path}/cards/:cardId`}>
-        <CardForm />
+      <Route path={'/launches/:launchId/cards/:cardId'}>
+        <CardForm edit={true} />
       </Route>
 
-      <Route path={`${match.path}/profile`}>
+      <Route path={'/launches/:launchId/profile'}>
         <CertForm user={attendee} launchId={launchId} />
       </Route>
 
-      <Route path={`${match.path}/rso`}>
+      <Route path={'/launches/:launchId/rso'}>
         <LaunchTabs />
         <RangeSafetyPane launchId={launchId}/>
       </Route>
 
-      <Route path={`${match.path}/lco`}>
+      <Route path={'/launches/:launchId/lco'}>
         <LaunchTabs />
         <LaunchControlPane launchId={launchId} />
       </Route>
 
-      <Route path={`${match.path}/users`}>
+      <Route path={'/launches/:launchId/users'}>
         <LaunchTabs />
         <UsersPane launchId={launchId} />
       </Route>
 
-      <Route>
-        <Redirect to={`${match.url}/users`} />
-      </Route>
-
+      <Redirect from='/launches/:launchId' to={'/launches/:launchId/users'} />
     </Switch>
   </>;
 }

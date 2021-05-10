@@ -6,6 +6,26 @@ import { useCurrentUser } from './App';
 import { CertDot } from './CertDot';
 import { Loading, sortArray, tChildren, tProps } from './util';
 
+export function AttendeeInfo({ attendee, isOfficer, className, hidePhoto, ...props } :
+  {attendee : iAttendee, isOfficer ?: boolean, hidePhoto ?: boolean, className ?: string} & tProps) {
+  return <div className={`d-flex align-items-center ${className ?? ''}`} {...props}>
+    {
+      attendee.photoURL && !hidePhoto && <img src={attendee.photoURL} style={{ height: '48px' }}/>
+    }
+    <span className='flex-grow-1 ml-2 my-0 h3'>{attendee.name}</span>
+
+    {
+      !isOfficer
+        ? null
+        : attendee.role
+          ? <span className='ml-2 ml-1 px-1 bg-info rounded-lg text-white'>{attendee.role?.toUpperCase()}</span>
+          : <span className={'ml-2  ml-1 px-1'}>{'\u2605'}</span>
+    }
+
+    <CertDot className='ml-2 flex-grow-0' cert={attendee.cert} />
+  </div>;
+}
+
 export type UserFilterFunction =
   (() => boolean) |
   ((user : iAttendee) => boolean) |
@@ -85,25 +105,13 @@ export function UserList(
             const isOfficer = officers[attendee.id];
             if (filter && !filter(attendee, isOfficer)) { return null; }
 
-            const { id, name } = attendee;
+            const { id } = attendee;
 
             return <Button key={id}
               variant='outline-dark text-left'
               className={`d-flex flex-grow-1 align-items-center ${attendee.photoURL ? 'pl-0 py-0' : ''}`}
               onClick={() => setEditUserId(attendee.id)}>
-              {
-                attendee.photoURL && <img src={attendee.photoURL} style={{ height: '48px' }}/>
-              }
-              <span className='flex-grow-1 ml-2'>{name}</span>
-
-              {
-                !isOfficer
-                  ? null
-                  : attendee.role
-                    ? <span className='ml-2 my-2 ml-1 px-1 bg-info rounded-lg text-white'>{attendee.role?.toUpperCase()}</span>
-                    : <span className={'ml-2 my-2 ml-1 px-1'}>{'\u2605'}</span>
-              }
-              <CertDot className='ml-2 flex-grow-0' cert={attendee.cert} />
+                <AttendeeInfo attendee={attendee} isOfficer={isOfficer} className='flex-grow-1' />
             </Button>;
           })}
     </div>

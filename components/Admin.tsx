@@ -202,7 +202,6 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
 
     const id = genId('card');
     const padId = rndItem(Object.keys(pads));
-    console.log('PAD', padId, id);
     await database().ref(`pads/${padId}`).update({ cardId: id });
 
     ALL.push({
@@ -285,7 +284,6 @@ async function seedDB() {
 
 async function testDB() {
   const user = auth().currentUser;
-  console.log(user);
   const uid = user?.uid;
 
   log.clear();

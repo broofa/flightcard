@@ -136,7 +136,7 @@ export default function App() {
               ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
               : null
              }
-              <NavDropdown.Item onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
+              <NavDropdown.Item disabled={!currentLaunch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
             <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
             </NavDropdown>
            : null

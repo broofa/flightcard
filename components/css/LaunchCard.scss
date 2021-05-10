@@ -1,0 +1,10 @@
+
+.launch-card {
+  color: black;
+  transition: 0.2s; 
+}
+.launch-card:hover {
+  color: white;
+  background-color: #343a40; // bootstrap "dark"
+  text-decoration: none;
+}

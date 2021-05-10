@@ -13,9 +13,9 @@ export function Loading({ wat, ...props } : {wat : string} & tProps) {
   return <div {...props}>Loading {wat}</div>;
 }
 
-export function sortArray<T>(arr : T[], extractor) : T[] {
+export function sortArray<T = any>(arr : T[], extractor : string | ((a : T) => any)) : T[] {
   const comparator = typeof extractor == 'string'
-    ? function(a, b) {
+    ? function(a : any, b : any) {
       a = a[extractor];
       b = b[extractor];
       return a < b ? -1 : a > b ? 1 : 0;
@@ -26,7 +26,9 @@ export function sortArray<T>(arr : T[], extractor) : T[] {
       return a < b ? -1 : a > b ? 1 : 0;
     };
 
-  return arr.sort(comparator);
+  arr.sort(comparator);
+
+  return arr;
 }
 
 //

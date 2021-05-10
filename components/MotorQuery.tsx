@@ -21,7 +21,7 @@ export default function MotorQuery() {
   useEffect(() => {
     setOptions([]);
     if (!commonName) { return; }
-    console.log(url.toString());
+
     fetch(url as any)
       .then(res => res?.json())
       .then(data => {

@@ -6,9 +6,9 @@ body {
   margin-bottom: 2em;
 }
 
-h1 {}
-h2 {font-size: 1.5rem}
-h3 {font-size: 1.25rem}
+h1, .h1 {font-size: 1.8rem}
+h2, .h2 {font-size: 1.5rem}
+h3, .h3 {font-size: 1.25rem}
 
 .cursor-pointer {
   cursor: pointer;

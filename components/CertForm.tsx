@@ -6,7 +6,7 @@ import { CertDot } from './CertDot';
 import Editor from './Editor';
 import { tChildren } from './util';
 
-export function CertForm({ user, launchId } : { user : iAttendee; launchId : string; }) {
+export default function CertForm({ user, launchId } : { user : iAttendee; launchId : string; }) {
   const CERTS = {
     none: { level: 0 },
     NAR1: { type: 'nar', level: 1 },

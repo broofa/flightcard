@@ -32,6 +32,6 @@ export function CertDot({ cert, expand: _expand = false, className, ...props } :
     setExpand(!expand);
   }
 
-  return <span className={`cert-dot ${cn} ${className ?? ''}`}
+  return <span className={`cert-dot text-uppercase text-nowrap my-auto px-1 ${cn} ${className ?? ''}`}
     onClick={onClick} {...props}>{text}</span>;
 }
