@@ -27,6 +27,7 @@ module.exports = {
     'no-use-before-define': 'off',
     'no-var': ['error'],
     'react/prop-types': 'off',
+    'react/no-unescaped-entities': 'off',
     semi: 'off',
     'space-before-function-paren': [
       'error',

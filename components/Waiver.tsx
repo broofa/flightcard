@@ -42,9 +42,9 @@ export function Waiver({ user } : {user : iUser}) {
     <p>
       <strong>{APPNAME} is an experimental application.</strong>
       <br />
-      <em>No warranties are providd for {APPNAME}&apos;s function, availability, or correctness.</em>
+      <em>No warranties are providd for {APPNAME}'s function, availability, or correctness.</em>
       <br />
-      By using {APPNAME} you are assuming all of the risks, bugs, and other &quot;hiccups&quot; that come with experimental software.  {APPNAME} may fail or be unavailable.  Information {APPNAME} provides may be delayed, incomplete, or incorrect.
+      By using {APPNAME} you are assuming all of the risks, bugs, and other "hiccups" that come with experimental software.  {APPNAME} may fail or be unavailable.  Information {APPNAME} provides may be delayed, incomplete, or incorrect.
     </p>
 
     <label style={{ color: agreedCheck ? 'green' : 'red' }}>

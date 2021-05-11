@@ -3,6 +3,7 @@ import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
+import { unitParse } from './util';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
@@ -329,6 +330,57 @@ async function testDB() {
   ]).then(results => results.forEach(v => log(v)));
 }
 
+function testUtil() {
+  log.clear();
+  log('Starting tests');
+
+  const VALS = {
+    // unitless
+    '-1.23': -1.23,
+
+    // Standard MKS units
+    '1m': 1,
+    '1kg': 1,
+    '1n': 1,
+    '1n-sec': 1,
+
+    // test lengths
+    '1ft': 0.3048,
+    '1 ft': 0.3048,
+    '1 FT': 0.3048,
+    '1\'': 0.3048,
+    '1in': 0.0254,
+    '1"': 0.0254,
+    '1ft1in': 0.3302,
+    '1 ft 1 in': 0.3302,
+    '1ft 1in': 0.3302,
+    '1cm': 0.01,
+    '1mm': 0.001,
+
+    // test mass
+    '1lb': 0.453592,
+    '1oz': 0.0283495,
+    '1lb1oz': 0.4819415,
+    '1gm': 0.001,
+
+    // test impulse
+    '1lbf': 4.44822,
+
+    // test force
+    '1lbf-s': 4.44822,
+    '1lbf-sec': 4.44822
+  };
+
+  for (const [str, expected] of Object.entries(VALS)) {
+    const actual = unitParse(str);
+    if (actual === expected) {
+      log('\u2705', str, '->', expected);
+    } else {
+      log('\u274c', str, '->', String(actual), `(expected ${expected})`);
+    }
+  }
+}
+
 export default function Admin() {
   const [, setLogLength] = useState(_log.length);
 
@@ -339,6 +391,7 @@ export default function Admin() {
     <div className='deck'>
       <Button variant='warning' onClick={seedDB} >Seed DB</Button>
       <Button variant='warning' onClick={testDB} >Test Access</Button>
+      <Button variant='warning' onClick={testUtil} >Test util</Button>
     </div>
     <div className='mt-4 text-dark text-monospace' style={{ fontSize: '9pt' }}>
       {

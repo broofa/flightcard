@@ -47,7 +47,7 @@ export default function CertForm({ user, launchId } : { user : iAttendee; launch
 
     <p>Please select your high power certification:</p>
     <p>
-      <CertInput certName='none'>I&apos;m not certified</CertInput>
+      <CertInput certName='none'>I'm not certified</CertInput>
     </p>
 
     <h3>National Association of Rocketry</h3>

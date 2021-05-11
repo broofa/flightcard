@@ -51,3 +51,38 @@ export function playSound(soundUrl) {
   snd.currentTime = 0;
   snd.play();
 }
+
+//
+// Unit conversion utility
+//
+
+export function unitParse(str : string) {
+  str = str.trim();
+  let v = parseFloat(str);
+
+  if (/^([\d-.]+)\s*(?:ft|')$/i.test(str)) { // feet
+    v = parseFloat(RegExp.$1) * 0.3048;
+  } else if (/^([\d-.]+)\s*(?:in|")$/i.test(str)) { // inches
+    v = parseFloat(RegExp.$1) * 0.0254;
+  } else if (/^([\d-.]+)\s*(?:ft|')\s*([\d-.]+)\s*(?:in|")$/i.test(str)) { // feet-inches
+    v = parseFloat(RegExp.$1) * 0.3048 + parseFloat(RegExp.$2) * 0.0254;
+  } else if (/^([\d-.]+)\s*cm$/i.test(str)) { // centimeters
+    v = parseFloat(RegExp.$1) * 0.01;
+  } else if (/^([\d-.]+)\s*mm$/i.test(str)) { // millimeters
+    v = parseFloat(RegExp.$1) * 0.001;
+  } else if (/^([\d-.]+)\s*(?:lb)$/i.test(str)) { // pounds (mass)
+    v = parseFloat(RegExp.$1) * 0.453592;
+  } else if (/^([\d-.]+)\s*(?:oz)$/i.test(str)) { // ounces
+    v = parseFloat(RegExp.$1) * 0.0283495;
+  } else if (/^([\d-.]+)\s*(?:lb)\s*([\d-.]+)\s*(?:oz)$/i.test(str)) { // pound - ounces;
+    v = parseFloat(RegExp.$1) * 0.453592 + parseFloat(RegExp.$2) * 0.0283495;
+  } else if (/^([\d-.]+)\s*(?:gm)$/i.test(str)) { // grams
+    v = parseFloat(RegExp.$1) * 0.001;
+  } else if (/^([\d-.]+)\s*(?:lbf|lbf-s|lbf-sec|lbf-sec?)$/i.test(str)) { // pounds (force), pounds(force)-seconds
+    v = parseFloat(RegExp.$1) * 4.44822;
+  } else if (/^([\d-.]+)\s*(?:m|kg|n|n-s|n-secs)$/i.test(str)) { // MKS units
+    v = parseFloat(RegExp.$1);
+  }
+
+  return v;
+}

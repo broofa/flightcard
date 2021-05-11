@@ -13,13 +13,7 @@ const { Label, Control, Group, Row, Check, Switch } = Form;
 
 function FormSection({ className, children, ...props }
   : { className ?: string, children : tChildren } & tProps) {
-  return <div className={`${className ?? ''}`}
-    style={{
-      fontSize: '1.2em',
-      fontWeight: 'bold',
-      color: '#ccc'
-    }}
-    {...props}>
+  return <div className={`text-muted h2 ${className ?? ''}`} {...props}>
     {children}
   </div>;
 }
@@ -45,7 +39,7 @@ function Field({ access, label, children, ...props }
   if (props.type == 'switch') {
     const checked = getter();
     return <FieldCol>
-      <Switch style={{ whiteSpace: 'nowrap' }} id={rId} label={label} checked={checked} onChange={setter} />
+      <Switch className='text-nowrap' id={rId} label={label} checked={checked} onChange={setter} />
     </FieldCol>;
   } else if (/^radio\((.*)\)$/.test(props.type)) {
   // Special case for type="radio(..list,of,radio,values...)"
@@ -95,7 +89,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
 
   const flier = fliers.find(f => f.id == card?.userId);
 
-  function access(path : string) {
+  function access(path : string, parser ?: (str : string) => number) {
     const parts : string[] = path.split('.');
 
     return {
@@ -109,7 +103,9 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
       },
 
       setter({ target }) {
-        const value = target.type == 'checkbox' ? target.checked : target.value;
+        let value = target.type == 'checkbox' ? target.checked : target.value;
+
+        if (parser) value = parser(value);
 
         const newCard : iCard = { ...card };
         let o = newCard;
@@ -148,7 +144,58 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     onCancel={() => history.goBack()}
     onDelete={(edit && dbCard && onDelete) ? onDelete : undefined}>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <details className='border border-info rounded px-2 mb-3'>
+      <summary className='text-info'>{'\u24d8'} How do I specify units (e.g. length, mass, etc)...?</summary>
+
+      <p className='mt-3'>
+        Values are stored and displayed in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered in other units, as shown below, but will be converted to MKS.
+      </p>
+
+      <p>Note: Use the singular unit form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
+
+      <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '.2em 1em' }}>
+        {/* Length */}
+        <div className='font-weight-normal text-right'>Length (metric)</div>
+        <div>
+          <code>1m</code>, <code>1cm</code>, <code>1mm</code>
+        </div>
+
+        <div className='font-weight-normal text-right'>Length (imperial)</div>
+        <div>
+          <code>1ft</code>, <code>1'</code>, <code>1in</code>, <code>1"</code>, <code>1'1"</code>, <code>1ft 1in</code>
+        </div>
+
+        <div className='font-weight-normal text-right'>Mass (metric)</div>
+        <div>
+          <code>1kg</code>, <code>1gm</code>
+        </div>
+
+        <div className='font-weight-normal text-right'>Mass (imperial)</div>
+        <div>
+          <code>1lb</code>, <code>1oz</code> <code>1lb 1oz</code>
+        </div>
+
+        <div className='font-weight-normal text-right'>Thrust/force (metric)</div>
+        <div><code>1n</code></div>
+
+        <div className='font-weight-normal text-right'>Thrust/force (imperial)</div>
+        <div><code>1lbf</code></div>
+
+        <div className='font-weight-normal text-right'>Impulse (metric)</div>
+        <div>
+          <code>1n-s</code>,&ensp;
+          <code>1n-sec</code>
+        </div>
+
+        <div className='font-weight-normal text-right'>Impulse (imperial)</div>
+        <div>
+          <code>1lbf-s</code>,&ensp;
+          <code>1lbf-sec</code>
+        </div>
+      </dl>
+    </details>
+
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <FieldCol><Label>Flier</Label></FieldCol>
       <Col>
         <Control as='select' value={flier?.id || ''}
@@ -174,40 +221,40 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
 
     <div className='mt-5 mb-3' style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
       <FormSection>Rocket</FormSection>
-      <Col style={{ border: `solid 2px ${card?.rsoId ? 'green' : 'red'}` }}>
+      <Col className={`border border-${card?.rsoId ? 'success' : 'warning'}`}>
         <Field type='switch' label='RSO Approved' access={access('flight.rsoVerified')} />
       </Col>
     </div>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <Field label='Name' placeholder='Rocket name' access={access('rocket.name')} />
       <Field label='Manufacturer' access={access('rocket.manufacturer')} />
     </Group>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <Field label='Length (m)' access={access('rocket.length')} />
       <Field label='Diameter (m)' access={access('rocket.diameter')} />
     </Group>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
-      <Field label='Mass (incl. motor)' access={access('rocket.mass')} />
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
+      <Field label='Mass w/ motor (kg)' access={access('rocket.mass')} />
       <Field label='Color' access={access('rocket.color')} />
     </Group>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <Field type='radio(chute, streamer, dual-deploy, shovel )' label='Recovery' access={access('rocket.recovery')} />
     </Group>
 
     <FormSection>Motor</FormSection>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <Field label='Motor' access={access('flight.motor')} />
       <Field label='Impulse (N⋅s)' access={access('flight.impulse')} />
     </Group>
 
     <FormSection>Flight</FormSection>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
 
       <Col sm='2'/>
       <Field type='switch' label='1st Flight' access={access('flight.firstFlight')} />
@@ -215,7 +262,7 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
       <Field sm='3' type='switch' label='Heads Up' access={access('flight.headsUp')} />
     </Group>
 
-    <Group as={Row} className='align-items-baseline mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       {/* @ts-expect-error `as` att comes from react-bootstrap */}
       <Field label='Notes' as='textarea' rows='5' access={access('flight.notes')} />
     </Group>
