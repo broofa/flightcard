@@ -2,12 +2,14 @@ import { nanoid } from 'nanoid';
 import React, { useEffect, useState } from 'react';
 import { Col, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, DELETE } from '../firebase';
 import { iCard, iUser } from '../types';
+import { unitParse } from '../util/units';
 import { useCurrentUser } from './App';
-import { CertDot } from './CertDot';
 import Editor from './Editor';
-import { Loading, sortArray, tChildren, tProps } from './util';
+import { errorTrap, showError } from './ErrorFlash';
+import { AttendeeInfo } from './UserList';
+import { Loading, tChildren, tProps } from './util';
 
 const { Label, Control, Group, Row, Check, Switch } = Form;
 
@@ -61,40 +63,39 @@ function Field({ access, label, children, ...props }
   </>;
 }
 
-export default function CardForm({ edit = false } : { edit ?: boolean}) {
+export default function CardEditor({ edit = true } : { edit ?: boolean}) {
   const history = useHistory();
   const [currentUser] = useCurrentUser();
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
-  const attendees = db.attendees.useValue(launchId);
-  const fliers = attendees ? Object.values(attendees) : [];
-  const dbCard = db.card.useValue(launchId, cardId);
 
-  const [card, setCard] = useState<iCard>({
-    id: nanoid(),
-    launchId,
-    userId: (currentUser as iUser).id
-  });
+  const [card, setCard] = useState<iCard>();
+  const flier = db.attendee.useValue(launchId, card?.userId);
 
   useEffect(() => {
-    if (dbCard) setCard(dbCard);
-  }, [dbCard]);
+    if (cardId === 'create') {
+      setCard({
+        id: nanoid(),
+        launchId,
+        userId: (currentUser as iUser).id
+      });
+    } else {
+      db.card.get(launchId, cardId).then(card => {
+        setCard(card);
+      });
+    }
+  }, [cardId]);
 
-  if (cardId != 'create' && !card) return <Loading wat='Card' />;
+  if (!card) return <Loading wat='Card' />;
 
   if (!currentUser) return <Loading wat='Current user' />;
-  if (!attendees) return <Loading wat='Attendees' />;
 
-  sortArray(fliers, 'name');
-
-  const flier = fliers.find(f => f.id == card?.userId);
-
-  function access(path : string, parser ?: (str : string) => number) {
-    const parts : string[] = path.split('.');
-
+  function access(path : string) {
     return {
       getter() : any {
+        const parts = path.split('.');
         let o : any = card;
+
         for (const k of parts) o = o?.[k];
         if (typeof (o) === 'number') {
           o = Math.round(o * 1000) / 1000;
@@ -103,19 +104,20 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
       },
 
       setter({ target }) {
-        let value = target.type == 'checkbox' ? target.checked : target.value;
+        const value = target.type == 'checkbox' ? target.checked : target.value;
+        const newCard : iCard = { ...card } as iCard;
+        const parts = path.split('.');
+        const att = parts.pop();
 
-        if (parser) value = parser(value);
+        if (!att) return;
 
-        const newCard : iCard = { ...card };
         let o = newCard;
-        for (let i = 0; i < parts.length; i++) {
-          if (i < parts.length - 1) {
-            o = o[parts[i]] || {};
-          } else {
-            o[parts[i]] = value;
-          }
+        for (const part of parts) {
+          if (!(part in o)) o[part] = {};
+          o = o[part];
         }
+
+        o[att] = value;
 
         setCard(newCard);
       }
@@ -123,13 +125,32 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   }
 
   const onSave = async () => {
-    card.launchId = launchId;
-    card.userId = currentUser.id;
-    await db.card.set(card.launchId, card.id, card);
+    if (!card) return;
+
+    // validate
+    try {
+      if (card.userId != currentUser.id) throw Error('You are not allowed to edit someone else\'s card');
+
+      const { rocket, motor } = card;
+
+      if (rocket) {
+        rocket.length = unitParse(rocket.length, 'Rocket length') ?? DELETE;
+        rocket.diameter = unitParse(rocket.diameter, 'Rocket diameter') ?? DELETE;
+        rocket.mass = unitParse(rocket.mass, 'Rocket mass') ?? DELETE;
+      }
+      if (motor) {
+        motor.impulse = unitParse(motor.impulse, 'Motor impulse') ?? DELETE;
+      }
+    } catch (err) {
+      showError(err);
+      return;
+    }
+
+    await errorTrap(db.card.set(card.launchId, card.id, card));
     history.goBack();
   };
 
-  const onDelete = card.id
+  const onDelete = card?.id
     ? async () => {
       // TODO: Disallow deletion of cards that are racked, or that have been flown
 
@@ -142,10 +163,10 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
   return <Editor
     onSave={onSave}
     onCancel={() => history.goBack()}
-    onDelete={(edit && dbCard && onDelete) ? onDelete : undefined}>
+    onDelete={(edit && onDelete) ? onDelete : undefined}>
 
     <details className='border border-info rounded px-2 mb-3'>
-      <summary className='text-info'>{'\u24d8'} How do I specify units (e.g. length, mass, etc)...?</summary>
+      <summary className='text-info'>FAQ: How do I specify units (e.g. length, mass, etc)...?</summary>
 
       <p className='mt-3'>
         Values are stored and displayed in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered in other units, as shown below, but will be converted to MKS.
@@ -196,30 +217,13 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     </details>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <FieldCol><Label>Flier</Label></FieldCol>
-      <Col>
-        <Control as='select' value={flier?.id || ''}
-          onChange={
-            e => {
-              const lu = attendees[e?.target.value];
-              if (lu) {
-                setCard({ ...card, userId: lu.id });
-              }
-            }
-          }>
-          <option value=''>Select Flier ...</option>
-           {
-             sortArray(Object.values(attendees), 'name')
-               .map(lu => {
-                 return <option key={lu.id} value={lu.id}>{lu.name}</option>;
-               })
-           }
-        </Control>
+      <Col sm='2' className='text-muted text-nowrap h2'>Flier</Col>
+      <Col className='d-flex'>
+        {flier ? <AttendeeInfo className='h2 flex-grow-1' attendee={flier} /> : null}
       </Col>
-      {flier ? <CertDot style={{ fontSize: '1.5rem' }} className='ml-3' cert={flier.cert} /> : null}
     </Group>
 
-    <div className='mt-5 mb-3' style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
+    <div className='mt-2 mb-3' style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
       <FormSection>Rocket</FormSection>
       <Col className={`border border-${card?.rsoId ? 'success' : 'warning'}`}>
         <Field type='switch' label='RSO Approved' access={access('flight.rsoVerified')} />
@@ -248,8 +252,8 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
     <FormSection>Motor</FormSection>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field label='Motor' access={access('flight.motor')} />
-      <Field label='Impulse (N⋅s)' access={access('flight.impulse')} />
+      <Field label='Motor' access={access('motor.name')} />
+      <Field label='Impulse (N⋅s)' access={access('motor.impulse')} />
     </Group>
 
     <FormSection>Flight</FormSection>
@@ -260,6 +264,8 @@ export default function CardForm({ edit = false } : { edit ?: boolean}) {
       <Field type='switch' label='1st Flight' access={access('flight.firstFlight')} />
       {/* @ts-expect-error `sm` att comes from react-bootstrap */}
       <Field sm='3' type='switch' label='Heads Up' access={access('flight.headsUp')} />
+      {/* @ts-expect-error `sm` att comes from react-bootstrap */}
+      <Field sm='3' type='switch' label='Complex' access={access('flight.complex')} />
     </Group>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>

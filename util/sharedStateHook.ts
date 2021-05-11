@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 /**
  * Factory function for creating React shared-state hooks.
  *
@@ -33,12 +34,10 @@ import { useEffect, useState } from 'react';
  *    Object that holds many, largely unrelated, properties.  This leads to components
  *    that depend on just one of the properties in a context, but that rerender when
  *    *any* property is changed.
- *
- * @param {any} value
- * @returns {Function} React hook function
  */
 
-export default function<T>(value : T, _name ?: string /* for debugging */) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function<T>(value : T, name ?: string /* for debugging */) {
   const setters = new Set<() => void>();
 
   return function useSharedState() : [T, (v : T) => void] {

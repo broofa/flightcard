@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
+import { unitParse } from '../util/units';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
-import { unitParse } from './util';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
@@ -160,9 +160,7 @@ async function seedPads(launchId : string) {
 
   // Seed pads
   for (const rackName of RACKS) {
-    const padNames = /Low/.test(rackName)
-      ? '123456'.split('')
-      : /Mid|High/.test(rackName) ? '1234'.split('') : ['1'];
+    const padNames = /Low|Mid|High/.test(rackName) ? '1234'.split('') : ['1'];
 
     const padIds : string[] = [];
     for (const name of padNames) {

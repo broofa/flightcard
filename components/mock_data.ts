@@ -66,9 +66,9 @@ export function createRocket() : iRocket & {_motor ?: iMotor} {
 
   const motor = {
     name: motorName,
-    _impulse: impulse,
-    _thrust: thrust,
-    _burn: burn
+    impulse: impulse,
+    thrust: thrust,
+    burn: burn
   };
 
   const color = rndItem(COLORS);

@@ -4,7 +4,7 @@ import { Link, Redirect, Route, Switch, useHistory, useParams } from 'react-rout
 import { db } from '../firebase';
 import { iAttendee, iPerm } from '../types';
 import { useCurrentUser } from './App';
-import CardForm from './CardForm';
+import CardEditor from './CardEditor';
 import CertForm from './CertForm';
 import { LaunchCard } from './LaunchCard';
 import { AttendeeInfo, UserFilterFunction, UserList } from './UserList';
@@ -43,17 +43,13 @@ function UsersPane({ launchId }) {
     </ButtonGroup>
 
     <UserList launchId={launchId} filter={userFilter}>{title}</UserList>
-
-    {
-      // racks?.map(rack => <Rack key={rack.id} cards={lcoCards} launchId={launchId as number} rackId={rack.id} />)
-    }
   </>;
 }
 
-function RangeSafetyPane({ launchId }) {
-  const history = useHistory();
+function RangeSafetyPane({ launchId, user }) {
   const cards = db.cards.useValue(launchId);
   const attendees = db.attendees.useValue(launchId);
+  const history = useHistory();
 
   if (!cards) return <Loading wat='Flight cards' />;
   if (!attendees) return <Loading wat='Users' />;
@@ -81,8 +77,8 @@ function PadCard({ padId, launchId }) {
   if (card?.userId && !attendee) return <Loading wat='User' />;
 
   return <Card className='position-relative rounded cursor-pointer' style={{ opacity: card ? 1 : 0.33 }}>
-    <div className='d-flex mt-1' style={{ fontSize: '1.3em' }}>
-      <span className='flex-grow-0 p-1 mr-2 bg-dark text-light text-center' style={{ minWidth: '2em' }}>{pad?.name}</span>
+    <div className='d-flex'>
+      <span className='flex-grow-0 p-1 mr-2 bg-dark text-light text-center' style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
 
       {
         attendee
@@ -110,6 +106,7 @@ function PadCard({ padId, launchId }) {
 
 function LaunchControlPane({ launchId }) {
   const launch = db.launch.useValue(launchId);
+  // const cards = db.cards.useValue(launchId);
 
   return <>
     {
@@ -117,7 +114,11 @@ function LaunchControlPane({ launchId }) {
         <h2 className='mt-5 mb-2'>{rack.name}</h2>
         <div className='deck ml-5'>
         {
-          rack.padIds?.map((padId, padIndex) => <PadCard key={padIndex} padId={padId} launchId={launchId} />)
+          rack.padIds?.map((padId, padIndex) => {
+            // const padCards = Object.values(cards).filter(card => card.padId === padId);
+
+            return <PadCard key={padIndex} padId={padId} launchId={launchId} />;
+          })
         }
         </div>
       </div>)
@@ -155,7 +156,7 @@ function Launch() {
 
     <Switch>
       <Route path={'/launches/:launchId/cards/:cardId'}>
-        <CardForm edit={true} />
+        <CardEditor />
       </Route>
 
       <Route path={'/launches/:launchId/profile'}>
@@ -164,7 +165,7 @@ function Launch() {
 
       <Route path={'/launches/:launchId/rso'}>
         <LaunchTabs />
-        <RangeSafetyPane launchId={launchId}/>
+        <RangeSafetyPane launchId={launchId} user={currentUser} />
       </Route>
 
       <Route path={'/launches/:launchId/lco'}>

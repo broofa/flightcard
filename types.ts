@@ -69,7 +69,7 @@ export interface iRocket {
   color ?: string;
   diameter ?: number; // meters
   length ?: number; // meters
-  weight ?: number; // kg
+  mass ?: number; // kg
   _motor ?: iMotor;
 }
 

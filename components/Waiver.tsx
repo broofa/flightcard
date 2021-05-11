@@ -42,7 +42,7 @@ export function Waiver({ user } : {user : iUser}) {
     <p>
       <strong>{APPNAME} is an experimental application.</strong>
       <br />
-      <em>No warranties are providd for {APPNAME}'s function, availability, or correctness.</em>
+      <em>No warranties are provided for {APPNAME}'s function, availability, or correctness.</em>
       <br />
       By using {APPNAME} you are assuming all of the risks, bugs, and other "hiccups" that come with experimental software.  {APPNAME} may fail or be unavailable.  Information {APPNAME} provides may be delayed, incomplete, or incorrect.
     </p>
@@ -51,7 +51,7 @@ export function Waiver({ user } : {user : iUser}) {
     <input type='checkbox' className='mr-4 waiver-check'
       checked={agreedCheck}
       onChange={e => setAgreedCheck(e.target.checked)} />
-      I have read, understand, and agree to the above terms
+      I understand and agree to the above terms
     </label>
 
     <div className='d-flex mt-3'>

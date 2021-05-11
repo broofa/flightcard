@@ -9,7 +9,7 @@ import { ErrorFlash } from './ErrorFlash';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
-import sharedStateHook from './sharedStateHook';
+import sharedStateHook from '../util/sharedStateHook';
 import { CLOSE_SOUND, Loading, OPEN_SOUND, playSound, usePrevious } from './util';
 export const APPNAME = 'FlightCard';
 

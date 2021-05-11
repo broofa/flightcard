@@ -91,7 +91,6 @@ function createAPI<T>(pathTemplate) {
 
   const api : DataAPI = {
     get(...args : string[]) : Promise<T> {
-      console.log(_ref(args));
       return errorTrap(_ref(args).get().then(ref => ref.val()));
     },
 
