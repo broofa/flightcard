@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Alert, Button, ButtonGroup, Card, Tab, Tabs } from 'react-bootstrap';
 import { Link, Redirect, Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { db } from '../firebase';
-import { iAttendee, iPerm } from '../types';
-import { useCurrentUser } from './App';
+import { iAttendee, iAttendees, iCard, iPerm } from '../types';
+import { AppContext } from './App';
 import CardEditor from './CardEditor';
 import CertForm from './CertForm';
 import { LaunchCard } from './LaunchCard';
@@ -35,7 +35,7 @@ function UsersPane({ launchId }) {
   }
 
   return <>
-      <ButtonGroup className='mt-4'>
+    <ButtonGroup className='mt-2'>
       <Button active={!userFilter} onClick={() => setUserFilter(undefined)}>All</Button>
       <Button active={userFilter === officerUsers} onClick={() => setUserFilter(() => officerUsers)}>{'\u2605'}</Button>
       <Button active={userFilter === lowPowerUsers} onClick={() => setUserFilter(() => lowPowerUsers)}><span className='cert-dot'>LP</span></Button>
@@ -46,9 +46,18 @@ function UsersPane({ launchId }) {
   </>;
 }
 
-function RangeSafetyPane({ launchId, user }) {
-  const cards = db.cards.useValue(launchId);
-  const attendees = db.attendees.useValue(launchId);
+function CardList({ cards, attendees } : {cards : iCard[], attendees : iAttendees}) {
+  return <div className='deck'>
+    {
+      sortArray(cards, card => attendees[card.userId].name)
+        .filter(card => !card.rsoId)
+        .map(card => <LaunchCard key={card.id} card={card} attendee={attendees[card.userId]} />)
+    }
+  </div>;
+}
+
+function RangeSafetyPane({ launchId }) {
+  const { cards, attendees } = useContext(AppContext);
   const history = useHistory();
 
   if (!cards) return <Loading wat='Flight cards' />;
@@ -57,13 +66,7 @@ function RangeSafetyPane({ launchId, user }) {
   return <>
     <Button className='mb-4' onClick={() => history.push(`/launches/${launchId}/cards/create`)}>Create Flight Card</Button>
     <h2>Awaiting Approval</h2>
-    <div className='deck'>
-      {
-        sortArray(Object.values(cards), card => attendees[card.userId].name)
-          .filter(card => !card.rsoId)
-          .map(card => <LaunchCard key={card.id} card={card} attendee={attendees[card.userId]} />)
-      }
-    </div>
+    <CardList cards={Object.values(cards)} attendees={attendees} />
   </>;
 }
 
@@ -101,8 +104,7 @@ function PadCard({ padId, launchId }) {
 }
 
 function LaunchControlPane({ launchId }) {
-  const launch = db.launch.useValue(launchId);
-  // const cards = db.cards.useValue(launchId);
+  const { launch } = useContext(AppContext);
 
   return <>
     {
@@ -122,9 +124,61 @@ function LaunchControlPane({ launchId }) {
   </>;
 }
 
+function CardsPane({ launchId }) {
+  const { currentUser, attendees, cards } = useContext(AppContext);
+  const history = useHistory();
+  const [cardView, setCardView] = useState('user');
+
+  if (!attendees) return <Loading wat='Attendees' />;
+  if (!cards) return <Loading wat='Cards' />;
+
+  let view;
+  switch (cardView) {
+    case 'rso':
+      view = <>
+        <h2 className='mt-4 mb-2'>Ready for RSO</h2>
+        <CardList cards={Object.values(cards)} attendees={attendees} />
+      </>;
+      break;
+
+    case 'lco':
+      view = <>
+      </>;
+      break;
+
+    default: {
+      const draftCards = Object.values(cards).filter(c => c.userId == currentUser?.id);
+      view = <>
+        <h2 className='mt-4'>Draft Flight Cards</h2>
+        <CardList cards={draftCards} attendees={attendees} />
+
+        <h2 className='mt-4'>Draft Flight Cards</h2>
+        <CardList cards={draftCards} attendees={attendees} />
+      </>;
+      break;
+    }
+  }
+
+  return <>
+    <div className='d-flex mt-2'>
+      <ButtonGroup>
+        <Button active={cardView == 'user'} onClick={() => setCardView('user')}>All Cards</Button>
+        <Button active={cardView == 'rso'} onClick={() => setCardView('rso')}>RSO Ready</Button>
+        <Button active={cardView == 'lco'} onClick={() => setCardView('lco')}>LCO Ready</Button>
+      </ButtonGroup>
+
+      <div className='flex-grow-1'/>
+
+      <Button onClick={() => history.push(`/launches/${launchId}/cards/create`)}>New Flight Card</Button>
+    </div>
+
+    {view}
+  </>;
+}
+
 function Launch() {
   const history = useHistory();
-  const [currentUser] = useCurrentUser();
+  const { currentUser } = useContext(AppContext);
   const params = useParams<{launchId : string, tabKey : string }>();
 
   const { launchId, tabKey } = params;
@@ -136,6 +190,7 @@ function Launch() {
   function LaunchTabs() {
     return <>
       <Tabs className='mb-3' defaultActiveKey={tabKey} onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
+        <Tab eventKey='cards' title='Cards' />
         <Tab eventKey='rso' title='Range Safety' />
         <Tab eventKey='lco' title='Launch Control' />
         <Tab eventKey='users' title='Attendees' />
@@ -152,6 +207,8 @@ function Launch() {
 
     <Switch>
       <Route exact path={'/launches/:launchId/cards'}>
+        <LaunchTabs />
+        <CardsPane launchId={launchId} />
       </Route>
 
       <Route path={'/launches/:launchId/cards/:cardId'}>
@@ -164,7 +221,7 @@ function Launch() {
 
       <Route path={'/launches/:launchId/rso'}>
         <LaunchTabs />
-        <RangeSafetyPane launchId={launchId} user={currentUser} />
+        <RangeSafetyPane launchId={launchId} />
       </Route>
 
       <Route path={'/launches/:launchId/lco'}>

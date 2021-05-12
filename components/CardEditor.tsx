@@ -1,15 +1,15 @@
 import { nanoid } from 'nanoid';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Col, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
 import { iCard, iUser } from '../types';
 import { unitParse } from '../util/units';
-import { APPNAME, useCurrentUser } from './App';
+import { AppContext, APPNAME } from './App';
 import Editor from './Editor';
 import { errorTrap, showError } from './ErrorFlash';
 import { AttendeeInfo } from './UserList';
-import { Loading, tChildren, tProps } from './util';
+import { Loading, sig, tChildren, tProps } from './util';
 
 const { Label, Control, Group, Row, Check, Switch } = Form;
 
@@ -75,7 +75,7 @@ function Field({ access, label, parser, children, ...props }
 
 export default function CardEditor({ edit = true } : { edit ?: boolean}) {
   const history = useHistory();
-  const [currentUser] = useCurrentUser();
+  const { currentUser } = useContext(AppContext);
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
 
@@ -109,10 +109,7 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
         let o : any = card;
 
         for (const k of parts) o = o?.[k];
-        if (typeof (o) === 'number') {
-          o = Math.round(o * 1000) / 1000;
-        }
-        return o;
+        return typeof (o) === 'number' ? sig(o) : o;
       },
 
       setter({ target }) {

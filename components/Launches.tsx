@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Button, Card } from 'react-bootstrap';
-import { db } from '../firebase';
-import { useCurrentUser } from './App';
+import { LinkContainer } from 'react-router-bootstrap';
+import { AppContext } from './App';
 import { Loading } from './util';
 
 export default function Launches() {
-  const launches = db.launches.useValue();
-  const [currentUser] = useCurrentUser();
+  const { launches, currentUser } = useContext(AppContext);
 
   if (!currentUser) return <Loading wat='User (Launches)' />;
   if (!launches) return <Loading wat='Launches' />;
@@ -24,7 +23,9 @@ export default function Launches() {
                 <br />
                 Host: {l.host}
               </Card.Text>
-              <Button href={`/launches/${launchId}`}>Check into {l.name}</Button>
+              <LinkContainer to={`/launches/${launchId}`}>
+                <Button>Check into {l.name}</Button>
+              </LinkContainer>
             </Card.Body>
           </Card>;
         })

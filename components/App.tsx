@@ -1,21 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
-import { iAttendee, iLaunch, iUser, tRole } from '../types';
+import { iAttendee, iAttendees, iCards, iLaunch, iLaunchs, iPads, iUser, tRole } from '../types';
+import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
 import Admin from './Admin';
 import './css/App.scss';
 import { ErrorFlash } from './ErrorFlash';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
-import sharedStateHook from '../util/sharedStateHook';
-import { CLOSE_SOUND, Loading, OPEN_SOUND, playSound, usePrevious } from './util';
+import { Loading, usePrevious } from './util';
 export const APPNAME = 'FlightCard';
 
-export const useCurrentUser = sharedStateHook<iUser | undefined>(undefined, 'currentUser');
-export const useCurrentLaunch = sharedStateHook<iLaunch | undefined>(undefined, 'currentLaunch');
-export const useCurrentAttendee = sharedStateHook<iAttendee | undefined>(undefined, 'currentAttendee');
+type tAppContext = {
+  currentUser ?: iUser;
+  launches ?: iLaunchs;
+  launch ?: iLaunch;
+  attendees ?: iAttendees;
+  officers ?: Record<string, boolean>;
+  attendee ?: iAttendee;
+  cards ?: iCards;
+  pads ?: iPads;
+};
+export const AppContext = createContext<tAppContext>({});
 
 function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) {
   const [muted, setMuted] = useState(false);
@@ -26,7 +34,7 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
     await db.launch.update(launch.id, { rangeOpen: !rangeOpen });
   }
 
-  if (!muted && prev !== undefined && prev != rangeOpen) playSound(rangeOpen ? OPEN_SOUND : CLOSE_SOUND);
+  if (!muted && prev !== undefined && prev != rangeOpen) playSound(rangeOpen ? RANGE_OPEN : RANGE_CLOSED);
 
   const variant = rangeOpen ? 'success' : 'danger';
   const text = `Range is ${rangeOpen ? 'Open' : 'Closed'}`;
@@ -77,14 +85,17 @@ export default function App() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const history = useHistory();
 
-  const [currentUser, setCurrentUser] = useCurrentUser();
-  const [currentLaunch, setCurrentLaunch] = useCurrentLaunch();
-  const [currentAttendee, setCurrentAttendee] = useCurrentAttendee();
+  const [appContext, setAppContext] = useState({});
 
-  const user = db.user.useValue(authId);
+  const currentUser = db.user.useValue(authId);
+  const launches = db.launches.useValue();
   const launch = db.launch.useValue(currentLaunchId);
-  const attendee = db.attendee.useValue(currentLaunchId, user?.id);
-
+  const attendees = db.attendees.useValue(currentLaunchId);
+  const officers = db.officers.useValue(currentLaunchId);
+  const cards = db.cards.useValue(currentLaunchId);
+  const pads = db.cards.useValue(currentLaunchId);
+  const attendee = attendees?.[currentUser?.id];
+  console.log('APP CONTEXT', appContext);
   // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
     if (authUser) {
@@ -102,21 +113,37 @@ export default function App() {
     setIsLoadingUser(false);
   }), []);
 
-  // Effect: Update shared state if/when it changes
+  // Effect: Update app-wide shared state
   useEffect(() => {
-    setCurrentUser(user);
-    setCurrentLaunch(launch);
-    setCurrentAttendee(attendee);
-  }, [user, launch, attendee]);
+    setAppContext({
+      attendee,
+      attendees,
+      cards,
+      launch,
+      launches,
+      currentUser,
+      officers,
+      pads
+    });
+  }, [
+    attendee,
+    attendees,
+    cards,
+    launch,
+    launches,
+    currentUser,
+    officers,
+    pads
+  ]);
 
-  return <>
+  return <AppContext.Provider value={appContext} >
     <Navbar expand='md' bg='dark' variant='dark' className='flex-grow-1 d-flex align-items-baseline'>
       <Navbar.Brand className='flex-grow-0' onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
       {
-        currentLaunch
+        launch
           ? < >
-              <Nav.Link onClick={() => history.push(`/launches/${currentLaunch.id}`)} className='mr-3 flex-grow-0'>{currentLaunch?.name}</Nav.Link>
-              <RangeStatus launch={currentLaunch} isLCO={currentAttendee?.role == 'lco'} />
+              <Nav.Link onClick={() => history.push(`/launches/${launch.id}`)} className='mr-3 flex-grow-0'>{launch?.name}</Nav.Link>
+              <RangeStatus launch={launch} isLCO={attendee?.role == 'lco'} />
             </>
           : <div className='flex-grow-1' />
         }
@@ -125,7 +152,7 @@ export default function App() {
 
       <Navbar.Collapse id='responsive-navbar-nav' className='flex-grow-0'>
         {
-          currentUser && currentLaunch && <RoleDropdown user={currentUser} launch={currentLaunch} />
+          currentUser && launch && <RoleDropdown user={currentUser} launch={launch} />
         }
 
        {
@@ -136,7 +163,7 @@ export default function App() {
               ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
               : null
              }
-              <NavDropdown.Item disabled={!currentLaunch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
+              <NavDropdown.Item disabled={!launch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
             <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
             </NavDropdown>
            : null
@@ -166,5 +193,5 @@ export default function App() {
     </div>
 
     <ErrorFlash />
-  </>;
+  </AppContext.Provider>;
 }

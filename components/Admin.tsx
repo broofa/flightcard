@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
 import { unitParse } from '../util/units';
+import { AppContext } from './App';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
@@ -121,16 +122,16 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
 }
 
 async function seedOfficers(launchId : string, users : iAttendees) {
-  const user = auth().currentUser;
+  const { currentUser } = useContext(AppContext);
   const RESOURCE = `officers/${launchId}`;
 
   // This should never happen
-  if (!user) throw Error('No current user(?!?)');
+  if (!currentUser) throw Error('No current user(?!?)');
 
   log('Seeding', RESOURCE);
 
   // Make sure current owner is an officer
-  const officers : iPerms = { [user.uid]: true };
+  const officers : iPerms = { [currentUser.id]: true };
 
   Object.values(users).forEach((attendee, i) => {
     if ((attendee.cert?.level ?? -1) >= 2 && (i % 10) < 4) {

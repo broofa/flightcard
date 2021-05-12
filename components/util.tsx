@@ -31,23 +31,10 @@ export function sortArray<T = any>(arr : T[], extractor : string | ((a : T) => a
   return arr;
 }
 
-//
-// Simple API for playing sounds
-//
-
-// Sound files created at https://ttsmp3.com/
-// @ts-expect-error parcel knows how to find this resource
-export { default as CLOSE_SOUND } from 'url:../sounds/rangeClosed.mp3';
-// @ts-expect-error parcel knows how to find this resource
-export { default as OPEN_SOUND } from 'url:../sounds/rangeOpen.mp3';
-
-const _sndCache = {};
-let _activeSound : HTMLAudioElement;
-export function playSound(soundUrl) {
-  _activeSound?.pause();
-
-  if (!_sndCache[soundUrl]) _sndCache[soundUrl] = new Audio(soundUrl);
-  const snd = _activeSound = _sndCache[soundUrl] as HTMLAudioElement;
-  snd.currentTime = 0;
-  snd.play();
+/**
+ * Round number to X significant digits
+ */
+export function sig(val : number, digits = 3) {
+  const man = digits - Math.ceil(Math.log10(val));
+  return man > 0 ? Math.round(val * 10 ** man) / 10 ** man : Math.round(val);
 }

@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { db } from '../firebase';
 import { iUser } from '../types';
-import { APPNAME, useCurrentLaunch } from './App';
+import { AppContext, APPNAME } from './App';
 import { Loading } from './util';
 
 export function Waiver({ user } : {user : iUser}) {
   const history = useHistory();
-  const [launch] = useCurrentLaunch();
+  const { launch } = useContext(AppContext);
 
   const [agreedCheck, setAgreedCheck] = useState(false);
 

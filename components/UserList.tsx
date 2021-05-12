@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { db, DELETE } from '../firebase';
 import { iAttendee, iCert, iPerm } from '../types';
-import { useCurrentUser } from './App';
+import { AppContext } from './App';
 import { CertDot } from './CertDot';
 import { Loading, sortArray, tChildren, tProps } from './util';
 
@@ -35,7 +35,7 @@ function UserEditor(
   { launchId, userId, onHide }
     : {launchId : string, userId : string, onHide : () => void }
 ) {
-  const [currentUser] = useCurrentUser();
+  const { currentUser } = useContext(AppContext);
   const isOfficer = db.officer.useValue(launchId, userId);
   const user = db.attendee.useValue(launchId, userId);
 
@@ -57,7 +57,7 @@ function UserEditor(
 
   return <Modal size='lg' show={true} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ml-4' cert={user.cert} expand={true}/></Modal.Title>
+        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ml-4' cert={user.cert} showType /></Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -85,9 +85,7 @@ export function UserList(
     children : tChildren;
   } & tProps) {
   const [editUserId, setEditUserId] = useState<string>();
-  const attendees = db.attendees.useValue(launchId);
-  const officers = db.officers.useValue(launchId);
-  const launch = db.launch.useValue(launchId);
+  const { attendees, launch, officers } = useContext(AppContext);
 
   if (!launch) { return <Loading wat='User launch' />; }
   if (!attendees) { return <Loading wat='Attendees' />; }
