@@ -91,13 +91,9 @@ function PadCard({ padId, launchId }) {
       {
         card?.rocket
           ? <>
-          <div>
-            {card.rocket?.name ?? ''}
-            </div>
-          <div className='font-weight-bold'>
-            {card?.motor?.name}
-            </div>
-        </>
+            <div>{card.rocket?.name ?? ''}</div>
+            <div className='font-weight-bold'>{card?.motor?.name}</div>
+          </>
           : null
       }
       </div>
@@ -155,6 +151,9 @@ function Launch() {
     }
 
     <Switch>
+      <Route exact path={'/launches/:launchId/cards'}>
+      </Route>
+
       <Route path={'/launches/:launchId/cards/:cardId'}>
         <CardEditor />
       </Route>

@@ -5,7 +5,7 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
 import { iCard, iUser } from '../types';
 import { unitParse } from '../util/units';
-import { useCurrentUser } from './App';
+import { APPNAME, useCurrentUser } from './App';
 import Editor from './Editor';
 import { errorTrap, showError } from './ErrorFlash';
 import { AttendeeInfo } from './UserList';
@@ -27,21 +27,31 @@ function FieldCol({ className, children, ...props }
   </Col>;
 }
 
-function Field({ access, label, children, ...props }
+function Field({ access, label, parser, children, ...props }
   : {
-    type ?: any,
     access : {getter : () => any, setter : (v) => void},
     label : string,
-    children ?: tChildren
+    type ?: any,
+    parser ?: (e : any) => void,
+    children ?: tChildren,
+    disabled ?: boolean
   } & tProps) {
   const { getter, setter } = access;
 
   const rId = Math.random().toString(16).substr(2);
   let input;
+
+  function handleBlur(e) {
+    if (parser) {
+      const value = parser(e.target.value);
+      setter({ target: { value } });
+    }
+  }
+
   if (props.type == 'switch') {
     const checked = getter();
     return <FieldCol>
-      <Switch className='text-nowrap' id={rId} label={label} checked={checked} onChange={setter} />
+      <Switch className='text-nowrap' id={rId} label={label} checked={checked} onChange={setter} {...props} />
     </FieldCol>;
   } else if (/^radio\((.*)\)$/.test(props.type)) {
   // Special case for type="radio(..list,of,radio,values...)"
@@ -54,7 +64,7 @@ function Field({ access, label, children, ...props }
           id={rId + i} checked={val === v} label={v} value={v} onChange={setter} />
       </Col>);
   } else {
-    input = <Col><Control {...props} value={getter()} onChange={setter}>{children}</Control></Col>;
+    input = <Col><Control onBlur={handleBlur} {...props} value={getter()} onChange={setter}>{children}</Control></Col>;
   }
 
   return <>
@@ -89,6 +99,8 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
   if (!card) return <Loading wat='Card' />;
 
   if (!currentUser) return <Loading wat='Current user' />;
+
+  const disabled = currentUser?.id !== flier?.id;
 
   function access(path : string) {
     return {
@@ -134,12 +146,12 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
       const { rocket, motor } = card;
 
       if (rocket) {
-        rocket.length = unitParse(rocket.length, 'Rocket length') ?? DELETE;
-        rocket.diameter = unitParse(rocket.diameter, 'Rocket diameter') ?? DELETE;
-        rocket.mass = unitParse(rocket.mass, 'Rocket mass') ?? DELETE;
+        rocket.length = unitParse(rocket.length, 'Rocket length') || DELETE;
+        rocket.diameter = unitParse(rocket.diameter, 'Rocket diameter') || DELETE;
+        rocket.mass = unitParse(rocket.mass, 'Rocket mass') || DELETE;
       }
       if (motor) {
-        motor.impulse = unitParse(motor.impulse, 'Motor impulse') ?? DELETE;
+        motor.impulse = unitParse(motor.impulse, 'Motor impulse') || DELETE;
       }
     } catch (err) {
       showError(err);
@@ -161,18 +173,18 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
     : null;
 
   return <Editor
-    onSave={onSave}
+    onSave={disabled ? undefined : onSave}
     onCancel={() => history.goBack()}
-    onDelete={(edit && onDelete) ? onDelete : undefined}>
+    onDelete={(!disabled && edit && onDelete) ? onDelete : undefined}>
 
     <details className='border border-info rounded px-2 mb-3'>
-      <summary className='text-info'>FAQ: How do I specify units (e.g. length, mass, etc)...?</summary>
+      <summary className='text-info'>FAQ: How do I enter values with different units?</summary>
 
       <p className='mt-3'>
-        Values are stored and displayed in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered in other units, as shown below, but will be converted to MKS.
+        {APPNAME} stores and displays all values in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered using other units as shown below, but will always be converted to MKS.
       </p>
 
-      <p>Note: Use the singular unit form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
+      <p>Note: Always use the singular unit form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
 
       <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '.2em 1em' }}>
         {/* Length */}
@@ -226,34 +238,34 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
     <div className='mt-2 mb-3' style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
       <FormSection>Rocket</FormSection>
       <Col className={`border border-${card?.rsoId ? 'success' : 'warning'}`}>
-        <Field type='switch' label='RSO Approved' access={access('flight.rsoVerified')} />
+        <Field disabled={disabled} type='switch' label='RSO Approved' access={access('flight.rsoVerified')} />
       </Col>
     </div>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field label='Name' placeholder='Rocket name' access={access('rocket.name')} />
-      <Field label='Manufacturer' access={access('rocket.manufacturer')} />
+      <Field disabled={disabled} label='Name' placeholder='Rocket name' access={access('rocket.name')} />
+      <Field disabled={disabled} label='Manufacturer' access={access('rocket.manufacturer')} />
     </Group>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field label='Length (m)' access={access('rocket.length')} />
-      <Field label='Diameter (m)' access={access('rocket.diameter')} />
+      <Field disabled={disabled} label='Length (m)' access={access('rocket.length')} parser={unitParse} />
+      <Field disabled={disabled} label='Diameter (m)' access={access('rocket.diameter')} parser={unitParse} />
     </Group>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field label='Mass w/ motor (kg)' access={access('rocket.mass')} />
-      <Field label='Color' access={access('rocket.color')} />
+      <Field disabled={disabled} label='Mass w/ motor (kg)' access={access('rocket.mass')} parser={unitParse} />
+      <Field disabled={disabled} label='Color' access={access('rocket.color')} />
     </Group>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field type='radio(chute, streamer, dual-deploy, shovel )' label='Recovery' access={access('rocket.recovery')} />
+      <Field disabled={disabled} type='radio(chute, streamer, dual-deploy, shovel )' label='Recovery' access={access('rocket.recovery')} />
     </Group>
 
     <FormSection>Motor</FormSection>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field label='Motor' access={access('motor.name')} />
-      <Field label='Impulse (N⋅s)' access={access('motor.impulse')} />
+      <Field disabled={disabled} label='Motor' access={access('motor.name')} />
+      <Field disabled={disabled} label='Impulse (N⋅s)' access={access('motor.impulse')} parser={unitParse} />
     </Group>
 
     <FormSection>Flight</FormSection>
@@ -261,16 +273,16 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
 
       <Col sm='2'/>
-      <Field type='switch' label='1st Flight' access={access('flight.firstFlight')} />
+      <Field disabled={disabled} type='switch' label='1st Flight' access={access('flight.firstFlight')} />
       {/* @ts-expect-error `sm` att comes from react-bootstrap */}
-      <Field sm='3' type='switch' label='Heads Up' access={access('flight.headsUp')} />
+      <Field disabled={disabled} sm='3' type='switch' label='Heads Up' access={access('flight.headsUp')} />
       {/* @ts-expect-error `sm` att comes from react-bootstrap */}
-      <Field sm='3' type='switch' label='Complex' access={access('flight.complex')} />
+      <Field disabled={disabled} sm='3' type='switch' label='Complex' access={access('flight.complex')} />
     </Group>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       {/* @ts-expect-error `as` att comes from react-bootstrap */}
-      <Field label='Notes' as='textarea' rows='5' access={access('flight.notes')} />
+      <Field disabled={disabled} label='Notes' as='textarea' rows='5' access={access('flight.notes')} />
     </Group>
   </Editor>;
 }
