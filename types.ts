@@ -4,6 +4,7 @@ export type DeepPartial<T> = {
 };
 
 export type tRole = 'lco' | 'rso';
+export type tCardStatus = 'review' | 'ready' | 'done';
 
 export type iPerm = boolean;
 export type iPerms = Record<string, iPerm>;
@@ -81,6 +82,8 @@ export interface iCard {
   lcoId ?: string;
   rsoId ?: string;
   padId ?: string;
+
+  status ?: tCardStatus;
 
   firstFlight ?: boolean;
   headsUp ?: boolean;

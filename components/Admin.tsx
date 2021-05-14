@@ -121,8 +121,7 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
   return Object.fromEntries(entries);
 }
 
-async function seedOfficers(launchId : string, users : iAttendees) {
-  const { currentUser } = useContext(AppContext);
+async function seedOfficers(launchId : string, users : iAttendees, currentUser : iUser) {
   const RESOURCE = `officers/${launchId}`;
 
   // This should never happen
@@ -194,30 +193,37 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
 
   // Seed cards
   const ALL : iCard[] = [];
-  for (const userId of Object.keys(attendees).slice(0, 10)) {
-    const rocket = createRocket();
+  for (const userId of Object.keys(attendees)) {
+    for (let i = 0; i < 4; i++) {
+      const rocket = createRocket();
 
-    const { _motor: motor } = rocket as iRocket & {_motor ?: iMotor};
-    delete rocket._motor;
+      const { _motor: motor } = rocket as iRocket & {_motor ?: iMotor};
+      delete rocket._motor;
 
-    const id = genId('card');
-    const padId = rndItem(Object.keys(pads));
-    await database().ref(`pads/${padId}`).update({ cardId: id });
+      const status = [DELETE, 'review', 'ready', 'done'][i];
 
-    ALL.push({
-      id,
-      launchId,
-      userId,
-      padId,
+      const id = genId('card');
+      const padId = /ready|done/.test(status ?? '') ? rndItem(Object.keys(pads)) : DELETE;
+      await database().ref(`pads/${padId}`).update({ cardId: id });
 
-      firstFlight: Math.random() < 0.2 || DELETE,
-      headsUp: Math.random() < 0.2 || DELETE,
-      complex: Math.random() < 0.2 || DELETE,
-      notes: 'Randomly generated flight card',
+      ALL.push({
+        id,
 
-      rocket,
-      motor
-    } as iCard);
+        status,
+
+        launchId,
+        userId,
+        padId,
+
+        firstFlight: Math.random() < 0.2 || DELETE,
+        headsUp: Math.random() < 0.2 || DELETE,
+        complex: Math.random() < 0.2 || DELETE,
+        notes: 'Randomly generated flight card',
+
+        rocket,
+        motor
+      } as iCard);
+    }
   }
 
   const entries = await Promise.all(
@@ -240,7 +246,7 @@ async function purge(path) {
 }
 
 let seeding = false;
-async function seedDB() {
+async function seedDB(context) {
   if (seeding) return;
   if (!confirm('Are you sure?  This will remove all previously seeded launch state.')) return;
   seeding = true;
@@ -268,7 +274,7 @@ async function seedDB() {
     for (const launchId of Object.keys(launches)) {
       const attendees = await seedAttendees(launchId, users);
 
-      await seedOfficers(launchId, attendees);
+      await seedOfficers(launchId, attendees, context.currentUser);
 
       const pads = await seedPads(launchId);
 
@@ -382,13 +388,14 @@ function testUtil() {
 
 export default function Admin() {
   const [, setLogLength] = useState(_log.length);
+  const context = useContext(AppContext);
 
   // Trigger re-render when log changes
   _log.onLog = () => setLogLength(_log.length);
 
   return <>
     <div className='deck'>
-      <Button variant='warning' onClick={seedDB} >Seed DB</Button>
+      <Button variant='warning' onClick={() => seedDB(context)} >Seed DB</Button>
       <Button variant='warning' onClick={testDB} >Test Access</Button>
       <Button variant='warning' onClick={testUtil} >Test util</Button>
     </div>

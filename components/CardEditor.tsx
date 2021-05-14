@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import React, { useContext, useEffect, useState } from 'react';
-import { Col, Form } from 'react-bootstrap';
+import { Button, Col, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
 import { iCard, iUser } from '../types';
@@ -94,7 +94,7 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
         setCard(card);
       });
     }
-  }, [cardId]);
+  }, [cardId, launchId, currentUser]);
 
   if (!card) return <Loading wat='Card' />;
 
@@ -169,67 +169,92 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
     }
     : null;
 
+  const faq = <details className='border border-info rounded px-2 mb-3 flex-grow-1'>
+    <summary className='text-info flex-grow-1'>FAQ: How do I enter values with different units?</summary>
+
+    <p className='mt-3'>
+      {APPNAME} stores and displays all values in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered using other units as shown below, but will always be converted to MKS.
+    </p>
+
+    <p>Note: Always use the singular unit form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
+
+    <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '.2em 1em' }}>
+      {/* Length */}
+      <div className='font-weight-normal text-right'>Length (metric)</div>
+      <div>
+        <code>1m</code>, <code>1cm</code>, <code>1mm</code>
+      </div>
+
+      <div className='font-weight-normal text-right'>Length (imperial)</div>
+      <div>
+        <code>1ft</code>, <code>1'</code>, <code>1in</code>, <code>1"</code>, <code>1'1"</code>, <code>1ft 1in</code>
+      </div>
+
+      <div className='font-weight-normal text-right'>Mass (metric)</div>
+      <div>
+        <code>1kg</code>, <code>1gm</code>
+      </div>
+
+      <div className='font-weight-normal text-right'>Mass (imperial)</div>
+      <div>
+        <code>1lb</code>, <code>1oz</code> <code>1lb 1oz</code>
+      </div>
+
+      <div className='font-weight-normal text-right'>Thrust/force (metric)</div>
+      <div><code>1n</code></div>
+
+      <div className='font-weight-normal text-right'>Thrust/force (imperial)</div>
+      <div><code>1lbf</code></div>
+
+      <div className='font-weight-normal text-right'>Impulse (metric)</div>
+      <div>
+        <code>1n-s</code>,&ensp;
+        <code>1n-sec</code>
+      </div>
+
+      <div className='font-weight-normal text-right'>Impulse (imperial)</div>
+      <div>
+        <code>1lbf-s</code>,&ensp;
+        <code>1lbf-sec</code>
+      </div>
+    </dl>
+  </details>;
+
   return <Editor
     onSave={disabled ? undefined : onSave}
     onCancel={() => history.goBack()}
-    onDelete={(!disabled && edit && onDelete) ? onDelete : undefined}>
+    onDelete={(!disabled && onDelete) ? onDelete : undefined}>
 
-    <details className='border border-info rounded px-2 mb-3'>
-      <summary className='text-info'>FAQ: How do I enter values with different units?</summary>
+    {faq}
+    <div className='d-flex flex-wrap mb-3 my-2' style={{ gap: '1em' }}>
+      {
+        card.id && !currentUser.role && !card.status
+          ? <Button className='flex-grow-1'>Request RSO Review</Button>
+          : null
+      }
+      {
+        card.id && !card.status == 'ready'
+          ? <Button className='flex-grow-1'>RSO: Approve</Button>
+          : null
+      }
+      {
+        card.id && currentUser.role == 'rso'
+          ? <Button className='flex-grow-1'>Approve for Flight</Button>
+          : null
+      }
+      {
+        card.id && !currentUser.role && card.status
+          ? <Button variant='warning' className='flex-grow-1'>Return to preflight</Button>
+          : null
+      }
+    </div>
 
-      <p className='mt-3'>
-        {APPNAME} stores and displays all values in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered using other units as shown below, but will always be converted to MKS.
-      </p>
-
-      <p>Note: Always use the singular unit form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
-
-      <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '.2em 1em' }}>
-        {/* Length */}
-        <div className='font-weight-normal text-right'>Length (metric)</div>
-        <div>
-          <code>1m</code>, <code>1cm</code>, <code>1mm</code>
-        </div>
-
-        <div className='font-weight-normal text-right'>Length (imperial)</div>
-        <div>
-          <code>1ft</code>, <code>1'</code>, <code>1in</code>, <code>1"</code>, <code>1'1"</code>, <code>1ft 1in</code>
-        </div>
-
-        <div className='font-weight-normal text-right'>Mass (metric)</div>
-        <div>
-          <code>1kg</code>, <code>1gm</code>
-        </div>
-
-        <div className='font-weight-normal text-right'>Mass (imperial)</div>
-        <div>
-          <code>1lb</code>, <code>1oz</code> <code>1lb 1oz</code>
-        </div>
-
-        <div className='font-weight-normal text-right'>Thrust/force (metric)</div>
-        <div><code>1n</code></div>
-
-        <div className='font-weight-normal text-right'>Thrust/force (imperial)</div>
-        <div><code>1lbf</code></div>
-
-        <div className='font-weight-normal text-right'>Impulse (metric)</div>
-        <div>
-          <code>1n-s</code>,&ensp;
-          <code>1n-sec</code>
-        </div>
-
-        <div className='font-weight-normal text-right'>Impulse (imperial)</div>
-        <div>
-          <code>1lbf-s</code>,&ensp;
-          <code>1lbf-sec</code>
-        </div>
-      </dl>
-    </details>
-
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
+    <Group as={Row} className='align-items-center mb-3 mb-sm-3'>
       <Col sm='2' className='text-muted text-nowrap h2'>Flier</Col>
-      <Col className='d-flex'>
-        {flier ? <AttendeeInfo className='h2 flex-grow-1' attendee={flier} /> : null}
+      <Col className='d-flex align-items-center'>
+        {flier ? <AttendeeInfo className='flex-grow-1' attendee={flier} /> : null}
       </Col>
+
     </Group>
 
     <div className='mt-2 mb-3' style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>

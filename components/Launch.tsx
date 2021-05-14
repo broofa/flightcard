@@ -5,6 +5,7 @@ import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { AppContext } from './App';
 import CardEditor from './CardEditor';
+import { CardsPane } from './CardsPane';
 import CertForm from './CertForm';
 import { LaunchCard } from './LaunchCard';
 import { AttendeeInfo, UserFilterFunction, UserList } from './UserList';
@@ -46,27 +47,31 @@ function UsersPane({ launchId }) {
   </>;
 }
 
-function CardList({ cards, attendees } : {cards : iCard[], attendees : iAttendees}) {
+export function CardList({ cards, attendees } : {cards : iCard[], attendees ?: iAttendees}) {
+  if (attendees) {
+    sortArray(cards, card => attendees[card.userId].name);
+  } else {
+    sortArray(cards, card => card.rocket?.name);
+  }
+
   return <div className='deck'>
     {
-      sortArray(cards, card => attendees[card.userId].name)
-        .filter(card => !card.rsoId)
-        .map(card => <LaunchCard key={card.id} card={card} attendee={attendees[card.userId]} />)
+      cards.map(card => <LaunchCard key={card.id} card={card} attendee={attendees?.[card.userId]} />)
     }
   </div>;
 }
 
 function RangeSafetyPane({ launchId }) {
   const { cards, attendees } = useContext(AppContext);
-  const history = useHistory();
 
   if (!cards) return <Loading wat='Flight cards' />;
   if (!attendees) return <Loading wat='Users' />;
 
+  const rsoCards = Object.values(cards).filter(c => c.status == 'review');
+
   return <>
-    <Button className='mb-4' onClick={() => history.push(`/launches/${launchId}/cards/create`)}>Create Flight Card</Button>
-    <h2>Awaiting Approval</h2>
-    <CardList cards={Object.values(cards)} attendees={attendees} />
+    <h2>RSO Requests</h2>
+    <CardList cards={rsoCards} attendees={attendees} />
   </>;
 }
 
@@ -124,58 +129,6 @@ function LaunchControlPane({ launchId }) {
   </>;
 }
 
-function CardsPane({ launchId }) {
-  const { currentUser, attendees, cards } = useContext(AppContext);
-  const history = useHistory();
-  const [cardView, setCardView] = useState('user');
-
-  if (!attendees) return <Loading wat='Attendees' />;
-  if (!cards) return <Loading wat='Cards' />;
-
-  let view;
-  switch (cardView) {
-    case 'rso':
-      view = <>
-        <h2 className='mt-4 mb-2'>Ready for RSO</h2>
-        <CardList cards={Object.values(cards)} attendees={attendees} />
-      </>;
-      break;
-
-    case 'lco':
-      view = <>
-      </>;
-      break;
-
-    default: {
-      const draftCards = Object.values(cards).filter(c => c.userId == currentUser?.id);
-      view = <>
-        <h2 className='mt-4'>Draft Flight Cards</h2>
-        <CardList cards={draftCards} attendees={attendees} />
-
-        <h2 className='mt-4'>Draft Flight Cards</h2>
-        <CardList cards={draftCards} attendees={attendees} />
-      </>;
-      break;
-    }
-  }
-
-  return <>
-    <div className='d-flex mt-2'>
-      <ButtonGroup>
-        <Button active={cardView == 'user'} onClick={() => setCardView('user')}>All Cards</Button>
-        <Button active={cardView == 'rso'} onClick={() => setCardView('rso')}>RSO Ready</Button>
-        <Button active={cardView == 'lco'} onClick={() => setCardView('lco')}>LCO Ready</Button>
-      </ButtonGroup>
-
-      <div className='flex-grow-1'/>
-
-      <Button onClick={() => history.push(`/launches/${launchId}/cards/create`)}>New Flight Card</Button>
-    </div>
-
-    {view}
-  </>;
-}
-
 function Launch() {
   const history = useHistory();
   const { currentUser } = useContext(AppContext);
@@ -193,7 +146,6 @@ function Launch() {
         <Tab eventKey='cards' title='Cards' />
         <Tab eventKey='rso' title='Range Safety' />
         <Tab eventKey='lco' title='Launch Control' />
-        <Tab eventKey='users' title='Attendees' />
       </Tabs>
     </>;
   }
@@ -201,7 +153,7 @@ function Launch() {
   return <>
     {
       !attendee?.cert
-        ? <Alert variant='warning'>Please set your certification level in <Link to={`/launches/${launchId}/profile`}>your profile page</Link></Alert>
+        ? <Alert variant='warning'>Please set your certification level in <Link to={`/launches/${launchId}/profile`}>your launch profile</Link></Alert>
         : null
     }
 

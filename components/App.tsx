@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCards, iLaunch, iLaunchs, iPads, iUser, tRole } from '../types';
@@ -95,7 +96,7 @@ export default function App() {
   const cards = db.cards.useValue(currentLaunchId);
   const pads = db.cards.useValue(currentLaunchId);
   const attendee = attendees?.[currentUser?.id];
-  console.log('APP CONTEXT', appContext);
+
   // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
     if (authUser) {
@@ -142,7 +143,12 @@ export default function App() {
       {
         launch
           ? < >
-              <Nav.Link onClick={() => history.push(`/launches/${launch.id}`)} className='mr-3 flex-grow-0'>{launch?.name}</Nav.Link>
+              <NavDropdown alignRight id='settings-dropdown' title={launch.name} >
+                <LinkContainer to={`/launches/${launch.id}/users`}><Nav.Link>Attendees</Nav.Link></LinkContainer>
+                <LinkContainer to={`/launches/${launch.id}/stats`}><Nav.Link>Stats</Nav.Link></LinkContainer>
+                <LinkContainer to={`/launches/${launch.id}/profile`}><Nav.Link>Profile</Nav.Link></LinkContainer>
+              </NavDropdown>
+
               <RangeStatus launch={launch} isLCO={attendee?.role == 'lco'} />
             </>
           : <div className='flex-grow-1' />
@@ -164,7 +170,7 @@ export default function App() {
               : null
              }
               <NavDropdown.Item disabled={!launch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
-            <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
             </NavDropdown>
            : null
         }
