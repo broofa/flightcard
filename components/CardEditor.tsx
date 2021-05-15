@@ -67,15 +67,18 @@ function Field({ access, label, parser, children, ...props }
     input = <Col><Control onBlur={handleBlur} {...props} value={getter()} onChange={setter}>{children}</Control></Col>;
   }
 
+  // return <div className='form-floating'>
+  // </div>;
+
   return <>
     <FieldCol><Label className='mt-2 mt-sm-0 mb-0'>{label}</Label></FieldCol>
     { input}
   </>;
 }
 
-export default function CardEditor({ edit = true } : { edit ?: boolean}) {
+export default function CardEditor() {
   const history = useHistory();
-  const { currentUser } = useContext(AppContext);
+  const { attendee } = useContext(AppContext);
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
 
@@ -87,20 +90,20 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
       setCard({
         id: nanoid(),
         launchId,
-        userId: (currentUser as iUser).id
+        userId: (attendee as iUser).id
       });
     } else {
       db.card.get(launchId, cardId).then(card => {
         setCard(card);
       });
     }
-  }, [cardId, launchId, currentUser]);
+  }, [cardId, launchId, attendee]);
 
   if (!card) return <Loading wat='Card' />;
 
-  if (!currentUser) return <Loading wat='Current user' />;
+  if (!attendee) return <Loading wat='Current user' />;
 
-  const disabled = currentUser?.id !== flier?.id;
+  const disabled = attendee?.id !== flier?.id;
 
   function access(path : string) {
     return {
@@ -138,7 +141,7 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
 
     // validate
     try {
-      if (card.userId != currentUser.id) throw Error('You are not allowed to edit someone else\'s card');
+      if (card.userId != attendee.id) throw Error('You are not allowed to edit someone else\'s card');
 
       const { rocket, motor } = card;
 
@@ -228,22 +231,22 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
     {faq}
     <div className='d-flex flex-wrap mb-3 my-2' style={{ gap: '1em' }}>
       {
-        card.id && !currentUser.role && !card.status
+        card.id && !attendee.role && !card.status
           ? <Button className='flex-grow-1'>Request RSO Review</Button>
           : null
       }
       {
-        card.id && !card.status == 'ready'
+        card.id && (attendee.role == 'rso') && (card.status == 'review')
           ? <Button className='flex-grow-1'>RSO: Approve</Button>
           : null
       }
       {
-        card.id && currentUser.role == 'rso'
+        card.id && (attendee.role == 'rso')
           ? <Button className='flex-grow-1'>Approve for Flight</Button>
           : null
       }
       {
-        card.id && !currentUser.role && card.status
+        card.id && !attendee.role && card.status
           ? <Button variant='warning' className='flex-grow-1'>Return to preflight</Button>
           : null
       }
@@ -257,12 +260,7 @@ export default function CardEditor({ edit = true } : { edit ?: boolean}) {
 
     </Group>
 
-    <div className='mt-2 mb-3' style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
-      <FormSection>Rocket</FormSection>
-      <Col className={`border border-${card?.rsoId ? 'success' : 'warning'}`}>
-        <Field disabled={disabled} type='switch' label='RSO Approved' access={access('flight.rsoVerified')} />
-      </Col>
-    </div>
+    <FormSection>Rocket</FormSection>
 
     <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <Field disabled={disabled} label='Name' placeholder='Rocket name' access={access('rocket.name')} />
