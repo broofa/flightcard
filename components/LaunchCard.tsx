@@ -11,7 +11,7 @@ export function LaunchCard(
   return <Link to={`/launches/${card.launchId}/cards/${card.id}`} className='launch-card text-center rounded border border-dark d-flex flex-column p-1 cursor-pointer'>
     {
       attendee
-        ? <AttendeeInfo className='flex-grow-0 text-left mr-1 font-weight-bold border-bottom pb-1 mb-1' hidePhoto attendee={attendee} />
+        ? <AttendeeInfo className='flex-grow-0 text-left me-1 font-weight-bold border-bottom pb-1 mb-1' hidePhoto attendee={attendee} />
         : null
     }
     <div>{card.rocket?.name ? `"${card.rocket.name}"` : <em>Unnamed rocket</em>}</div>

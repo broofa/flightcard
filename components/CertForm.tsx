@@ -36,8 +36,8 @@ export default function CertForm({ user, launchId } : { user : iAttendee; launch
   function CertInput({ certName, children } : { certName : string; children ?: tChildren; }) {
     const cert = CERTS[certName];
     return <label>
-      <input type='radio' className='mr-2' onChange={() => setSelectedCert(certName)} checked={certName == selectedCert} />
-      <CertDot cert={{ ...cert, verifiedDate: '-' }} showType className='mr-4' />
+      <input type='radio' className='me-2' onChange={() => setSelectedCert(certName)} checked={certName == selectedCert} />
+      <CertDot cert={{ ...cert, verifiedDate: '-' }} showType className='me-4' />
       {children}
     </label>;
   }

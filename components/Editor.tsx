@@ -22,7 +22,7 @@ export default function Editor(
 
     <div style={{ marginTop: '2em', display: 'flex' }}>
       {onCancel ? <Button onClick={onCancel} variant='secondary'>Cancel</Button> : null}
-      {onDelete ? <Button onClick={onDelete} variant='danger' className='ml-5'>Delete</Button> : null}
+      {onDelete ? <Button onClick={onDelete} variant='danger' className='ms-5'>Delete</Button> : null}
       <div style={{ flexGrow: 1 }} />
       {onSave ? <Button type='submit'>Save</Button> : null}
     </div>

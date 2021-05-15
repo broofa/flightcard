@@ -86,11 +86,11 @@ function PadCard({ padId, launchId }) {
 
   return <Card className='position-relative rounded cursor-pointer' style={{ opacity: card ? 1 : 0.33 }}>
     <div className='d-flex'>
-      <span className='flex-grow-0 p-1 mr-2 bg-dark text-light text-center' style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
+      <span className='flex-grow-0 p-1 me-2 bg-dark text-light text-center' style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
 
       {
         attendee
-          ? <AttendeeInfo className='flex-grow-1 mr-1' hidePhoto attendee={attendee} />
+          ? <AttendeeInfo className='flex-grow-1 me-1' hidePhoto attendee={attendee} />
           : <span className='flex-grow-1' />
       }
     </div>
@@ -115,7 +115,7 @@ function LaunchControlPane({ launchId }) {
     {
       launch?.racks?.map((rack, rackIndex) => <div key={rackIndex}>
         <h2 className='mt-5 mb-2'>{rack.name}</h2>
-        <div className='deck ml-5'>
+        <div className='deck ms-5'>
         {
           rack.padIds?.map((padId, padIndex) => {
             // const padCards = Object.values(cards).filter(card => card.padId === padId);

@@ -12,17 +12,17 @@ export function AttendeeInfo({ attendee, isOfficer, className, hidePhoto, ...pro
     {
       attendee.photoURL && !hidePhoto && <img src={attendee.photoURL} style={{ height: '48px' }}/>
     }
-    <span className='flex-grow-1 ml-2 my-0 h3'>{attendee.name}</span>
+    <span className='flex-grow-1 ms-2 my-0 h3'>{attendee.name}</span>
 
     {
       !isOfficer
         ? null
         : attendee.role
-          ? <span className='ml-2 ml-1 px-1 bg-info rounded-lg text-white'>{attendee.role?.toUpperCase()}</span>
-          : <span className={'ml-2  ml-1 px-1'}>{'\u2605'}</span>
+          ? <span className='ms-2 ms-1 px-1 bg-info rounded-lg text-white'>{attendee.role?.toUpperCase()}</span>
+          : <span className={'ms-2  ms-1 px-1'}>{'\u2605'}</span>
     }
 
-    <CertDot className='ml-2 flex-grow-0' cert={attendee.cert} />
+    <CertDot className='ms-2 flex-grow-0' cert={attendee.cert} />
   </div>;
 }
 
@@ -57,19 +57,19 @@ function UserEditor(
 
   return <Modal size='lg' show={true} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ml-4' cert={user.cert} showType /></Modal.Title>
+        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ms-4' cert={user.cert} showType /></Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
         <Form.Switch inline id={'verified'}
-        className='ml-2'
+        className='ms-2'
         label='Certification verified'
         onChange={onVerify}
         disabled={(user.cert?.level ?? 0) <= 0}
         checked={!!user?.cert?.verifiedDate} />
 
         <Form.Switch id={'officer'}
-          className='ml-2 mt-4'
+          className='ms-2 mt-4'
           label='Club officer (RSO / LCO qualified)'
           disabled={(user.cert?.level ?? 0) <= 1}
           onChange={onOfficerToggle}
@@ -107,7 +107,7 @@ export function UserList(
 
             return <Button key={id}
               variant='outline-dark text-left'
-              className={`d-flex flex-grow-1 align-items-center ${attendee.photoURL ? 'pl-0 py-0' : ''}`}
+              className={`d-flex flex-grow-1 align-items-center ${attendee.photoURL ? 'ps-0 py-0' : ''}`}
               onClick={() => setEditUserId(attendee.id)}>
                 <AttendeeInfo attendee={attendee} isOfficer={isOfficer} className='flex-grow-1' />
             </Button>;

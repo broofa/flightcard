@@ -6,7 +6,7 @@
     "last 2 Chrome versions"
   ],
   "dependencies": {
-    "bootstrap": "4.6.0",
+    "bootstrap": "5.0.1",
     "fast-levenshtein": "3.0.0",
     "firebase": "8.4.2",
     "firebaseui": "4.8.0",
