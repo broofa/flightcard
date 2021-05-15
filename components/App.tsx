@@ -166,7 +166,7 @@ export default function App() {
            ? <NavDropdown alignRight id='settings-dropdown' title='Account &hellip;' >
             {
             currentUser?.id == 'onLzrICBjwXrvbdmwGl0M9rtlI63'
-              ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
+              ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin is as admind does</NavDropdown.Item>
               : null
              }
               <NavDropdown.Item disabled={!launch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>

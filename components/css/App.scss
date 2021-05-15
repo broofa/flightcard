@@ -33,36 +33,3 @@ h3, .h3 {font-size: 1.25rem}
     rgba(0, 0, 0, .1) 20px
   );
 }
-
-.stepper {
-  display: flex;
-  align-items: center;
-  height: 1.5em;
-
-  svt {
-    flex-grow: 1;
-  }
-
-  .connector {
-    fill: black;
-    stroke: black;
-    stroke-width: 1px;
-    fill-opacity: .33;
-    stroke-opacity: .33;
-    
-    &.complete {
-      fill-opacity: 1;
-      stroke-opacity: 1;
-    }
-  }
-
-  .step {
-    flex-grow: 0;
-    border-radius: 1em;
-    padding: 0 .3em;
-    opacity: .33;
-    
-    &.complete { opacity: 1;}
-  }
-
-}
