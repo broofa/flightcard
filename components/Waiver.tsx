@@ -48,7 +48,7 @@ export function Waiver({ user } : {user : iUser}) {
     </p>
 
     <label style={{ color: agreedCheck ? 'green' : 'red' }}>
-    <input type='checkbox' className='me-4 waiver-check'
+    <input type='checkbox' className='me-4'
       checked={agreedCheck}
       onChange={e => setAgreedCheck(e.target.checked)} />
       I understand and agree to the above terms

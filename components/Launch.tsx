@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Alert, Button, ButtonGroup, Card, Tab, Tabs } from 'react-bootstrap';
-import { Link, Redirect, Route, Switch, useHistory, useParams } from 'react-router-dom';
+import { Link, NavLink, Redirect, Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { AppContext } from './App';
@@ -75,36 +75,63 @@ function RangeSafetyPane({ launchId }) {
   </>;
 }
 
-function PadCard({ padId, launchId }) {
+function PadCard({ padId }) {
+  const { cards, attendees } = useContext(AppContext);
   const pad = db.pad.useValue(padId);
-  const card = db.card.useValue(launchId, pad?.cardId);
-  const attendee = db.attendee.useValue(launchId, card?.userId);
+
+  const padCards = cards
+    ? Object.values(cards).filter(c => c.padId == padId && c.status == 'ready')
+    : [];
 
   if (!pad) return <Loading wat='Pad' />;
-  if (pad.cardId && !card) return <Loading wat='Card' />;
-  if (card?.userId && !attendee) return <Loading wat='User' />;
 
-  return <Card className='position-relative rounded cursor-pointer' style={{ opacity: card ? 1 : 0.33 }}>
-    <div className='d-flex'>
-      <span className='flex-grow-0 p-1 me-2 bg-dark text-light text-center' style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
+  let title, body;
 
+  if (padCards.length == 1) {
+    const card = padCards[0];
+    const attendee = attendees?.[card.userId];
+    title = <div className='d-flex'>
       {
         attendee
           ? <AttendeeInfo className='flex-grow-1 me-1' hidePhoto attendee={attendee} />
           : <span className='flex-grow-1' />
       }
-    </div>
+    </div>;
 
-    <div className='mt-1 p-2 text-center'>
+    body = <div className='mt-1 p-2 text-center'>
       {
         card?.rocket
           ? <>
             <div>{card.rocket?.name ?? ''}</div>
-            <div className='font-weight-bold'>{card?.motor?.name}</div>
+            <div className='fw-bold'>{card?.motor?.name}</div>
           </>
           : null
       }
-      </div>
+    </div>;
+  } else if (padCards.length > 1) {
+    const names = padCards.map(c => attendees?.[c.userId]?.name);
+    const last = names.pop();
+
+    title = <Alert className='mx-2 my-auto p-0 flex-grow-1 text-center' variant='danger'>Pad Conflict</Alert>;
+
+    body = <div className='p-2'>
+      This pad is claimed by:
+      {padCards.map(c => {
+        const flier = attendees[c.userId];
+        return <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name}</Link>;
+      })}
+    </div>;
+  }
+
+  return <Card className='position-relative rounded cursor-pointer' style={{ opacity: body ? 1 : 0.33 }}>
+    <div className='d-flex'>
+      <span className='flex-grow-0 p-1 me-2 bg-dark text-light text-center'
+        style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
+      {title || <span className='flex-grow-1' />}
+    </div>
+
+    {body}
+
   </Card>;
 }
 
@@ -120,7 +147,7 @@ function LaunchControlPane({ launchId }) {
           rack.padIds?.map((padId, padIndex) => {
             // const padCards = Object.values(cards).filter(card => card.padId === padId);
 
-            return <PadCard key={padIndex} padId={padId} launchId={launchId} />;
+            return <PadCard key={padIndex} padId={padId} />;
           })
         }
         </div>

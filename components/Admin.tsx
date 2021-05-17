@@ -204,7 +204,6 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
 
       const id = genId('card');
       const padId = /ready|done/.test(status ?? '') ? rndItem(Object.keys(pads)) : DELETE;
-      await database().ref(`pads/${padId}`).update({ cardId: id });
 
       ALL.push({
         id,

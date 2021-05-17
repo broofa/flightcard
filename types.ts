@@ -48,7 +48,6 @@ export type iAttendees = Record<string, iAttendee>;
 export interface iPad {
   id : string,
   name ?: string;
-  cardId ?: string;
 }
 export type iPads = Record<string, iPad>;
 

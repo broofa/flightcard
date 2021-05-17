@@ -138,12 +138,12 @@ export default function App() {
   ]);
 
   return <AppContext.Provider value={appContext} >
-    <Navbar expand='md' bg='dark' variant='dark' className='flex-grow-1 d-flex align-items-baseline'>
+    <Navbar bg='dark' variant='dark' className='navbar-expand-md flex-grow-1 d-flex align-items-baseline'>
       <Navbar.Brand className='flex-grow-0' onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
       {
         launch
           ? < >
-              <NavDropdown alignRight id='settings-dropdown' title={launch.name} >
+              <NavDropdown id='settings-dropdown' title={launch.name} >
                 <LinkContainer to={`/launches/${launch.id}/users`}><Nav.Link>Attendees</Nav.Link></LinkContainer>
                 <LinkContainer to={`/launches/${launch.id}/stats`}><Nav.Link>Stats</Nav.Link></LinkContainer>
                 <LinkContainer to={`/launches/${launch.id}/profile`}><Nav.Link>Profile</Nav.Link></LinkContainer>
@@ -163,12 +163,12 @@ export default function App() {
 
        {
          currentUser
-           ? <NavDropdown alignRight id='settings-dropdown' title='Account &hellip;' >
-            {
-            currentUser?.id == 'onLzrICBjwXrvbdmwGl0M9rtlI63'
-              ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin is as admind does</NavDropdown.Item>
-              : null
-             }
+           ? <NavDropdown align={{ sm: 'end' }} id='settings-dropdown' title='Account &hellip;' >
+              {
+              currentUser?.id == 'onLzrICBjwXrvbdmwGl0M9rtlI63'
+                ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
+                : null
+              }
               <NavDropdown.Item disabled={!launch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
               <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
             </NavDropdown>

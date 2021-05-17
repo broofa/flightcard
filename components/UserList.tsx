@@ -18,7 +18,7 @@ export function AttendeeInfo({ attendee, isOfficer, className, hidePhoto, ...pro
       !isOfficer
         ? null
         : attendee.role
-          ? <span className='ms-2 ms-1 px-1 bg-info rounded-lg text-white'>{attendee.role?.toUpperCase()}</span>
+          ? <span className='ms-2 ms-1 px-1 bg-info text-white'>{attendee.role?.toUpperCase()}</span>
           : <span className={'ms-2  ms-1 px-1'}>{'\u2605'}</span>
     }
 
@@ -106,7 +106,7 @@ export function UserList(
             const { id } = attendee;
 
             return <Button key={id}
-              variant='outline-dark text-left'
+              variant='outline-dark text-start'
               className={`d-flex flex-grow-1 align-items-center ${attendee.photoURL ? 'ps-0 py-0' : ''}`}
               onClick={() => setEditUserId(attendee.id)}>
                 <AttendeeInfo attendee={attendee} isOfficer={isOfficer} className='flex-grow-1' />

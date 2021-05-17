@@ -3,9 +3,8 @@ import { Button, Form } from 'react-bootstrap';
 import { tChildren, tProps } from './util';
 
 export default function Editor(
-  { className, children, onSave, onCancel, onDelete, ...props }
+  { children, onSave, onCancel, onDelete, ...props }
   : {
-    className ?: string,
     onSave ?: (e ?: any) => any,
     onCancel ?: (e ?: any) => any,
     onDelete ?: (e ?: any) => any,
@@ -28,7 +27,7 @@ export default function Editor(
     </div>
   </>;
 
-  return <Form onSubmit={onSubmit} className={`editor ${className ?? ''}`} {...props}>
+  return <Form onSubmit={onSubmit} {...props}>
     {contents}
   </Form>;
 }

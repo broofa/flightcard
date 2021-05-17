@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid';
-import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Form } from 'react-bootstrap';
+import React, { cloneElement, ReactElement, useContext, useEffect, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
-import { iCard, iUser } from '../types';
+import { iCard, iUser, tCardStatus } from '../types';
 import { unitParse } from '../util/units';
 import { AppContext, APPNAME } from './App';
 import Editor from './Editor';
@@ -11,93 +11,57 @@ import { errorTrap, showError } from './ErrorFlash';
 import { AttendeeInfo } from './UserList';
 import { Loading, sig, tChildren, tProps } from './util';
 
-const { Label, Control, Group, Row, Check, Switch } = Form;
-
 function FormSection({ className, children, ...props }
   : { className ?: string, children : tChildren } & tProps) {
-  return <div className={`text-muted h2 ${className ?? ''}`} {...props}>
+  return <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
     {children}
   </div>;
 }
 
-function FieldCol({ className, children, ...props }
-  : { className ?: string, children : tChildren } & tProps) {
-  return <Col sm='2' className={`mt-2 mt-sm-0 text-sm-right ${className ?? ''}`} {...props}>
-    {children}
-  </Col>;
-}
-
-function Field({ access, label, parser, children, ...props }
-  : {
-    access : {getter : () => any, setter : (v) => void},
-    label : string,
-    type ?: any,
-    parser ?: (e : any) => void,
-    children ?: tChildren,
-    disabled ?: boolean
+function FloatingInput({ children, ...props } :
+  {
+    children : tChildren
   } & tProps) {
-  const { getter, setter } = access;
+  const label = children as ReactElement;
 
-  const rId = Math.random().toString(16).substr(2);
-  let input;
-
-  function handleBlur(e) {
-    if (parser) {
-      const value = parser(e.target.value);
-      setter({ target: { value } });
-    }
+  let id = label.props.children;
+  if (Array.isArray(id)) {
+    id = id.find(v => typeof (v) == 'string');
   }
+  id = id.replace(/\s+/g, '_').toLowerCase();
 
-  if (props.type == 'switch') {
-    const checked = getter();
-    return <FieldCol>
-      <Switch className='text-nowrap' id={rId} label={label} checked={checked} onChange={setter} {...props} />
-    </FieldCol>;
-  } else if (/^radio\((.*)\)$/.test(props.type)) {
-  // Special case for type="radio(..list,of,radio,values...)"
-    props.type = 'radio';
-    const val = getter();
-    input = RegExp.$1
-      .split(/, */)
-      .map((v, i) => <Col key={i}>
-        <Check {...props} className='text-capitalize text-nowrap'
-          id={rId + i} checked={val === v} label={v} value={v} onChange={setter} />
-      </Col>);
-  } else {
-    input = <Col><Control onBlur={handleBlur} {...props} value={getter()} onChange={setter}>{children}</Control></Col>;
-  }
+  return <div className='form-floating'>
+    <input
+      id={id}
+      placeholder={id}
+      className='form-control'
+      {...props}
+    />
 
-  // return <div className='form-floating'>
-  // </div>;
-
-  return <>
-    <FieldCol><Label className='mt-2 mt-sm-0 mb-0'>{label}</Label></FieldCol>
-    { input}
-  </>;
+    {cloneElement(label, { htmlFor: id })}
+  </div>;
 }
 
 export default function CardEditor() {
   const history = useHistory();
-  const { attendee } = useContext(AppContext);
+  const { attendee, cards } = useContext(AppContext);
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
-
   const [card, setCard] = useState<iCard>();
   const flier = db.attendee.useValue(launchId, card?.userId);
 
+  const dbCard = cards?.[cardId];
+
   useEffect(() => {
-    if (cardId === 'create') {
-      setCard({
-        id: nanoid(),
-        launchId,
-        userId: (attendee as iUser).id
-      });
-    } else {
-      db.card.get(launchId, cardId).then(card => {
-        setCard(card);
-      });
-    }
-  }, [cardId, launchId, attendee]);
+    setCard(
+      dbCard
+        ? JSON.parse(JSON.stringify(dbCard))
+        : {
+          // id undefined until save
+          launchId,
+          userId: (attendee as iUser).id
+        } as iCard);
+  }, [dbCard, attendee, launchId]);
 
   if (!card) return <Loading wat='Card' />;
 
@@ -105,43 +69,64 @@ export default function CardEditor() {
 
   const disabled = attendee?.id !== flier?.id;
 
-  function access(path : string) {
-    return {
-      getter() : any {
-        const parts = path.split('.');
-        let o : any = card;
+  function peek(path : string) {
+    const val : any = path.split('.').reduce((o, k) => o?.[k], card as any);
+    return typeof (val) === 'number' ? sig(val) : val;
+  }
 
-        for (const k of parts) o = o?.[k];
-        return typeof (o) === 'number' ? sig(o) : o;
+  function poke(path : string, val) {
+    const parts = path.split('.');
+    const att = parts.pop();
+
+    const newCard : iCard = { ...card } as iCard;
+
+    if (!att) return;
+    let o = newCard;
+    for (const k of parts) {
+      o = o[k] = Object.assign({}, o[k]);
+    }
+    o[att] = val;
+
+    setCard(newCard);
+  }
+
+  function textInputProps(path, parseUnits = false) {
+    return {
+      disabled,
+      value: peek(path) ?? '',
+      onChange({ target }) {
+        poke(path, target.value);
       },
 
-      setter({ target }) {
-        const value = target.type == 'checkbox' ? target.checked : target.value;
-        const newCard : iCard = { ...card } as iCard;
-        const parts = path.split('.');
-        const att = parts.pop();
-
-        if (!att) return;
-
-        let o = newCard;
-        for (const part of parts) {
-          if (!(part in o)) o[part] = {};
-          o = o[part];
+      onBlur(e) {
+        if (parseUnits) {
+          const val = unitParse(e.target.value);
+          poke(path, val);
         }
-
-        o[att] = value;
-
-        setCard(newCard);
       }
     };
   }
 
-  const onSave = async () => {
+  function switchInputProps(path) : any {
+    return {
+      id: path,
+      checked: !!peek(path),
+      type: 'switch',
+      disabled,
+      onChange({ target }) {
+        poke(path, target.checked || DELETE);
+      }
+    };
+  }
+
+  async function onSave() {
     if (!card) return;
+
+    if (!card.id) card.id = nanoid();
 
     // validate
     try {
-      if (card.userId != attendee.id) throw Error('You are not allowed to edit someone else\'s card');
+      if (card.userId != attendee?.id) throw Error('You are not allowed to edit someone else\'s card');
 
       const { rocket, motor } = card;
 
@@ -160,7 +145,7 @@ export default function CardEditor() {
 
     await errorTrap(db.card.set(card.launchId, card.id, card));
     history.goBack();
-  };
+  }
 
   const onDelete = card?.id
     ? async () => {
@@ -172,50 +157,50 @@ export default function CardEditor() {
     }
     : null;
 
-  const faq = <details className='border border-info rounded px-2 mb-3 flex-grow-1'>
+  const faq = <details className='border border-info rounded px-2 flex-grow-1'>
     <summary className='text-info flex-grow-1'>FAQ: How do I enter values with different units?</summary>
 
     <p className='mt-3'>
       {APPNAME} stores and displays all values in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered using other units as shown below, but will always be converted to MKS.
     </p>
 
-    <p>Note: Always use the singular unit form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
+    <p>Note: Use the singular form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
 
     <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '.2em 1em' }}>
       {/* Length */}
-      <div className='font-weight-normal text-right'>Length (metric)</div>
+      <div className='fw-normal text-end'>Length (metric)</div>
       <div>
         <code>1m</code>, <code>1cm</code>, <code>1mm</code>
       </div>
 
-      <div className='font-weight-normal text-right'>Length (imperial)</div>
+      <div className='fw-normal text-end'>Length (imperial)</div>
       <div>
         <code>1ft</code>, <code>1'</code>, <code>1in</code>, <code>1"</code>, <code>1'1"</code>, <code>1ft 1in</code>
       </div>
 
-      <div className='font-weight-normal text-right'>Mass (metric)</div>
+      <div className='fw-normal text-end'>Mass (metric)</div>
       <div>
         <code>1kg</code>, <code>1gm</code>
       </div>
 
-      <div className='font-weight-normal text-right'>Mass (imperial)</div>
+      <div className='fw-normal text-end'>Mass (imperial)</div>
       <div>
         <code>1lb</code>, <code>1oz</code> <code>1lb 1oz</code>
       </div>
 
-      <div className='font-weight-normal text-right'>Thrust/force (metric)</div>
+      <div className='fw-normal text-end'>Thrust/force (metric)</div>
       <div><code>1n</code></div>
 
-      <div className='font-weight-normal text-right'>Thrust/force (imperial)</div>
+      <div className='fw-normal text-end'>Thrust/force (imperial)</div>
       <div><code>1lbf</code></div>
 
-      <div className='font-weight-normal text-right'>Impulse (metric)</div>
+      <div className='fw-normal text-end'>Impulse (metric)</div>
       <div>
         <code>1n-s</code>,&ensp;
         <code>1n-sec</code>
       </div>
 
-      <div className='font-weight-normal text-right'>Impulse (imperial)</div>
+      <div className='fw-normal text-end'>Impulse (imperial)</div>
       <div>
         <code>1lbf-s</code>,&ensp;
         <code>1lbf-sec</code>
@@ -223,86 +208,168 @@ export default function CardEditor() {
     </dl>
   </details>;
 
+  function cardUpdate(update : Partial<iCard>) {
+    if (!card?.id) return;
+    return db.card.update(launchId, card.id, update);
+  }
+
+  function setCardStatus(status ?: tCardStatus) {
+    if (!card?.id) return;
+
+    const update = { status: status ?? DELETE } as Partial<iCard>;
+
+    if (!status) update.rsoId = update.lcoId = DELETE;
+    if (status == 'ready') update.rsoId = attendee?.id ?? DELETE;
+    if (!status || status == 'review') update.rsoId = DELETE;
+    if (!status || status == 'done') update.lcoId = attendee?.id ?? DELETE;
+
+    return cardUpdate(update);
+  }
+
+  const isOwner = card?.userId == attendee?.id;
+  const isNew = !card.id;
+  const isFlier = !attendee.role;
+  const isRSO = attendee.role === 'rso';
+  const isLCO = attendee.role === 'lco';
+  const isDraft = !card?.status;
+  const isReview = card?.status == 'review';
+  const isReady = card?.status == 'ready';
+
+  // Compose action buttons based on role / card status
+  const actions : any[] = [];
+  if (isFlier && isOwner) {
+    if (isDraft && !isNew) {
+      actions.push(<Button onClick={() => setCardStatus('review')}>Request RSO Review</Button>);
+    }
+    if (isReview) {
+      actions.push(<Button onClick={() => setCardStatus()}>Withdraw RSO Request</Button>);
+    }
+  }
+
+  if (isRSO && isReview && !isOwner) {
+    if (isReview) {
+      actions.push(<Button variant='warning' onClick={() => setCardStatus()}>RSO Decline</Button>);
+      actions.push(<Button onClick={() => setCardStatus('ready')}>RSO Approve</Button>);
+    }
+  }
+
+  if (isLCO && isReady && !isOwner) {
+    actions.push(<Button variant='warning' onClick={() => setCardStatus('review')}>Needs RSO Review</Button>);
+    actions.push(<Button variant='warning' onClick={() => setCardStatus('review')}>Will Not Launch</Button>);
+    if (card.padId) {
+      actions.push(<Button variant='warning' onClick={() => cardUpdate({ padId: DELETE })}>Clear Pad</Button>);
+    }
+    actions.push(<Button onClick={() => setCardStatus('done')}>Launch Complete</Button>);
+  }
+
   return <Editor
     onSave={disabled ? undefined : onSave}
     onCancel={() => history.goBack()}
     onDelete={(!disabled && onDelete) ? onDelete : undefined}>
 
-    {faq}
-    <div className='d-flex flex-wrap mb-3 my-2' style={{ gap: '1em' }}>
-      {
-        card.id && !attendee.role && !card.status
-          ? <Button className='flex-grow-1'>Request RSO Review</Button>
-          : null
-      }
-      {
-        card.id && (attendee.role == 'rso') && (card.status == 'review')
-          ? <Button className='flex-grow-1'>RSO: Approve</Button>
-          : null
-      }
-      {
-        card.id && (attendee.role == 'rso')
-          ? <Button className='flex-grow-1'>Approve for Flight</Button>
-          : null
-      }
-      {
-        card.id && !attendee.role && card.status
-          ? <Button variant='warning' className='flex-grow-1'>Return to preflight</Button>
-          : null
-      }
-    </div>
+    {!card.id ? faq : null}
 
-    <Group as={Row} className='align-items-center mb-3 mb-sm-3'>
-      <Col sm='2' className='text-muted text-nowrap h2'>Flier</Col>
-      <Col className='d-flex align-items-center'>
-        {flier ? <AttendeeInfo className='flex-grow-1' attendee={flier} /> : null}
-      </Col>
+    {
+      actions.length
+        ? <div className='mt-3 d-flex' style={{ gap: '1em' }}>{actions}</div>
+        : null
+    }
 
-    </Group>
+    {
+      flier
+        ? <>
+          <FormSection className='d-flex'>
+            <span>Flier</span>
+            <span className='flex-grow-1 text-end' style={{fontSize: '8pt', color: '#ccc'}}>card status: {card.status ?? 'no status'}</span>
+          </FormSection>
+          <AttendeeInfo className='me-3' attendee={flier} />
+        </>
+        : null
+    }
 
     <FormSection>Rocket</FormSection>
 
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field disabled={disabled} label='Name' placeholder='Rocket name' access={access('rocket.name')} />
-      <Field disabled={disabled} label='Manufacturer' access={access('rocket.manufacturer')} />
-    </Group>
+    <div className='d-grid deck'>
+      <FloatingInput {...textInputProps('rocket.name')}>
+        <label>Rocket Name</label>
+      </FloatingInput>
 
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field disabled={disabled} label='Length (m)' access={access('rocket.length')} parser={unitParse} />
-      <Field disabled={disabled} label='Diameter (m)' access={access('rocket.diameter')} parser={unitParse} />
-    </Group>
+      <FloatingInput {...textInputProps('rocket.manufacturer')}>
+        <label>Manufacturer</label>
+      </FloatingInput>
 
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field disabled={disabled} label='Mass w/ motor (kg)' access={access('rocket.mass')} parser={unitParse} />
-      <Field disabled={disabled} label='Color' access={access('rocket.color')} />
-    </Group>
+      <FloatingInput {...textInputProps('rocket.length', true)} >
+        <label>Length <span className='text-info ms-2'>(m)</span></label>
+      </FloatingInput>
 
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field disabled={disabled} type='radio(chute, streamer, dual-deploy, shovel )' label='Recovery' access={access('rocket.recovery')} />
-    </Group>
+      <FloatingInput {...textInputProps('rocket.diameter', true)} >
+        <label>Diameter <span className='text-info ms-2'>(m)</span></label>
+      </FloatingInput>
+
+      <FloatingInput {...textInputProps('rocket.mass', true)} >
+        <label>Mass <span className='text-info ms-2' >(kg, incl. motor)</span></label>
+      </FloatingInput>
+
+      <FloatingInput {...textInputProps('rocket.color')}>
+        <label>Color</label>
+      </FloatingInput>
+    </div>
+
+    <div className='d-flex rounded border my-3 py-2 px-3'
+      style={{ borderColor: '#ced4da', backgroundColor: disabled ? '#e9ecef' : 'inherit' }}>
+      <span className='me-3 flex-grow-0'>Recovery</span>
+      <div className='flex-grow-1 d-grid' style={{
+        gap: '.5em 1em',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(8em, 1fr)'
+      }}>
+        {
+          [['Chute', 'chute'], ['Streamer', 'streamer'], ['Dual-deploy', 'dual-deploy']]
+            .map(([label, value]) => <Form.Check
+            id={`recovery-${value}`}
+            key={label}
+            label={label}
+            disabled={disabled}
+            type='radio'
+            className='me-4 text-nowrap'
+            checked={peek('rocket.recovery') === value}
+            onChange={e => poke('rocket.recovery', e.target.checked ? value : DELETE)}
+          />)
+        }
+      </div>
+    </div>
 
     <FormSection>Motor</FormSection>
 
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field disabled={disabled} label='Motor' access={access('motor.name')} />
-      <Field disabled={disabled} label='Impulse (N⋅s)' access={access('motor.impulse')} parser={unitParse} />
-    </Group>
+    <div className='deck'>
+      <FloatingInput {...textInputProps('motor.name')}>
+        <label>Designation <span className='text-info ms-2'>(e.g. B6-5, J350)</span></label>
+      </FloatingInput>
+
+      <FloatingInput {...textInputProps('motor.impulse', true)} >
+        <label>Impulse <span className='text-info ms-2'>(n-sec)</span></label>
+      </FloatingInput>
+    </div>
 
     <FormSection>Flight</FormSection>
 
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
+    <div className='d-flex rounded border my-3 py-2 px-3'
+    style={{ borderColor: '#ced4da', backgroundColor: disabled ? '#e9ecef' : 'inherit' }}>
+      <span className='me-3 flex-grow-0'>Special</span>
+      <div className='flex-grow-1 d-grid' style={{ gap: '.5em 1em', gridTemplateColumns: 'repeat(auto-fit, minmax(8em, 1fr)' }}>
+        <Form.Check {...switchInputProps('flight.firstFlight')} label='1st Flight' />
+        <Form.Check {...switchInputProps('flight.headsUp')} label='Heads Up' />
+        <Form.Check {...switchInputProps('flight.complex')} label='Complex' />
+      </div>
+    </div>
 
-      <Col sm='2'/>
-      <Field disabled={disabled} type='switch' label='1st Flight' access={access('flight.firstFlight')} />
-      {/* @ts-expect-error `sm` att comes from react-bootstrap */}
-      <Field disabled={disabled} sm='3' type='switch' label='Heads Up' access={access('flight.headsUp')} />
-      {/* @ts-expect-error `sm` att comes from react-bootstrap */}
-      <Field disabled={disabled} sm='3' type='switch' label='Complex' access={access('flight.complex')} />
-    </Group>
-
-    <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      {/* @ts-expect-error `as` att comes from react-bootstrap */}
+    {/* <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
       <Field disabled={disabled} label='Notes' as='textarea' rows='5' access={access('flight.notes')} />
-    </Group>
+    </Group> */}
+
+  {/* Use floating labels once https://github.com/twbs/bootstrap/issues/32800 is fixed */}
+  <div className='mt-3'>
+    <label htmlFor='notes' className='form-label'>Notes</label>
+    <textarea disabled={disabled} className='form-control' id='notes' rows={3} />
+  </div>
   </Editor>;
 }

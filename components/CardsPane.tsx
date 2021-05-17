@@ -27,7 +27,7 @@ export function CardsPane({ launchId }) {
     <h2 className='mt-4'>Preflight</h2>
     <CardList cards={draftCards} />
 
-    <h2 className='mt-4'>Pending RSO Signoff</h2>
+    <h2 className='mt-4'>RSO Requests</h2>
     <CardList cards={reviewCards} />
 
     <h2 className='mt-4'>Ready To Launch</h2>
