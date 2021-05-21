@@ -45,7 +45,7 @@ function UserEditor(
   const onVerify = function(e : any) {
     const cert = { // Properties to update
       verifiedId: e.target.checked ? currentUser.id : DELETE,
-      verifiedDate: e.target.checked ? new Date().toISOString() : DELETE
+      verifiedTime: e.target.checked ? Date.now() : DELETE
     };
 
     db.attendee.updateChild<iCert>(launchId, user.id, 'cert', cert);
@@ -66,7 +66,7 @@ function UserEditor(
         label='Certification verified'
         onChange={onVerify}
         disabled={(user.cert?.level ?? 0) <= 0}
-        checked={!!user?.cert?.verifiedDate} />
+        checked={!!user?.cert?.verifiedTime} />
 
         <Form.Switch id={'officer'}
           className='ms-2 mt-4'
@@ -89,7 +89,6 @@ export function UserList(
 
   if (!launch) { return <Loading wat='User launch' />; }
   if (!attendees) { return <Loading wat='Attendees' />; }
-  if (!officers) { return <Loading wat='Officers' />; }
 
   return <>
     <h2 className='d-flex mt-4'>{children}</h2>
@@ -100,7 +99,7 @@ export function UserList(
       {
         sortArray(Object.values(attendees), 'name')
           .map(attendee => {
-            const isOfficer = officers[attendee.id];
+            const isOfficer = !!officers?.[attendee.id];
             if (filter && !filter(attendee, isOfficer)) { return null; }
 
             const { id } = attendee;

@@ -14,9 +14,9 @@ export function CertDot({ cert, showType = false, className, ...props } : {
 
   if (showType && cert?.type) text = cert?.type + ' ' + text;
 
-  if (!cert?.level || cert?.verifiedDate) {
+  if (!cert?.level || cert?.verifiedTime) {
     cn = `cert-dot-${cert?.level ?? 0}`;
-  } if (cert?.level && !cert?.verifiedDate) {
+  } if (cert?.level && !cert?.verifiedTime) {
     text += '\u26a0';
     cn = 'cert-dot-unverified';
   }

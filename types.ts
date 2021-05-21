@@ -35,11 +35,11 @@ export interface iCert {
   expires : string;
 
   verifiedId : string; // Id of attendee that verified the ID
-  verifiedDate : string;
+  verifiedTime : number;
 }
 
 export interface iAttendee extends iUser {
-  waiverSignedDate : string;
+  waiverTime : number;
   cert ?: iCert;
   role ?: tRole;
 }

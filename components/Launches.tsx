@@ -1,8 +1,27 @@
 import React, { useContext } from 'react';
 import { Button, Card } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { iLaunch } from '../types';
 import { AppContext } from './App';
-import { Loading } from './util';
+import { Loading, tProps } from './util';
+
+function dateString(ts) {
+  return new Date(`${ts}T00:00:00`).toLocaleDateString();
+}
+
+function EventCard({ launch, ...props } : {launch : iLaunch} & tProps) {
+  return <Card key={launch.id} {...props}>
+    <Card.Body>
+      <Card.Title >{launch.name}</Card.Title>
+      <div>Dates: {dateString(launch.startDate)} - {dateString(launch.endDate)}</div>
+      <div>Location: {launch.location}</div>
+      <div>Host: {launch.host}</div>
+      <LinkContainer className='mt-2' to={`/launches/${launch.id}`}>
+        <Button>Check into {launch.name}</Button>
+      </LinkContainer>
+    </Card.Body>
+  </Card>;
+}
 
 export default function Launches() {
   const { launches, currentUser } = useContext(AppContext);
@@ -11,24 +30,21 @@ export default function Launches() {
   if (!launches) return <Loading wat='Launches' />;
 
   return <>
-    <p>The following launches are currently available for checkin:</p>
+    <h2>Current and Upcoming Launches</h2>
     <div className='deck'>
       {
-        Object.entries(launches).map(([launchId, l]) => {
-          return <Card key={launchId}>
-            <Card.Body>
-              <Card.Title >{l.name}</Card.Title>
-              <Card.Text>
-                Location: {l.location}
-                <br />
-                Host: {l.host}
-              </Card.Text>
-              <LinkContainer to={`/launches/${launchId}`}>
-                <Button>Check into {l.name}</Button>
-              </LinkContainer>
-            </Card.Body>
-          </Card>;
-        })
+      Object.values(launches)
+        .filter(l => Date.parse(`${l.endDate}T23:59:59`) >= Date.now())
+        .map(l => <EventCard key={l.id} launch={l} />)
+      }
+    </div>
+
+    <h2 className='mt-5'>Past Launches</h2>
+    <div className='deck'>
+      {
+        Object.values(launches)
+          .filter(l => Date.parse(`${l.endDate}T23:59:59`) < Date.now())
+          .map(l => <EventCard key={l.id} launch={l} />)
       }
     </div>
   </>;

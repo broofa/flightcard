@@ -18,7 +18,7 @@ export function Waiver({ user } : {user : iUser}) {
   function launchAgree() {
     db.attendee.update(launch?.id, user.id, {
       ...user,
-      waiverSignedDate: (new Date()).toISOString()
+      waiverTime: Date.now()
     });
   }
 

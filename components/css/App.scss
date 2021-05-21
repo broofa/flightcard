@@ -1,22 +1,9 @@
-html {
-  font-family: sans-serif;
-}
-
-body {
-  margin-bottom: 2em;
-}
-
 h1, .h1 {font-size: 1.8rem}
 h2, .h2 {font-size: 1.5rem}
 h3, .h3 {font-size: 1.25rem}
 
 .cursor-pointer {
   cursor: pointer;
-}
-
-.nav-active {
-  color: black;
-  font-weight: bold;
 }
 
 .deck {
@@ -33,3 +20,7 @@ h3, .h3 {font-size: 1.25rem}
     rgba(0, 0, 0, .1) 20px
   );
 }
+
+nav a {color: #aaa;}
+nav a:hover {color: #eee; background-color: #666;}
+nav a.active {color: white}

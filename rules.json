@@ -16,16 +16,20 @@
       "$launchId": {
       	".read" : true, 
         "$userId": {
-					// User may only change their cert if it is set to unverified
+         "role": {
+     	     ".write": "$userId === auth.uid" 
+          },
+
+					// User may not verify themselves
           // Officers may only change (verify) other users' certs
           ".write": "(
             $userId === auth.uid 
-            && !newData.child('cert').child('verifiedDate').exists()
+            && !newData.child('cert').child('verifiedTime').exists()
           )
           || (
             $userId !== auth.uid 
             && root.child('officers').child($launchId).child(auth.uid).val() === true
-          )"
+          )",
         }
       }
     },
@@ -34,9 +38,11 @@
       "$launchId": {
       	".read" : true,
         "$userId": {
+            // Disallow `false` values makes it easier to detect "no officers" case
 			      ".validate": "newData.val() === true || newData.val() === null",
-            // Officer status can only be set by another officer
-            ".write": "$userId != auth.uid && data.parent().child(auth.uid).val() === true"
+            // Officer status can only be set by another officer, or if there are no officers
+            ".write": "$userId != auth.uid && data.parent().child(auth.uid).val() === true
+              || !root.child('officers').child($launchId).exists()"
         }
       }
     },

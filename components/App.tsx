@@ -1,17 +1,18 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { NavLink, Route, Switch, useRouteMatch } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCards, iLaunch, iLaunchs, iPads, iUser, tRole } from '../types';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
 import Admin from './Admin';
 import './css/App.scss';
 import { ErrorFlash } from './ErrorFlash';
+import Icon from './Icon';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
-import { Loading, usePrevious } from './util';
+import { Loading, tProps, usePrevious } from './util';
 export const APPNAME = 'FlightCard';
 
 type tAppContext = {
@@ -26,7 +27,8 @@ type tAppContext = {
 };
 export const AppContext = createContext<tAppContext>({});
 
-function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) {
+function RangeStatus({ launch, isLCO, ...props } :
+   { launch : iLaunch, isLCO : boolean } & tProps) {
   const [muted, setMuted] = useState(false);
   const { rangeOpen } = launch;
   const prev = usePrevious(rangeOpen);
@@ -40,7 +42,7 @@ function RangeStatus({ launch, isLCO } : { launch : iLaunch, isLCO : boolean }) 
   const variant = rangeOpen ? 'success' : 'danger';
   const text = `Range is ${rangeOpen ? 'Open' : 'Closed'}`;
 
-  return <ButtonGroup className='flex-grow-1'>
+  return <ButtonGroup {...props}>
       {
         isLCO
           ? <Button variant={variant} onClick={rangeClick}>{text}</Button>
@@ -78,23 +80,21 @@ function RoleDropdown({ launch, user } : {launch : iLaunch, user : iUser}) {
 
 export default function App() {
   const [authId, setAuthId] = useState<string>();
-  const location = useLocation();
-  const match = matchPath<{currentLaunchId : string}>(location.pathname, '/launches/:currentLaunchId');
-  const { currentLaunchId } = match?.params ?? {};
+  const match = useRouteMatch<{launchId : string}>('/launches/:launchId');
+  const { launchId } = match?.params ?? {};
 
   // const [ctx, setCtx] = useState({});
   const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const history = useHistory();
 
   const [appContext, setAppContext] = useState({});
 
   const currentUser = db.user.useValue(authId);
   const launches = db.launches.useValue();
-  const launch = db.launch.useValue(currentLaunchId);
-  const attendees = db.attendees.useValue(currentLaunchId);
-  const officers = db.officers.useValue(currentLaunchId);
-  const cards = db.cards.useValue(currentLaunchId);
-  const pads = db.cards.useValue(currentLaunchId);
+  const launch = db.launch.useValue(launchId);
+  const attendees = db.attendees.useValue(launchId);
+  const officers = db.officers.useValue(launchId);
+  const cards = db.cards.useValue(launchId);
+  const pads = db.pads.useValue(launchId);
   const attendee = attendees?.[currentUser?.id];
 
   // Effect: Update authId when user is authenticated / logs out
@@ -137,67 +137,68 @@ export default function App() {
     pads
   ]);
 
+  (window as any).appContext = appContext;
   return <AppContext.Provider value={appContext} >
-    <Navbar bg='dark' variant='dark' className='navbar-expand-md flex-grow-1 d-flex align-items-baseline'>
-      <Navbar.Brand className='flex-grow-0' onClick={() => history.push('/')}>{APPNAME}</Navbar.Brand>
+    <div className='d-flex flex-column vh-100'>
+      <Navbar bg='dark' variant='dark' className='d-flex align-items-center'>
+      {
+        currentUser && launch
+          ? <>
+              {
+                [
+                  ['', 'house-fill'],
+                  ['cards', 'card-heading'],
+                  ['rso', 'officer'],
+                  ['lco', 'rocket'],
+                  ['users', 'people'],
+                  ['profile', 'person-square']
+                ].map(([path, icon]) => <NavLink to={`/launches/${launch.id}/${path}`} exact key={path} className='flex-grow-1 text-center'>
+                {<Icon size='2em' name={icon} />}
+                </NavLink>)
+              }
+              {
+                currentUser && launch && <RoleDropdown user={currentUser} launch={launch} />
+              }
+            </>
+          : <>
+              <LinkContainer className='ms-2' to={'/'} ><Navbar.Brand>{APPNAME}</Navbar.Brand></LinkContainer>
+              <div className='flex-grow-1' />
+              {
+                currentUser
+                  ? <Nav.Link onClick={() => auth().signOut()}>Logout</Nav.Link>
+                  : null
+              }
+            </>
+        }
+      </Navbar>
+
+      <div className='flex-grow-1 overflow-auto p-3'>
+      {
+        isLoadingUser
+          ? <Loading wat='User (App)' />
+          : !currentUser
+              ? <Login />
+              : <Switch>
+            <Route path='/launches/:launchId?' component={Launch} />
+
+            <Route path='/admin'>
+              <Admin />
+            </Route>
+
+            <Route path='/'>
+              <Launches />
+            </Route>
+          </Switch>
+      }
+      </div>
+
       {
         launch
-          ? < >
-              <NavDropdown id='settings-dropdown' title={launch.name} >
-                <LinkContainer to={`/launches/${launch.id}/users`}><Nav.Link>Attendees</Nav.Link></LinkContainer>
-                <LinkContainer to={`/launches/${launch.id}/stats`}><Nav.Link>Stats</Nav.Link></LinkContainer>
-                <LinkContainer to={`/launches/${launch.id}/profile`}><Nav.Link>Profile</Nav.Link></LinkContainer>
-              </NavDropdown>
+          ? <RangeStatus className='text-white bg-dark flex-grow-0' launch={launch} isLCO={attendee?.role == 'lco'} />
+          : null
+      }
 
-              <RangeStatus launch={launch} isLCO={attendee?.role == 'lco'} />
-            </>
-          : <div className='flex-grow-1' />
-        }
-
-      <Navbar.Toggle aria-controls='responsive-navbar-nav' />
-
-      <Navbar.Collapse id='responsive-navbar-nav' className='flex-grow-0'>
-        {
-          currentUser && launch && <RoleDropdown user={currentUser} launch={launch} />
-        }
-
-       {
-         currentUser
-           ? <NavDropdown align={{ sm: 'end' }} id='settings-dropdown' title='Account &hellip;' >
-              {
-              currentUser?.id == 'onLzrICBjwXrvbdmwGl0M9rtlI63'
-                ? <NavDropdown.Item onClick={() => history.push('/admin')}>Admin</NavDropdown.Item>
-                : null
-              }
-              <NavDropdown.Item disabled={!launch} onClick={() => history.push(`/launches/${launch.id}/profile`)} >Profile</NavDropdown.Item>
-              <NavDropdown.Item onClick={() => auth().signOut()}>Logout</NavDropdown.Item>
-            </NavDropdown>
-           : null
-        }
-      </Navbar.Collapse>
-
-    </Navbar>
-
-    <div style={{ margin: '1rem 1em 0 1em' }}>
-    {
-      isLoadingUser
-        ? <Loading wat='User (App)' />
-        : !currentUser
-            ? <Login />
-            : <Switch>
-          <Route path='/launches/:launchId/:tabKey?' component={Launch} />
-
-          <Route path='/admin'>
-            <Admin />
-          </Route>
-
-          <Route path='/'>
-            <Launches />
-          </Route>
-        </Switch>
-    }
+      <ErrorFlash />
     </div>
-
-    <ErrorFlash />
   </AppContext.Provider>;
 }

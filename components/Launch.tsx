@@ -1,13 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { Alert, Button, ButtonGroup, Card, Tab, Tabs } from 'react-bootstrap';
-import { Link, NavLink, Redirect, Route, Switch, useHistory, useParams } from 'react-router-dom';
+import { Alert, Button, ButtonGroup } from 'react-bootstrap';
+import { Link, Route, Switch, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { AppContext } from './App';
 import CardEditor from './CardEditor';
 import { CardsPane } from './CardsPane';
-import CertForm from './CertForm';
 import { LaunchCard } from './LaunchCard';
+import LaunchHome from './LaunchHome';
+import ProfilePage from './ProfilePage';
 import { AttendeeInfo, UserFilterFunction, UserList } from './UserList';
 import { Loading, sortArray } from './util';
 import { Waiver } from './Waiver';
@@ -61,23 +62,26 @@ export function CardList({ cards, attendees } : {cards : iCard[], attendees ?: i
   </div>;
 }
 
-function RangeSafetyPane({ launchId }) {
+function RangeSafetyPane() {
   const { cards, attendees } = useContext(AppContext);
 
-  if (!cards) return <Loading wat='Flight cards' />;
   if (!attendees) return <Loading wat='Users' />;
 
-  const rsoCards = Object.values(cards).filter(c => c.status == 'review');
+  const rsoCards = Object.values(cards || {}).filter(c => c.status == 'review');
 
   return <>
     <h2>RSO Requests</h2>
-    <CardList cards={rsoCards} attendees={attendees} />
+    {
+      rsoCards?.length
+        ? <CardList cards={rsoCards} attendees={attendees} />
+        : <Alert variant='secondary'>No RSO requests at this time.</Alert>
+    }
   </>;
 }
 
 function PadCard({ padId }) {
-  const { cards, attendees } = useContext(AppContext);
-  const pad = db.pad.useValue(padId);
+  const { launch, cards, attendees } = useContext(AppContext);
+  const pad = db.pad.useValue(launch?.id, padId);
 
   const padCards = cards
     ? Object.values(cards).filter(c => c.padId == padId && c.status == 'ready')
@@ -85,11 +89,12 @@ function PadCard({ padId }) {
 
   if (!pad) return <Loading wat='Pad' />;
 
-  let title, body;
+  let title, body, link;
 
   if (padCards.length == 1) {
     const card = padCards[0];
     const attendee = attendees?.[card.userId];
+    link = `/launches/${card.launchId}/cards/${card.id}`;
     title = <div className='d-flex'>
       {
         attendee
@@ -109,21 +114,18 @@ function PadCard({ padId }) {
       }
     </div>;
   } else if (padCards.length > 1) {
-    const names = padCards.map(c => attendees?.[c.userId]?.name);
-    const last = names.pop();
-
     title = <Alert className='mx-2 my-auto p-0 flex-grow-1 text-center' variant='danger'>Pad Conflict</Alert>;
 
     body = <div className='p-2'>
-      This pad is claimed by:
+      Cards assigned to this pad:
       {padCards.map(c => {
-        const flier = attendees[c.userId];
-        return <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name}</Link>;
+        const flier = attendees?.[c.userId];
+        return flier && <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name}</Link>;
       })}
     </div>;
   }
 
-  return <Card className='position-relative rounded cursor-pointer' style={{ opacity: body ? 1 : 0.33 }}>
+  return <Link to={link} className='launch-card text-center rounded border border-dark d-flex flex-column p-1 cursor-pointer' style={{ opacity: body ? 1 : 0.33 }}>
     <div className='d-flex'>
       <span className='flex-grow-0 p-1 me-2 bg-dark text-light text-center'
         style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
@@ -131,11 +133,10 @@ function PadCard({ padId }) {
     </div>
 
     {body}
-
-  </Card>;
+  </Link>;
 }
 
-function LaunchControlPane({ launchId }) {
+function LaunchControlPane() {
   const { launch } = useContext(AppContext);
 
   return <>
@@ -157,36 +158,18 @@ function LaunchControlPane({ launchId }) {
 }
 
 function Launch() {
-  const history = useHistory();
   const { currentUser } = useContext(AppContext);
-  const params = useParams<{launchId : string, tabKey : string }>();
+  const params = useParams<{launchId : string }>();
 
-  const { launchId, tabKey } = params;
+  const { launchId } = params;
   const attendee = db.attendee.useValue(launchId, currentUser?.id);
 
   if (!currentUser) return <Loading wat='User (Launch)' />;
   if (!launchId || !attendee) return <Waiver user={currentUser} />;
 
-  function LaunchTabs() {
-    return <>
-      <Tabs className='mb-3' defaultActiveKey={tabKey} onSelect={k => history.push(`/launches/${launchId}/${k}`)} >
-        <Tab eventKey='cards' title='Cards' />
-        <Tab eventKey='rso' title='Range Safety' />
-        <Tab eventKey='lco' title='Launch Control' />
-      </Tabs>
-    </>;
-  }
-
   return <>
-    {
-      !attendee?.cert
-        ? <Alert variant='warning'>Please set your certification level in <Link to={`/launches/${launchId}/profile`}>your launch profile</Link></Alert>
-        : null
-    }
-
     <Switch>
       <Route exact path={'/launches/:launchId/cards'}>
-        <LaunchTabs />
         <CardsPane launchId={launchId} />
       </Route>
 
@@ -195,25 +178,24 @@ function Launch() {
       </Route>
 
       <Route path={'/launches/:launchId/profile'}>
-        <CertForm user={attendee} launchId={launchId} />
+        <ProfilePage user={attendee} launchId={launchId} />
       </Route>
 
       <Route path={'/launches/:launchId/rso'}>
-        <LaunchTabs />
-        <RangeSafetyPane launchId={launchId} />
+        <RangeSafetyPane/>
       </Route>
 
       <Route path={'/launches/:launchId/lco'}>
-        <LaunchTabs />
-        <LaunchControlPane launchId={launchId} />
+        <LaunchControlPane/>
       </Route>
 
       <Route path={'/launches/:launchId/users'}>
-        <LaunchTabs />
         <UsersPane launchId={launchId} />
       </Route>
 
-      <Redirect from='/launches/:launchId' to={'/launches/:launchId/users'} />
+      <Route path={'/launches/:launchId/'}>
+        <LaunchHome />
+      </Route>
     </Switch>
   </>;
 }

@@ -67,13 +67,13 @@ async function seedLaunches() : Promise<iLaunchs> {
   log('Seeding', RESOURCE);
 
   const ALL = [
-    { name: 'AP Showers', startDate: 'April 23', endDate: 'April 25' },
-    { name: 'Spring Thunder', startDate: 'May 21', endDate: 'May 23' },
-    { name: 'NXRS', host: 'OROC', location: 'Brothers, Oregon', organizations: ['Tripoli', 'NAR'], startDate: 'June 25', endDate: 'June 27' }
-    // { name: 'Summer Skies', startDate: 'July 23', endDate: 'July 25' },
-    // { name: 'Sod Blaster (TCR)', startDate: 'Sep 4', endDate: 'Sep 6' },
-    // { name: 'Fillible\'s Folly', startDate: 'Sep 17', endDate: 'Sep 19' },
-    // { name: 'Rocketober', startDate: 'Oct 15', endDate: 'Oct 17' }
+    { name: 'AP Showers', startDate: '2021-04-23', endDate: '2021-04-25' },
+    { name: 'Spring Thunder', startDate: '2021-05-21', endDate: '2021-05-23' },
+    { name: 'NXRS', startDate: '2021-06-25', endDate: '2021-06-27' },
+    { name: 'Summer Skies', startDate: '2021-07-23', endDate: '2021-07-25' },
+    { name: 'Sod Blaster (TCR)', startDate: '2021-09-04', endDate: '2021-09-06' },
+    { name: 'Fillible\'s Folly', startDate: '2021-09-17', endDate: '2021-09-19' },
+    { name: 'Rocketober', startDate: '2021-10-15', endDate: '2021-10-17' }
   ].map(l => ({ id: genId('launch'), host: 'OROC', location: 'Brothers, Oregon', ...l } as iLaunch));
 
   const entries = await Promise.all(
@@ -101,7 +101,7 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
       cert.expires = (new Date(Date.now() + rnd(365 * 24 * 3600e3))).toLocaleDateString();
       if (Math.random() < 0.3) {
         cert.verifiedId = rndItem(ATTENDEES).id;
-        cert.verifiedDate = (new Date()).toISOString();
+        cert.verifiedTime = Date.now();
       }
     }
 
@@ -141,7 +141,7 @@ async function seedOfficers(launchId : string, users : iAttendees, currentUser :
 }
 
 async function seedPads(launchId : string) {
-  const RESOURCE = 'pads';
+  const RESOURCE = `pads/${launchId}`;
 
   log('Seeding', RESOURCE);
 
@@ -270,7 +270,7 @@ async function seedDB(context) {
       seedLaunches()
     ]);
 
-    for (const launchId of Object.keys(launches)) {
+    for (const launchId of Object.keys(launches).slice(0, 1)) {
       const attendees = await seedAttendees(launchId, users);
 
       await seedOfficers(launchId, attendees, context.currentUser);

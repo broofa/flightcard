@@ -3,7 +3,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import { useEffect, useState } from 'react';
 import { errorTrap } from './components/ErrorFlash';
-import { iAttendee, iAttendees, iCard, iCards, iLaunch, iLaunchs, iPad, iPerm, iPerms, iUser } from './types';
+import { iAttendee, iAttendees, iCard, iCards, iLaunch, iLaunchs, iPad, iPads, iPerm, iPerms, iUser } from './types';
 
 firebase.setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
@@ -154,5 +154,6 @@ export const db = {
   cards: createAPI<iCards>('cards/:launchId'),
   card: createAPI<iCard>('cards/:launchId/:cardId'),
 
-  pad: createAPI<iPad>('pads/:padId')
+  pads: createAPI<iPads>('pads/:launchId'),
+  pad: createAPI<iPad>('pads/:launchId/:padId')
 };

@@ -44,13 +44,15 @@ function FloatingInput({ children, ...props } :
 
 export default function CardEditor() {
   const history = useHistory();
-  const { attendee, cards } = useContext(AppContext);
+  const { attendee, cards, launch, pads } = useContext(AppContext);
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
   const [card, setCard] = useState<iCard>();
   const flier = db.attendee.useValue(launchId, card?.userId);
+  const [rackIndex, setRackIndex] = useState('');
 
   const dbCard = cards?.[cardId];
+  const disabled = attendee?.id !== flier?.id;
 
   useEffect(() => {
     setCard(
@@ -59,15 +61,9 @@ export default function CardEditor() {
         : {
           // id undefined until save
           launchId,
-          userId: (attendee as iUser).id
+          userId: (attendee as iUser)?.id
         } as iCard);
   }, [dbCard, attendee, launchId]);
-
-  if (!card) return <Loading wat='Card' />;
-
-  if (!attendee) return <Loading wat='Current user' />;
-
-  const disabled = attendee?.id !== flier?.id;
 
   function peek(path : string) {
     const val : any = path.split('.').reduce((o, k) => o?.[k], card as any);
@@ -226,6 +222,22 @@ export default function CardEditor() {
     return cardUpdate(update);
   }
 
+  if (!card) return <Loading wat='Card' />;
+  if (!attendee) return <Loading wat='Current user' />;
+  if (!launch) return <Loading wat='Launch' />;
+  if (!pads) return <Loading wat='Launch' />;
+
+  // TODO: Give each rack an id to make this easier?
+  const padId = peek('padId');
+
+  // Rack is derived from the padId.  If card.padId is defined we locate the
+  // rack with that pidId.  If it's not, however, we need to have a bit of state
+  // that tracks which rack the user has selected in the UI, so that's what
+  // cardRackIndex is.
+  let cardRackIndex = launch?.racks?.findIndex(r => r.padIds?.includes(padId ?? ''));
+  if (cardRackIndex == null || cardRackIndex < 0) cardRackIndex = rackIndex == '' ? -1 : parseInt(rackIndex);
+  const rack = launch?.racks?.[cardRackIndex ?? -1];
+
   const isOwner = card?.userId == attendee?.id;
   const isNew = !card.id;
   const isFlier = !attendee.role;
@@ -239,27 +251,26 @@ export default function CardEditor() {
   const actions : any[] = [];
   if (isFlier && isOwner) {
     if (isDraft && !isNew) {
-      actions.push(<Button onClick={() => setCardStatus('review')}>Request RSO Review</Button>);
+      actions.push(<Button key='f1' onClick={() => setCardStatus('review')}>Request RSO Review</Button>);
     }
     if (isReview) {
-      actions.push(<Button onClick={() => setCardStatus()}>Withdraw RSO Request</Button>);
+      actions.push(<Button key='f2' onClick={() => setCardStatus()}>Withdraw RSO Request</Button>);
     }
   }
 
   if (isRSO && isReview && !isOwner) {
     if (isReview) {
-      actions.push(<Button variant='warning' onClick={() => setCardStatus()}>RSO Decline</Button>);
-      actions.push(<Button onClick={() => setCardStatus('ready')}>RSO Approve</Button>);
+      actions.push(<Button key='r1' variant='warning' onClick={() => setCardStatus()}>RSO Decline</Button>);
+      actions.push(<Button key='r2' onClick={() => setCardStatus('ready')}>RSO Approve</Button>);
     }
   }
 
   if (isLCO && isReady && !isOwner) {
-    actions.push(<Button variant='warning' onClick={() => setCardStatus('review')}>Needs RSO Review</Button>);
-    actions.push(<Button variant='warning' onClick={() => setCardStatus('review')}>Will Not Launch</Button>);
+    actions.push(<Button key='l1' variant='warning' onClick={() => setCardStatus('review')}>RSO Review</Button>);
     if (card.padId) {
-      actions.push(<Button variant='warning' onClick={() => cardUpdate({ padId: DELETE })}>Clear Pad</Button>);
+      actions.push(<Button key='l3' variant='warning' onClick={() => cardUpdate({ padId: DELETE })}>Clear Pad</Button>);
     }
-    actions.push(<Button onClick={() => setCardStatus('done')}>Launch Complete</Button>);
+    actions.push(<Button key='l4' onClick={() => setCardStatus('done')}>Done</Button>);
   }
 
   return <Editor
@@ -276,11 +287,33 @@ export default function CardEditor() {
     }
 
     {
+      (isOwner || isLCO) && card.status == 'ready'
+        ? <div className='d-flex gap-3 mt-2'>
+          <Form.Select value={cardRackIndex ?? -1} onChange={e => {
+            setRackIndex((e.target as HTMLSelectElement).value);
+            poke('padId', DELETE);
+          }}>
+            <option>Select Rack...</option>
+            {
+              launch?.racks?.map((rack, i) => <option key={i} value={i}>{rack.name}</option>)
+            }
+          </Form.Select>
+          <Form.Select disabled={!rack} value={card?.padId ?? ''} onChange={e => poke('padId', (e.target as HTMLSelectElement).value)}>
+            <option value=''>Select Pad...</option>
+              {
+                rack?.padIds?.map((padId) => <option key={padId} value={padId}>{pads[padId]?.name}</option>)
+              }
+          </Form.Select>
+        </div>
+        : null
+    }
+
+    {
       flier
         ? <>
           <FormSection className='d-flex'>
             <span>Flier</span>
-            <span className='flex-grow-1 text-end' style={{fontSize: '8pt', color: '#ccc'}}>card status: {card.status ?? 'no status'}</span>
+            <span className='flex-grow-1 text-end' style={{ fontSize: '8pt', color: '#ccc' }}>card status: {card.status ?? 'no status'}</span>
           </FormSection>
           <AttendeeInfo className='me-3' attendee={flier} />
         </>
@@ -342,7 +375,7 @@ export default function CardEditor() {
 
     <div className='deck'>
       <FloatingInput {...textInputProps('motor.name')}>
-        <label>Designation <span className='text-info ms-2'>(e.g. B6-5, J350)</span></label>
+        <label>Designation <span className='text-info ms-2'>(e.g. B6-5, J350, etc.)</span></label>
       </FloatingInput>
 
       <FloatingInput {...textInputProps('motor.impulse', true)} >
@@ -362,14 +395,8 @@ export default function CardEditor() {
       </div>
     </div>
 
-    {/* <Group as={Row} className='align-items-center mb-0 mb-sm-3'>
-      <Field disabled={disabled} label='Notes' as='textarea' rows='5' access={access('flight.notes')} />
-    </Group> */}
-
-  {/* Use floating labels once https://github.com/twbs/bootstrap/issues/32800 is fixed */}
-  <div className='mt-3'>
-    <label htmlFor='notes' className='form-label'>Notes</label>
-    <textarea disabled={disabled} className='form-control' id='notes' rows={3} />
-  </div>
+    {/* Use floating labels once https://github.com/twbs/bootstrap/issues/32800 is fixed */}
+    <label htmlFor='notes'>Notes</label>
+    <textarea id='notes' className='form-control rounded' {...textInputProps('flight.notes')} />
   </Editor>;
 }
