@@ -7,8 +7,7 @@
   ],
   "dependencies": {
     "bootstrap": "5.0.1",
-    "checkcss": "1.0.1",
-    "fast-levenshtein": "3.0.0",
+    "checkcss": "1.0.2",
     "firebase": "8.4.2",
     "firebaseui": "4.8.0",
     "nanoid": "3.1.22",
@@ -33,7 +32,7 @@
     "eslint-plugin-promise": "4.3.1",
     "eslint-plugin-react": "7.22.0",
     "eslint-plugin-react-hooks": "4.2.0",
-    "parcel": "2.0.0-beta.1",
+    "parcel": "2.0.0-beta.2",
     "sass": "1.32.12",
     "typescript": "4.2.3"
   },
