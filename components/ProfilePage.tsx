@@ -18,7 +18,7 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
         { type: type ?? DELETE, level, verifiedTime: DELETE, verifiedId: DELETE });
     }
 
-    return <label className='py-2'>
+    return <label className='flex-grow-1 py-2'>
       <input type='radio' className='me-1' onChange={handleChange} checked={type == user.cert?.type && level == user.cert?.level} />
       {
         type
@@ -44,17 +44,17 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
 
     <h2>High-Power Certification</h2>
     <div className='d-flex flex-column gap-3 ps-3'>
-      <div>
+      <div className='border-bottom border-dark'>
         <CertInput level={0}>Not certified</CertInput>
       </div>
 
-      <div>
+      <div className='d-flex gap-3 flex-wrap border-bottom border-dark'>
         <CertInput type='nar' level={1} />
         <CertInput type='nar' level={2} />
         <CertInput type='nar' level={3} />
       </div>
 
-      <div>
+      <div className='d-flex gap-3 flex-wrap'>
         <CertInput type='tra' level={1} />
         <CertInput type='tra' level={2} />
         <CertInput type='tra' level={3} />
