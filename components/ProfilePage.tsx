@@ -22,7 +22,7 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
       <input type='radio' className='me-1' onChange={handleChange} checked={type == user.cert?.type && level == user.cert?.level} />
       {
         type
-          ? <CertDot cert={{ type, level, verifiedTime: DELETE }} showType className='me-4' />
+          ? <CertDot cert={{ type, level, verifiedTime: 999 }} showType className='me-4' />
           : null
       }
       {children}
