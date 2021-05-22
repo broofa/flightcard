@@ -1,3 +1,12 @@
+// See https://stackoverflow.com/a/60939741/109538
+// @supports(padding:max(0px)) {
+//   body, header, footer {
+//       padding-left: min(0vmin, env(safe-area-inset-left));
+//       padding-right: min(0vmin, env(safe-area-inset-right));
+//   }
+// }
+
+
 h1, .h1 {font-size: 1.8rem}
 h2, .h2 {font-size: 1.5rem}
 h3, .h3 {font-size: 1.25rem}

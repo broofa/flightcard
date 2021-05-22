@@ -13,6 +13,7 @@ import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
 import { Loading, tProps, usePrevious } from './util';
+
 export const APPNAME = 'FlightCard';
 
 type tAppContext = {
@@ -46,7 +47,7 @@ function RangeStatus({ launch, isLCO, ...props } :
       {
         isLCO
           ? <Button variant={variant} onClick={rangeClick}>{text}</Button>
-          : <Button variant={`outline-${variant}`} style={{ opacity: 1 }} disabled>{text}</Button>
+          : <Button className='fw-bold' variant={`outline-${variant}`} style={{ opacity: 1 }} disabled>{text}</Button>
       }
     <Button variant={`outline-${variant}`} title='Toggle announcement volume' className='flex-grow-0' onClick={() => setMuted(!muted)}>{muted ? '\u{1F507}' : '\u{1F508}'}</Button>
   </ButtonGroup>
@@ -157,7 +158,9 @@ export default function App() {
                 </NavLink>)
               }
               {
-                currentUser && launch && <RoleDropdown user={currentUser} launch={launch} />
+                attendee && officers?.[attendee.id]
+                  ? <RoleDropdown user={currentUser} launch={launch} />
+                  : null
               }
             </>
           : <>
