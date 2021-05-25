@@ -270,14 +270,16 @@ async function seedDB(context) {
       seedLaunches()
     ]);
 
-    for (const launchId of Object.keys(launches).slice(0, 1)) {
-      const attendees = await seedAttendees(launchId, users);
+    let first = false;
+    for (const launch of Object.values(launches)) {
+      const pads = await seedPads(launch.id);
 
-      await seedOfficers(launchId, attendees, context.currentUser);
+      if (!first) continue;
+      first = true;
 
-      const pads = await seedPads(launchId);
-
-      await seedCards(launchId, attendees, pads);
+      const attendees = await seedAttendees(launch.id, users);
+      await seedOfficers(launch.id, attendees, context.currentUser);
+      await seedCards(launch.id, attendees, pads);
     }
   } catch (err) {
     log(err);

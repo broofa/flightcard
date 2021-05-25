@@ -225,7 +225,7 @@ export default function CardEditor() {
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
   if (!launch) return <Loading wat='Launch' />;
-  if (!pads) return <Loading wat='Launch' />;
+  if (!pads) return <Loading wat='Pads' />;
 
   // TODO: Give each rack an id to make this easier?
   const padId = peek('padId');
