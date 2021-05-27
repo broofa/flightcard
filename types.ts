@@ -5,6 +5,7 @@ export type DeepPartial<T> = {
 
 export type tRole = 'lco' | 'rso';
 export type tCardStatus = 'review' | 'ready' | 'done';
+export type tUnits = 'uscs' | undefined;
 
 export type iPerm = boolean;
 export type iPerms = Record<string, iPerm>;
@@ -13,6 +14,7 @@ export interface iUser {
   id : string;
   name : string;
   photoURL ?: string;
+  units ?: tUnits;
 }
 export type iUsers = Record<string, iUser>;
 

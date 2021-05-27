@@ -142,8 +142,8 @@ function LaunchControlPane() {
   return <>
     {
       launch?.racks?.map((rack, rackIndex) => <div key={rackIndex}>
-        <h2 className='mt-5 mb-2'>{rack.name}</h2>
-        <div className='deck ms-5'>
+        <h2>{rack.name}</h2>
+        <div className='deck ms-3'>
         {
           rack.padIds?.map((padId, padIndex) => {
             // const padCards = Object.values(cards).filter(card => card.padId === padId);

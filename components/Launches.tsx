@@ -39,7 +39,7 @@ export default function Launches() {
       }
     </div>
 
-    <h2 className='mt-5'>Past Launches</h2>
+    <h2>Past Launches</h2>
     <div className='deck'>
       {
         Object.values(launches)

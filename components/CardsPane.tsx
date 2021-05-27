@@ -26,21 +26,21 @@ export function CardsPane({ launchId }) {
         : <p className='text-secondary'>Nothing here</p>
     }
 
-    <h2 className='mt-2'>Review</h2>
+    <h2>Review</h2>
     {
       reviewCards.length
         ? <CardList cards={reviewCards} />
         : <p className='text-secondary'>Nothing here</p>
 }
 
-    <h2 className='mt-4'>Launch</h2>
+    <h2>Launch</h2>
     {
       readyCards.length
         ? <CardList cards={readyCards} />
         : <p className='text-secondary'>Nothing here</p>
       }
 
-    <h2 className='mt-4'>Completed</h2>
+    <h2>Completed</h2>
     {
       doneCards.length
         ? <CardList cards={doneCards} />

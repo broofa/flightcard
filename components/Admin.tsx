@@ -1,9 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
 import { unitParse } from '../util/units';
-import { AppContext } from './App';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
@@ -27,6 +26,19 @@ export async function rtPush<T>(path : string, state : T) : Promise<string> {
   const key = (state as any)?.id || genId(path);
   await database().ref(`${path}/${key}`).set(state);
   return key;
+}
+
+async function purge(path) {
+  const obj = (await database().ref(path).get()).val();
+  if (!obj) return;
+
+  await Promise.all(Object.keys(obj)
+    .filter(key => key.startsWith(SEED_PREFIX))
+    .map(key => {
+      const keyPath = `${path}/${key}`;
+      log('Removing', keyPath);
+      return database().ref(keyPath).remove();
+    }));
 }
 
 async function seedUsers() : Promise<iUsers> {
@@ -121,16 +133,15 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
   return Object.fromEntries(entries);
 }
 
-async function seedOfficers(launchId : string, users : iAttendees, currentUser : iUser) {
+async function seedOfficers(launchId : string, users : iAttendees) {
   const RESOURCE = `officers/${launchId}`;
-
-  // This should never happen
-  if (!currentUser) throw Error('No current user(?!?)');
-
   log('Seeding', RESOURCE);
 
+  const firstOfficer = auth().currentUser?.uid;
+  if (!firstOfficer) throw Error('No current user(?!?)');
+
   // Make sure current owner is an officer
-  const officers : iPerms = { [currentUser.id]: true };
+  const officers : iPerms = { [firstOfficer]: true };
 
   Object.values(users).forEach((attendee, i) => {
     if ((attendee.cert?.level ?? -1) >= 2 && (i % 10) < 4) {
@@ -231,21 +242,8 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
   return Object.fromEntries(entries);
 }
 
-async function purge(path) {
-  const obj = (await database().ref(path).get()).val();
-  if (!obj) return;
-
-  await Promise.all(Object.keys(obj)
-    .filter(key => key.startsWith(SEED_PREFIX))
-    .map(key => {
-      const keyPath = `${path}/${key}`;
-      log('Removing', keyPath);
-      return database().ref(keyPath).remove();
-    }));
-}
-
 let seeding = false;
-async function seedDB(context) {
+async function seedDB() {
   if (seeding) return;
   if (!confirm('Are you sure?  This will remove all previously seeded launch state.')) return;
   seeding = true;
@@ -269,8 +267,7 @@ async function seedDB(context) {
       seedUsers(),
       seedLaunches()
     ]);
-
-    let first = false;
+    let first = true;
     for (const launch of Object.values(launches)) {
       const pads = await seedPads(launch.id);
 
@@ -278,7 +275,7 @@ async function seedDB(context) {
       first = true;
 
       const attendees = await seedAttendees(launch.id, users);
-      await seedOfficers(launch.id, attendees, context.currentUser);
+      await seedOfficers(launch.id, attendees);
       await seedCards(launch.id, attendees, pads);
     }
   } catch (err) {
@@ -389,14 +386,13 @@ function testUtil() {
 
 export default function Admin() {
   const [, setLogLength] = useState(_log.length);
-  const context = useContext(AppContext);
 
   // Trigger re-render when log changes
   _log.onLog = () => setLogLength(_log.length);
 
   return <>
     <div className='deck'>
-      <Button variant='warning' onClick={() => seedDB(context)} >Seed DB</Button>
+      <Button variant='warning' onClick={seedDB} >Seed DB</Button>
       <Button variant='warning' onClick={testDB} >Test Access</Button>
       <Button variant='warning' onClick={testUtil} >Test util</Button>
     </div>

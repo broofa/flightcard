@@ -57,7 +57,7 @@ function UserEditor(
 
   return <Modal size='lg' show={true} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ms-4' cert={user.cert} showType /></Modal.Title>
+        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ms-4 flex-grow-1' cert={user.cert} showType /></Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -91,7 +91,7 @@ export function UserList(
   if (!attendees) { return <Loading wat='Attendees' />; }
 
   return <>
-    <h2 className='d-flex mt-4'>{children}</h2>
+    <h2 className='d-flex'>{children}</h2>
 
     {editUserId ? <UserEditor launchId={launchId} userId={editUserId} onHide={() => setEditUserId(undefined)} /> : null}
 

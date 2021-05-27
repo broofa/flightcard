@@ -139,6 +139,9 @@ export default function App() {
   ]);
 
   (window as any).appContext = appContext;
+
+  if (!currentUser) return <Login />;
+
   return <AppContext.Provider value={appContext} >
     <div className='d-flex flex-column vh-100'>
       <Navbar bg='dark' variant='dark' className='d-flex align-items-center'>
@@ -152,7 +155,7 @@ export default function App() {
                   ['rso', 'officer'],
                   ['lco', 'rocket'],
                   ['users', 'people'],
-                  ['profile', 'person-square']
+                  ['profile', 'gear-fill']
                 ].map(([path, icon]) => <NavLink to={`/launches/${launch.id}/${path}`} exact key={path} className='flex-grow-1 text-center'>
                 {<Icon size='2em' name={icon} />}
                 </NavLink>)
