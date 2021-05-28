@@ -3,9 +3,9 @@ import React, { cloneElement, ReactElement, useContext, useEffect, useState } fr
 import { Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
-import { iCard, iUser, tCardStatus } from '../types';
-import { unitParse } from '../util/units';
-import { AppContext, APPNAME } from './App';
+import { iCard, iUser, MKS, tCardStatus, tUnits } from '../types';
+import { unitConvert, unitParse } from '../util/units';
+import { AppContext } from './App';
 import Editor from './Editor';
 import { errorTrap, showError } from './ErrorFlash';
 import { AttendeeInfo } from './UserList';
@@ -44,7 +44,7 @@ function FloatingInput({ children, ...props } :
 
 export default function CardEditor() {
   const history = useHistory();
-  const { attendee, cards, launch, pads } = useContext(AppContext);
+  const { currentUser, attendee, cards, launch, pads } = useContext(AppContext);
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
   const [card, setCard] = useState<iCard>();
@@ -54,16 +54,25 @@ export default function CardEditor() {
   const dbCard = cards?.[cardId];
   const disabled = attendee?.id !== flier?.id;
 
+  const units : tUnits = currentUser?.units ?? MKS;
+
   useEffect(() => {
-    setCard(
-      dbCard
-        ? JSON.parse(JSON.stringify(dbCard))
-        : {
-          // id undefined until save
-          launchId,
-          userId: (attendee as iUser)?.id
-        } as iCard);
-  }, [dbCard, attendee, launchId]);
+    let nc = JSON.parse(JSON.stringify(dbCard));
+    if (dbCard) {
+      nc = JSON.parse(JSON.stringify(dbCard));
+
+      console.log('ILEN', nc?.rocket?.length);
+      // Convert to display units
+      if (nc.rocket?.length != null) nc.rocket.length = unitConvert(nc.rocket.length, MKS.length, units.length);
+      if (nc.rocket?.diameter != null) nc.rocket.diameter = unitConvert(nc.rocket.diameter, MKS.length, units.length);
+      if (nc.rocket?.mass != null) nc.rocket.mass = unitConvert(nc.rocket.mass, MKS.mass, units.mass);
+      if (nc.motor?.impulse != null) nc.motor.impulse = unitConvert(nc.motor.impulse, MKS.impulse, units.impulse);
+    } else {
+      nc = { launchId, userId: (attendee as iUser)?.id } as iCard;
+    }
+
+    setCard(nc);
+  }, [dbCard, attendee, launchId, units]);
 
   function peek(path : string) {
     const val : any = path.split('.').reduce((o, k) => o?.[k], card as any);
@@ -86,17 +95,21 @@ export default function CardEditor() {
     setCard(newCard);
   }
 
-  function textInputProps(path, parseUnits = false) {
+  function textInputProps(path : string, unit ?: string) {
+    const value = peek(path) ?? '';
+    if (path == 'rocket.length') console.log('LEN', value);
+
     return {
       disabled,
-      value: peek(path) ?? '',
+      value,
       onChange({ target }) {
         poke(path, target.value);
       },
 
       onBlur(e) {
-        if (parseUnits) {
-          const val = unitParse(e.target.value);
+        if (unit) {
+          console.log('BLUR', e.target.value, unit);
+          const val = unitParse(e.target.value, unit);
           poke(path, val);
         }
       }
@@ -126,13 +139,14 @@ export default function CardEditor() {
 
       const { rocket, motor } = card;
 
+      // Convert
       if (rocket) {
-        rocket.length = unitParse(rocket.length, 'Rocket length') || DELETE;
-        rocket.diameter = unitParse(rocket.diameter, 'Rocket diameter') || DELETE;
-        rocket.mass = unitParse(rocket.mass, 'Rocket mass') || DELETE;
+        rocket.length = unitConvert(rocket.length, units.length, MKS.length) || DELETE;
+        rocket.diameter = unitConvert(rocket.diameter, units.length, MKS.length) || DELETE;
+        rocket.mass = unitConvert(rocket.mass, units.mass, MKS.mass) || DELETE;
       }
       if (motor) {
-        motor.impulse = unitParse(motor.impulse, 'Motor impulse') || DELETE;
+        motor.impulse = unitConvert(motor.impulse, units.impulse, MKS.impulse) || DELETE;
       }
     } catch (err) {
       showError(err);
@@ -157,7 +171,7 @@ export default function CardEditor() {
     <summary className='text-info flex-grow-1'>FAQ: How do I enter values with different units?</summary>
 
     <p className='mt-3'>
-      {APPNAME} stores and displays all values in <a rel='noreferrer' href='https://en.wikipedia.org/wiki/MKS_system_of_units' target='_blank'>MKS</a>  (meter, kilogram, second)  units.  Values may be entered using other units as shown below, but will always be converted to MKS.
+      Values may be entered using any of the notations shown below:
     </p>
 
     <p>Note: Use the singular form. (E.g. "gm", not "gms").  Plural forms are not recognized.</p>
@@ -331,16 +345,16 @@ export default function CardEditor() {
         <label>Manufacturer</label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('rocket.length', true)} >
-        <label>Length <span className='text-info ms-2'>(m)</span></label>
+      <FloatingInput {...textInputProps('rocket.length', units.length)} >
+        <label>Length <span className='text-info ms-2'>({units.length})</span></label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('rocket.diameter', true)} >
-        <label>Diameter <span className='text-info ms-2'>(m)</span></label>
+      <FloatingInput {...textInputProps('rocket.diameter', units.length)} >
+        <label>Diameter <span className='text-info ms-2'>({units.length})</span></label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('rocket.mass', true)} >
-        <label>Mass <span className='text-info ms-2' >(kg, incl. motor)</span></label>
+      <FloatingInput {...textInputProps('rocket.mass', units.mass)} >
+        <label>Mass <span className='text-info ms-2' >({units.mass}, incl. motor)</span></label>
       </FloatingInput>
 
       <FloatingInput {...textInputProps('rocket.color')}>
@@ -378,8 +392,8 @@ export default function CardEditor() {
         <label>Designation <span className='text-info ms-2'>(e.g. B6-5, J350, etc.)</span></label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('motor.impulse', true)} >
-        <label>Impulse <span className='text-info ms-2'>(n-sec)</span></label>
+      <FloatingInput {...textInputProps('motor.impulse', units.impulse)} >
+        <label>Impulse <span className='text-info ms-2'>({units.impulse})</span></label>
       </FloatingInput>
     </div>
 

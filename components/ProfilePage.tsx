@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { auth, db, DELETE } from '../firebase';
-import { iAttendee, tUnits } from '../types';
+import { iAttendee, MKS, tUnits, USCS } from '../types';
 import { AppContext } from './App';
 import { CertDot } from './CertDot';
 import { tChildren, tProps } from './util';
@@ -34,7 +34,6 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
   }
 
   function setUnits(units : tUnits) {
-    units = units == 'uscs' ? units : DELETE;
     db.user.update(currentUser?.id, { units });
   }
 
@@ -52,15 +51,15 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
       <CertInput type='tra' level={3} />
     </div>
 
-    <h2>Display Units</h2>
+    <h2>Units of Measure</h2>
     <div>
-      <input id='mksUnits' checked={currentUser?.units != 'uscs'} className='me-2'
-        type='radio' onChange={() => setUnits('mks')} />
-      <label htmlFor='mksUnits'>MKS (Metric)</label>
+      <input id='mksUnits' checked={currentUser?.units?.length === MKS.length} className='me-2'
+        type='radio' onChange={() => setUnits(MKS)} />
+      <label htmlFor='mksUnits'>Metric</label>
 
-      <input id='uscsUnits' checked={currentUser?.units == 'uscs'}className='ms-5 me-2'
-        type='radio' onChange={() => setUnits('uscs')} />
-      <label htmlFor='uscsUnits'>USCS (Imperial)</label>
+      <input id='uscsUnits' checked={currentUser?.units?.length === USCS.length}className='ms-5 me-2'
+        type='radio' onChange={() => setUnits(USCS)} />
+      <label htmlFor='uscsUnits'>Imperial <small className='ms-1 text-muted fst-italic'>(It builds character!)</small></label>
     </div>
 
     <h2>Actions</h2>

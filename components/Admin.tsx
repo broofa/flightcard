@@ -345,6 +345,7 @@ function testUtil() {
     '1m': 1,
     '1kg': 1,
     '1n': 1,
+    '1n-s': 1,
     '1n-sec': 1,
 
     // test lengths
