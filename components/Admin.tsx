@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
-import { unitParse } from '../util/units';
+import { MKS, unitParse } from '../util/units';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
+import { sig } from './util';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
@@ -337,52 +338,60 @@ function testUtil() {
   log.clear();
   log('Starting tests');
 
-  const VALS = {
-    // unitless
-    '-1.23': -1.23,
+  function expectUnit(v : string, unit : string, expected : number | string) {
+    let actual;
+    try {
+      actual = sig(unitParse(v, unit) as number, 4);
+    } catch (err) {
+      actual = err.message;
+    }
 
-    // Standard MKS units
-    '1m': 1,
-    '1kg': 1,
-    '1n': 1,
-    '1n-s': 1,
-    '1n-sec': 1,
-
-    // test lengths
-    '1ft': 0.3048,
-    '1 ft': 0.3048,
-    '1 FT': 0.3048,
-    '1\'': 0.3048,
-    '1in': 0.0254,
-    '1"': 0.0254,
-    '1ft1in': 0.3302,
-    '1 ft 1 in': 0.3302,
-    '1ft 1in': 0.3302,
-    '1cm': 0.01,
-    '1mm': 0.001,
-
-    // test mass
-    '1lb': 0.453592,
-    '1oz': 0.0283495,
-    '1lb1oz': 0.4819415,
-    '1gm': 0.001,
-
-    // test impulse
-    '1lbf': 4.44822,
-
-    // test force
-    '1lbf-s': 4.44822,
-    '1lbf-sec': 4.44822
-  };
-
-  for (const [str, expected] of Object.entries(VALS)) {
-    const actual = unitParse(str);
     if (actual === expected) {
-      log('\u2705', str, '->', expected);
+      log('\u2705', v, 'to', unit, '=', expected);
     } else {
-      log('\u274c', str, '->', String(actual), `(expected ${expected})`);
+      log('\u274c', v, 'to', unit, '=', String(actual), `(expected ${expected})`);
     }
   }
+
+  // Misc
+  expectUnit('1.23', MKS.mass, 1.23); // unitless
+  expectUnit('-1.23', MKS.mass, -1.23); // negative
+  expectUnit('1ft', MKS.mass, 'Can\'t convert ft to kg'); // incompatible units
+
+  // Incompatible units
+
+  // Metric units
+  expectUnit('1m', MKS.length, 1);
+  expectUnit('1kg', MKS.mass, 1);
+  expectUnit('1n', MKS.force, 1);
+  expectUnit('1n-s', MKS.impulse, 1);
+  expectUnit('1n-sec', MKS.impulse, 1);
+
+  // US length
+  expectUnit('1ft', MKS.length, 0.3048);
+  expectUnit('1 ft', MKS.length, 0.3048);
+  expectUnit('1 FT', MKS.length, 0.3048);
+  expectUnit('1\'', MKS.length, 0.3048);
+  expectUnit('1in', MKS.length, 0.0254);
+  expectUnit('1"', MKS.length, 0.0254);
+  expectUnit('1ft1in', MKS.length, 0.3302);
+  expectUnit('1 ft 1 in', MKS.length, 0.3302);
+  expectUnit('1ft 1in', MKS.length, 0.3302);
+  expectUnit('1cm', MKS.length, 0.01);
+  expectUnit('1mm', MKS.length, 0.001);
+
+  // test mass
+  expectUnit('1lb', MKS.mass, 0.4536);
+  expectUnit('1oz', MKS.mass, 0.02835);
+  expectUnit('1lb1oz', MKS.mass, 0.4819);
+  expectUnit('1g', MKS.mass, 0.001);
+
+  // test force
+  expectUnit('1lbf', MKS.force, 4.448);
+
+  // test impulse
+  expectUnit('1lbf-s', MKS.impulse, 4.448);
+  expectUnit('1lbf-sec', MKS.impulse, 4.448);
 }
 
 export default function Admin() {

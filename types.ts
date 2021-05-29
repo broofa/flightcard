@@ -1,16 +1,8 @@
+import { tUnitSystemName } from './util/units';
 
 export type DeepPartial<T> = {
   [P in keyof T] ?: DeepPartial<T[P]>;
 };
-
-export type tUnits = {
-  length : 'm' | 'ft',
-  mass : 'kg' | 'lb',
-  force : 'n' | 'lbf',
-  impulse : 'n-s' | 'lbf-s'
- };
-export const MKS : tUnits = { length: 'm', mass: 'kg', force: 'n', impulse: 'n-s' };
-export const USCS : tUnits = { length: 'ft', mass: 'lb', force: 'lbf', impulse: 'lbf-s' };
 
 export type tRole = 'lco' | 'rso';
 export type tCardStatus = 'review' | 'ready' | 'done';
@@ -22,7 +14,7 @@ export interface iUser {
   id : string;
   name : string;
   photoURL ?: string;
-  units ?: tUnits;
+  units ?: tUnitSystemName;
 }
 export type iUsers = Record<string, iUser>;
 

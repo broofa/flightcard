@@ -35,6 +35,16 @@ export function sortArray<T = any>(arr : T[], extractor : string | ((a : T) => a
  * Round number to X significant digits
  */
 export function sig(val : number, digits = 3) {
+  if (val === 0 || !isFinite(val)) return val;
+
+  const isNegative = val < 0;
+  if (isNegative) val = -val;
   const man = digits - Math.ceil(Math.log10(val));
-  return man > 0 ? Math.round(val * 10 ** man) / 10 ** man : Math.round(val);
+  if (man > 0) {
+    val = Math.round(val * 10 ** man) / 10 ** man;
+  } else {
+    val = Math.round(val);
+  }
+
+  return isNegative ? -val : val;
 }
