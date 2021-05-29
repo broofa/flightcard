@@ -18,8 +18,9 @@ function FormSection({ className, children, ...props }
   </div>;
 }
 
-function FloatingInput({ children, ...props } :
+function FloatingInput({ className, children, ...props } :
   {
+    className ?: string,
     children : tChildren
   } & tProps) {
   const label = children as ReactElement;
@@ -30,7 +31,7 @@ function FloatingInput({ children, ...props } :
   }
   id = id.replace(/\s+/g, '_').toLowerCase();
 
-  return <div className='form-floating'>
+  return <div className={`form-floating ${className ?? ''}`}>
     <input
       id={id}
       placeholder={id}
@@ -106,8 +107,12 @@ export default function CardEditor() {
 
       onBlur(e) {
         if (unit) {
-          const val = unitParse(e.target.value, unit);
-          poke(path, val);
+          try {
+            const val = unitParse(e.target.value, unit);
+            poke(path, val);
+          } catch (err) {
+            // TODO: Don't put unparsable values in DB
+          }
         }
       }
     };
@@ -284,6 +289,20 @@ export default function CardEditor() {
     actions.push(<Button key='l4' onClick={() => setCardStatus('done')}>Done</Button>);
   }
 
+  // Thrust:weight analysis
+  let thrustRatio = NaN;
+  try {
+    const thrust : number = unitParse(/[a-z](\d+)/i.test(card?.motor?.name ?? '') && RegExp.$1, MKS.force) ?? NaN;
+    const mass : number = unitConvert(
+      unitParse(card?.rocket?.mass, unitSystem.mass),
+      unitSystem.mass,
+      MKS.mass
+    ) ?? NaN;
+    thrustRatio = thrust / mass;
+  } catch (err) {
+    // Failed to parse
+  }
+
   return <Editor
     onSave={disabled ? undefined : onSave}
     onCancel={() => history.goBack()}
@@ -385,9 +404,16 @@ export default function CardEditor() {
     <FormSection>Motor</FormSection>
 
     <div className='deck'>
-      <FloatingInput {...textInputProps('motor.name')}>
-        <label>Designation <span className='text-info ms-2'>(e.g. B6-5, J350, etc.)</span></label>
-      </FloatingInput>
+      <div className='d-flex vertical-align-baseline'>
+        <FloatingInput className='flex-grow-1' {...textInputProps('motor.name')}>
+          <label className='text-nowrap'>Designation <span className='text-info ms-2'>(e.g. C6-5)</span></label>
+        </FloatingInput>
+        {
+          isNaN(thrustRatio)
+            ? null
+            : <span className={`rounded px-2 text-center text-white ${thrustRatio > 5 ? 'bg-success' : 'bg-danger'}`}>Thrust:Mass<br />{sig(thrustRatio, 2)}</span>
+        }
+      </div>
 
       <FloatingInput {...textInputProps('motor.impulse', unitSystem.impulse)} >
         <label>Impulse <span className='text-info ms-2'>({unitSystem.impulse})</span></label>
