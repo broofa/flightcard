@@ -55,7 +55,11 @@ export function createRocket() : iRocket & {_motor ?: iMotor} {
   const burn = frnd(Math.pow(impulse, 0.25), Math.pow(impulse, 0.25));
   const thrust = impulse / burn;
   const delay = Math.pow(impulse, 1 / 2.5);
-  const mass = thrust / frnd(5, 20); // "mass <= thrust / 5"
+
+  // Mass should be < thrust * 5, but we generate some underpowered rockets to
+  // test thrust:mass ratio UI
+  const mass = thrust / frnd(3, 15);
+
   const aspectRatio = frnd(10, 0);
   const length = Math.pow(mass, 1 / 3);
   const diameter = Math.pow(mass, 1 / 3) / aspectRatio * 20;

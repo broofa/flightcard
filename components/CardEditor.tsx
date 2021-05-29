@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import React, { cloneElement, ReactElement, useContext, useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Alert, Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
 import { iCard, iUser, tCardStatus } from '../types';
@@ -292,7 +292,7 @@ export default function CardEditor() {
   // Thrust:weight analysis
   let thrustRatio = NaN;
   try {
-    const thrust : number = unitParse(/[a-z](\d+)/i.test(card?.motor?.name ?? '') && RegExp.$1, MKS.force) ?? NaN;
+    const thrust : number = unitParse(/[a-z]([\d.]+)/i.test(card?.motor?.name ?? '') && RegExp.$1, MKS.force) ?? NaN;
     const mass : number = unitConvert(
       unitParse(card?.rocket?.mass, unitSystem.mass),
       unitSystem.mass,
@@ -411,7 +411,7 @@ export default function CardEditor() {
         {
           isNaN(thrustRatio)
             ? null
-            : <span className={`rounded px-2 text-center text-white ${thrustRatio > 5 ? 'bg-success' : 'bg-danger'}`}>Thrust:Mass<br />{sig(thrustRatio, 2)}</span>
+            : <Alert className={'m-0 ms-1 py-0 px-2 text-center'} variant={thrustRatio > 5 ? 'success' : 'danger'}>Thrust:Mass<br />{sig(thrustRatio, 2)} : 1</Alert>
         }
       </div>
 
