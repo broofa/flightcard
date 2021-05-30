@@ -1,6 +1,6 @@
 import React from 'react';
 import { iCert } from '../../types';
-import './css/CertDot.scss';
+import './CertDot.scss';
 import { tProps } from './util';
 
 export function CertDot({ cert, showType = false, className, ...props } : {

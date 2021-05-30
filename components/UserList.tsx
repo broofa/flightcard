@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { db, DELETE } from '../firebase';
 import { iAttendee, iCert, iPerm } from '../types';
+import { sortArray } from '../util/sortArray';
 import { AppContext } from './App';
 import { CertDot } from './common/CertDot';
 import { Loading, tChildren, tProps } from './common/util';
-import { sortArray } from "../util/sortArray";
 
 export function AttendeeInfo({ attendee, isOfficer, className, hidePhoto, ...props } :
   {attendee : iAttendee, isOfficer ?: boolean, hidePhoto ?: boolean, className ?: string} & tProps) {
