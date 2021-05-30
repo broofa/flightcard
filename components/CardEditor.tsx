@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import React, { cloneElement, ReactElement, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
@@ -7,39 +7,15 @@ import { iCard, iUser, tCardStatus } from '../types';
 import { MKS, tUnitSystem, unitConvert, unitParse, USCS } from '../util/units';
 import { AppContext } from './App';
 import Editor from './Editor';
-import { errorTrap, showError } from './ErrorFlash';
+import { errorTrap, showError } from './common/ErrorFlash';
+import { FloatingInput } from './common/FloatingInput';
 import { AttendeeInfo } from './UserList';
-import { Loading, sig, tChildren, tProps } from './util';
+import { Loading, sig, tChildren, tProps } from './common/util';
 
 function FormSection({ className, children, ...props }
   : { className ?: string, children : tChildren } & tProps) {
   return <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
     {children}
-  </div>;
-}
-
-function FloatingInput({ className, children, ...props } :
-  {
-    className ?: string,
-    children : tChildren
-  } & tProps) {
-  const label = children as ReactElement;
-
-  let id = label.props.children;
-  if (Array.isArray(id)) {
-    id = id.find(v => typeof (v) == 'string');
-  }
-  id = id.replace(/\s+/g, '_').toLowerCase();
-
-  return <div className={`form-floating ${className ?? ''}`}>
-    <input
-      id={id}
-      placeholder={id}
-      className='form-control'
-      {...props}
-    />
-
-    {cloneElement(label, { htmlFor: id })}
   </div>;
 }
 

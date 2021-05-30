@@ -3,7 +3,7 @@ import { Button, Card } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { iLaunch } from '../types';
 import { AppContext } from './App';
-import { Loading, tProps } from './util';
+import { Loading, tProps } from './common/util';
 
 function dateString(ts) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();

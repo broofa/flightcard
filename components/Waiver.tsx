@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { db } from '../firebase';
 import { iUser } from '../types';
 import { AppContext, APPNAME } from './App';
-import { Loading } from './util';
+import { Loading } from './common/util';
 
 export function Waiver({ user } : {user : iUser}) {
   const history = useHistory();

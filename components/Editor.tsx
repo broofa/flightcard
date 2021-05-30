@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { tChildren, tProps } from './util';
+import { tChildren, tProps } from './common/util';
 
 export default function Editor(
   { children, onSave, onCancel, onDelete, ...props }

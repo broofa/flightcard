@@ -1,5 +1,5 @@
 import React from 'react';
-import { tProps } from './util';
+import { tProps } from './common/util';
 
 /**
  * Icons from https://icons.getbootstrap.com/

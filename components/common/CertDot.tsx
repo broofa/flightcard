@@ -1,5 +1,5 @@
 import React from 'react';
-import { iCert } from '../types';
+import { iCert } from '../../types';
 import './css/CertDot.scss';
 import { tProps } from './util';
 

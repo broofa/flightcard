@@ -7,12 +7,12 @@ import { iAttendee, iAttendees, iCards, iLaunch, iLaunchs, iPads, iUser, tRole }
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
 import Admin from './Admin';
 import './css/App.scss';
-import { ErrorFlash } from './ErrorFlash';
+import { ErrorFlash } from './common/ErrorFlash';
 import Icon from './Icon';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
-import { Loading, tProps, usePrevious } from './util';
+import { Loading, tProps, usePrevious } from './common/util';
 
 export const APPNAME = 'FlightCard';
 

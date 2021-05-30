@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import simplur from 'simplur';
 import { AppContext } from './App';
 import { AttendeeInfo } from './UserList';
-import { Loading } from './util';
+import { Loading } from './common/util';
 
 export default function LaunchHome() {
-  const { launch, attendees, attendee } = useContext(AppContext);
+  const { launch, attendees, attendee, officers } = useContext(AppContext);
 
   if (!launch) return <Loading wat='Launch' />;
   if (!attendees) return <Loading wat='Attendees' />;
+  if (!attendee) return <Loading wat='Attendee' />;
 
   const role = Object.values(attendees);
   const lcos = role.filter(a => a.role == 'lco');
@@ -19,7 +20,14 @@ export default function LaunchHome() {
   const attendeesLink = <Link to={`/launches/${launch.id}/users`}>Attendee Page</Link>;
 
   return <>
-    <h2>Welcome to {launch.name}</h2>
+    <div className='d-flex'>
+      <h2 className='flex-grow-1'>Welcome to {launch.name}</h2>
+      {
+        officers?.[attendee.id]
+          ? <Link to={`/launches/${launch.id}/edit`}>Edit Launch...</Link>
+          : null
+      }
+    </div>
     <p>
       <strong>{simplur`${role.length} [person has|people have] checked in`}</strong>.
       See the {attendeesLink} for details.

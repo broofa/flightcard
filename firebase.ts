@@ -2,7 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import { useEffect, useState } from 'react';
-import { errorTrap } from './components/ErrorFlash';
+import { errorTrap } from './components/common/ErrorFlash';
 import { iAttendee, iAttendees, iCard, iCards, iLaunch, iLaunchs, iPad, iPads, iPerm, iPerms, iUser } from './types';
 
 firebase.setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');

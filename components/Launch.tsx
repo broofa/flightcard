@@ -3,14 +3,16 @@ import { Alert, Button, ButtonGroup } from 'react-bootstrap';
 import { Link, Route, Switch, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
+import { sortArray } from '../util/sortArray';
 import { AppContext } from './App';
 import CardEditor from './CardEditor';
 import { CardsPane } from './CardsPane';
 import { LaunchCard } from './LaunchCard';
+import LaunchEditor from './LaunchEditor';
 import LaunchHome from './LaunchHome';
 import ProfilePage from './ProfilePage';
 import { AttendeeInfo, UserFilterFunction, UserList } from './UserList';
-import { Loading, sortArray } from './util';
+import { Loading } from './common/util';
 import { Waiver } from './Waiver';
 
 function officerUsers(user ?: iAttendee, isOfficer ?: iPerm) {
@@ -177,16 +179,20 @@ function Launch() {
         <CardEditor />
       </Route>
 
+      <Route path={'/launches/:launchId/edit'}>
+        <LaunchEditor />
+      </Route>
+
       <Route path={'/launches/:launchId/profile'}>
         <ProfilePage user={attendee} launchId={launchId} />
       </Route>
 
       <Route path={'/launches/:launchId/rso'}>
-        <RangeSafetyPane/>
+        <RangeSafetyPane />
       </Route>
 
       <Route path={'/launches/:launchId/lco'}>
-        <LaunchControlPane/>
+        <LaunchControlPane />
       </Route>
 
       <Route path={'/launches/:launchId/users'}>

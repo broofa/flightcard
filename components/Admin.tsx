@@ -4,7 +4,7 @@ import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
 import { MKS, unitParse } from '../util/units';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
-import { sig } from './util';
+import { sig } from './common/util';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;

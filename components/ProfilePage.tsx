@@ -5,8 +5,8 @@ import { auth, db, DELETE } from '../firebase';
 import { iAttendee } from '../types';
 import { tUnitSystemName } from '../util/units';
 import { AppContext } from './App';
-import { CertDot } from './CertDot';
-import { tChildren, tProps } from './util';
+import { CertDot } from './common/CertDot';
+import { tChildren, tProps } from './common/util';
 
 export default function ProfilePage({ user, launchId } : { user : iAttendee; launchId : string; }) {
   const { currentUser } = useContext(AppContext);
@@ -60,7 +60,7 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
 
       <input id='uscsUnits' checked={currentUser?.units == 'uscs'}className='ms-5 me-2'
         type='radio' onChange={() => setUnits('uscs')} />
-      <label htmlFor='uscsUnits'>Imperial <small className='ms-1 text-muted fst-italic'>(It builds character!)</small></label>
+      <label htmlFor='uscsUnits'>Imperial</label>
     </div>
 
     <h2>Actions</h2>
