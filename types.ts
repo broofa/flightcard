@@ -26,7 +26,6 @@ export interface iLaunch {
   startDate : string;
   endDate : string;
   rangeOpen : boolean;
-  racks ?: iRack[];
 }
 export type iLaunchs = Record<string, iLaunch>;
 
@@ -49,14 +48,11 @@ export type iAttendees = Record<string, iAttendee>;
 
 export interface iPad {
   id : string,
+  launchId : string,
   name ?: string;
+  group ?: string;
 }
 export type iPads = Record<string, iPad>;
-
-export interface iRack {
-  name ?: string;
-  padIds ?: string[];
-}
 
 export interface iMotor {
   name ?: string;

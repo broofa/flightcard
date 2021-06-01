@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
-import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRack, iRocket, iUser, iUsers } from '../types';
+import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRocket, iUser, iUsers } from '../types';
 import { MKS, unitParse } from '../util/units';
-import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 import { sig } from './common/util';
+import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
@@ -159,38 +159,37 @@ async function seedPads(launchId : string) {
 
   // Seed pads
   const ALL : iPad[] = [];
-  const RACKS = [
-    'Low-Power',
-    'Mid-Power',
-    'High Power (West)',
-    'High Power (East)',
-    'Away Cell',
-    'Hilltop'
+  const PADS = [
+    { name: '1-1', group: 'Low-Power' },
+    { name: '1-2', group: 'Low-Power' },
+    { name: '1-3', group: 'Low-Power' },
+    { name: '1-4', group: 'Low-Power' },
+
+    { name: '2-1', group: 'Mid-Power' },
+    { name: '2-2', group: 'Mid-Power' },
+    { name: '2-3', group: 'Mid-Power' },
+    { name: '2-4', group: 'Mid-Power' },
+
+    { name: '3-1', group: 'High-Power' },
+    { name: '3-2', group: 'High-Power' },
+    { name: '3-3', group: 'High-Power' },
+    { name: '3-4', group: 'High-Power' },
+    { name: '4-1', group: 'High-Power' },
+    { name: '4-2', group: 'High-Power' },
+    { name: '4-3', group: 'High-Power' },
+    { name: '4-4', group: 'High-Power' },
+
+    { name: 'Away Cell' },
+    { name: 'Hilltop' }
   ];
 
-  const racks : iRack[] = [];
-
   // Seed pads
-  for (const rackName of RACKS) {
-    const padNames = /Low|Mid|High/.test(rackName) ? '1234'.split('') : ['1'];
-
-    const padIds : string[] = [];
-    for (const name of padNames) {
-      const id = genId('pad');
-      padIds.push(id);
-      ALL.push({
-        id,
-        name,
-        launchId,
-        group: rackName
-      } as iPad);
-    }
-
-    racks.push({ name: rackName, padIds });
+  const padIds : string[] = [];
+  for (const pad of PADS) {
+    const id = genId('pad');
+    padIds.push(id);
+    ALL.push({ ...pad, id, launchId });
   }
-
-  // Configure launch racks
-  await database().ref(`launches/${launchId}`).update({ racks });
 
   const entries = await Promise.all(
     ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));

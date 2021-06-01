@@ -6,13 +6,13 @@ import { auth, db, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCards, iLaunch, iLaunchs, iPads, iUser, tRole } from '../types';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
 import Admin from './Admin';
-import './css/App.scss';
+import './App.scss';
 import { ErrorFlash } from './common/ErrorFlash';
+import { Loading, tProps, usePrevious } from './common/util';
 import Icon from './Icon';
 import Launch from './Launch';
 import Launches from './Launches';
 import Login from './Login';
-import { Loading, tProps, usePrevious } from './common/util';
 
 export const APPNAME = 'FlightCard';
 

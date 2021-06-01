@@ -6,11 +6,11 @@ import { db, DELETE } from '../firebase';
 import { iCard, iUser, tCardStatus } from '../types';
 import { MKS, tUnitSystem, unitConvert, unitParse, USCS } from '../util/units';
 import { AppContext } from './App';
-import Editor from './Editor';
 import { errorTrap, showError } from './common/ErrorFlash';
-import { FloatingInput } from './common/FloatingInput';
-import { AttendeeInfo } from './UserList';
+import FloatingInput from './common/FloatingInput';
 import { Loading, sig, tChildren, tProps } from './common/util';
+import Editor from './Editor';
+import { AttendeeInfo } from './UserList';
 
 function FormSection({ className, children, ...props }
   : { className ?: string, children : tChildren } & tProps) {

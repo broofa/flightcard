@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { iAttendee, iCard } from '../types';
-import './css/LaunchCard.scss';
+import './LaunchCard.scss';
 import { AttendeeInfo } from './UserList';
 
 export function LaunchCard(
