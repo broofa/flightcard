@@ -6,7 +6,7 @@ import { iPad } from '../types';
 import { sortArray } from '../util/sortArray';
 import { AppContext } from './App';
 import FloatingInput from './common/FloatingInput';
-import { Loading, tProps } from './common/util';
+import { busy, Loading, tProps } from './common/util';
 
 function PadEditor({ pad, groups, ...props }
   : {pad : iPad, groups ?: string[]} & ModalProps & tProps) {
@@ -29,15 +29,14 @@ function PadEditor({ pad, groups, ...props }
       ? db.pad.update(launchId, pad.id, { name, group })
       : db.pad.set(launchId, id, { id, launchId, name, group });
 
-    action.then(onHide).finally(() => target.classList.toggle('busy', false));
+    busy(e, action).then(onHide);
   };
 
   const handleDelete = function(e) {
     if (!confirm(`Really delete ${pad.name ?? '(unnamed pad)'}?  This can not be undone, and may affect users with cards assigned to this pad.`)) return;
-    const { target } = e;
     const action = db.pad.remove(launchId, pad.id);
 
-    action.then(onHide).finally(() => target.classList.toggle('busy', false));
+    busy(e, action).then(onHide);
   };
 
   return <Modal show={true} {...props}>

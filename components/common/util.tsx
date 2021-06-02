@@ -14,6 +14,21 @@ export function Loading({ wat, ...props } : {wat : string} & tProps) {
 }
 
 /**
+ * Style a DOMElement as "busy" during an async operation
+ */
+export function busy(target, p) {
+  target = target.target ?? target; // Extract target from DOMEvents
+
+  // Start busy animation
+  target.classList.toggle('busy', true);
+
+  // Stop busy animation when promise settles
+  p.finally(() => target.classList.toggle('busy', false));
+
+  return p;
+}
+
+/**
  * Round number to X significant digits
  */
 export function sig(val : number, digits = 3) {

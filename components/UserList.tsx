@@ -3,7 +3,7 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { db, DELETE } from '../firebase';
 import { iAttendee, iCert, iPerm } from '../types';
 import { sortArray } from '../util/sortArray';
-import { AppContext } from './App';
+import { ANONYMOUS, AppContext } from './App';
 import { CertDot } from './common/CertDot';
 import { Loading, tChildren, tProps } from './common/util';
 
@@ -13,7 +13,7 @@ export function AttendeeInfo({ attendee, isOfficer, className, hidePhoto, ...pro
     {
       attendee.photoURL && !hidePhoto && <img src={attendee.photoURL} style={{ height: '48px' }}/>
     }
-    <span className='flex-grow-1 ms-2 my-0 h3'>{attendee.name}</span>
+    <span className='flex-grow-1 ms-2 my-0 h3'>{attendee?.name ?? ANONYMOUS}</span>
 
     {
       !isOfficer
@@ -58,7 +58,7 @@ function UserEditor(
 
   return <Modal size='lg' show={true} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>{user.name || '(anonymous)'} <CertDot className='ms-4 flex-grow-1' cert={user.cert} showType /></Modal.Title>
+        <Modal.Title>{user.name || ANONYMOUS} <CertDot className='ms-4 flex-grow-1' cert={user.cert} showType /></Modal.Title>
       </Modal.Header>
 
       <Modal.Body>

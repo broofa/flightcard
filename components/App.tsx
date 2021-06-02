@@ -1,3 +1,4 @@
+import md5 from 'blueimp-md5';
 import React, { createContext, useEffect, useState } from 'react';
 import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -15,6 +16,7 @@ import Launches from './Launches';
 import Login from './Login';
 
 export const APPNAME = 'FlightCard';
+export const ANONYMOUS = '(anonymous)';
 
 type tAppContext = {
   currentUser ?: iUser;
@@ -101,11 +103,21 @@ export default function App() {
   // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
     if (authUser) {
+      console.log('AUTH USER', authUser);
+
+      let { photoURL } = authUser;
+
+      if (!photoURL && authUser.email) {
+        // Use Gravatar image
+        const hash = md5(authUser.email.toLowerCase());
+        photoURL = `https://gravatar.com/avatar/${hash}?d=robohash`;
+      }
+
       // Save/Update in-app user state
       await db.user.update(authUser.uid, {
         id: authUser.uid,
-        name: authUser.displayName ?? '(guest)',
-        photoURL: authUser.photoURL ?? DELETE
+        name: authUser.displayName ?? DELETE,
+        photoURL: photoURL ?? DELETE
       });
       setAuthId(authUser.uid);
     } else {
@@ -140,7 +152,12 @@ export default function App() {
 
   (window as any).appContext = appContext;
 
-  if (!currentUser) return <Login />;
+  if (!currentUser) {
+    return <>
+      <Login />
+      <ErrorFlash />
+     </>;
+  }
 
   return <AppContext.Provider value={appContext} >
     <div className='d-flex flex-column vh-100'>

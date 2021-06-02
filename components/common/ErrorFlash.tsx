@@ -10,6 +10,7 @@ interface tErrorTrap {
 }
 
 export function showError(err) {
+  console.error('showError()', err);
   onError?.(err);
 }
 

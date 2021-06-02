@@ -4,7 +4,7 @@ import { Link, Route, Switch, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { sortArray } from '../util/sortArray';
-import { AppContext } from './App';
+import { ANONYMOUS, AppContext } from './App';
 import CardEditor from './CardEditor';
 import { CardsPane } from './CardsPane';
 import { LaunchCard } from './LaunchCard';
@@ -122,7 +122,7 @@ function PadCard({ padId }) {
       Cards assigned to this pad:
       {padCards.map(c => {
         const flier = attendees?.[c.userId];
-        return flier && <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name}</Link>;
+        return flier && <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name ?? ANONYMOUS}</Link>;
       })}
     </div>;
   }

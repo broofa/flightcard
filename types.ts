@@ -12,7 +12,7 @@ export type iPerms = Record<string, iPerm>;
 
 export interface iUser {
   id : string;
-  name : string;
+  name ?: string;
   photoURL ?: string;
   units ?: tUnitSystemName;
 }
