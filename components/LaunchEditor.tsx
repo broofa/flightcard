@@ -33,14 +33,14 @@ function PadEditor({ pad, groups, ...props }
   };
 
   const handleDelete = function(e) {
-    if (!confirm(`Really delete ${pad.name ?? '(unnamed pad)'}?  This can not be undone, and may affect users with cards assigned to this pad.`)) return;
+    if (!confirm(`Permanently delete the "${pad.name ?? '(unnamed pad)'}" pad?  This can not be undone, and may affect users with cards assigned to this pad.`)) return;
     const action = db.pad.remove(launchId, pad.id);
 
     busy(e, action).then(onHide);
   };
 
   return <Modal show={true} {...props}>
-    <Modal.Title className='p-2'>{pad.id ? 'Edit Pad' : 'Add Pad'}</Modal.Title>
+    <Modal.Title className='p-2'>{pad.id ? 'Edit Pad' : 'New Pad'}</Modal.Title>
 
     <Modal.Body className='d-flex gap-4'>
       <FloatingInput ref={nameRef} className='flex-grow-1' defaultValue={pad.name} >
@@ -60,11 +60,11 @@ function PadEditor({ pad, groups, ...props }
     </Modal.Body>
 
     <Modal.Footer className='d-flex'>
-      <Button onClick={handleSave}>{pad.id ? 'Update' : 'Add'}</Button>
-      <div className='flex-grow-1' />
-      {pad.id ? <Button onClick={handleDelete} tabIndex={-1} variant='danger'>{'\u2715'} Delete</Button> : null}
-      <div className='flex-grow-1' />
       <Button variant='secondary' onClick={(props as any).onHide}>Cancel</Button>
+      <div style={{ flexGrow: 4 }}/>
+      {pad.id ? <Button onClick={handleDelete} tabIndex={-1} variant='danger' className='me-2'>{'\u2715'} Delete</Button> : null}
+      <div className='flex-grow-1' />
+      <Button onClick={handleSave}>{pad.id ? 'Update' : 'Add'}</Button>
     </Modal.Footer>
   </Modal>;
 }
@@ -115,7 +115,7 @@ export default function LaunchEditor() {
 
     <div className='d-flex align-items-baseline mt-4 pt-2 border-top'>
         <h2 className='flex-grow-1 m-0 p-0' >Pads</h2>
-        <Button onClick={() => setEditPad({ id: undefined as unknown as string, launchId: launch.id })}>Add Pad...</Button>
+        <Button onClick={() => setEditPad({ id: undefined as unknown as string, launchId: launch.id })}>New Pad...</Button>
     </div>
 
     {

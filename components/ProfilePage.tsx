@@ -1,15 +1,16 @@
 import React, { useContext } from 'react';
-import { Button } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { auth, db, DELETE } from '../firebase';
 import { iAttendee } from '../types';
 import { tUnitSystemName } from '../util/units';
-import { AppContext } from './App';
+import { ANONYMOUS, AppContext } from './App';
 import { CertDot } from './common/CertDot';
-import { tChildren, tProps } from './common/util';
+import { AttendeesLink, Loading, tChildren, tProps } from './common/util';
 
 export default function ProfilePage({ user, launchId } : { user : iAttendee; launchId : string; }) {
-  const { currentUser } = useContext(AppContext);
+  const { currentUser, launch, attendee } = useContext(AppContext);
+
   function CertInput({ type, level, children, ...props } : {
     type ?: 'tra' | 'nar',
     level : 0 | 1 | 2 | 3,
@@ -38,8 +39,31 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
     db.user.update(currentUser?.id, { units });
   }
 
+  if (!attendee) return <Loading wat='Attendee' />;
+  if (!launch) return <Loading wat='Launch' />;
+
+  const { cert } = attendee;
+
+  // Compose certification status
+  let certStatus;
+  switch (true) {
+    case (cert?.level ?? -1 < 0): {
+      certStatus = <Alert variant='danger'>Please indicate your high-power certification level.  (If you are both NAR and TRA certified, select the one most appropriate for this launch.)</Alert>;
+      break;
+    }
+
+    case ((cert?.level ?? -1) >= 1 && !cert?.verifiedTime): {
+      certStatus = <Alert variant='warning'>Your certification needs to be verified.  Do this by showing your certification card to one of the launch officers shown on the <AttendeesLink launchId={launch.id} />.</Alert>;
+      break;
+    }
+  }
+
   return <>
-    <h2>High-Power Certification</h2>
+    <h1>Settings for {currentUser?.name ?? ANONYMOUS}</h1>
+    <h2>High-Power Certification {!!cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}</h2>
+
+    {certStatus}
+
     <div className='d-grid ps-3' style={{ width: 'max-content', gap: '0.3em 1em', gridTemplateColumns: 'auto auto auto' }}>
       <CertInput level={0} style={{ gridColumn: 'span 3' }}>Not certified</CertInput>
 
@@ -53,14 +77,16 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
     </div>
 
     <h2>Units of Measure</h2>
+    <p>Values for length, mass, force, etc. will be shown in these units:</p>
     <div>
       <input id='mksUnits' checked={currentUser?.units == 'mks'} className='me-2'
         type='radio' onChange={() => setUnits('mks')} />
-      <label htmlFor='mksUnits'>Metric</label>
-
-      <input id='uscsUnits' checked={currentUser?.units == 'uscs'}className='ms-5 me-2'
+      <label htmlFor='mksUnits'>Metric (Meters, Kilograms, Newtons)</label>
+    </div>
+    <div>
+      <input id='uscsUnits' checked={currentUser?.units == 'uscs'} className='me-2'
         type='radio' onChange={() => setUnits('uscs')} />
-      <label htmlFor='uscsUnits'>Imperial</label>
+      <label htmlFor='uscsUnits'>Imperial (Feet, Pounds, Pounds-Force)</label>
     </div>
 
     <h2>Actions</h2>

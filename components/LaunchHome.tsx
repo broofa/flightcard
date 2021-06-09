@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
+import { Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import simplur from 'simplur';
 import { AppContext } from './App';
+import { AttendeesLink, Loading, ProfileLink } from './common/util';
 import { AttendeeInfo } from './UserList';
-import { Loading } from './common/util';
 
 export default function LaunchHome() {
   const { launch, attendees, attendee, officers } = useContext(AppContext);
@@ -16,46 +17,28 @@ export default function LaunchHome() {
   const lcos = role.filter(a => a.role == 'lco');
   const rsos = role.filter(a => a.role == 'rso');
   const cert = attendee?.cert;
-  const profileLink = <Link to={`/launches/${launch.id}/profile`}>Profile Page</Link>;
-  const attendeesLink = <Link to={`/launches/${launch.id}/users`}>Attendee Page</Link>;
 
   return <>
     <div className='d-flex'>
       <h2 className='flex-grow-1'>Welcome to {launch.name}</h2>
+
       {
         officers?.[attendee.id]
           ? <Link to={`/launches/${launch.id}/edit`}>Edit Launch...</Link>
           : null
       }
     </div>
+
+    {
+      (cert?.level == null || !cert?.verifiedTime)
+        ? <Alert variant='warning'>Please indicate your certification level on the <ProfileLink launchId={launch.id} />.</Alert>
+        : null
+    }
+
     <p>
       <strong>{simplur`${role.length} [person has|people have] checked in`}</strong>.
-      See the {attendeesLink} for details.
+      See the <AttendeesLink launchId={launch.id}/> for details.
     </p>
-
-    <details className={'mb-3 p-1 rounded border border-warning'}>
-      <summary className={`${!cert?.verifiedTime ? 'text-warning' : ''}`}>
-      {
-      cert
-        ? (
-            cert?.level >= 1
-              ? (
-                  cert.verifiedTime
-                    ? <strong>Certification verified, thank you!</strong>
-                    : <strong>Certification provided, but not yet verified.</strong>
-                )
-              : <strong></strong>
-          )
-        : <strong>Please provide your certification level.</strong>
-      }
-      {cert?.verifiedTime ? null : '(See instructions ...)'}
-      </summary>
-
-      <ol>
-        <li>Go to your {profileLink} and choose your certification level</li>
-        <li>[<em>High power only</em>] Present your card to one of the launch officers shown on the {attendeesLink} for verification.</li>
-      </ol>
-    </details>
 
     <div className='mb-0'>
     <strong>{simplur`${[rsos.length]}RSO[|s]`} on duty: </strong>

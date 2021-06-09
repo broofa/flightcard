@@ -1,18 +1,19 @@
 import React, { useContext, useState } from 'react';
 import { Alert, Button, ButtonGroup } from 'react-bootstrap';
-import { Link, Route, Switch, useParams } from 'react-router-dom';
+import { Link, Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { sortArray } from '../util/sortArray';
 import { ANONYMOUS, AppContext } from './App';
 import CardEditor from './CardEditor';
 import { CardsPane } from './CardsPane';
+import { CertDot } from './common/CertDot';
+import { Loading, tChildren } from './common/util';
 import { LaunchCard } from './LaunchCard';
 import LaunchEditor from './LaunchEditor';
 import LaunchHome from './LaunchHome';
 import ProfilePage from './ProfilePage';
-import { AttendeeInfo, UserFilterFunction, UserList } from './UserList';
-import { Loading } from './common/util';
+import { UserFilterFunction, UserList } from './UserList';
 import { Waiver } from './Waiver';
 
 function officerUsers(user ?: iAttendee, isOfficer ?: iPerm) {
@@ -81,8 +82,14 @@ function RangeSafetyPane() {
   </>;
 }
 
+function PadName({ children, className = '' } : {className ?: string, children : tChildren}) {
+  return <span className={`flex-grow-0 px-1 bg-dark text-light text-center ${className}`}
+  style={{ minWidth: '2em' }}>{children}</span>;
+}
+
 function PadCard({ padId }) {
   const { launch, cards, attendees } = useContext(AppContext);
+  const history = useHistory();
   const pad = db.pad.useValue(launch?.id, padId);
 
   const padCards = cards
@@ -91,70 +98,82 @@ function PadCard({ padId }) {
 
   if (!pad) return <Loading wat='Pad' />;
 
-  let title, body, link;
+  const padCardClasses = 'card text-center flex-column';
 
-  if (padCards.length == 1) {
-    const card = padCards[0];
-    const attendee = attendees?.[card.userId];
-    link = `/launches/${card.launchId}/cards/${card.id}`;
-    title = <div className='d-flex'>
-      {
-        attendee
-          ? <AttendeeInfo className='flex-grow-1 me-1' hidePhoto attendee={attendee} />
-          : <span className='flex-grow-1' />
-      }
+  if (padCards.length <= 0) { // No cards assigned
+    return <div className={`${padCardClasses} border-dark`} style={{ opacity: 0.4 }}>
+      <div className='d-flex' style={{ fontSize: '1.3em' }}>
+        <PadName>{pad.name}</PadName>
+        <span className='flex-grow-1' />
+      </div>
     </div>;
+  } else if (padCards.length > 1) { // Pad conflict (too many cards)
+    return <div className={`${padCardClasses} border-danger`}>
+      <div className='d-flex' style={{ fontSize: '1.3rem' }}>
+        <PadName className='bg-danger'>{pad.name}</PadName>
+        <span className='bg-danger text-white text-center flex-grow-1 fst-italic'>Pad Conflict</span>
+      </div>
 
-    body = <div className='mt-1 p-2 text-center'>
-      {
-        card?.rocket
-          ? <>
-            <div>{card.rocket?.name ?? ''}</div>
-            <div className='fw-bold'>{card?.motor?.name}</div>
-          </>
-          : null
-      }
-    </div>;
-  } else if (padCards.length > 1) {
-    title = <Alert className='mx-2 my-auto p-0 flex-grow-1 text-center' variant='danger'>Pad Conflict</Alert>;
-
-    body = <div className='p-2'>
-      Cards assigned to this pad:
-      {padCards.map(c => {
-        const flier = attendees?.[c.userId];
-        return flier && <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name ?? ANONYMOUS}</Link>;
-      })}
+      <div className='p-2'>
+        Cards assigned to this pad:
+        {padCards.map(c => {
+          const flier = attendees?.[c.userId];
+          return flier && <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name ?? ANONYMOUS}</Link>;
+        })}
+      </div>
     </div>;
   }
 
-  return <Link to={link} className='launch-card text-center rounded border border-dark d-flex flex-column p-1 cursor-pointer' style={{ opacity: body ? 1 : 0.33 }}>
-    <div className='d-flex'>
-      <span className='flex-grow-0 p-1 me-2 bg-dark text-light text-center'
-        style={{ fontSize: '1.3em', minWidth: '2em' }}>{pad?.name}</span>
-      {title || <span className='flex-grow-1' />}
+  const card = padCards[0];
+  const attendee = attendees?.[card.userId];
+
+  return <div onClick={() => history.push(`/launches/${card.launchId}/cards/${card.id}`)} className={`${padCardClasses} border-dark cursor-pointer`}>
+    <div className='d-flex' style={{ fontSize: '1.3rem' }}>
+      <PadName>{pad.name}</PadName>
+      {
+        attendee
+          ? <div className={'d-flex align-items-center flex-grow-1'}>
+            <span className='flex-grow-1 ms-2 my-0 h3'>{attendee?.name ?? ANONYMOUS}</span>
+            <CertDot className='mx-1 flex-grow-0' style={{ fontSize: '1rem' }} cert={attendee.cert} />
+          </div>
+
+          : <span className='flex-grow-1' />
+      }
     </div>
 
-    {body}
-  </Link>;
+    <div className='p-2'>
+      {
+        card?.rocket
+          ? <>
+              <div>{card.rocket?.name ?? ''}</div>
+              <div className='fw-bold'>{card?.motor?.name}</div>
+            </>
+          : null
+      }
+    </div>
+  </div>;
 }
 
 function LaunchControlPane() {
-  const { launch } = useContext(AppContext);
+  const { pads } = useContext(AppContext);
+
+  if (!pads) return <Loading wat='Pads' />;
+
+  const padGroups = Array.from(new Set(Object.values(pads).map(pad => pad.group ?? '')))
+    .sort();
 
   return <>
     {
-      launch?.racks?.map((rack, rackIndex) => <div key={rackIndex}>
-        <h2>{rack.name}</h2>
-        <div className='deck ms-3'>
-        {
-          rack.padIds?.map((padId, padIndex) => {
-            // const padCards = Object.values(cards).filter(card => card.padId === padId);
-
-            return <PadCard key={padIndex} padId={padId} />;
-          })
-        }
-        </div>
-      </div>)
+      padGroups
+        .map(group => <div key={group}>
+          {group ? <h2 className='mt-5'>{group}</h2> : null}
+          <div className='deck ms-3'>
+          {
+            sortArray(Object.values(pads).filter(pad => (pad.group ?? '') === group), 'name')
+              .map((pad, i) => <PadCard key={i} padId={pad.id} />)
+          }
+          </div>
+        </div>)
     }
   </>;
 }

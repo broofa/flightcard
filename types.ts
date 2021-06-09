@@ -55,7 +55,8 @@ export interface iPad {
 export type iPads = Record<string, iPad>;
 
 export interface iMotor {
-  name ?: string;
+  name : string;
+  motorId ?: string; // thrustcurve.org motorId
   impulse ?: number; // newton-secs
   burn ?: number; // secs
   thrust ?: number // newtons

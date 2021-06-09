@@ -4,6 +4,7 @@ import { Alert, Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
 import { iCard, iUser, tCardStatus } from '../types';
+import { sortArray } from '../util/sortArray';
 import { MKS, tUnitSystem, unitConvert, unitParse, USCS } from '../util/units';
 import { AppContext } from './App';
 import { errorTrap, showError } from './common/ErrorFlash';
@@ -26,7 +27,6 @@ export default function CardEditor() {
   const { cardId, launchId } = match.params;
   const [card, setCard] = useState<iCard>();
   const flier = db.attendee.useValue(launchId, card?.userId);
-  const [rackIndex, setRackIndex] = useState('');
 
   const dbCard = cards?.[cardId];
   const disabled = attendee?.id !== flier?.id;
@@ -137,16 +137,15 @@ export default function CardEditor() {
 
   const onDelete = card?.id
     ? async () => {
-      // TODO: Disallow deletion of cards that are racked, or that have been flown
-
+      // TODO: Disallow deletion of cards that are ready to fly or that have been flown
       if (!confirm(`Delete the rocket named '${card.rocket?.name ?? '(unnamed rocket)'}'? (This cannot be undone!)`)) return;
       await db.card.remove(card.launchId, card.id);
       history.goBack();
     }
     : null;
 
-  const faq = <details className='border border-info rounded px-2 flex-grow-1'>
-    <summary className='text-info flex-grow-1'>FAQ: How do I enter values with different units?</summary>
+  const faq = <details className='bg-light rounded mb-2 px-2 flex-grow-1'>
+    <summary className='text-secondary fst-italic small flex-grow-1'>FAQ: How do I enter values with different units?</summary>
 
     <p className='mt-3'>
       Values may be entered using any of the notations shown below:
@@ -219,17 +218,6 @@ export default function CardEditor() {
   if (!launch) return <Loading wat='Launch' />;
   if (!pads) return <Loading wat='Pads' />;
 
-  // TODO: Give each rack an id to make this easier?
-  const padId = peek('padId');
-
-  // Rack is derived from the padId.  If card.padId is defined we locate the
-  // rack with that pidId.  If it's not, however, we need to have a bit of state
-  // that tracks which rack the user has selected in the UI, so that's what
-  // cardRackIndex is.
-  let cardRackIndex = launch?.racks?.findIndex(r => r.padIds?.includes(padId ?? ''));
-  if (cardRackIndex == null || cardRackIndex < 0) cardRackIndex = rackIndex == '' ? -1 : parseInt(rackIndex);
-  const rack = launch?.racks?.[cardRackIndex ?? -1];
-
   const isOwner = card?.userId == attendee?.id;
   const isNew = !card.id;
   const isFlier = !attendee.role;
@@ -265,6 +253,57 @@ export default function CardEditor() {
     actions.push(<Button key='l4' onClick={() => setCardStatus('done')}>Done</Button>);
   }
 
+  // Compose card status
+  let cardStatus;
+  switch (true) {
+    case (!card.status): {
+      cardStatus = <p>This is a draft</p>;
+      break;
+    }
+
+    case (card.status == 'review'): {
+      break;
+    }
+
+    case ((isOwner || isLCO) && card.status == 'ready'): {
+      const padOptions = sortArray(
+        Object.values(pads),
+        pad => `${pad.group ?? ''} ${pad.name}`
+      ).map(pad => <option key={pad.id} value={pad.id}>
+        {pad.group ? `${pad.group} : ` : ''}{pad.name}
+        </option>
+      );
+
+      cardStatus = <>
+        <div className='d-flex align-items-baseline gap-1 mt-2'>
+          <label className='text-nowrap'>On pad</label>
+          <Form.Select value={card?.padId ?? ''} onChange={e => poke('padId', (e.target as HTMLSelectElement).value || DELETE)}>
+            <option value=''>Select Pad...</option>
+            {padOptions}
+          </Form.Select>
+        </div>
+        {
+          !card?.padId
+            ? <div className='mt-1 text-secondary small'>(Only select pad after rocket is on the pad and ready for launch)</div>
+            : null
+        }
+      </>;
+
+      break;
+    }
+
+    case (card.status == 'ready'): {
+      cardStatus = <p>Ready to fly.</p>;
+      break;
+    }
+
+    case (card.status == 'done'): {
+      cardStatus = <p>This card is complete.</p>;
+
+      break;
+    }
+  }
+
   // Thrust:weight analysis
   let thrustRatio = NaN;
   try {
@@ -284,33 +323,9 @@ export default function CardEditor() {
     onCancel={() => history.goBack()}
     onDelete={(!disabled && onDelete) ? onDelete : undefined}>
 
-    {!card.id ? faq : null}
-
     {
       actions.length
         ? <div className='mt-3 d-flex' style={{ gap: '1em' }}>{actions}</div>
-        : null
-    }
-
-    {
-      (isOwner || isLCO) && card.status == 'ready'
-        ? <div className='d-flex gap-3 mt-2'>
-          <Form.Select value={cardRackIndex ?? -1} onChange={e => {
-            setRackIndex((e.target as HTMLSelectElement).value);
-            poke('padId', DELETE);
-          }}>
-            <option>Select Rack...</option>
-            {
-              launch?.racks?.map((rack, i) => <option key={i} value={i}>{rack.name}</option>)
-            }
-          </Form.Select>
-          <Form.Select disabled={!rack} value={card?.padId ?? ''} onChange={e => poke('padId', (e.target as HTMLSelectElement).value)}>
-            <option value=''>Select Pad...</option>
-              {
-                rack?.padIds?.map((padId) => <option key={padId} value={padId}>{pads[padId]?.name}</option>)
-              }
-          </Form.Select>
-        </div>
         : null
     }
 
@@ -319,14 +334,22 @@ export default function CardEditor() {
         ? <>
           <FormSection className='d-flex'>
             <span>Flier</span>
-            <span className='flex-grow-1 text-end' style={{ fontSize: '8pt', color: '#ccc' }}>card status: {card.status ?? 'no status'}</span>
+            <span className='flex-grow-1 text-end' style={{ fontSize: '8pt', color: '#ccc' }}>
+              card status: {card.status ?? 'no status'}
+            </span>
           </FormSection>
           <AttendeeInfo className='me-3' attendee={flier} />
         </>
         : null
-    }
+      }
+
+    <FormSection>Status</FormSection>
+
+    {cardStatus}
 
     <FormSection>Rocket</FormSection>
+
+    {faq}
 
     <div className='d-grid deck'>
       <FloatingInput {...textInputProps('rocket.name')}>
@@ -346,7 +369,7 @@ export default function CardEditor() {
       </FloatingInput>
 
       <FloatingInput {...textInputProps('rocket.mass', unitSystem.mass)} >
-        <label>Mass <span className='text-info ms-2' >({unitSystem.mass}, incl. motor)</span></label>
+        <label>Mass <span className='text-info ms-2' >({unitSystem.mass}, incl. motors)</span></label>
       </FloatingInput>
 
       <FloatingInput {...textInputProps('rocket.color')}>
@@ -380,14 +403,14 @@ export default function CardEditor() {
     <FormSection>Motor</FormSection>
 
     <div className='deck'>
-      <div className='d-flex vertical-align-baseline'>
+      <div className='d-flex'>
         <FloatingInput className='flex-grow-1' {...textInputProps('motor.name')}>
           <label className='text-nowrap'>Designation <span className='text-info ms-2'>(e.g. C6-5)</span></label>
         </FloatingInput>
         {
           isNaN(thrustRatio)
             ? null
-            : <Alert className={'m-0 ms-1 py-0 px-2 text-center'} variant={thrustRatio > 5 ? 'success' : 'danger'}>Thrust:Mass<br />{sig(thrustRatio, 2)} : 1</Alert>
+            : <Alert className={'m-0 ms-1 py-0 px-2 text-center'} variant={thrustRatio >= 5 ? 'success' : 'danger'}>Thrust:Mass<br />{sig(thrustRatio, 2)} : 1</Alert>
         }
       </div>
 

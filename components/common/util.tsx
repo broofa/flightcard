@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 export type tProps = React.HTMLAttributes<any>;
 export type tChildren = tChildren[] | React.ReactElement | string | null | undefined;
@@ -11,6 +12,14 @@ export function usePrevious<T>(value : T) {
 
 export function Loading({ wat, ...props } : {wat : string} & tProps) {
   return <div {...props}>Loading {wat}</div>;
+}
+
+export function ProfileLink({ launchId }) {
+  return <Link to={`/launches/${launchId}/profile`}>Profile Page</Link>;
+}
+
+export function AttendeesLink({ launchId }) {
+  return <Link to={`/launches/${launchId}/users`}>Attendee Page</Link>;
 }
 
 /**
