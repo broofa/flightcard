@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import React, { useContext, useRef, useState } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
+import { useHistory } from 'react-router';
 import { db, DELETE } from '../firebase';
 import { iPad } from '../types';
 import { sortArray } from '../util/sortArray';
@@ -60,11 +61,10 @@ function PadEditor({ pad, groups, ...props }
     </Modal.Body>
 
     <Modal.Footer className='d-flex'>
-      <Button variant='secondary' onClick={(props as any).onHide}>Cancel</Button>
-      <div style={{ flexGrow: 4 }}/>
-      {pad.id ? <Button onClick={handleDelete} tabIndex={-1} variant='danger' className='me-2'>{'\u2715'} Delete</Button> : null}
+      {pad.id ? <Button onClick={handleDelete} tabIndex={-1} variant='danger'>{'\u2715'} Delete</Button> : null}
       <div className='flex-grow-1' />
-      <Button onClick={handleSave}>{pad.id ? 'Update' : 'Add'}</Button>
+      <Button className='ms-5' variant='secondary' onClick={(props as any).onHide}>Cancel</Button>
+      <Button onClick={handleSave}>{pad.id ? 'Update' : 'Create'}</Button>
     </Modal.Footer>
   </Modal>;
 }
@@ -72,12 +72,14 @@ function PadEditor({ pad, groups, ...props }
 export default function LaunchEditor() {
   const { launch, pads } = useContext(AppContext);
   const [editPad, setEditPad] = useState<iPad>();
+  const history = useHistory();
 
   if (!launch) return <Loading wat='Launch' />;
-  if (!pads) return <Loading wat='Pads' />;
 
-  const padGroups = Array.from(new Set(Object.values(pads).map(pad => pad.group ?? '')))
-    .sort();
+  const padGroups = pads
+    ? Array.from(new Set(Object.values(pads).map(pad => pad.group ?? '')))
+      .sort()
+    : [];
 
   const launchInputProps = function(field) {
     return {
@@ -94,6 +96,23 @@ export default function LaunchEditor() {
           .finally(() => target.classList.toggle('busy', false));
       }
     };
+  };
+
+  const deleteLaunch = async e => {
+    if (prompt(`This will permanently DELETE this launch and all activity associated with it, including all waivers and flightcards.\n\nTHIS IS PROBABLY A BAD IDEA!\n\nTo proceed type "${launch.name}" here and click OK.`) != launch.name) return;
+
+    await busy(
+      e.target,
+      db.launch.remove(launch.id)
+        .then(() => Promise.all([
+          db.officers.remove(launch.id),
+          db.pads.remove(launch.id),
+          db.attendees.remove(launch.id),
+          db.cards.remove(launch.id)
+        ]))
+    );
+
+    history.push('/');
   };
 
   return <>
@@ -124,13 +143,17 @@ export default function LaunchEditor() {
           {group ? <h3>{group}</h3> : null}
           <div className='d-flex flex-wrap gap-3'>
           {
-            sortArray(Object.values(pads).filter(pad => (pad.group ?? '') === group), 'name')
-              .map(pad => <Button variant='outline-primary' key={pad.id} className='' onClick={() => setEditPad(pad)}>
+            pads
+              ? sortArray(Object.values(pads).filter(pad => (pad.group ?? '') === group), 'name')
+                .map(pad => <Button variant='outline-primary' key={pad.id} className='' onClick={() => setEditPad(pad)}>
                 {pad.name ?? '(unnamed pad)'}
              </Button>)
+              : null
           }
           </div>
         </div>)
     }
+    <h2 className='text-danger mt-4 pt-3 border-top border-danger'>Danger Zone</h2>
+    <Button variant='danger' onClick={deleteLaunch}>Delete This Launch</Button>
   </>;
 }

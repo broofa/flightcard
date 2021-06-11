@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Alert, Button, ButtonGroup } from 'react-bootstrap';
-import { Link, Route, Switch, useHistory, useParams } from 'react-router-dom';
+import { LinkContainer } from 'react-router-bootstrap';
+import { Link, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { sortArray } from '../util/sortArray';
@@ -13,8 +14,12 @@ import { LaunchCard } from './LaunchCard';
 import LaunchEditor from './LaunchEditor';
 import LaunchHome from './LaunchHome';
 import ProfilePage from './ProfilePage';
-import { UserFilterFunction, UserList } from './UserList';
+import { UserList } from './UserList';
 import { Waiver } from './Waiver';
+
+export const OFFICERS = 'officers';
+export const LOW_POWER = 'low';
+export const HIGH_POWER = 'high';
 
 function officerUsers(user ?: iAttendee, isOfficer ?: iPerm) {
   return isOfficer ?? false;
@@ -29,22 +34,45 @@ function highPowerUsers(user : iAttendee) {
 }
 
 function UsersPane({ launchId }) {
-  const [userFilter, setUserFilter] = useState<UserFilterFunction>();
+  const location = useLocation();
+  const filter = new URLSearchParams(location.search).get('filter');
 
-  let title;
-  switch (userFilter) {
-    case officerUsers: title = '\u2605 Officers (LCOs & RSOs)'; break;
-    case lowPowerUsers: title = 'Low Power'; break;
-    case highPowerUsers: title = 'High Power'; break;
-    default: title = 'All Attendees';
+  let title, userFilter;
+  switch (filter) {
+    case OFFICERS:
+      title = '\u2605 Officers';
+      userFilter = officerUsers;
+      break;
+    case LOW_POWER:
+      title = 'Low Power Attendees';
+      userFilter = lowPowerUsers;
+      break;
+    case HIGH_POWER:
+      title = 'High Power Attendees';
+      userFilter = highPowerUsers;
+      break;
+    default:
+      title = 'All Attendees';
+      break;
   }
 
   return <>
     <ButtonGroup className='mt-2'>
-      <Button active={!userFilter} onClick={() => setUserFilter(undefined)}>All</Button>
-      <Button active={userFilter === officerUsers} onClick={() => setUserFilter(() => officerUsers)}>{'\u2605'}</Button>
-      <Button active={userFilter === lowPowerUsers} onClick={() => setUserFilter(() => lowPowerUsers)}><span className='cert-dot'>LP</span></Button>
-      <Button active={userFilter === highPowerUsers} onClick={() => setUserFilter(() => highPowerUsers)}><span className='cert-dot'>HP</span></Button>
+      <LinkContainer isActive={() => !filter} to={`/launches/${launchId}/users`}>
+        <Button>All</Button>
+      </LinkContainer>
+
+      <LinkContainer isActive={() => filter == OFFICERS} to={`/launches/${launchId}/users?filter=${OFFICERS}`}>
+        <Button>{'\u2605'}</Button>
+      </LinkContainer>
+
+      <LinkContainer isActive={() => filter == LOW_POWER} to={`/launches/${launchId}/users?filter=${LOW_POWER}`}>
+        <Button><span className='cert-dot'>LP</span></Button>
+      </LinkContainer>
+
+      <LinkContainer isActive={() => filter == HIGH_POWER} to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}>
+        <Button><span className='cert-dot'>HP</span></Button>
+      </LinkContainer>
     </ButtonGroup>
 
     <UserList launchId={launchId} filter={userFilter}>{title}</UserList>
@@ -186,41 +214,45 @@ function Launch() {
   const attendee = db.attendee.useValue(launchId, currentUser?.id);
 
   if (!currentUser) return <Loading wat='User (Launch)' />;
-  if (!launchId || !attendee) return <Waiver user={currentUser} />;
+
+  function WaiverRoute(props) {
+    if (!launchId || !attendee) return <Waiver />;
+    return <Route {...props} />;
+  }
 
   return <>
     <Switch>
-      <Route exact path={'/launches/:launchId/cards'}>
+      <WaiverRoute exact path={'/launches/:launchId/cards'}>
         <CardsPane launchId={launchId} />
-      </Route>
+      </WaiverRoute>
 
-      <Route path={'/launches/:launchId/cards/:cardId'}>
+      <WaiverRoute path={'/launches/:launchId/cards/:cardId'}>
         <CardEditor />
-      </Route>
+      </WaiverRoute>
 
       <Route path={'/launches/:launchId/edit'}>
         <LaunchEditor />
       </Route>
 
-      <Route path={'/launches/:launchId/profile'}>
+      <WaiverRoute path={'/launches/:launchId/profile'}>
         <ProfilePage user={attendee} launchId={launchId} />
-      </Route>
+      </WaiverRoute>
 
-      <Route path={'/launches/:launchId/rso'}>
+      <WaiverRoute path={'/launches/:launchId/rso'}>
         <RangeSafetyPane />
-      </Route>
+      </WaiverRoute>
 
-      <Route path={'/launches/:launchId/lco'}>
+      <WaiverRoute path={'/launches/:launchId/lco'}>
         <LaunchControlPane />
-      </Route>
+      </WaiverRoute>
 
-      <Route path={'/launches/:launchId/users'}>
+      <WaiverRoute path={'/launches/:launchId/users'}>
         <UsersPane launchId={launchId} />
-      </Route>
+      </WaiverRoute>
 
-      <Route path={'/launches/:launchId/'}>
+      <WaiverRoute path={'/launches/:launchId/'}>
         <LaunchHome />
-      </Route>
+      </WaiverRoute>
     </Switch>
   </>;
 }

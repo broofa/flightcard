@@ -2,25 +2,24 @@ import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { db } from '../firebase';
-import { iUser } from '../types';
 import { AppContext, APPNAME } from './App';
 import { Loading } from './common/util';
 
-export function Waiver({ user } : {user : iUser}) {
+export function Waiver() {
   const history = useHistory();
-  const { launch } = useContext(AppContext);
+  const { currentUser, launch } = useContext(AppContext);
 
   const [agreedCheck, setAgreedCheck] = useState(false);
 
-  if (!user) return <Loading wat='User' />;
+  if (!currentUser) return <Loading wat='User' />;
   if (!launch) return <Loading wat='Launch' />;
 
-  function launchAgree() {
-    db.attendee.update(launch?.id, user.id, {
-      ...user,
+  const launchAgree = () => {
+    db.attendee.update(launch?.id, currentUser.id, {
+      ...currentUser,
       waiverTime: Date.now()
     });
-  }
+  };
 
   return <>
     <h1 style={{ textTransform: 'uppercase', textAlign: 'center' }}>

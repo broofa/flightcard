@@ -7,6 +7,7 @@ import { tUnitSystemName } from '../util/units';
 import { ANONYMOUS, AppContext } from './App';
 import { CertDot } from './common/CertDot';
 import { AttendeesLink, Loading, tChildren, tProps } from './common/util';
+import { OFFICERS } from './Launch';
 
 export default function ProfilePage({ user, launchId } : { user : iAttendee; launchId : string; }) {
   const { currentUser, launch, attendee } = useContext(AppContext);
@@ -53,14 +54,14 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
     }
 
     case ((cert?.level ?? -1) >= 1 && !cert?.verifiedTime): {
-      certStatus = <Alert variant='warning'>Your certification needs to be verified.  Do this by showing your certification card to one of the launch officers shown on the <AttendeesLink launchId={launch.id} />.</Alert>;
+      certStatus = <Alert variant='warning'>Show your certification card to a <AttendeesLink filter={OFFICERS} launchId={launch.id}>launch officer</AttendeesLink> to complete this step.</Alert>;
       break;
     }
   }
 
   return <>
     <h1>Settings for {currentUser?.name ?? ANONYMOUS}</h1>
-    <h2>High-Power Certification {!!cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}</h2>
+    <h2>High-Power Certification {cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}</h2>
 
     {certStatus}
 
