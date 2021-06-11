@@ -177,7 +177,7 @@ export default function LaunchEditor() {
           </div>
         </div>)
     }
-    <div className='mt-5 d-flex gap-3'>
+    <div className='mt-4 d-flex gap-3'>
       <Button variant='danger' onClick={deleteLaunch}>Delete This Launch</Button>
       <div className='flex-grow-1' />
       <Button variant='secondary' onClick={() => history.goBack()}>Back to Launches</Button>

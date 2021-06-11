@@ -41,9 +41,9 @@ export function Waiver() {
     <p>
       <strong>{APPNAME} is an experimental application.</strong>
       <br />
-      <em>No warranties are provided for {APPNAME}'s function, availability, or correctness.</em>
-      <br />
       By using {APPNAME} you are assuming all of the risks, bugs, and other "hiccups" that come with experimental software.  {APPNAME} may fail or be unavailable.  Information {APPNAME} provides may be delayed, incomplete, or incorrect.
+      <br />
+      <em>No warranties are provided for {APPNAME}.</em>
     </p>
 
     <label style={{ color: agreedCheck ? 'green' : 'red' }}>
@@ -54,9 +54,9 @@ export function Waiver() {
     </label>
 
     <div className='d-flex mt-3'>
-      <Button disabled={!agreedCheck} onClick={launchAgree}>I Agree</Button>
-      <span className='flex-grow-1' />
       <Button variant='danger' onClick={() => history.goBack()}>I Do Not Agree</Button>
+      <span className='flex-grow-1' />
+      <Button disabled={!agreedCheck} onClick={launchAgree}>I Agree</Button>
     </div>
   </>;
 }

@@ -18,7 +18,7 @@ export function ProfileLink({ launchId }) {
   return <Link to={`/launches/${launchId}/profile`}>Profile Page</Link>;
 }
 
-export function AttendeesLink({ launchId, filter, children } :
+export function AttendeesLink({ launchId, filter, children = 'Attendee Page' } :
   {launchId : string, filter ?: string, children : tChildren}) {
   return <Link to={`/launches/${launchId}/users${filter ? `?filter=${filter}` : ''}`}>{children}</Link>;
 }

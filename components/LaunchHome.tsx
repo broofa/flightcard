@@ -37,7 +37,7 @@ export default function LaunchHome() {
 
     <p>
       <strong>{simplur`${role.length} [person has|people have] checked in`}</strong>.
-      See the <AttendeesLink launchId={launch.id}/> for details.
+      See the <AttendeesLink launchId={launch.id} /> for details.
     </p>
 
     <div className='mb-0'>
