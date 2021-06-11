@@ -1,8 +1,7 @@
-import React, { cloneElement, ReactElement } from 'react';
-import { tChildren, tProps } from './util';
+import React, { cloneElement, InputHTMLAttributes, ReactElement } from 'react';
 
-function FloatingInput({ className, children, ...props }
-  : {className ?: string, children ?: tChildren} & tProps & {list ?: string},
+function FloatingInput({ className, style, children, ...props }
+  : InputHTMLAttributes<HTMLInputElement>,
 ref) {
   const label = children as ReactElement;
 
@@ -12,7 +11,7 @@ ref) {
   }
   id = id.replace(/\s+/g, '_').toLowerCase();
 
-  return <div className={`form-floating  ${className ?? ''}`}>
+  return <div style={style} className={`form-floating  ${className ?? ''}`}>
     <input
       ref={ref}
       id={id}

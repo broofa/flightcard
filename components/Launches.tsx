@@ -29,7 +29,7 @@ function EventCard({ launch, ...props } : {launch : iLaunch} & tProps) {
 
 function CreateLaunchModal(props) {
   const { currentUser, launches } = useContext(AppContext);
-  const [cloneId, setCloneId] = useState('');
+  const [copyId, setCopyId] = useState('');
   const history = useHistory();
 
   if (!currentUser) return <Loading wat='User' />;
@@ -48,8 +48,8 @@ function CreateLaunchModal(props) {
       name: 'New Launch'
     };
 
-    // Clone properties if needed
-    const src = launches[cloneId];
+    // Copy properties if needed
+    const src = launches[copyId];
     if (src) {
       newLaunch.host = src.host;
       newLaunch.location = src.location;
@@ -61,7 +61,7 @@ function CreateLaunchModal(props) {
     // Make current user the first officer
     await busy(target, db.officer.set(launchId, currentUser.id, true));
 
-    // Clone launch pads
+    // Copy launch pads
     if (src) {
       const pads = await db.pads.get(src.id);
       const newPads = {};
@@ -78,17 +78,17 @@ function CreateLaunchModal(props) {
 
   return <Modal {...props}>
     <Modal.Header closeButton>
-      <Modal.Title>Clone an Existing Launch?</Modal.Title>
+      <Modal.Title>Copy Another Launch?</Modal.Title>
     </Modal.Header>
     <Modal.Body>
       <p>
-        To clone an existing launch, choose a launch below.
+        Select a launch below to copy the host, location, and pad configuration to your new launch.
       </p>
 
-      <p className='small text-secondary'>This will duplicate the location, host, and launch pads.  You may find this useful if you've used FlightCard for a previous launch at the same location.  You can change all this information on the next screen.</p>
+      <p className='small text-secondary'>Don't wory, you can edit all this stuff later if you want.</p>
 
-      <FormSelect className='mt-3' value={cloneId} onChange={e => setCloneId((e as any).target.value)}>
-        <option>(Optional) Launch to clone...</option>
+      <FormSelect className='mt-3' value={copyId} onChange={e => setCopyId((e as any).target.value)}>
+        <option>(Optional) Launch to copy...</option>
         {
           sortArray(Object.values(launches), 'name')
             .map(launch => <option key={launch.id} value={launch.id}>{launch.name}</option>)

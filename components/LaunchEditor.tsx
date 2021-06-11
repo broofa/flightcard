@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import React, { useContext, useRef, useState } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
 import { useHistory } from 'react-router';
+import simplur from 'simplur';
 import { db, DELETE } from '../firebase';
 import { iPad } from '../types';
 import { sortArray } from '../util/sortArray';
@@ -70,7 +71,7 @@ function PadEditor({ pad, groups, ...props }
 }
 
 export default function LaunchEditor() {
-  const { launch, pads } = useContext(AppContext);
+  const { launch, pads, attendees, cards } = useContext(AppContext);
   const [editPad, setEditPad] = useState<iPad>();
   const history = useHistory();
 
@@ -83,26 +84,38 @@ export default function LaunchEditor() {
 
   const launchInputProps = function(field) {
     return {
-      className: 'mt-3',
+      className: 'flex-grow-1',
+      style: {
+        minWidth: '20em'
+      },
 
       defaultValue: launch[field] ?? '',
 
       onBlur(e) {
         const { target } = e;
-        if (target.value == launch[field]) return;
-        // TODO: Save indicator
-        e.target.classList.toggle('busy', true);
-        db.launch.update(launch.id, { [field]: target.value })
-          .finally(() => target.classList.toggle('busy', false));
+        let { value } = target;
+
+        if (value == null || value === '') value = undefined;
+        if (value == launch[field]) return;
+
+        busy(
+          target,
+          db.launch.update(launch.id, { [field]: value ?? DELETE })
+        );
       }
     };
   };
 
   const deleteLaunch = async e => {
-    if (prompt(`This will permanently DELETE this launch and all activity associated with it, including all waivers and flightcards.\n\nTHIS IS PROBABLY A BAD IDEA!\n\nTo proceed type "${launch.name}" here and click OK.`) != launch.name) return;
+    const { target } = e;
+
+    const nAttendees = attendees ? Object.keys(attendees).length : 0;
+    const nCards = cards ? Object.keys(cards).length : 0;
+
+    if (prompt(simplur`This will permanently DELETE this launch and all activity associated with it, including ${nAttendees} attendee[|s] and ${nCards} flightcard[|s].\n\nYou will not be able to undo this!\n\nTo proceed type the name of the launch here ("${launch.name}") and click OK.`) != launch.name) return;
 
     await busy(
-      e.target,
+      target,
       db.launch.remove(launch.id)
         .then(() => Promise.all([
           db.officers.remove(launch.id),
@@ -120,17 +133,28 @@ export default function LaunchEditor() {
 
     <h1>Edit Launch</h1>
 
-    <FloatingInput {...launchInputProps('name')} >
-      <label>Name</label>
-    </FloatingInput>
+    <div className='d-flex flex-wrap gap-3'>
+      <FloatingInput {...launchInputProps('name')} >
+        <label>Name</label>
+      </FloatingInput>
 
-    <FloatingInput {...launchInputProps('host')} >
-      <label>Host</label>
-    </FloatingInput>
+      <FloatingInput {...launchInputProps('host')} >
+        <label>Host</label>
+      </FloatingInput>
 
-    <FloatingInput {...launchInputProps('location')} >
-      <label>Location</label>
-    </FloatingInput>
+      <FloatingInput {...launchInputProps('location')} >
+        <label>Location</label>
+      </FloatingInput>
+
+      <div className='d-flex gap-3 flex-grow-1'>
+        <FloatingInput type='date' {...launchInputProps('startDate')} >
+          <label>Start Date</label>
+        </FloatingInput>
+        <FloatingInput type='date' {...launchInputProps('endDate')} >
+          <label>End Date</label>
+        </FloatingInput>
+      </div>
+    </div>
 
     <div className='d-flex align-items-baseline mt-4 pt-2 border-top'>
         <h2 className='flex-grow-1 m-0 p-0' >Pads</h2>
@@ -153,7 +177,11 @@ export default function LaunchEditor() {
           </div>
         </div>)
     }
-    <h2 className='text-danger mt-4 pt-3 border-top border-danger'>Danger Zone</h2>
-    <Button variant='danger' onClick={deleteLaunch}>Delete This Launch</Button>
+    <div className='mt-5 d-flex gap-3'>
+      <Button variant='danger' onClick={deleteLaunch}>Delete This Launch</Button>
+      <div className='flex-grow-1' />
+      <Button variant='secondary' onClick={() => history.goBack()}>Back to Launches</Button>
+      <Button onClick={() => history.push(`/launches/{launch.id}`)}>Check In</Button>
+    </div>
   </>;
 }
