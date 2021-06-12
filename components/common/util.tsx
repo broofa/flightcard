@@ -29,7 +29,7 @@ export function AttendeesLink({ launchId, filter, children, ...props } :
 export function LinkButton({ to, isActive, children, ...props } :
   {
     to : string,
-    isActive : () => any
+    isActive ?: () => boolean
   }
   & ButtonProps
 ) {

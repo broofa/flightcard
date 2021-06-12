@@ -59,8 +59,8 @@ function UsersPane({ launchId }) {
     <ButtonGroup className='mt-2'>
       <LinkButton isActive={() => !filter} to={`/launches/${launchId}/users`}>All</LinkButton>
       <LinkButton isActive={() => filter == OFFICERS} to={`/launches/${launchId}/users?filter=${OFFICERS}`}>{'\u2605'}</LinkButton>
-      <LinkButton className='cert-dot' isActive={() => filter == LOW_POWER} to={`/launches/${launchId}/users?filter=${LOW_POWER}`}>LP</LinkButton>
-      <LinkButton className='cert-dot' isActive={() => filter == HIGH_POWER} to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}>HP</LinkButton>
+      <LinkButton isActive={() => filter == LOW_POWER} to={`/launches/${launchId}/users?filter=${LOW_POWER}`}>LP</LinkButton>
+      <LinkButton isActive={() => filter == HIGH_POWER} to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}>HP</LinkButton>
     </ButtonGroup>
 
     <UserList launchId={launchId} filter={userFilter}>{title}</UserList>

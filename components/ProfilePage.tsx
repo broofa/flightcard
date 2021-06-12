@@ -1,12 +1,11 @@
 import React, { HTMLAttributes, useContext } from 'react';
 import { Alert, Button } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { auth, db, DELETE } from '../firebase';
 import { iAttendee } from '../types';
 import { tUnitSystemName } from '../util/units';
 import { ANONYMOUS, AppContext } from './App';
 import { CertDot } from './common/CertDot';
-import { AttendeesLink, Loading } from './common/util';
+import { AttendeesLink, LinkButton, Loading } from './common/util';
 import { OFFICERS } from './Launch';
 
 export default function ProfilePage({ user, launchId } : { user : iAttendee; launchId : string; }) {
@@ -94,10 +93,10 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
 
     <h2>Actions</h2>
     <div className='d-flex flex-wrap gap-3 mb-3 ms-3'>
-      <LinkContainer to={'/'} ><Button>Other Launches&hellip;</Button></LinkContainer>
+      <LinkButton to={'/'} >Other Launches&hellip;</LinkButton>
       {
         currentUser?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2'
-          ? <LinkContainer to={'/admin'} ><Button>Admin</Button></LinkContainer>
+          ? <LinkButton to={'/admin'} >Admin</LinkButton>
           : null
       }
       <div className='flex-grow-1'/>

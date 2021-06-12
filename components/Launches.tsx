@@ -2,12 +2,11 @@ import { nanoid } from 'nanoid';
 import React, { useContext, useState } from 'react';
 import { Button, Card, CardProps, FormSelect, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router';
-import { LinkContainer } from 'react-router-bootstrap';
 import { db } from '../firebase';
 import { iLaunch } from '../types';
 import { sortArray } from '../util/sortArray';
 import { AppContext } from './App';
-import { busy, Loading } from './common/util';
+import { busy, LinkButton, Loading } from './common/util';
 
 function dateString(ts) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();
@@ -20,9 +19,9 @@ function EventCard({ launch, ...props } : {launch : iLaunch} & CardProps) {
       <div>Dates: {dateString(launch.startDate)} - {dateString(launch.endDate)}</div>
       <div>Location: {launch.location}</div>
       <div>Host: {launch.host}</div>
-      <LinkContainer className='mt-2' to={`/launches/${launch.id}`}>
-        <Button>Check into {launch.name}</Button>
-      </LinkContainer>
+      <LinkButton className='mt-2' to={`/launches/${launch.id}`}>
+        Check into {launch.name}
+      </LinkButton>
     </Card.Body>
   </Card>;
 }
