@@ -161,7 +161,7 @@ export default function App() {
 
   return <AppContext.Provider value={appContext} >
     <div className='d-flex flex-column vh-100'>
-      <Navbar bg='dark' variant='dark' className='d-flex align-items-center'>
+      <Navbar bg='dark' variant='dark' className='d-flex align-items-stretch'>
       {
         currentUser && launch
           ? <>
@@ -173,7 +173,7 @@ export default function App() {
                   ['lco', 'rocket'],
                   ['users', 'people'],
                   ['profile', 'gear-fill']
-                ].map(([path, icon]) => <NavLink to={`/launches/${launch.id}/${path}`} exact key={path} className='flex-grow-1 text-center'>
+                ].map(([path, icon]) => <NavLink to={`/launches/${launch.id}/${path}`} exact key={path} className='flex-grow-1 text-center py-2'>
                 {<Icon size='2em' name={icon} />}
                 </NavLink>)
               }

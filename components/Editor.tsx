@@ -18,10 +18,10 @@ export default function Editor(
     {children}
 
     <div style={{ marginTop: '2em', display: 'flex' }}>
-      {onCancel ? <Button onClick={onCancel} variant='secondary'>Cancel</Button> : null}
-      {onDelete ? <Button onClick={onDelete} variant='danger' className='ms-5'>Delete</Button> : null}
+      {onDelete ? <Button onClick={onDelete} variant='danger'>Delete</Button> : null}
       <div style={{ flexGrow: 1 }} />
-      {onSave ? <Button type='submit'>Save</Button> : null}
+      {onCancel ? <Button onClick={onCancel} variant='secondary'>Cancel</Button> : null}
+      {onSave ? <Button type='submit' className='ms-3'>Save Card</Button> : null}
     </div>
   </>;
 
