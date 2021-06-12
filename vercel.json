@@ -1,6 +1,5 @@
 {
   "rewrites":  [
-    {"source": "/launches/(.*)", "destination": "/"},
-    {"source": "/admin/(.*)", "destination": "/"}
+    {"source": "/(.*)", "destination": "/"}
   ]
 }
