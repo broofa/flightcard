@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
-import { Alert, Button, ButtonGroup } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import React, { HTMLAttributes, useContext } from 'react';
+import { Alert, ButtonGroup } from 'react-bootstrap';
 import { Link, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
@@ -9,7 +8,7 @@ import { ANONYMOUS, AppContext } from './App';
 import CardEditor from './CardEditor';
 import { CardsPane } from './CardsPane';
 import { CertDot } from './common/CertDot';
-import { Loading, tChildren } from './common/util';
+import { LinkButton, Loading } from './common/util';
 import { LaunchCard } from './LaunchCard';
 import LaunchEditor from './LaunchEditor';
 import LaunchHome from './LaunchHome';
@@ -58,21 +57,10 @@ function UsersPane({ launchId }) {
 
   return <>
     <ButtonGroup className='mt-2'>
-      <LinkContainer isActive={() => !filter} to={`/launches/${launchId}/users`}>
-        <Button>All</Button>
-      </LinkContainer>
-
-      <LinkContainer isActive={() => filter == OFFICERS} to={`/launches/${launchId}/users?filter=${OFFICERS}`}>
-        <Button>{'\u2605'}</Button>
-      </LinkContainer>
-
-      <LinkContainer isActive={() => filter == LOW_POWER} to={`/launches/${launchId}/users?filter=${LOW_POWER}`}>
-        <Button><span className='cert-dot'>LP</span></Button>
-      </LinkContainer>
-
-      <LinkContainer isActive={() => filter == HIGH_POWER} to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}>
-        <Button><span className='cert-dot'>HP</span></Button>
-      </LinkContainer>
+      <LinkButton isActive={() => !filter} to={`/launches/${launchId}/users`}>All</LinkButton>
+      <LinkButton isActive={() => filter == OFFICERS} to={`/launches/${launchId}/users?filter=${OFFICERS}`}>{'\u2605'}</LinkButton>
+      <LinkButton className='cert-dot' isActive={() => filter == LOW_POWER} to={`/launches/${launchId}/users?filter=${LOW_POWER}`}>LP</LinkButton>
+      <LinkButton className='cert-dot' isActive={() => filter == HIGH_POWER} to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}>HP</LinkButton>
     </ButtonGroup>
 
     <UserList launchId={launchId} filter={userFilter}>{title}</UserList>
@@ -110,7 +98,7 @@ function RangeSafetyPane() {
   </>;
 }
 
-function PadName({ children, className = '' } : {className ?: string, children : tChildren}) {
+function PadName({ children, className = '' } : HTMLAttributes<HTMLSpanElement>) {
   return <span className={`flex-grow-0 px-1 bg-dark text-light text-center ${className}`}
   style={{ minWidth: '2em' }}>{children}</span>;
 }

@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { HTMLAttributes, useContext, useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
@@ -9,12 +9,12 @@ import { MKS, tUnitSystem, unitConvert, unitParse, USCS } from '../util/units';
 import { AppContext } from './App';
 import { errorTrap, showError } from './common/ErrorFlash';
 import FloatingInput from './common/FloatingInput';
-import { Loading, sig, tChildren, tProps } from './common/util';
+import { Loading, sig } from './common/util';
 import Editor from './Editor';
 import { AttendeeInfo } from './UserList';
 
 function FormSection({ className, children, ...props }
-  : { className ?: string, children : tChildren } & tProps) {
+  : { className ?: string } & HTMLAttributes<HTMLDivElement>) {
   return <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
     {children}
   </div>;

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-
-export type tProps = React.HTMLAttributes<any>;
-export type tChildren = tChildren[] | React.ReactElement | string | null | undefined;
+import React, { HTMLAttributes, useEffect, useRef } from 'react';
+import { Button, ButtonProps } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+import { Link, LinkProps } from 'react-router-dom';
 
 export function usePrevious<T>(value : T) {
   const ref = useRef<T>();
@@ -10,7 +9,7 @@ export function usePrevious<T>(value : T) {
   return ref.current as T;
 }
 
-export function Loading({ wat, ...props } : {wat : string} & tProps) {
+export function Loading({ wat, ...props } : {wat : string} & HTMLAttributes<HTMLDivElement>) {
   return <div {...props}>Loading {wat}</div>;
 }
 
@@ -18,9 +17,25 @@ export function ProfileLink({ launchId }) {
   return <Link to={`/launches/${launchId}/profile`}>Profile Page</Link>;
 }
 
-export function AttendeesLink({ launchId, filter, children = 'Attendee Page' } :
-  {launchId : string, filter ?: string, children : tChildren}) {
-  return <Link to={`/launches/${launchId}/users${filter ? `?filter=${filter}` : ''}`}>{children}</Link>;
+export function AttendeesLink({ launchId, filter, children, ...props } :
+  {launchId : string, filter ?: string} & Omit<LinkProps, 'to'>) {
+  return <Link
+    to={`/launches/${launchId}/users${filter ? `?filter=${filter}` : ''}`}
+    {...props}>
+      {children ?? 'Attendee Page'}
+    </Link>;
+}
+
+export function LinkButton({ to, isActive, children, ...props } :
+  {
+    to : string,
+    isActive : () => any
+  }
+  & ButtonProps
+) {
+  return <LinkContainer to={to} isActive={isActive} >
+    <Button {...props}>{children}</Button>
+  </LinkContainer>;
 }
 
 /**

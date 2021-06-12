@@ -8,10 +8,10 @@ import { iPad } from '../types';
 import { sortArray } from '../util/sortArray';
 import { AppContext } from './App';
 import FloatingInput from './common/FloatingInput';
-import { busy, Loading, tProps } from './common/util';
+import { busy, Loading } from './common/util';
 
 function PadEditor({ pad, groups, ...props }
-  : {pad : iPad, groups ?: string[]} & ModalProps & tProps) {
+  : {pad : iPad, groups ?: string[]} & ModalProps) {
   const nameRef = useRef<HTMLInputElement>();
   const groupRef = useRef<HTMLInputElement>();
 
@@ -178,10 +178,10 @@ export default function LaunchEditor() {
         </div>)
     }
     <div className='mt-4 d-flex gap-3'>
-      <Button variant='danger' onClick={deleteLaunch}>Delete This Launch</Button>
+      <Button variant='danger' onClick={deleteLaunch} tabIndex={-1}>Delete This Launch</Button>
       <div className='flex-grow-1' />
       <Button variant='secondary' onClick={() => history.goBack()}>Back to Launches</Button>
-      <Button onClick={() => history.push(`/launches/{launch.id}`)}>Check In</Button>
+      <Button onClick={() => history.push(`/launches/${launch.id}`)}>Check In</Button>
     </div>
   </>;
 }

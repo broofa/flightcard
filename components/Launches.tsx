@@ -1,19 +1,19 @@
 import { nanoid } from 'nanoid';
 import React, { useContext, useState } from 'react';
-import { Button, Card, FormSelect, Modal } from 'react-bootstrap';
+import { Button, Card, CardProps, FormSelect, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
 import { db } from '../firebase';
 import { iLaunch } from '../types';
 import { sortArray } from '../util/sortArray';
 import { AppContext } from './App';
-import { busy, Loading, tProps } from './common/util';
+import { busy, Loading } from './common/util';
 
 function dateString(ts) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();
 }
 
-function EventCard({ launch, ...props } : {launch : iLaunch} & tProps) {
+function EventCard({ launch, ...props } : {launch : iLaunch} & CardProps) {
   return <Card key={launch.id} {...props}>
     <Card.Body>
       <Card.Title >{launch.name}</Card.Title>

@@ -1,14 +1,20 @@
-import React, { useContext, useState } from 'react';
+import React, { HTMLAttributes, useContext, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { db, DELETE } from '../firebase';
 import { iAttendee, iCert, iPerm } from '../types';
 import { sortArray } from '../util/sortArray';
 import { ANONYMOUS, AppContext } from './App';
 import { CertDot } from './common/CertDot';
-import { Loading, tChildren, tProps } from './common/util';
+import { Loading } from './common/util';
 
 export function AttendeeInfo({ attendee, isOfficer, className, hidePhoto, ...props } :
-  {attendee : iAttendee, isOfficer ?: boolean, hidePhoto ?: boolean, className ?: string} & tProps) {
+  {
+    attendee : iAttendee,
+    isOfficer ?: boolean,
+    hidePhoto ?: boolean,
+    className ?: string
+  } & HTMLAttributes<HTMLDivElement>
+) {
   return <div className={`d-flex align-items-center ${className ?? ''}`} {...props}>
     {
       attendee.photoURL && !hidePhoto && <img src={attendee.photoURL} style={{ height: '48px' }}/>
@@ -80,11 +86,12 @@ function UserEditor(
 }
 
 export function UserList(
-  { launchId, filter, children, ...props } : {
-    launchId : string;
-    filter ?: UserFilterFunction;
-    children : tChildren;
-  } & tProps) {
+  { launchId, filter, children, ...props } :
+  {
+    launchId : string,
+    filter ?: UserFilterFunction
+  } & HTMLAttributes<HTMLDivElement>
+) {
   const [editUserId, setEditUserId] = useState<string>();
   const { attendees, launch, officers } = useContext(AppContext);
 

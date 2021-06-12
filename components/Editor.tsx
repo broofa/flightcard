@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, Form } from 'react-bootstrap';
-import { tChildren, tProps } from './common/util';
+import { Button, Form, FormProps } from 'react-bootstrap';
 
 export default function Editor(
   { children, onSave, onCancel, onDelete, ...props }
@@ -8,8 +7,7 @@ export default function Editor(
     onSave ?: (e ?: any) => any,
     onCancel ?: (e ?: any) => any,
     onDelete ?: (e ?: any) => any,
-    children : tChildren,
-    } & tProps
+    } & FormProps
 ) {
   function onSubmit(e) {
     e.preventDefault();

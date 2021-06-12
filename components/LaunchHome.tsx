@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import simplur from 'simplur';
 import { AppContext } from './App';
 import { AttendeesLink, Loading, ProfileLink } from './common/util';
+import Icon from './Icon';
 import { AttendeeInfo } from './UserList';
 
 export default function LaunchHome() {
@@ -24,7 +25,7 @@ export default function LaunchHome() {
 
       {
         officers?.[attendee.id]
-          ? <Link to={`/launches/${launch.id}/edit`}>Edit Launch...</Link>
+          ? <Link to={`/launches/${launch.id}/edit`}><Icon name='pencil-fill' /></Link>
           : null
       }
     </div>

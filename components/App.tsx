@@ -1,6 +1,6 @@
 import md5 from 'blueimp-md5';
 import React, { createContext, useEffect, useState } from 'react';
-import { Button, ButtonGroup, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { Button, ButtonGroup, ButtonGroupProps, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { NavLink, Route, Switch, useRouteMatch } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
@@ -9,7 +9,7 @@ import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
 import Admin from './Admin';
 import './App.scss';
 import { ErrorFlash } from './common/ErrorFlash';
-import { Loading, tProps, usePrevious } from './common/util';
+import { Loading, usePrevious } from './common/util';
 import Icon from './Icon';
 import Launch from './Launch';
 import Launches from './Launches';
@@ -31,7 +31,7 @@ type tAppContext = {
 export const AppContext = createContext<tAppContext>({});
 
 function RangeStatus({ launch, isLCO, ...props } :
-   { launch : iLaunch, isLCO : boolean } & tProps) {
+   { launch : iLaunch, isLCO : boolean } & ButtonGroupProps) {
   const [muted, setMuted] = useState(false);
   const { rangeOpen } = launch;
   const prev = usePrevious(rangeOpen);

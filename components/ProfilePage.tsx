@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { HTMLAttributes, useContext } from 'react';
 import { Alert, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { auth, db, DELETE } from '../firebase';
@@ -6,17 +6,19 @@ import { iAttendee } from '../types';
 import { tUnitSystemName } from '../util/units';
 import { ANONYMOUS, AppContext } from './App';
 import { CertDot } from './common/CertDot';
-import { AttendeesLink, Loading, tChildren, tProps } from './common/util';
+import { AttendeesLink, Loading } from './common/util';
 import { OFFICERS } from './Launch';
 
 export default function ProfilePage({ user, launchId } : { user : iAttendee; launchId : string; }) {
   const { currentUser, launch, attendee } = useContext(AppContext);
 
-  function CertInput({ type, level, children, ...props } : {
-    type ?: 'tra' | 'nar',
-    level : 0 | 1 | 2 | 3,
-    children ?: tChildren;
-  } & tProps) {
+  function CertInput(
+    { type, level, children, ...props } :
+    {
+      type ?: 'tra' | 'nar',
+      level : 0 | 1 | 2 | 3
+    } & HTMLAttributes<HTMLLabelElement>
+  ) {
     function handleChange() {
       if (user.cert?.verifiedTime) {
         if (!confirm('You\'ll need to re-verify your certification with a launch officer if you make this change.  Continue?')) return;

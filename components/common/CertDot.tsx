@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { HTMLAttributes } from 'react';
 import { iCert } from '../../types';
 import './CertDot.scss';
-import { tProps } from './util';
 
-export function CertDot({ cert, showType = false, className, ...props } : {
-  cert ?: Partial<iCert>;
-  showType ?: boolean;
-  disabled ?: boolean;
-  className ?: string;
-} & tProps) {
+export function CertDot(
+  { cert, showType = false, className, ...props } :
+  {
+    cert ?: Partial<iCert>;
+    showType ?: boolean;
+    disabled ?: boolean;
+    className ?: string;
+  } & HTMLAttributes<HTMLSpanElement>
+) {
   let text = cert?.level ?? '?';
   let cn;
 
