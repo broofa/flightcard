@@ -161,17 +161,17 @@ export default function App() {
 
   return <AppContext.Provider value={appContext} >
     <div className='d-flex flex-column vh-100'>
-      <Navbar bg='dark' variant='dark' className='d-flex align-items-stretch'>
+      <Navbar bg='dark' variant='dark' className='d-flex py-0'>
       {
         currentUser && launch
           ? <>
               {
                 [
                   ['', 'house-fill'],
-                  ['cards', 'card-heading'],
+                  ['cards', 'card-fill'],
                   ['rso', 'officer'],
                   ['lco', 'rocket'],
-                  ['users', 'people'],
+                  ['users', 'people-fill'],
                   ['profile', 'gear-fill']
                 ].map(([path, icon]) => <NavLink to={`/launches/${launch.id}/${path}`} exact key={path} className='flex-grow-1 text-center py-2'>
                 {<Icon size='2em' name={icon} />}

@@ -132,7 +132,7 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
           : null
       }
       <div className='flex-grow-1'/>
-      <Button variant='danger' onClick={() => auth().signOut()}>Logout</Button>
+      <Button variant='danger' tabIndex={-1} onClick={() => auth().signOut()}>Logout</Button>
     </div>
   </>;
 }
