@@ -14,10 +14,18 @@
 
     "attendees":  {
       "$launchId": {
-      	".read" : true, 
+      	".read" : true,
+          
+        // Deletable when launch no longer exists
+        ".write": "!newData.exists() && !root.child('launches').child($launchId).exists()",
+
         "$userId": {
-         "role": {
-     	     ".write": "$userId === auth.uid" 
+         	"role": {
+     	     	".write": "$userId === auth.uid" 
+          },
+
+          "name": {
+     	     	".write": "$userId === auth.uid" 
           },
 
 					// User may not verify themselves
@@ -37,6 +45,10 @@
     "officers":  {
       "$launchId": {
       	".read" : true,
+
+        // Deletable when launch no longer exists
+        ".write": "!newData.exists() && !root.child('launches').child($launchId).exists()",
+
         "$userId": {
             // Disallow `false` values makes it easier to detect "no officers" case
 			      ".validate": "newData.val() === true || newData.val() === null",
@@ -50,8 +62,11 @@
     "cards":        {
       ".read" : true,
       "$launchId": {
+        // Deletable when launch no longer exists
+        ".write": "!newData.exists() && !root.child('launches').child($launchId).exists()",
+
         "$cardId": {
-          // Only card owners or officers may change cards
+          // Only card owners or officers may edit
           ".write": "!data.exists()
             || data.child('userId').val() === auth.uid
             || root.child('officers').child($launchId).child(auth.uid).val() === true"
@@ -62,16 +77,23 @@
     "launches": {
       ".read" : true,
       "$launchId": {
-        // Only officers may edit launch
-        ".write": "root.child('officers').child($launchId).child(auth.uid).val() === true"
+        // Any user can create, only officers may edit
+        ".write": "!data.exists() ||
+        	root.child('officers').child($launchId).child(auth.uid).val() === true"
       }
     },
       
     "pads": {
       ".read" : true,
       "$launchId": {
-        // Only officers may edit launch pads
-        ".write": "root.child('officers').child($launchId).child(auth.uid).val() === true"
+        // Creatable
+        // Deletable when launch no longer exists
+        ".write": "!data.exists() || !newData.exists() && !root.child('launches').child($launchId).exists()",
+
+        "$padId": {
+	        // Officers may edit this
+  	      ".write": "root.child('officers').child($launchId).child(auth.uid).val() === true"
+        }
       }
     }
   }
