@@ -103,8 +103,6 @@ export default function App() {
   // Effect: Update authId when user is authenticated / logs out
   useEffect(() => auth().onAuthStateChanged(async authUser => {
     if (authUser) {
-      console.log('AUTH USER', authUser);
-
       let { photoURL } = authUser;
 
       if (!photoURL && authUser.email) {
@@ -113,18 +111,17 @@ export default function App() {
         photoURL = `https://gravatar.com/avatar/${hash}?d=robohash`;
       }
 
+      const user : iUser = { id: authUser.uid, photoURL: photoURL ?? DELETE };
+      if (authUser.displayName) user.name = authUser.displayName;
+
       // Save/Update in-app user state
-      await db.user.update(authUser.uid, {
-        id: authUser.uid,
-        name: authUser.displayName ?? DELETE,
-        photoURL: photoURL ?? DELETE
-      });
+      await db.user.update(authUser.uid, user);
       setAuthId(authUser.uid);
+      setIsLoadingUser(false);
     } else {
       setAuthId(undefined);
+      setIsLoadingUser(false);
     }
-
-    setIsLoadingUser(false);
   }), []);
 
   // Effect: Update app-wide shared state
@@ -151,6 +148,8 @@ export default function App() {
   ]);
 
   (window as any).appContext = appContext;
+
+  if (isLoadingUser) return <Loading className='busy' wat='Credentials' />;
 
   if (!currentUser) {
     return <>
@@ -197,11 +196,9 @@ export default function App() {
 
       <div className='flex-grow-1 overflow-auto p-3'>
       {
-        isLoadingUser
-          ? <Loading wat='User (App)' />
-          : !currentUser
-              ? <Login />
-              : <Switch>
+        !currentUser
+          ? <Login />
+          : <Switch>
             <Route path='/launches/:launchId?' component={Launch} />
 
             <Route path='/admin'>

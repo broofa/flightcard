@@ -10,7 +10,6 @@ import { AppContext } from './App';
 import { errorTrap, showError } from './common/ErrorFlash';
 import FloatingInput from './common/FloatingInput';
 import { Loading, sig } from './common/util';
-import Editor from './Editor';
 import { AttendeeInfo } from './UserList';
 
 function FormSection({ className, children, ...props }
@@ -106,44 +105,6 @@ export default function CardEditor() {
     };
   }
 
-  async function onSave() {
-    if (!card) return;
-
-    if (!card.id) card.id = nanoid();
-
-    // validate
-    try {
-      if (card.userId != attendee?.id) throw Error('You are not allowed to edit someone else\'s card');
-
-      const { rocket, motor } = card;
-
-      // Convert
-      if (rocket) {
-        rocket.length = unitConvert(rocket.length, unitSystem.length, MKS.length) || DELETE;
-        rocket.diameter = unitConvert(rocket.diameter, unitSystem.length, MKS.length) || DELETE;
-        rocket.mass = unitConvert(rocket.mass, unitSystem.mass, MKS.mass) || DELETE;
-      }
-      if (motor) {
-        motor.impulse = unitConvert(motor.impulse, unitSystem.impulse, MKS.impulse) || DELETE;
-      }
-    } catch (err) {
-      showError(err);
-      return;
-    }
-
-    await errorTrap(db.card.set(card.launchId, card.id, card));
-    history.goBack();
-  }
-
-  const onDelete = card?.id
-    ? async () => {
-      // TODO: Disallow deletion of cards that are ready to fly or that have been flown
-      if (!confirm(`Delete the rocket named '${card.rocket?.name ?? '(unnamed rocket)'}'? (This cannot be undone!)`)) return;
-      await db.card.remove(card.launchId, card.id);
-      history.goBack();
-    }
-    : null;
-
   const faq = <details className='bg-light rounded mb-2 px-2 flex-grow-1'>
     <summary className='text-secondary fst-italic small flex-grow-1'>FAQ: How do I enter values with different units?</summary>
 
@@ -218,7 +179,7 @@ export default function CardEditor() {
   if (!launch) return <Loading wat='Launch' />;
   if (!pads) return <Loading wat='Pads' />;
 
-  const isOwner = card?.userId == attendee?.id;
+  const isOwner = attendee?.id == card?.userId;
   const isNew = !card.id;
   const isFlier = !attendee.role;
   const isRSO = attendee.role === 'rso';
@@ -226,6 +187,44 @@ export default function CardEditor() {
   const isDraft = !card?.status;
   const isReview = card?.status == 'review';
   const isReady = card?.status == 'ready';
+
+  const onSave = isOwner || isLCO || isRSO
+    ? async function() {
+      if (!card) return;
+
+      if (!card.id) card.id = nanoid();
+
+      // validate
+      try {
+        const { rocket, motor } = card;
+
+        // Convert
+        if (rocket) {
+          rocket.length = unitConvert(rocket.length, unitSystem.length, MKS.length) || DELETE;
+          rocket.diameter = unitConvert(rocket.diameter, unitSystem.length, MKS.length) || DELETE;
+          rocket.mass = unitConvert(rocket.mass, unitSystem.mass, MKS.mass) || DELETE;
+        }
+        if (motor) {
+          motor.impulse = unitConvert(motor.impulse, unitSystem.impulse, MKS.impulse) || DELETE;
+        }
+      } catch (err) {
+        showError(err);
+        return;
+      }
+
+      await errorTrap(db.card.set(card.launchId, card.id, card));
+      history.goBack();
+    }
+    : null;
+
+  const onDelete = card?.id && isOwner
+    ? async () => {
+    // TODO: Disallow deletion of cards that are ready to fly or that have been flown
+      if (!confirm(`Delete the rocket named '${card.rocket?.name ?? '(unnamed rocket)'}'? (This cannot be undone!)`)) return;
+      await db.card.remove(card.launchId, card.id);
+      history.goBack();
+    }
+    : null;
 
   // Compose action buttons based on role / card status
   const actions : any[] = [];
@@ -262,6 +261,7 @@ export default function CardEditor() {
     }
 
     case (card.status == 'review'): {
+      cardStatus = <p>Waiting for RSO review</p>;
       break;
     }
 
@@ -299,7 +299,6 @@ export default function CardEditor() {
 
     case (card.status == 'done'): {
       cardStatus = <p>This card is complete.</p>;
-
       break;
     }
   }
@@ -318,32 +317,22 @@ export default function CardEditor() {
     // Failed to parse
   }
 
-  return <Editor
-    onSave={disabled ? undefined : onSave}
-    onCancel={() => history.goBack()}
-    onDelete={(!disabled && onDelete) ? onDelete : undefined}>
-
-    {
-      actions.length
-        ? <div className='mt-3 d-flex' style={{ gap: '1em' }}>{actions}</div>
-        : null
-    }
-
+  return <>
     {
       flier
         ? <>
-          <FormSection className='d-flex'>
-            <span>Flier</span>
-            <span className='flex-grow-1 text-end' style={{ fontSize: '8pt', color: '#ccc' }}>
-              card status: {card.status ?? 'no status'}
-            </span>
-          </FormSection>
+          <FormSection>Flier</FormSection>
           <AttendeeInfo className='me-3' attendee={flier} />
         </>
         : null
-      }
+    }
 
-    <FormSection>Status</FormSection>
+    <FormSection className='d-flex align-items-baseline'>
+      <span>Status</span>
+      <span className='flex-grow-1 text-end' style={{ fontSize: '8pt', color: '#ccc' }}>
+        card status: {card.status ?? 'no status'}
+      </span>
+    </FormSection>
 
     {cardStatus}
 
@@ -434,5 +423,21 @@ export default function CardEditor() {
     {/* Use floating labels once https://github.com/twbs/bootstrap/issues/32800 is fixed */}
     <label htmlFor='notes'>Notes</label>
     <textarea id='notes' className='form-control rounded' {...textInputProps('flight.notes')} />
-  </Editor>;
+
+    <div className='mt-4 d-flex gap-3'>
+      {
+      onDelete
+        ? <Button variant='danger' onClick={onDelete} tabIndex={-1}>Delete</Button>
+        : null
+      }
+      {actions}
+      <div className='flex-grow-1' />
+      <Button variant='secondary' onClick={() => history.goBack()}>Cancel</Button>
+      {
+      onSave
+        ? <Button onClick={onSave}>Save Card</Button>
+        : null
+      }
+    </div>
+  </>;
 }

@@ -18,7 +18,7 @@ export function CardsPane({ launchId }) {
 
     <div className='d-flex my-2 gap-3'>
       <h2 className='flex-grow-1'>Drafts</h2>
-      <Button onClick={() => history.push(`/launches/${launchId}/cards/create`)}>New Flight Card &hellip;</Button>
+      <Button onClick={() => history.push(`/launches/${launchId}/cards/new`)}>New Flight Card &hellip;</Button>
     </div>
     {
       draftCards.length

@@ -10,7 +10,7 @@ export function usePrevious<T>(value : T) {
 }
 
 export function Loading({ wat, ...props } : {wat : string} & HTMLAttributes<HTMLDivElement>) {
-  return <div {...props}>Loading {wat}</div>;
+  return <div className='busy' style={{ fontSize: '1.3rem', fontWeight: 'bold', opacity: 0.3, textAlign: 'center' }} {...props}>Loading {wat}</div>;
 }
 
 export function ProfileLink({ launchId }) {
@@ -42,7 +42,6 @@ export function LinkButton({ to, isActive, children, ...props } :
  * Style a DOMElement as "busy" during an async operation
  */
 export function busy(target, p) {
-  target = target.target ?? target; // Extract target from DOMEvents
   target = target.target ?? target; // Extract target from DOMEvents
 
   // Start busy animation

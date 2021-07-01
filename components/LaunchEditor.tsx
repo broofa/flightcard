@@ -180,7 +180,7 @@ export default function LaunchEditor() {
     <div className='mt-4 d-flex gap-3'>
       <Button variant='danger' onClick={deleteLaunch} tabIndex={-1}>Delete This Launch</Button>
       <div className='flex-grow-1' />
-      <Button variant='secondary' onClick={() => history.goBack()}>Back to Launches</Button>
+      <Button variant='secondary' onClick={() => history.goBack()}>Back</Button>
       <Button onClick={() => history.push(`/launches/${launch.id}`)}>Check In</Button>
     </div>
   </>;
