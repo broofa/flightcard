@@ -56,10 +56,10 @@ export type iPads = Record<string, iPad>;
 
 export interface iMotor {
   name : string;
-  motorId ?: string; // thrustcurve.org motorId
+  tcMotorId ?: string; // thrustcurve.org motorId
   impulse ?: number; // newton-secs
-  burn ?: number; // secs
-  thrust ?: number // newtons
+  delay ?: number;
+  stage ?: number;
 }
 
 export interface iRocket {
@@ -89,6 +89,6 @@ export interface iCard {
   notes ?: string;
 
   rocket ?: iRocket;
-  motor ?: iMotor;
+  motors ?: iMotor[];
 }
 export type iCards = Record<string, iCard>;

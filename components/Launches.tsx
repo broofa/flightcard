@@ -84,7 +84,7 @@ function CreateLaunchModal(props) {
         Select a launch below to copy the host, location, and pad configuration to your new launch.
       </p>
 
-      <p className='small text-secondary'>Don't wory, you can edit all this stuff later if you want.</p>
+      <p className='text-tip'>Don't wory, you can edit all this stuff later if you want.</p>
 
       <FormSelect className='mt-3' value={copyId} onChange={e => setCopyId((e as any).target.value)}>
         <option>(Optional) Launch to copy...</option>

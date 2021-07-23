@@ -3,13 +3,15 @@ import React, { HTMLAttributes, useContext, useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
-import { iCard, iUser, tCardStatus } from '../types';
+import { iCard, iMotor, iUser, tCardStatus } from '../types';
+import { padThrust } from '../util/motor-util';
 import { sortArray } from '../util/sortArray';
-import { MKS, tUnitSystem, unitConvert, unitParse, USCS } from '../util/units';
+import { MKS, unitConvert, unitParse } from '../util/units';
 import { AppContext } from './App';
 import { errorTrap, showError } from './common/ErrorFlash';
 import FloatingInput from './common/FloatingInput';
 import { Loading, sig } from './common/util';
+import { MotorDataList, MotorList } from './MotorInput';
 import { AttendeeInfo } from './UserList';
 
 function FormSection({ className, children, ...props }
@@ -21,7 +23,7 @@ function FormSection({ className, children, ...props }
 
 export default function CardEditor() {
   const history = useHistory();
-  const { currentUser, attendee, cards, launch, pads } = useContext(AppContext);
+  const { userUnits, attendee, cards, launch, pads } = useContext(AppContext);
   const match = useRouteMatch<{launchId : string, cardId : string}>();
   const { cardId, launchId } = match.params;
   const [card, setCard] = useState<iCard>();
@@ -30,24 +32,21 @@ export default function CardEditor() {
   const dbCard = cards?.[cardId];
   const disabled = attendee?.id !== flier?.id;
 
-  const unitSystem : tUnitSystem = currentUser?.units == 'uscs' ? USCS : MKS;
-
   useEffect(() => {
-    let nc;
+    let nc : iCard;
     if (dbCard) {
       nc = JSON.parse(JSON.stringify(dbCard));
 
       // Convert to display units
-      if (nc.rocket?.length != null) nc.rocket.length = unitConvert(nc.rocket.length, MKS.length, unitSystem.length);
-      if (nc.rocket?.diameter != null) nc.rocket.diameter = unitConvert(nc.rocket.diameter, MKS.length, unitSystem.length);
-      if (nc.rocket?.mass != null) nc.rocket.mass = unitConvert(nc.rocket.mass, MKS.mass, unitSystem.mass);
-      if (nc.motor?.impulse != null) nc.motor.impulse = unitConvert(nc.motor.impulse, MKS.impulse, unitSystem.impulse);
+      if (nc.rocket?.length != null) nc.rocket.length = unitConvert(nc.rocket.length, MKS.length, userUnits.length);
+      if (nc.rocket?.diameter != null) nc.rocket.diameter = unitConvert(nc.rocket.diameter, MKS.length, userUnits.length);
+      if (nc.rocket?.mass != null) nc.rocket.mass = unitConvert(nc.rocket.mass, MKS.mass, userUnits.mass);
     } else {
       nc = { launchId, userId: (attendee as iUser)?.id } as iCard;
     }
 
     setCard(nc);
-  }, [dbCard, attendee, launchId, unitSystem]);
+  }, [dbCard, attendee, launchId, userUnits]);
 
   function peek(path : string) {
     const val : any = path.split('.').reduce((o, k) => o?.[k], card as any);
@@ -77,14 +76,21 @@ export default function CardEditor() {
       disabled,
       value,
       onChange({ target }) {
+        if (unit) {
+          target.setCustomValidity('');
+          try {
+            unitParse(target.value, unit);
+          } catch (error) {
+            target.setCustomValidity(error.message);
+          }
+        }
         poke(path, target.value);
       },
 
-      onBlur(e) {
+      onBlur({ target }) {
         if (unit) {
           try {
-            const val = unitParse(e.target.value, unit);
-            poke(path, val);
+            poke(path, unitParse(target.value, unit));
           } catch (err) {
             // TODO: Don't put unparsable values in DB
           }
@@ -106,7 +112,7 @@ export default function CardEditor() {
   }
 
   const faq = <details className='bg-light rounded mb-2 px-2 flex-grow-1'>
-    <summary className='text-secondary fst-italic small flex-grow-1'>FAQ: How do I enter values with different units?</summary>
+    <summary className='text-tip flex-grow-1'>FAQ: How do I enter values with different units?</summary>
 
     <p className='mt-3'>
       Values may be entered using any of the notations shown below:
@@ -196,16 +202,17 @@ export default function CardEditor() {
 
       // validate
       try {
-        const { rocket, motor } = card;
+        const { rocket } = card;
 
-        // Convert
-        if (rocket) {
-          rocket.length = unitConvert(rocket.length, unitSystem.length, MKS.length) || DELETE;
-          rocket.diameter = unitConvert(rocket.diameter, unitSystem.length, MKS.length) || DELETE;
-          rocket.mass = unitConvert(rocket.mass, unitSystem.mass, MKS.mass) || DELETE;
+        // Convert unit-based properties
+        if (rocket?.length != null) {
+          rocket.length = unitConvert(rocket.length, userUnits.length, MKS.length) || DELETE;
         }
-        if (motor) {
-          motor.impulse = unitConvert(motor.impulse, unitSystem.impulse, MKS.impulse) || DELETE;
+        if (rocket?.diameter != null) {
+          rocket.diameter = unitConvert(rocket.diameter, userUnits.length, MKS.length) || DELETE;
+        }
+        if (rocket?.mass != null) {
+          rocket.mass = unitConvert(rocket.mass, userUnits.mass, MKS.mass) || DELETE;
         }
       } catch (err) {
         showError(err);
@@ -305,19 +312,20 @@ export default function CardEditor() {
 
   // Thrust:weight analysis
   let thrustRatio = NaN;
+
+  const thrust = card ? padThrust(card) : NaN;
+  const mass : number = card?.rocket?.mass != null
+    ? unitParse(card.rocket.mass, userUnits.mass, MKS.mass)
+    : NaN;
   try {
-    const thrust : number = unitParse(/[a-z]([\d.]+)/i.test(card?.motor?.name ?? '') && RegExp.$1, MKS.force) ?? NaN;
-    const mass : number = unitConvert(
-      unitParse(card?.rocket?.mass, unitSystem.mass),
-      unitSystem.mass,
-      MKS.mass
-    ) ?? NaN;
     thrustRatio = thrust / mass;
   } catch (err) {
-    // Failed to parse
+    // NaN value of some sort
   }
 
   return <>
+    <MotorDataList id='tc-motors'/>
+
     {
       flier
         ? <>
@@ -349,16 +357,16 @@ export default function CardEditor() {
         <label>Manufacturer</label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('rocket.length', unitSystem.length)} >
-        <label>Length <span className='text-info ms-2'>({unitSystem.length})</span></label>
+      <FloatingInput {...textInputProps('rocket.length', userUnits.length)} >
+        <label>Length <span className='text-info ms-2'>({userUnits.length})</span></label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('rocket.diameter', unitSystem.length)} >
-        <label>Diameter <span className='text-info ms-2'>({unitSystem.length})</span></label>
+      <FloatingInput {...textInputProps('rocket.diameter', userUnits.length)} >
+        <label>Diameter <span className='text-info ms-2'>({userUnits.length})</span></label>
       </FloatingInput>
 
-      <FloatingInput {...textInputProps('rocket.mass', unitSystem.mass)} >
-        <label>Mass <span className='text-info ms-2' >({unitSystem.mass}, incl. motors)</span></label>
+      <FloatingInput {...textInputProps('rocket.mass', userUnits.mass)} >
+        <label>Mass <span className='text-info ms-2' >({userUnits.mass}, incl. motors)</span></label>
       </FloatingInput>
 
       <FloatingInput {...textInputProps('rocket.color')}>
@@ -389,24 +397,19 @@ export default function CardEditor() {
       </div>
     </div>
 
-    <FormSection>Motor</FormSection>
+    <FormSection>Motors</FormSection>
 
-    <div className='deck'>
-      <div className='d-flex'>
-        <FloatingInput className='flex-grow-1' {...textInputProps('motor.name')}>
-          <label className='text-nowrap'>Designation <span className='text-info ms-2'>(e.g. C6-5)</span></label>
-        </FloatingInput>
-        {
-          isNaN(thrustRatio)
-            ? null
-            : <Alert className={'m-0 ms-1 py-0 px-2 text-center'} variant={thrustRatio >= 5 ? 'success' : 'danger'}>Thrust:Mass<br />{sig(thrustRatio, 2)} : 1</Alert>
-        }
-      </div>
+    <MotorList
+      motors={card.motors}
+      onChange={(motors ?: iMotor[]) => poke('motors', motors)} />
 
-      <FloatingInput {...textInputProps('motor.impulse', unitSystem.impulse)} >
-        <label>Impulse <span className='text-info ms-2'>({unitSystem.impulse})</span></label>
-      </FloatingInput>
-    </div>
+    {
+      isNaN(thrustRatio)
+        ? null
+        : <Alert className='mt-3 p-2' variant={thrustRatio >= 5 ? 'success' : 'danger'}>
+                Stage 1 thrust:weight ratio is <strong>{sig(thrustRatio, 2)} : 1</strong>
+          </Alert>
+    }
 
     <FormSection>Flight</FormSection>
 

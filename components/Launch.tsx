@@ -152,7 +152,6 @@ function PadCard({ padId }) {
             <span className='flex-grow-1 ms-2 my-0 h3'>{attendee?.name ?? ANONYMOUS}</span>
             <CertDot className='mx-1 flex-grow-0' style={{ fontSize: '1rem' }} cert={attendee.cert} />
           </div>
-
           : <span className='flex-grow-1' />
       }
     </div>
@@ -162,7 +161,7 @@ function PadCard({ padId }) {
         card?.rocket
           ? <>
               <div>{card.rocket?.name ?? ''}</div>
-              <div className='fw-bold'>{card?.motor?.name}</div>
+              <div className='fw-bold'>{(card?.motors?.length ?? 0) > 1 ? '(complex)' : card?.motors?.[0]?.name}</div>
             </>
           : null
       }

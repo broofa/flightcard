@@ -6,6 +6,7 @@ import { NavLink, Route, Switch, useRouteMatch } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCards, iLaunch, iLaunchs, iPads, iUser, tRole } from '../types';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
+import { MKS, tUnitSystem, USCS } from '../util/units';
 import Admin from './Admin';
 import './App.scss';
 import { ErrorFlash } from './common/ErrorFlash';
@@ -20,6 +21,7 @@ export const ANONYMOUS = '(anonymous)';
 
 type tAppContext = {
   currentUser ?: iUser;
+  userUnits : tUnitSystem;
   launches ?: iLaunchs;
   launch ?: iLaunch;
   attendees ?: iAttendees;
@@ -126,6 +128,8 @@ export default function App() {
 
   // Effect: Update app-wide shared state
   useEffect(() => {
+    const userUnits = currentUser?.units == 'uscs' ? USCS : MKS;
+
     setAppContext({
       attendee,
       attendees,
@@ -133,6 +137,7 @@ export default function App() {
       launch,
       launches,
       currentUser,
+      userUnits,
       officers,
       pads
     });

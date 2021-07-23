@@ -23,6 +23,10 @@ module.exports = {
   rules: {
     eqeqeq: 'off',
     'jsx-quotes': ['error', 'prefer-single'],
+    // 'member-delimiter-style': ['error', {
+    //   delimiter: 'semi', // 'none' or 'semi' or 'comma'
+    //   requireLast: true
+    // }],
     'no-redeclare': 'off',
     'no-return-assign': 'off',
     'no-use-before-define': 'off',
@@ -38,6 +42,7 @@ module.exports = {
         asyncArrow: 'always'
       }
     ],
+    '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/type-annotation-spacing': [
       'error',
       { before: true, after: true }

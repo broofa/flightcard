@@ -55,3 +55,12 @@ h3, .h3 {
 nav a {color: #aaa;}
 nav a:hover {color: #eee; background-color: #666;}
 nav a.active {color: white}
+
+.form-select {
+  width: auto !important;
+}
+
+.text-tip {
+  color: #6c757d; // text-secondary
+  font-size: .875em;
+}

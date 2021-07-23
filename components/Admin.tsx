@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { auth, database, DELETE } from '../firebase';
 import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRocket, iUser, iUsers } from '../types';
-import { MKS, unitParse } from '../util/units';
+import { MKS, Unit, unitParse } from '../util/units';
 import { sig } from './common/util';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
@@ -355,7 +355,7 @@ function testUtil() {
   // Misc
   expectUnit('1.23', MKS.mass, 1.23); // unitless
   expectUnit('-1.23', MKS.mass, -1.23); // negative
-  expectUnit('1ft', MKS.mass, 'Can\'t convert ft to kg'); // incompatible units
+  expectUnit('1ft', MKS.mass, 'Failed to convert 1 from ft to kg'); // incompatible units
 
   // Incompatible units
 
@@ -391,6 +391,9 @@ function testUtil() {
   // test impulse
   expectUnit('1lbf-s', MKS.impulse, 4.448);
   expectUnit('1lbf-sec', MKS.impulse, 4.448);
+
+  const v = new Unit(123, 'kg');
+  log('HELLO', v);
 }
 
 export default function Admin() {
