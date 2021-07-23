@@ -84,7 +84,7 @@ export default function ProfilePage({ user, launchId } : { user : iAttendee; lau
       <FloatingInput defaultValue={user.name ?? ANONYMOUS} onBlur={onName}>
         <label>
           Your Name
-          <span className='ms-3 small text-secondary'> (as shown on your NAR / TRA card, if applicable)
+          <span className='ms-3 text-tip'> (as shown on your NAR / TRA card, if applicable)
   </span>
         </label>
       </FloatingInput>

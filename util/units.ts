@@ -6,7 +6,6 @@ export type tUnitSystemName = 'mks' | 'uscs';
 
 export type tUnitSystem = {
   length : string,
-  smallLength : string,
   mass : string,
   force : string,
   impulse : string
@@ -14,7 +13,6 @@ export type tUnitSystem = {
 
 export const MKS : tUnitSystem = {
   length: 'm',
-  smallLength: 'cm',
   mass: 'kg',
   force: 'n',
   impulse: 'n-s'
@@ -22,7 +20,6 @@ export const MKS : tUnitSystem = {
 
 export const USCS : tUnitSystem = {
   length: 'ft',
-  smallLength: 'in',
   mass: 'lb',
   force: 'lbf',
   impulse: 'lbf-s'
@@ -43,7 +40,7 @@ const _FACTORS = new Map<string, Map<string, number>>();
 //
 // Note: The _FACTORS data structure grows as O(N * (N-1)) for N related units.
 // Something to keep an eye on.
-function _defineConversion(from : string, to : string, val : number) {
+function _defineConversion(from : string, to : string, factor : number) {
   if (from === to) return;
 
   // Define the conversion and inverse conversion
@@ -57,17 +54,17 @@ function _defineConversion(from : string, to : string, val : number) {
   }
 
   // Set conversion factor
-  fromFactors.set(to, val);
+  fromFactors.set(to, factor);
 
   // Define inverse conversion
-  _defineConversion(to, from, 1 / val);
+  _defineConversion(to, from, 1 / factor);
 
   // Define conversions for all units that `to` can convert to.  This results in
   // a fully populated conversion table for all related units.
   const toFactors = _FACTORS.get(to);
   if (toFactors) {
-    for (const toto of toFactors.keys()) { // https://www.youtube.com/watch?v=FTQbiNvZqaY
-      _defineConversion(from, toto, val * toFactors.get(toto));
+    for (const [toto, toFactor] of toFactors) { // https://www.youtube.com/watch?v=FTQbiNvZqaY
+      _defineConversion(from, toto, factor * toFactor);
     }
   }
 }
@@ -91,22 +88,19 @@ _defineConversion('lbf', 'n', 4.44822);
 // Impulse
 _defineConversion('lbf-s', 'n-s', 4.44822);
 
-export function unitConvert(val : number | undefined, from : string, to : string) {
-  if (val === undefined || typeof (val) != 'number' || from === to) return val;
+export function unitConvert(val : number | string, from : string, to : string) {
+  const factor = to === from ? 1 : (_FACTORS?.get(from)?.get(to) as number);
 
-  const factor = _FACTORS.get(from)?.get(to);
+  const result = (val as number) * factor;
+  if (isNaN(result)) throw Error(`Failed to convert ${val} from ${from} to ${to}`);
 
-  if (factor == null) throw Error(`Can't convert ${from} to ${to}`);
-
-  return val * factor;
+  return result;
 }
 
-export function unitParse(val : any, targetUnit : string) : number | undefined {
-  if (val == null || val == '') return undefined;
+export function unitParse(val : string | number, defaultUnit : string, toUnit = defaultUnit) : number {
+  val = typeof (val) == 'number' ? String(val) : val.trim();
 
-  if (val?.trim) val = val.trim();
-
-  let v, unit;
+  let v : number, unit : string;
 
   if (/^([\d-.]+)\s*(?:ft|')$/i.test(val)) { // feet
     v = Number(RegExp.$1);
@@ -155,12 +149,33 @@ export function unitParse(val : any, targetUnit : string) : number | undefined {
     unit = 'n-s';
   } else {
     v = Number(val);
-    unit = targetUnit;
+    unit = defaultUnit;
   }
 
-  if (isNaN(v)) throw Error(`Unable to parse "${val}" as a number`);
+  if (isNaN(v)) throw Error(`Can't convert "${val}" to ${defaultUnit} units`);
 
-  v = unitConvert(v, unit, targetUnit);
+  v = unitConvert(v, unit, toUnit);
+
+  if (v === undefined) throw Error('');
 
   return v;
+}
+
+export class Unit extends Number {
+  static from(val : string, units : string) {
+    const parsed = unitParse(val, units);
+    return new Unit(parsed, units);
+  }
+
+  units : string;
+
+  constructor(val : number, units : string) {
+    super(val);
+    this.units = units;
+  }
+
+  to(units : string) {
+    if (units == this.units) return this;
+    return new Unit(unitConvert(this.valueOf(), this.units, units), this.units);
+  }
 }
