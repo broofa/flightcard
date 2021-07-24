@@ -85,7 +85,7 @@ function MotorItem({ motor, onChange, onDetail } : {
         try {
           newMotor.impulse = unitParse(newFields.impulse, userUnits.impulse, MKS.impulse);
         } catch (err) {
-          console.error(err);
+          // Fail silently - this should be surfaced via validity message
         }
       }
 
@@ -213,7 +213,7 @@ function MotorModal({ motor, ...props } : {motor : Motor} & ModalProps) {
     const yAvg = H * (1 - 0.9 * motor.avgThrustN / vMax);
 
     const points = samples.map(([t, v]) => `${sig(W * (t / tMax))},${sig(H * (1 - 0.9 * v / vMax))}`);
-    console.log(points.join(' '));
+
     graph = <svg
       className='border border-secondary rounded'
       width='100%'
@@ -242,7 +242,7 @@ function MotorModal({ motor, ...props } : {motor : Motor} & ModalProps) {
 
       <div className='d-grid' style={{ gridTemplateColumns: '1fr 1fr' }}>
         <div>Max thrust</div><div><MKSValue value={motor.maxThrustN} type='force' long/></div>
-        <div>Max thrust</div><div><MKSValue value={motor.avgThrustN} type='force' long/></div>
+        <div>Average thrust</div><div><MKSValue value={motor.avgThrustN} type='force' long/></div>
         <div>Propellent</div><div>{motor.propInfo}</div>
       </div>
     </Modal.Body>

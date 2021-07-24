@@ -23,6 +23,7 @@
   "devDependencies": {
     "@parcel/babel-plugin-transform-runtime": "^2.0.0-nightly.2312",
     "@parcel/packager-raw-url": "^2.0.0-nightly.2312",
+    "@parcel/transformer-image": "^2.0.0-nightly.2400",
     "@parcel/transformer-sass": "^2.0.0-nightly.690",
     "@parcel/transformer-svg-react": "^2.0.0-nightly.2312",
     "@parcel/transformer-webmanifest": "^2.0.0-nightly.2312",

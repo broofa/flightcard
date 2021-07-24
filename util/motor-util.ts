@@ -31,10 +31,8 @@ for (const motor of MOTORS) {
  * @returns {Number | NaN} Sum of all stage-1 motor thrust in Newtons, or NaN if thrust cannot be accurately determined
  */
 export function padThrust(card : iCard) {
-  console.log(card?.motors);
   const motors = card?.motors?.filter(m => (m.stage ?? 1) === 1);
 
-  console.log('THRST', motors);
   if (!motors?.length) return NaN;
 
   return motors

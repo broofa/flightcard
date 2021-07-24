@@ -11,7 +11,7 @@ import { AppContext } from './App';
 import { errorTrap, showError } from './common/ErrorFlash';
 import FloatingInput from './common/FloatingInput';
 import { Loading, sig } from './common/util';
-import { MotorDataList, MotorList } from './MotorInput';
+import { MotorDataList, MotorList } from './MotorComponents';
 import { AttendeeInfo } from './UserList';
 
 function FormSection({ className, children, ...props }
@@ -69,28 +69,30 @@ export default function CardEditor() {
     setCard(newCard);
   }
 
-  function textInputProps(path : string, unit ?: string) {
+  function textInputProps(path : string, units ?: string) {
     const value = peek(path) ?? '';
 
     return {
       disabled,
       value,
       onChange({ target }) {
-        if (unit) {
+        if (units) {
           target.setCustomValidity('');
           try {
-            unitParse(target.value, unit);
+            unitParse(target.value, units);
           } catch (error) {
             target.setCustomValidity(error.message);
           }
+
+          target.reportValidity();
         }
         poke(path, target.value);
       },
 
       onBlur({ target }) {
-        if (unit) {
+        if (units) {
           try {
-            poke(path, unitParse(target.value, unit));
+            poke(path, unitParse(target.value, units));
           } catch (err) {
             // TODO: Don't put unparsable values in DB
           }
@@ -312,15 +314,20 @@ export default function CardEditor() {
 
   // Thrust:weight analysis
   let thrustRatio = NaN;
+  let thrust = NaN;
+  let mass = NaN;
 
-  const thrust = card ? padThrust(card) : NaN;
-  const mass : number = card?.rocket?.mass != null
-    ? unitParse(card.rocket.mass, userUnits.mass, MKS.mass)
-    : NaN;
+  if (card) {
+    try {
+      thrust = padThrust(card);
+      mass = unitParse(card.rocket?.mass ?? '', userUnits.mass, MKS.mass);
+    } catch (err) {
+      // Fail silently ()
+    }
+  }
   try {
     thrustRatio = thrust / mass;
   } catch (err) {
-    // NaN value of some sort
   }
 
   return <>
