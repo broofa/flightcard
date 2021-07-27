@@ -125,67 +125,83 @@ function MotorItem({ motor, onChange, onDetail } : {
     target.reportValidity();
   }
 
-  return <>
-    <div className='d-flex'>
-      <Form.Control
-        onChange={onNameChange}
-        list='tc-motors'
-        value={fields?.name ?? ''}
-        placeholder='e.g. D12'
-        style={{ borderRight: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} />
+  return <div className='d-flex flex-wrap flex-sm-nowrap'>
+    <div className='d-flex align-items-baseline flex-grow-1 mt-4 mt-sm-2'>
+      <div className='d-flex flex-grow-1'>
+        <Form.Control
+          onChange={onNameChange}
+          list='tc-motors'
+          value={fields?.name ?? ''}
+          placeholder='e.g. D12'
+          style={{ borderRight: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0 }} />
 
-      <Button
-        onClick={() => onDetail?.(tcMotor)}
-        className='p-0 rounded-end border-start-0'
-        disabled={!tcMotor}
-        style={{ borderLeft: 0, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}>
-        <Image src={tcLogo} style={tcMotor ? {} : { filter: 'grayscale(1)' } } />
-      </Button>
+        <Button
+          onClick={() => onDetail?.(tcMotor)}
+          className='p-0 rounded-end border-start-0'
+          disabled={!tcMotor}
+          style={{ borderLeft: 0, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}>
+          <Image src={tcLogo} style={tcMotor ? {} : { filter: 'grayscale(1)' } } />
+        </Button>
+      </div>
+
+      {
+        fields?.name
+          ? <>
+            <label className='d-inline d-sm-none mx-2'>I<sub>t</sub>:</label>
+            <Form.Control
+            className='ms-sm-3'
+            style={{ width: '4em' }}
+            disabled={!!tcMotor}
+            onChange={onImpulseChange}
+            onBlur={onImpulseChange} />
+          </>
+          : <div />
+      }
     </div>
 
-    <datalist id={delayListId}>
-      {delays?.times?.map(d => <option key={String(d)} value={String(d)} />)}
-    </datalist>
+    <div className='d-flex flex-grow-1 flex-sm-grow-0 align-items-baseline'>
+      {
+        fields?.name
+        ? <>
+            <label className='d-inline d-sm-none mx-2'>Delay:</label>
+            <datalist id={delayListId}>
+              {delays?.times?.map(d => <option key={String(d)} value={String(d)} />)}
+            </datalist>
+            <Form.Control
+              className='flex-grow-1 ms-sm-2'
+              style={{ width: '5em' }}
+              list={delayListId}
+              value={fields.delay ?? ''}
+              onChange={e => patchFields({ delay: e.target.value }, true)} />
+          </>
+          : <div />
+      }
 
-    {
-      fields?.name
-        ? <Form.Control
-          className='flex-grow-1'
-          value={fields.impulse ?? ''}
-          disabled={!!tcMotor}
-          onChange={onImpulseChange}
-          onBlur={onImpulseChange} />
-        : <div />
-    }
+      {
+        fields?.name
+          ? <>
+            <label className='d-inline d-sm-none mx-2'>Stage:</label>
+            <FormSelect
+              className='flex-grow-1 ms-sm-3'
+              style={{ width: '5em' }}
+              value={fields.stage ?? ''}
+              onChange={e => patchFields({ stage: (e.target as any).value }, true)} >
+              <option value='1'>1</option>
+              <option value='2'>2</option>
+              <option value='3'>3</option>
+              <option value='4'>4</option>
+            </FormSelect>
+          </>
+          : <div></div>
+      }
 
-    {
-      fields?.name
-        ? <Form.Control
-          className='flex-grow-1'
-          list={delayListId}
-          value={fields.delay ?? ''}
-          onChange={e => patchFields({ delay: e.target.value }, true)} />
-        : <div />
-    }
-
-    {
-    fields?.name
-      ? <FormSelect
-        value={fields.stage ?? ''}
-        onChange={e => patchFields({ stage: (e.target as any).value }, true)} >
-        <option value='1'>1</option>
-        <option value='2'>2</option>
-        <option value='3'>3</option>
-        <option value='4'>4</option>
-      </FormSelect>
-      : <div></div>
-    }
-    {
-      !(motor as any)._blank
-        ? <Button className='ms-3' tabIndex={-1} variant='danger' onClick={() => onChange(undefined)}>{'\u2715'}</Button>
-        : <span /> // <Button className='ms-3' tabIndex={-1} variant='primary'>{'\uFF0B'}</Button>
-    }
-  </>;
+      {
+        !(motor as any)._blank
+          ? <Button className='ms-3 mt-2 ' tabIndex={-1} variant='danger' onClick={() => onChange(undefined)}>{'\u2715'}</Button>
+          : <span />
+      }
+    </div>
+  </div>;
 }
 
 // Playing around with a component that knows about unit types
@@ -270,18 +286,25 @@ export function MotorList({ motors = [], onChange } :
   }
 
   return <>
-    <div className='d-grid gap-2' style={{ gridTemplateColumns: '1fr 5em 5em 5em auto' }}>
-      <div className='text-secondary text-center'>Motor</div>
-      <div className='text-secondary text-center'>
-        I<sub>t</sub>
-        <span className='text-info small ms-1'>({userUnits.impulse})</span>
+    <div>
+      <div className='d-none d-sm-flex'>
+        <div className='d-flex flex-grow-1'>
+          <div className='text-secondary text-center flex-grow-1 ms-sm-3'>Motor</div>
+          <div className='text-secondary text-center ms-sm-3' style={{ width: '4em' }}>
+            I<sub>t</sub>
+            <span className='text-info small ms-1'>({userUnits.impulse})</span>
+          </div>
         </div>
-      <div className='text-secondary text-center'>
-        Delay
-        <span className='text-info small ms-1'>(s)</span>
+
+        <div className='text-secondary text-center ms-sm-3' style={{ width: '5em' }}>
+          Delay
+          <span className='text-info small ms-1'>(s)</span>
+        </div>
+
+        <div className='text-secondary text-center ms-sm-3' style={{ width: 'auto' }}>Stage</div>
+
+        <div className='text-secondary text-center ms-sm-3' style={{ width: '3em' }}></div>
       </div>
-      <div className='text-secondary text-center'>Stage</div>
-      <div className='text-secondary text-center'></div>
       {
         _motors.map(m => {
           const key = (m as any)._key;
