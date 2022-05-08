@@ -14,10 +14,12 @@ export function getMotorByDisplayName(name : string | undefined) {
 }
 
 export function motorDisplayName(motor : Motor) {
-  const { manufacturerAbbrev, designation, commonName, discontinued } = motor;
-  return manufacturerAbbrev + ' ' +
+  const { manufacturerAbbrev, designation, commonName, availability } = motor;
+  return (
+    manufacturerAbbrev + ' ' +
     (designation.indexOf(commonName) >= 0 ? designation : commonName) +
-    (discontinued ? ' (discontinued)' : '');
+    (availability === 'OOP' ? ' (discontinued)' : '')
+  );
 }
 
 // Build indexes
