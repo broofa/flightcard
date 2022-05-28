@@ -14,12 +14,16 @@ import { Loading, sig } from './common/util';
 import { MotorDataList, MotorList } from './MotorComponents';
 import { AttendeeInfo } from './UserList';
 
+// Force of gravity (m/^2)
+const GRAVITY_ACC = 9.8066500286389;
+
 function FormSection({ className, children, ...props }
   : { className ?: string } & HTMLAttributes<HTMLDivElement>) {
   return <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
     {children}
   </div>;
 }
+
 
 export default function CardEditor() {
   const history = useHistory();
@@ -326,7 +330,7 @@ export default function CardEditor() {
     }
   }
   try {
-    thrustRatio = thrust / mass;
+    thrustRatio = thrust / (mass * GRAVITY_ACC);
   } catch (err) {
   }
 
