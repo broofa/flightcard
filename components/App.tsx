@@ -30,7 +30,10 @@ type tAppContext = {
   cards ?: iCards;
   pads ?: iPads;
 };
-export const AppContext = createContext<tAppContext>({});
+
+const DEFAULT_APP_STATE = {userUnits: MKS};
+
+export const AppContext = createContext<tAppContext>(DEFAULT_APP_STATE);
 
 function RangeStatus({ launch, isLCO, ...props } :
    { launch : iLaunch, isLCO : boolean } & ButtonGroupProps) {
@@ -91,7 +94,7 @@ export default function App() {
   // const [ctx, setCtx] = useState({});
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
-  const [appContext, setAppContext] = useState({});
+  const [appContext, setAppContext] = useState({...DEFAULT_APP_STATE});
 
   const currentUser = db.user.useValue(authId);
   const launches = db.launches.useValue();
@@ -103,7 +106,7 @@ export default function App() {
   const attendee = attendees?.[currentUser?.id];
 
   // Effect: Update authId when user is authenticated / logs out
-  useEffect(() => auth().onAuthStateChanged(async authUser => {
+  useEffect(() => auth.onAuthStateChanged(async authUser => {
     if (authUser) {
       let { photoURL } = authUser;
 
@@ -192,7 +195,7 @@ export default function App() {
               <div className='flex-grow-1' />
               {
                 currentUser
-                  ? <Nav.Link onClick={() => auth().signOut()}>Logout</Nav.Link>
+                  ? <Nav.Link onClick={() => auth.signOut()}>Logout</Nav.Link>
                   : null
               }
             </>

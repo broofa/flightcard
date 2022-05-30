@@ -4,22 +4,14 @@ import { Alert } from 'react-bootstrap';
 let onError : ((any) => any) | null = null;
 
 // Wrapper function that surfaces errors in ErrorFlash
-interface tErrorTrap {
-  (action : Promise<any>) : any;
-  onError ?: ((err : Error) => void)
-}
-
 export function showError(err) {
   console.error('showError()', err);
   onError?.(err);
 }
 
-export const errorTrap : tErrorTrap = async (action) => {
-  try {
-    return await action;
-  } catch (err) {
-    showError(err);
-  }
+export function errorTrap<T>(action : Promise<T>) : Promise<T> {
+  action.catch(showError);
+  return action;
 };
 
 export function ErrorFlash() {

@@ -1,16 +1,19 @@
-import firebase from 'firebase/app';
+import { initializeApp, setLogLevel } from 'firebase/app';
 import 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import 'firebase/database';
+import { get as fbGet, getDatabase, onValue as fbOnValue, query as fbQuery, ref as fbRef, remove, set as fbSet, update as fbUpdate } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { errorTrap } from './components/common/ErrorFlash';
 import { iAttendee, iAttendees, iCard, iCards, iLaunch, iLaunchs, iPad, iPads, iPerm, iPerms, iUser } from './types';
 
-firebase.setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
+setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
-(window as any).firebase = firebase;
+let firebaseApp = (window as any).fbApp;
 
-if (!firebase.apps.length) { // Prevents duplicate DBs with HMR'ing
-  firebase.initializeApp({
+// Prevent duplicate DBs with HMR'ing
+if (!firebaseApp) {
+  firebaseApp = (window as any).fbApp = initializeApp({
     apiKey: 'AIzaSyARx6u575DX4gjtzhHzT86DJ34s5GHxmRo',
     authDomain: 'flightcard-63595.firebaseapp.com',
     projectId: 'flightcard-63595',
@@ -25,8 +28,8 @@ if (!firebase.apps.length) { // Prevents duplicate DBs with HMR'ing
 // Value for properties to delete when doing Realtime Database "update"s
 export const DELETE = null as unknown as undefined;
 
-export const database = firebase.database;
-export const auth = firebase.auth;
+export const database = getDatabase(firebaseApp);
+export const auth = getAuth(firebaseApp);
 
 //
 // Structured database access
@@ -43,9 +46,9 @@ function createAPI<T>(pathTemplate) {
     set(a : Part, state : T) : Promise<T>;
     set(a : Part, b : Part, state : T) : Promise<T>;
 
-    update(state : Partial<T>) : Promise<T>;
-    update(a : Part, state : Partial<T>) : Promise<T>;
-    update(a : Part, b : Part, state : Partial<T>) : Promise<T>;
+    update(state : Partial<T>) : Promise<void>;
+    update(a : Part, state : Partial<T>) : Promise<void>;
+    update(a : Part, b : Part, state : Partial<T>) : Promise<void>;
 
     updateChild<S>(a : Part, state : Partial<S>) : Promise<S>;
     updateChild<S>(a : Part, b : Part, state : Partial<S>) : Promise<S>;
@@ -77,10 +80,10 @@ function createAPI<T>(pathTemplate) {
   }
 
   function _ref(parts : string[]) {
-    return database().ref(_fullPath(parts));
+    return fbRef(database, _fullPath(parts));
   }
 
-  function _deletify(state) {
+  function _deletify<T>(state: T) : T {
     // Allow for deletion of object properties that are set to undefined
     // (firebase deletes `null` properties from objects, but chokes on undefined)
     if (typeof state == 'object' && state !== null) {
@@ -90,27 +93,32 @@ function createAPI<T>(pathTemplate) {
   }
 
   const api : DataAPI = {
-    get(...args : string[]) : Promise<T> {
-      return errorTrap(_ref(args).get().then(ref => ref.val()));
+    async get(...args : string[]) : Promise<T> {
+      const result = await fbGet(fbQuery(_ref(args)));
+      return errorTrap(result.val());
     },
 
-    set(...parts : (string | T | undefined)[]) {
-      const state = parts.pop();
-      return errorTrap(_ref(parts as string[]).set(state));
+    async set(...parts) {
+      const state = parts.pop() as unknown as T;
+      const ref = _ref(parts);
+      errorTrap(fbSet(ref, state));
+      return state;
     },
 
-    update(...args : (string | Partial<T> | undefined)[]) : Promise<T> {
-      const state = args.pop();
-      return errorTrap(_ref(args as string[]).update(_deletify(state)));
+    update(...args) {
+      const state = args.pop() as unknown as Partial<T>;
+      const ref = _ref(args);
+      return errorTrap(fbUpdate(ref, _deletify(state)));
     },
 
     updateChild(...args) {
       const state = args.pop();
-      return errorTrap(database().ref(_fullPath(args, [...pathTemplate, ':child'])).update(state));
+      const ref = fbRef(database, _fullPath(args, [...pathTemplate, ':child']));
+      return errorTrap(fbUpdate(ref, state));
     },
 
     remove(...args : string[]) : Promise<any> {
-      return errorTrap(_ref(args).remove());
+      return errorTrap(remove(_ref(args)));
     },
 
     useValue<T>(...args : string[]) {
@@ -124,10 +132,7 @@ function createAPI<T>(pathTemplate) {
           return setVal(undefined);
         }
 
-        const ref = _ref(args);
-        const onValue = s => setVal(s.val());
-        ref.on('value', onValue);
-        return () => ref.off('value', onValue);
+        return fbOnValue(_ref(args), s => setVal(s.val()));
       }, [...args]);
 
       return val;
