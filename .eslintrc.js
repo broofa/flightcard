@@ -1,55 +1,27 @@
 module.exports = {
   root: true,
   env: {
+    node: true,
     browser: true
   },
+
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: [
+    '@typescript-eslint',
+  ],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'standard',
     'plugin:react/recommended',
-    'plugin:react-hooks/recommended'
+    "plugin:react-hooks/recommended"
   ],
-  settings: {
-    react: {
-      version: 'detect'
-    }
-  },
-  globals: {
-    msCrypto: true
-  },
   rules: {
-    eqeqeq: 'off',
-    'jsx-quotes': ['error', 'prefer-single'],
-    // 'member-delimiter-style': ['error', {
-    //   delimiter: 'semi', // 'none' or 'semi' or 'comma'
-    //   requireLast: true
-    // }],
-    'no-redeclare': 'off',
-    'no-return-assign': 'off',
-    'no-use-before-define': 'off',
-    'no-var': ['error'],
-    'react/prop-types': 'off',
-    'react/no-unescaped-entities': 'off',
-    semi: 'off',
-    'space-before-function-paren': [
-      'error',
-      {
-        anonymous: 'never',
-        named: 'never',
-        asyncArrow: 'always'
-      }
-    ],
     '@typescript-eslint/ban-ts-comment': 'off',
-    '@typescript-eslint/type-annotation-spacing': [
-      'error',
-      { before: true, after: true }
-    ],
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-use-before-define': ['error'],
-    '@typescript-eslint/semi': ['error']
+    '@typescript-eslint/no-empty-function': 'off',
+    'jsx-quotes': ['error', 'prefer-single'],
+    'no-empty': 'off',
+    'react/no-unescaped-entities': 'off',
   }
 };
+

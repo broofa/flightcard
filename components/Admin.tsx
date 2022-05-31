@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { auth, database, DELETE } from '../firebase';
-import { iAttendee, iAttendees, iCard, iCert, iLaunch, iLaunchs, iMotor, iPad, iPads, iPerms, iRocket, iUser, iUsers } from '../types';
+import { auth, DELETE, util } from '../firebase';
+import {
+  iAttendee,
+  iAttendees,
+  iCard,
+  iCert,
+  iLaunch,
+  iLaunchs,
+  iMotor,
+  iPad,
+  iPads,
+  iPerms,
+  iRocket,
+  iUser,
+  iUsers,
+} from '../types';
 import { MKS, Unit, unitParse } from '../util/units';
 import { sig } from './common/util';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
@@ -9,47 +23,59 @@ import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
 function genId(path) {
-  path = path.replace(/\/.*/, '').toLowerCase().replace(/(?:es|s)$/, '');
+  path = path
+    .replace(/\/.*/, '')
+    .toLowerCase()
+    .replace(/(?:es|s)$/, '');
   return `${SEED_PREFIX}${path}${(seedId++).toString().padStart(3, '0')}`;
 }
 
 // "Hey, some sort of logging would be nice, but I don't want to think too hard about it...""
-const _log : any = [];
-function log(...args) {
-  _log.push(args);
-  _log.onLog?.();
-}
-log.clear = () => _log.length = 0;
+const Logger = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  queue: [] as any[],
+  log(...args) {
+    this.queue.push(args);
+    this.onLog?.();
+  },
+  clear() {
+    this.queue.length = 0;
+    this.onLog?.();
+  },
+  onLog() {},
+};
 
 // "Push" a item into a resource collection, but do it with a human-readable name
 // that let's us also detect which items were "seeded" later on so we can remove them.
-export async function rtPush<T>(path : string, state : T) : Promise<string> {
-  const key = (state as any)?.id || genId(path);
-  await database().ref(`${path}/${key}`).set(state);
+export async function rtPush<T>(path: string, state: T): Promise<string> {
+  const key = (state as { id?: string })?.id || genId(path);
+  await util.set(`${path}/${key}`, state);
   return key;
 }
 
 async function purge(path) {
-  const obj = (await database().ref(path).get()).val();
+  const obj = await util.get(path);
   if (!obj) return;
 
-  await Promise.all(Object.keys(obj)
-    .filter(key => key.startsWith(SEED_PREFIX))
-    .map(key => {
-      const keyPath = `${path}/${key}`;
-      log('Removing', keyPath);
-      return database().ref(keyPath).remove();
-    }));
+  await Promise.all(
+    Object.keys(obj)
+      .filter(key => key.startsWith(SEED_PREFIX))
+      .map(key => {
+        const keyPath = `${path}/${key}`;
+        Logger.log('Removing', keyPath);
+        return util.remove(keyPath);
+      })
+  );
 }
 
-async function seedUsers() : Promise<iUsers> {
+async function seedUsers(): Promise<iUsers> {
   const RESOURCE = 'users';
-  log('Seeding', RESOURCE);
+  Logger.log('Seeding', RESOURCE);
 
-  const ALL : iUser[] = NAMES.slice(0, 100).map(name => {
+  const ALL: iUser[] = NAMES.slice(0, 100).map(name => {
     name = name + ' \u0307'; // Add a superscript dot so we know who the seeded users are
     const n = Math.random();
-    let photoURL : string | null = null;
+    let photoURL: string | null = null;
 
     if (n < 0.3) {
       photoURL = `https://randomuser.me/api/portraits/men/${rnd(100)}.jpg`;
@@ -62,56 +88,79 @@ async function seedUsers() : Promise<iUsers> {
     const user = {
       name,
       id: genId('user'),
-      photoURL
+      photoURL,
     };
 
     return user as iUser;
   });
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
+    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+  );
 
   return Object.fromEntries(entries);
 }
 
-async function seedLaunches() : Promise<iLaunchs> {
+async function seedLaunches(): Promise<iLaunchs> {
   const RESOURCE = 'launches';
 
-  log('Seeding', RESOURCE);
+  Logger.log('Seeding', RESOURCE);
 
   const ALL = [
     { name: 'AP Showers', startDate: '2021-04-23', endDate: '2021-04-25' },
     { name: 'Spring Thunder', startDate: '2021-05-21', endDate: '2021-05-23' },
     { name: 'NXRS', startDate: '2021-06-25', endDate: '2021-06-27' },
     { name: 'Summer Skies', startDate: '2021-07-23', endDate: '2021-07-25' },
-    { name: 'Sod Blaster (TCR)', startDate: '2021-09-04', endDate: '2021-09-06' },
-    { name: 'Fillible\'s Folly', startDate: '2021-09-17', endDate: '2021-09-19' },
-    { name: 'Rocketober', startDate: '2021-10-15', endDate: '2021-10-17' }
-  ].map(l => ({ id: genId('launch'), host: 'OROC', location: 'Brothers, Oregon', ...l } as iLaunch));
+    {
+      name: 'Sod Blaster (TCR)',
+      startDate: '2021-09-04',
+      endDate: '2021-09-06',
+    },
+    {
+      name: "Fillible's Folly",
+      startDate: '2021-09-17',
+      endDate: '2021-09-19',
+    },
+    { name: 'Rocketober', startDate: '2021-10-15', endDate: '2021-10-17' },
+  ].map(
+    l =>
+      ({
+        id: genId('launch'),
+        host: 'OROC',
+        location: 'Brothers, Oregon',
+        ...l,
+      } as iLaunch)
+  );
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
+    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+  );
 
   return Object.fromEntries(entries);
 }
 
-async function seedAttendees(launchId : string, users : iUsers) : Promise<iAttendees> {
+async function seedAttendees(
+  launchId: string,
+  users: iUsers
+): Promise<iAttendees> {
   const RESOURCE = `attendees/${launchId}`;
 
-  log('Seeding', RESOURCE);
+  Logger.log('Seeding', RESOURCE);
 
   const ATTENDEES = Object.values(users).slice(0, 20);
 
   // Seed attendees
-  const ALL : iAttendee[] = ATTENDEES.map(user => {
+  const ALL: iAttendee[] = ATTENDEES.map(user => {
     const cert = {
-      level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3])
+      level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3]),
     } as iCert;
 
     if (cert.level) {
       cert.type = rndItem(['tra', 'nar']);
-      cert.number = (3000 + rnd(15000));
-      cert.expires = (new Date(Date.now() + rnd(365 * 24 * 3600e3))).toLocaleDateString();
+      cert.number = 3000 + rnd(15000);
+      cert.expires = new Date(
+        Date.now() + rnd(365 * 24 * 3600e3)
+      ).toLocaleDateString();
       if (Math.random() < 0.3) {
         cert.verifiedId = rndItem(ATTENDEES).id;
         cert.verifiedTime = Date.now();
@@ -120,7 +169,7 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
 
     return {
       ...user,
-      cert
+      cert,
 
       // Coords around Brothers, OR
       // lat: 43.7954 + Math.random() * 0.0072,
@@ -129,36 +178,37 @@ async function seedAttendees(launchId : string, users : iUsers) : Promise<iAtten
   });
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
+    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+  );
 
   return Object.fromEntries(entries);
 }
 
-async function seedOfficers(launchId : string, users : iAttendees) {
+async function seedOfficers(launchId: string, users: iAttendees) {
   const RESOURCE = `officers/${launchId}`;
-  log('Seeding', RESOURCE);
+  Logger.log('Seeding', RESOURCE);
 
-  const firstOfficer = auth().currentUser?.uid;
+  const firstOfficer = auth.currentUser?.uid;
   if (!firstOfficer) throw Error('No current user(?!?)');
 
   // Make sure current owner is an officer
-  const officers : iPerms = { [firstOfficer]: true };
+  const officers: iPerms = { [firstOfficer]: true };
 
   Object.values(users).forEach((attendee, i) => {
-    if ((attendee.cert?.level ?? -1) >= 2 && (i % 10) < 4) {
+    if ((attendee.cert?.level ?? -1) >= 2 && i % 10 < 4) {
       officers[attendee.id] = true;
     }
   });
-  await database().ref(RESOURCE).set(officers);
+  await util.set(RESOURCE, officers);
 }
 
-async function seedPads(launchId : string) {
+async function seedPads(launchId: string) {
   const RESOURCE = `pads/${launchId}`;
 
-  log('Seeding', RESOURCE);
+  Logger.log('Seeding', RESOURCE);
 
   // Seed pads
-  const ALL : iPad[] = [];
+  const ALL: iPad[] = [];
   const PADS = [
     { name: '1-1', group: 'Low-Power' },
     { name: '1-2', group: 'Low-Power' },
@@ -180,11 +230,11 @@ async function seedPads(launchId : string) {
     { name: '4-4', group: 'High-Power' },
 
     { name: 'Away Cell' },
-    { name: 'Hilltop' }
+    { name: 'Hilltop' },
   ];
 
   // Seed pads
-  const padIds : string[] = [];
+  const padIds: string[] = [];
   for (const pad of PADS) {
     const id = genId('pad');
     padIds.push(id);
@@ -192,29 +242,32 @@ async function seedPads(launchId : string) {
   }
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
+    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+  );
 
   return Object.fromEntries(entries);
 }
 
-async function seedCards(launchId : string, attendees : iAttendees, pads : iPads) {
+async function seedCards(launchId: string, attendees: iAttendees, pads: iPads) {
   const RESOURCE = `cards/${launchId}`;
 
-  log('Seeding', RESOURCE);
+  Logger.log('Seeding', RESOURCE);
 
   // Seed cards
-  const ALL : iCard[] = [];
+  const ALL: iCard[] = [];
   for (const userId of Object.keys(attendees)) {
     for (let i = 0; i < 4; i++) {
       const rocket = createRocket();
 
-      const { _motor: motor } = rocket as iRocket & {_motor ?: iMotor};
+      const { _motor: motor } = rocket as iRocket & { _motor?: iMotor };
       delete rocket._motor;
 
       const status = [DELETE, 'review', 'ready', 'done'][i];
 
       const id = genId('card');
-      const padId = /ready|done/.test(status ?? '') ? rndItem(Object.keys(pads)) : DELETE;
+      const padId = /ready|done/.test(status ?? '')
+        ? rndItem(Object.keys(pads))
+        : DELETE;
 
       ALL.push({
         id,
@@ -231,13 +284,14 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
         notes: 'Randomly generated flight card',
 
         rocket,
-        motor
+        motor,
       } as iCard);
     }
   }
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l])));
+    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+  );
 
   return Object.fromEntries(entries);
 }
@@ -245,9 +299,14 @@ async function seedCards(launchId : string, attendees : iAttendees, pads : iPads
 let seeding = false;
 async function seedDB() {
   if (seeding) return;
-  if (!confirm('Are you sure?  This will remove all previously seeded launch state.')) return;
+  if (
+    !confirm(
+      'Are you sure?  This will remove all previously seeded launch state.'
+    )
+  )
+    return;
   seeding = true;
-  log.clear();
+  Logger.clear();
   seedId = 0;
 
   try {
@@ -257,16 +316,13 @@ async function seedDB() {
       'attendees',
       'officers',
       'pads',
-      'cards'
+      'cards',
     ]) {
-      log('Purging', att);
+      Logger.log('Purging', att);
       await purge(att);
     }
 
-    const [users, launches] = await Promise.all([
-      seedUsers(),
-      seedLaunches()
-    ]);
+    const [users, launches] = await Promise.all([seedUsers(), seedLaunches()]);
     let first = true;
     for (const launch of Object.values(launches)) {
       const pads = await seedPads(launch.id);
@@ -279,35 +335,35 @@ async function seedDB() {
       await seedCards(launch.id, attendees, pads);
     }
   } catch (err) {
-    log(err);
+    Logger.log(err);
   } finally {
-    log('-- fin --');
+    Logger.log('-- fin --');
     seeding = false;
   }
 }
 
 async function testDB() {
-  const user = auth().currentUser;
+  const user = auth.currentUser;
   const uid = user?.uid;
 
-  log.clear();
+  Logger.clear();
 
-  async function testAccess(path) {
-    const ref = database().ref(path);
-
+  async function testAccess(path: string) {
     let canRead, canWrite;
     try {
-      (await ref.get()).val();
+      await util.get(path);
       canRead = true;
-    } catch (err) { }
+    } catch (err) {}
 
     try {
-      await ref.update({ _temp: true });
-      await ref.update({ _temp: null });
+      await util.update(path, { _temp: true });
+      await util.update(path, { _temp: null });
       canWrite = true;
-    } catch (err) { }
+    } catch (err) {}
 
-    return `${canRead ? '\u2705' : '\u274c'} ${canWrite ? '\u2705' : '\u274c'} ${path}`;
+    return `${canRead ? '\u2705' : '\u274c'} ${
+      canWrite ? '\u2705' : '\u274c'
+    } ${path}`;
   }
 
   await Promise.all([
@@ -329,26 +385,34 @@ async function testDB() {
     '---',
     testAccess('cards'),
     testAccess('cards/testLaunch'),
-    testAccess('cards/testLaunch/testCard')
-  ]).then(results => results.forEach(v => log(v)));
+    testAccess('cards/testLaunch/testCard'),
+  ]).then(results => results.forEach(v => Logger.log(v)));
 }
 
 function testUtil() {
-  log.clear();
-  log('Starting tests');
+  Logger.clear();
+  Logger.log('Starting tests');
 
-  function expectUnit(v : string, unit : string, expected : number | string) {
+  function expectUnit(v: string, unit: string, expected: number | string) {
     let actual;
     try {
       actual = sig(unitParse(v, unit) as number, 4);
     } catch (err) {
-      actual = err.message;
+      actual = (err as Error).message;
     }
 
     if (actual === expected) {
-      log('\u2705', v, 'to', unit, '=', expected);
+      Logger.log('\u2705', v, 'to', unit, '=', expected);
     } else {
-      log('\u274c', v, 'to', unit, '=', String(actual), `(expected ${expected})`);
+      Logger.log(
+        '\u274c',
+        v,
+        'to',
+        unit,
+        '=',
+        String(actual),
+        `(expected ${expected})`
+      );
     }
   }
 
@@ -370,7 +434,7 @@ function testUtil() {
   expectUnit('1ft', MKS.length, 0.3048);
   expectUnit('1 ft', MKS.length, 0.3048);
   expectUnit('1 FT', MKS.length, 0.3048);
-  expectUnit('1\'', MKS.length, 0.3048);
+  expectUnit("1'", MKS.length, 0.3048);
   expectUnit('1in', MKS.length, 0.0254);
   expectUnit('1"', MKS.length, 0.0254);
   expectUnit('1ft1in', MKS.length, 0.3302);
@@ -393,28 +457,41 @@ function testUtil() {
   expectUnit('1lbf-sec', MKS.impulse, 4.448);
 
   const v = new Unit(123, 'kg');
-  log('HELLO', v);
+  Logger.log('HELLO', v);
 }
 
 export default function Admin() {
-  const [, setLogLength] = useState(_log.length);
+  const [, setLogLength] = useState(Logger.queue.length);
 
   // Trigger re-render when log changes
-  _log.onLog = () => setLogLength(_log.length);
+  Logger.onLog = () => setLogLength(Logger.queue.length);
 
-  return <>
-    <div className='deck'>
-      <Button variant='warning' onClick={seedDB} >Seed DB</Button>
-      <Button variant='warning' onClick={testDB} >Test Access</Button>
-      <Button variant='warning' onClick={testUtil} >Test util</Button>
-    </div>
-    <div className='mt-4 text-dark text-monospace' style={{ fontSize: '9pt' }}>
-      {
-        _log.map((args, i) => {
+  return (
+    <>
+      <div className='deck'>
+        <Button variant='warning' onClick={seedDB}>
+          Seed DB
+        </Button>
+        <Button variant='warning' onClick={testDB}>
+          Test Access
+        </Button>
+        <Button variant='warning' onClick={testUtil}>
+          Test util
+        </Button>
+      </div>
+      <div
+        className='mt-4 text-dark text-monospace'
+        style={{ fontSize: '9pt' }}
+      >
+        {Logger.queue.map((args, i) => {
           const err = args.find(v => v instanceof Error);
-          return <div key={i} className={err ? 'text-danger' : ''}>{args.join(' ')}</div>;
-        })
-      }
-    </div>
-  </>;
+          return (
+            <div key={i} className={err ? 'text-danger' : ''}>
+              {args.join(' ')}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
 }

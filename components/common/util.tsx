@@ -3,39 +3,68 @@ import { Button, ButtonProps } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, LinkProps } from 'react-router-dom';
 
-export function usePrevious<T>(value : T) {
+export function usePrevious<T>(value: T) {
   const ref = useRef<T>();
-  useEffect(() => { ref.current = value; });
+  useEffect(() => {
+    ref.current = value;
+  });
   return ref.current as T;
 }
 
-export function Loading({ wat, ...props } : {wat : string} & HTMLAttributes<HTMLDivElement>) {
-  return <div className='busy' style={{ fontSize: '1.3rem', fontWeight: 'bold', opacity: 0.3, textAlign: 'center' }} {...props}>Loading {wat}</div>;
+export function Loading({
+  wat,
+  ...props
+}: { wat: string } & HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className='busy'
+      style={{
+        fontSize: '1.3rem',
+        fontWeight: 'bold',
+        opacity: 0.3,
+        textAlign: 'center',
+      }}
+      {...props}
+    >
+      Loading {wat}
+    </div>
+  );
 }
 
-export function ProfileLink({ launchId }) {
+export function ProfileLink({ launchId }: Omit<LinkProps, 'to'> & { launchId: string }) {
   return <Link to={`/launches/${launchId}/profile`}>Profile Page</Link>;
 }
 
-export function AttendeesLink({ launchId, filter, children, ...props } :
-  {launchId : string, filter ?: string} & Omit<LinkProps, 'to'>) {
-  return <Link
-    to={`/launches/${launchId}/users${filter ? `?filter=${filter}` : ''}`}
-    {...props}>
+export function AttendeesLink({
+  launchId,
+  filter,
+  children,
+  ...props
+}: Omit<LinkProps, 'to'> & { launchId: string; filter?: string }) {
+  return (
+    <Link
+      to={`/launches/${launchId}/users${filter ? `?filter=${filter}` : ''}`}
+      {...props}
+    >
       {children ?? 'Attendee Page'}
-    </Link>;
+    </Link>
+  );
 }
 
-export function LinkButton({ to, isActive, children, ...props } :
-  {
-    to : string,
-    isActive ?: () => boolean
-  }
-  & ButtonProps
-) {
-  return <LinkContainer to={to} isActive={isActive} >
-    <Button {...props}>{children}</Button>
-  </LinkContainer>;
+export function LinkButton({
+  to,
+  isActive,
+  children,
+  ...props
+}: {
+  to: string;
+  isActive?: () => boolean;
+} & ButtonProps) {
+  return (
+    <LinkContainer to={to} isActive={isActive}>
+      <Button {...props}>{children}</Button>
+    </LinkContainer>
+  );
 }
 
 /**
@@ -56,7 +85,7 @@ export function busy(target, p) {
 /**
  * Round number to X significant digits
  */
-export function sig(val : number, digits = 3) {
+export function sig(val: number, digits = 3) {
   if (val === 0 || !isFinite(val)) return val;
 
   const isNegative = val < 0;

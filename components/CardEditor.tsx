@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import React, { HTMLAttributes, useContext, useEffect, useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
+import { Alert, Button, Form, FormCheckProps } from 'react-bootstrap';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { db, DELETE } from '../firebase';
 import { iCard, iMotor, iUser, tCardStatus } from '../types';
@@ -53,7 +53,7 @@ export default function CardEditor() {
   }, [dbCard, attendee, launchId, userUnits]);
 
   function peek(path : string) {
-    const val : any = path.split('.').reduce((o, k) => o?.[k], card as any);
+    const val  = path.split('.').reduce((o, k) => o?.[k], card);
     return typeof (val) === 'number' ? sig(val) : val;
   }
 
@@ -85,7 +85,7 @@ export default function CardEditor() {
           try {
             unitParse(target.value, units);
           } catch (error) {
-            target.setCustomValidity(error.message);
+            target.setCustomValidity((error as Error).message);
           }
 
           target.reportValidity();
@@ -105,7 +105,7 @@ export default function CardEditor() {
     };
   }
 
-  function switchInputProps(path) : any {
+  function switchInputProps(path : string) : FormCheckProps {
     return {
       id: path,
       checked: !!peek(path),

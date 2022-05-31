@@ -1,5 +1,10 @@
 import { nanoid } from 'nanoid';
-import React, { HTMLAttributes, useContext, useState } from 'react';
+import React, {
+  ChangeEvent,
+  HTMLAttributes,
+  useContext,
+  useState,
+} from 'react';
 import {
   Button,
   Form,
@@ -25,6 +30,8 @@ type tMotorFields = {
   impulse: string;
   stage: string;
 };
+
+const BLANK_ID = 'blank_id';
 
 export function MotorDataList(props) {
   function sortKey(motor) {
@@ -60,7 +67,6 @@ function MotorItem({
   onDetail: (motor: Motor | undefined) => void;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
-  const key = (motor as any)?._key;
   const [delayListId] = useState(nanoid());
   const tcMotor = getMotorByDisplayName(motor?.name);
   const { userUnits } = useContext(AppContext);
@@ -76,42 +82,38 @@ function MotorItem({
 
   const delays = tcMotor?.delays?.split(',');
 
-  function patchFields(patch: Partial<tMotorFields>, isChange = false) {
+  function patchFields(patch: Partial<tMotorFields>) {
     const newFields: tMotorFields = { ...fields, ...patch };
     setFields(newFields);
 
-    if (isChange) {
-      // Create new Motor
-      const newMotor: iMotor = {
-        name: newFields.name,
-        impulse: DELETE,
-        delay: DELETE,
-        stage: DELETE,
-        tcMotorId: DELETE,
-      };
+    // Create new Motor
+    const newMotor: iMotor = {
+      id: nanoid(),
+      name: newFields.name,
+      impulse: DELETE,
+      delay: DELETE,
+      stage: DELETE,
+      tcMotorId: DELETE,
+    };
 
-      // Carry hidden "_key" forward
-      if (key) Object.defineProperty(newMotor, '_key', { value: key });
+    const _tcMotor = getMotorByDisplayName(newMotor.name);
+    if (_tcMotor) newMotor.tcMotorId = _tcMotor.motorId;
 
-      const _tcMotor = getMotorByDisplayName(newMotor.name);
-      if (_tcMotor) newMotor.tcMotorId = _tcMotor.motorId;
-
-      if (newFields.delay) newMotor.delay = Number(newFields.delay);
-      if (newFields.stage != '1') newMotor.stage = Number(newFields.stage);
-      if (newFields.impulse) {
-        try {
-          newMotor.impulse = unitParse(
-            newFields.impulse,
-            userUnits.impulse,
-            MKS.impulse
-          );
-        } catch (err) {
-          // Fail silently - this should be surfaced via validity message
-        }
+    if (newFields.delay) newMotor.delay = Number(newFields.delay);
+    if (newFields.stage != '1') newMotor.stage = Number(newFields.stage);
+    if (newFields.impulse) {
+      try {
+        newMotor.impulse = unitParse(
+          newFields.impulse,
+          userUnits.impulse,
+          MKS.impulse
+        );
+      } catch (err) {
+        // Fail silently - this should be surfaced via validity message
       }
-
-      onChange(newMotor);
     }
+
+    onChange(newMotor);
   }
 
   function onNameChange({ target }) {
@@ -124,7 +126,7 @@ function MotorItem({
         sig(unitConvert(_tcMotor.totImpulseNs, MKS.impulse, userUnits.impulse))
       );
     }
-    patchFields(patch, true);
+    patchFields(patch);
   }
 
   function onImpulseChange({ type, target }) {
@@ -141,9 +143,9 @@ function MotorItem({
     }
 
     if (type == 'blur' && parsed) {
-      patchFields({ impulse: String(sig(parsed)) }, true);
+      patchFields({ impulse: String(sig(parsed)) });
     } else {
-      patchFields({ impulse: val }, true);
+      patchFields({ impulse: val });
     }
 
     target.reportValidity();
@@ -215,7 +217,7 @@ function MotorItem({
               style={{ width: '5em' }}
               list={delayListId}
               value={fields.delay ?? ''}
-              onChange={e => patchFields({ delay: e.target.value }, true)}
+              onChange={e => patchFields({ delay: e.target.value })}
             />
           </>
         ) : (
@@ -229,8 +231,8 @@ function MotorItem({
               className='flex-grow-1 ms-sm-3'
               style={{ width: '5em' }}
               value={fields.stage ?? ''}
-              onChange={e =>
-                patchFields({ stage: (e.target as any).value }, true)
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                patchFields({ stage: e.target.value })
               }
             >
               <option value='1'>1</option>
@@ -243,7 +245,7 @@ function MotorItem({
           <div></div>
         )}
 
-        {!(motor as any)._blank ? (
+        {motor.id !== BLANK_ID ? (
           <Button
             className='ms-3 mt-2 '
             tabIndex={-1}
@@ -368,11 +370,9 @@ export function MotorList({
   ) : null;
 
   // Blank motor to allow adding new ones
-  // (_blank property gets dropped by MotorItem when motor changes)
   const _motors = [...motors];
-  if (!_motors.some(m => (m as any)._blank)) {
-    const _key = nanoid();
-    _motors.push({ _key, _blank: true } as unknown as iMotor);
+  if (!_motors.some(m => m.id === BLANK_ID)) {
+    _motors.push({ name: '', id: BLANK_ID });
   }
 
   return (
@@ -415,16 +415,11 @@ export function MotorList({
           ></div>
         </div>
         {_motors.map(m => {
-          const key = (m as any)._key;
-
-          // HACK: Make sure each motor has an _key, w/out having it show up downstream
-          if (m && !(m as any)._key) {
-            Object.defineProperty(m, '_key', { value: nanoid() });
-          }
+          const key = m.id;
 
           function handleChange(motor) {
             const newMotors = [..._motors];
-            const i = newMotors.findIndex(m => (m as any)._key == key);
+            const i = newMotors.findIndex(m => m.id === key);
 
             if (i < 0) throw Error(`Huh? Motor ${key} went away :-(`);
 
@@ -436,17 +431,17 @@ export function MotorList({
               // Sort motors if order may have changed
               if (stageChanged) {
                 sortArray(newMotors, m =>
-                  (m as any)._blank ? Infinity : m.stage ?? 1
+                  m.id === BLANK_ID ? Infinity : m.stage ?? 1
                 );
               }
             }
 
-            onChange(newMotors.filter(m => !(m as any)._blank));
+            onChange(newMotors.filter(m => m.id !== BLANK_ID));
           }
 
           return (
             <MotorItem
-              key={(m as any)._key}
+              key={m.id}
               className='mb-3'
               motor={m}
               onDetail={setMotorDetail}

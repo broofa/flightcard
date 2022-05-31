@@ -1,6 +1,13 @@
 import React, { HTMLAttributes, useContext } from 'react';
 import { Alert, ButtonGroup } from 'react-bootstrap';
-import { Link, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom';
+import {
+  Link,
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
 import { db } from '../firebase';
 import { iAttendee, iAttendees, iCard, iPerm } from '../types';
 import { sortArray } from '../util/sortArray';
@@ -20,19 +27,19 @@ export const OFFICERS = 'officers';
 export const LOW_POWER = 'low';
 export const HIGH_POWER = 'high';
 
-function officerUsers(user ?: iAttendee, isOfficer ?: iPerm) {
+function officerUsers(user?: iAttendee, isOfficer?: iPerm) {
   return isOfficer ?? false;
 }
 
-function lowPowerUsers(user : iAttendee) {
+function lowPowerUsers(user: iAttendee) {
   return (user.cert?.level ?? 0) == 0;
 }
 
-function highPowerUsers(user : iAttendee) {
+function highPowerUsers(user: iAttendee) {
   return (user.cert?.level ?? 0) > 0;
 }
 
-function UsersPane({ launchId }) {
+function UsersPane({ launchId }: { launchId: string }) {
   const location = useLocation();
   const filter = new URLSearchParams(location.search).get('filter');
 
@@ -55,30 +62,63 @@ function UsersPane({ launchId }) {
       break;
   }
 
-  return <>
-    <ButtonGroup className='mt-2'>
-      <LinkButton isActive={() => !filter} to={`/launches/${launchId}/users`}>All</LinkButton>
-      <LinkButton isActive={() => filter == OFFICERS} to={`/launches/${launchId}/users?filter=${OFFICERS}`}>{'\u2605'}</LinkButton>
-      <LinkButton isActive={() => filter == LOW_POWER} to={`/launches/${launchId}/users?filter=${LOW_POWER}`}>LP</LinkButton>
-      <LinkButton isActive={() => filter == HIGH_POWER} to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}>HP</LinkButton>
-    </ButtonGroup>
+  return (
+    <>
+      <ButtonGroup className='mt-2'>
+        <LinkButton isActive={() => !filter} to={`/launches/${launchId}/users`}>
+          All
+        </LinkButton>
+        <LinkButton
+          isActive={() => filter == OFFICERS}
+          to={`/launches/${launchId}/users?filter=${OFFICERS}`}
+        >
+          {'\u2605'}
+        </LinkButton>
+        <LinkButton
+          isActive={() => filter == LOW_POWER}
+          to={`/launches/${launchId}/users?filter=${LOW_POWER}`}
+        >
+          LP
+        </LinkButton>
+        <LinkButton
+          isActive={() => filter == HIGH_POWER}
+          to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}
+        >
+          HP
+        </LinkButton>
+      </ButtonGroup>
 
-    <UserList launchId={launchId} filter={userFilter}>{title}</UserList>
-  </>;
+      <UserList launchId={launchId} filter={userFilter}>
+        {title}
+      </UserList>
+    </>
+  );
 }
 
-export function CardList({ cards, attendees } : {cards : iCard[], attendees ?: iAttendees}) {
+export function CardList({
+  cards,
+  attendees,
+}: {
+  cards: iCard[];
+  attendees?: iAttendees;
+}) {
   if (attendees) {
     sortArray(cards, card => attendees[card.userId].name);
   } else {
     sortArray(cards, card => card.rocket?.name);
   }
 
-  return <div className='deck'>
-    {
-      cards.map(card => <LaunchCard key={card.id} card={card} attendee={attendees?.[card.userId]} />)
-    }
-  </div>;
+  return (
+    <div className='deck'>
+      {cards.map(card => (
+        <LaunchCard
+          key={card.id}
+          card={card}
+          attendee={attendees?.[card.userId]}
+        />
+      ))}
+    </div>
+  );
 }
 
 function RangeSafetyPane() {
@@ -88,22 +128,33 @@ function RangeSafetyPane() {
 
   const rsoCards = Object.values(cards || {}).filter(c => c.status == 'review');
 
-  return <>
-    <h2>RSO Requests</h2>
-    {
-      rsoCards?.length
-        ? <CardList cards={rsoCards} attendees={attendees} />
-        : <Alert variant='secondary'>No RSO requests at this time.</Alert>
-    }
-  </>;
+  return (
+    <>
+      <h2>RSO Requests</h2>
+      {rsoCards?.length ? (
+        <CardList cards={rsoCards} attendees={attendees} />
+      ) : (
+        <Alert variant='secondary'>No RSO requests at this time.</Alert>
+      )}
+    </>
+  );
 }
 
-function PadName({ children, className = '' } : HTMLAttributes<HTMLSpanElement>) {
-  return <span className={`flex-grow-0 px-1 bg-dark text-light text-center ${className}`}
-  style={{ minWidth: '2em' }}>{children}</span>;
+function PadName({
+  children,
+  className = '',
+}: HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span
+      className={`flex-grow-0 px-1 bg-dark text-light text-center ${className}`}
+      style={{ minWidth: '2em' }}
+    >
+      {children}
+    </span>
+  );
 }
 
-function PadCard({ padId }) {
+function PadCard({ padId }: { padId: string }) {
   const { launch, cards, attendees } = useContext(AppContext);
   const history = useHistory();
   const pad = db.pad.useValue(launch?.id, padId);
@@ -116,57 +167,90 @@ function PadCard({ padId }) {
 
   const padCardClasses = 'card text-center flex-column';
 
-  if (padCards.length <= 0) { // No cards assigned
-    return <div className={`${padCardClasses} border-dark`} style={{ opacity: 0.4 }}>
-      <div className='d-flex' style={{ fontSize: '1.3em' }}>
-        <PadName>{pad.name}</PadName>
-        <span className='flex-grow-1' />
+  if (padCards.length <= 0) {
+    // No cards assigned
+    return (
+      <div className={`${padCardClasses} border-dark`} style={{ opacity: 0.4 }}>
+        <div className='d-flex' style={{ fontSize: '1.3em' }}>
+          <PadName>{pad.name}</PadName>
+          <span className='flex-grow-1' />
+        </div>
       </div>
-    </div>;
-  } else if (padCards.length > 1) { // Pad conflict (too many cards)
-    return <div className={`${padCardClasses} border-danger`}>
-      <div className='d-flex' style={{ fontSize: '1.3rem' }}>
-        <PadName className='bg-danger'>{pad.name}</PadName>
-        <span className='bg-danger text-white text-center flex-grow-1 fst-italic'>Pad Conflict</span>
-      </div>
+    );
+  } else if (padCards.length > 1) {
+    // Pad conflict (too many cards)
+    return (
+      <div className={`${padCardClasses} border-danger`}>
+        <div className='d-flex' style={{ fontSize: '1.3rem' }}>
+          <PadName className='bg-danger'>{pad.name}</PadName>
+          <span className='bg-danger text-white text-center flex-grow-1 fst-italic'>
+            Pad Conflict
+          </span>
+        </div>
 
-      <div className='p-2'>
-        Cards assigned to this pad:
-        {padCards.map(c => {
-          const flier = attendees?.[c.userId];
-          return flier && <Link key={c.id} className='mx-2' to={`/launches/${c.launchId}/cards/${c.id}`}>{flier.name ?? ANONYMOUS}</Link>;
-        })}
+        <div className='p-2'>
+          Cards assigned to this pad:
+          {padCards.map(c => {
+            const flier = attendees?.[c.userId];
+            return (
+              flier && (
+                <Link
+                  key={c.id}
+                  className='mx-2'
+                  to={`/launches/${c.launchId}/cards/${c.id}`}
+                >
+                  {flier.name ?? ANONYMOUS}
+                </Link>
+              )
+            );
+          })}
+        </div>
       </div>
-    </div>;
+    );
   }
 
   const card = padCards[0];
   const attendee = attendees?.[card.userId];
 
-  return <div onClick={() => history.push(`/launches/${card.launchId}/cards/${card.id}`)} className={`${padCardClasses} border-dark cursor-pointer`}>
-    <div className='d-flex' style={{ fontSize: '1.3rem' }}>
-      <PadName>{pad.name}</PadName>
-      {
-        attendee
-          ? <div className={'d-flex align-items-center flex-grow-1'}>
-            <span className='flex-grow-1 ms-2 my-0 h3'>{attendee?.name ?? ANONYMOUS}</span>
-            <CertDot className='mx-1 flex-grow-0' style={{ fontSize: '1rem' }} cert={attendee.cert} />
+  return (
+    <div
+      onClick={() =>
+        history.push(`/launches/${card.launchId}/cards/${card.id}`)
+      }
+      className={`${padCardClasses} border-dark cursor-pointer`}
+    >
+      <div className='d-flex' style={{ fontSize: '1.3rem' }}>
+        <PadName>{pad.name}</PadName>
+        {attendee ? (
+          <div className={'d-flex align-items-center flex-grow-1'}>
+            <span className='flex-grow-1 ms-2 my-0 h3'>
+              {attendee?.name ?? ANONYMOUS}
+            </span>
+            <CertDot
+              className='mx-1 flex-grow-0'
+              style={{ fontSize: '1rem' }}
+              cert={attendee.cert}
+            />
           </div>
-          : <span className='flex-grow-1' />
-      }
-    </div>
+        ) : (
+          <span className='flex-grow-1' />
+        )}
+      </div>
 
-    <div className='p-2'>
-      {
-        card?.rocket
-          ? <>
-              <div>{card.rocket?.name ?? ''}</div>
-              <div className='fw-bold'>{(card?.motors?.length ?? 0) > 1 ? '(complex)' : card?.motors?.[0]?.name}</div>
-            </>
-          : null
-      }
+      <div className='p-2'>
+        {card?.rocket ? (
+          <>
+            <div>{card.rocket?.name ?? ''}</div>
+            <div className='fw-bold'>
+              {(card?.motors?.length ?? 0) > 1
+                ? '(complex)'
+                : card?.motors?.[0]?.name}
+            </div>
+          </>
+        ) : null}
+      </div>
     </div>
-  </div>;
+  );
 }
 
 function LaunchControlPane() {
@@ -174,28 +258,32 @@ function LaunchControlPane() {
 
   if (!pads) return <Loading wat='Pads' />;
 
-  const padGroups = Array.from(new Set(Object.values(pads).map(pad => pad.group ?? '')))
-    .sort();
+  const padGroups = Array.from(
+    new Set(Object.values(pads).map(pad => pad.group ?? ''))
+  ).sort();
 
-  return <>
-    {
-      padGroups
-        .map(group => <div key={group}>
+  return (
+    <>
+      {padGroups.map(group => (
+        <div key={group}>
           {group ? <h2 className='mt-5'>{group}</h2> : null}
           <div className='deck ms-3'>
-          {
-            sortArray(Object.values(pads).filter(pad => (pad.group ?? '') === group), 'name')
-              .map((pad, i) => <PadCard key={i} padId={pad.id} />)
-          }
+            {sortArray(
+              Object.values(pads).filter(pad => (pad.group ?? '') === group),
+              'name'
+            ).map((pad, i) => (
+              <PadCard key={i} padId={pad.id} />
+            ))}
           </div>
-        </div>)
-    }
-  </>;
+        </div>
+      ))}
+    </>
+  );
 }
 
 function Launch() {
   const { currentUser } = useContext(AppContext);
-  const params = useParams<{launchId : string }>();
+  const params = useParams<{ launchId: string }>();
 
   const { launchId } = params;
   const attendee = db.attendee.useValue(launchId, currentUser?.id);
@@ -207,41 +295,43 @@ function Launch() {
     return <Route {...props} />;
   }
 
-  return <>
-    <Switch>
-      <WaiverRoute exact path={'/launches/:launchId/cards'}>
-        <CardsPane launchId={launchId} />
-      </WaiverRoute>
+  return (
+    <>
+      <Switch>
+        <WaiverRoute exact path={'/launches/:launchId/cards'}>
+          <CardsPane launchId={launchId} />
+        </WaiverRoute>
 
-      <WaiverRoute path={'/launches/:launchId/cards/:cardId'}>
-        <CardEditor />
-      </WaiverRoute>
+        <WaiverRoute path={'/launches/:launchId/cards/:cardId'}>
+          <CardEditor />
+        </WaiverRoute>
 
-      <Route path={'/launches/:launchId/edit'}>
-        <LaunchEditor />
-      </Route>
+        <Route path={'/launches/:launchId/edit'}>
+          <LaunchEditor />
+        </Route>
 
-      <WaiverRoute path={'/launches/:launchId/profile'}>
-        <ProfilePage user={attendee} launchId={launchId} />
-      </WaiverRoute>
+        <WaiverRoute path={'/launches/:launchId/profile'}>
+          <ProfilePage user={attendee} launchId={launchId} />
+        </WaiverRoute>
 
-      <WaiverRoute path={'/launches/:launchId/rso'}>
-        <RangeSafetyPane />
-      </WaiverRoute>
+        <WaiverRoute path={'/launches/:launchId/rso'}>
+          <RangeSafetyPane />
+        </WaiverRoute>
 
-      <WaiverRoute path={'/launches/:launchId/lco'}>
-        <LaunchControlPane />
-      </WaiverRoute>
+        <WaiverRoute path={'/launches/:launchId/lco'}>
+          <LaunchControlPane />
+        </WaiverRoute>
 
-      <WaiverRoute path={'/launches/:launchId/users'}>
-        <UsersPane launchId={launchId} />
-      </WaiverRoute>
+        <WaiverRoute path={'/launches/:launchId/users'}>
+          <UsersPane launchId={launchId} />
+        </WaiverRoute>
 
-      <WaiverRoute path={'/launches/:launchId/'}>
-        <LaunchHome />
-      </WaiverRoute>
-    </Switch>
-  </>;
+        <WaiverRoute path={'/launches/:launchId/'}>
+          <LaunchHome />
+        </WaiverRoute>
+      </Switch>
+    </>
+  );
 }
 
 export default Launch;
