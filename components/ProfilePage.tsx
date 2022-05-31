@@ -75,7 +75,7 @@ export default function ProfilePage({
 
   const onName = e => {
     let name = e?.target?.value;
-    if (!name || name == ANONYMOUS) name = DELETE;
+    if (!name) name = DELETE;
     busy(
       e.target,
       Promise.all([
@@ -115,17 +115,17 @@ export default function ProfilePage({
 
   return (
     <>
-      <h1>Settings for {user?.name ?? ANONYMOUS}</h1>
+      <h1>Settings for {user?.name ?? <i>(unnamed user)</i>}</h1>
 
       <h2>Profile</h2>
 
       <div className='ms-3'>
         {!user?.name ? (
           <Alert className='mb-1 py-1' variant='warning'>
-            You are currently anonymous. Please enter your name here.
+            Please provide your name. (Names are important at in-person events like this.)
           </Alert>
         ) : null}
-        <FloatingInput defaultValue={user.name ?? ANONYMOUS} onBlur={onName}>
+        <FloatingInput defaultValue={user.name ?? ''} onBlur={onName}>
           <label>
             Your Name
             <span className='ms-3 text-tip'>

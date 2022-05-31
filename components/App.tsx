@@ -9,7 +9,7 @@ import {
   NavDropdown,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { NavLink, Route, Switch, useRouteMatch } from 'react-router-dom';
+import { NavLink, Route, Routes, useMatch } from 'react-router-dom';
 import { auth, db, DELETE } from '../firebase';
 import {
   iAttendee,
@@ -30,6 +30,7 @@ import { Loading, usePrevious } from './common/util';
 import Icon from './Icon';
 import Launch from './Launch';
 import Launches from './Launches';
+import LaunchHome from './LaunchHome';
 import Login from './Login';
 
 export const APPNAME = 'FlightCard';
@@ -138,7 +139,7 @@ function RoleDropdown({ launch, user }: { launch: iLaunch; user: iUser }) {
 
 export default function App() {
   const [authId, setAuthId] = useState<string>();
-  const match = useRouteMatch<{ launchId: string }>('/launches/:launchId');
+  const match = useMatch<'launchId', string>('/launches/:launchId/*');
   const { launchId } = match?.params ?? {};
 
   // const [ctx, setCtx] = useState({});
@@ -243,7 +244,6 @@ export default function App() {
               ].map(([path, icon]) => (
                 <NavLink
                   to={`/launches/${launch.id}/${path}`}
-                  exact
                   key={path}
                   className='flex-grow-1 text-center py-2'
                 >
@@ -271,17 +271,12 @@ export default function App() {
           {!currentUser ? (
             <Login />
           ) : (
-            <Switch>
-              <Route path='/launches/:launchId?' component={Launch} />
-
-              <Route path='/admin'>
-                <Admin />
-              </Route>
-
-              <Route path='/'>
-                <Launches />
-              </Route>
-            </Switch>
+            <Routes>
+              <Route path='/'  element={<Launches />} />
+              <Route path='/admin'  element={<Admin />} />
+              <Route path='/launches/:launchId' element={<LaunchHome />} />
+              <Route path='/launches/:launchId/*' element={<Launch />} />
+            </Routes>
           )}
         </div>
 

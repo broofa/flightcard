@@ -3,9 +3,9 @@ import { Alert, ButtonGroup } from 'react-bootstrap';
 import {
   Link,
   Route,
-  Switch,
-  useHistory,
+  Routes,
   useLocation,
+  useNavigate,
   useParams,
 } from 'react-router-dom';
 import { db } from '../firebase';
@@ -18,7 +18,6 @@ import { CertDot } from './common/CertDot';
 import { LinkButton, Loading } from './common/util';
 import { LaunchCard } from './LaunchCard';
 import LaunchEditor from './LaunchEditor';
-import LaunchHome from './LaunchHome';
 import ProfilePage from './ProfilePage';
 import { UserList } from './UserList';
 import { Waiver } from './Waiver';
@@ -156,7 +155,7 @@ function PadName({
 
 function PadCard({ padId }: { padId: string }) {
   const { launch, cards, attendees } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
   const pad = db.pad.useValue(launch?.id, padId);
 
   const padCards = cards
@@ -215,7 +214,7 @@ function PadCard({ padId }: { padId: string }) {
   return (
     <div
       onClick={() =>
-        history.push(`/launches/${card.launchId}/cards/${card.id}`)
+        navigate(`/launches/${card.launchId}/cards/${card.id}`)
       }
       className={`${padCardClasses} border-dark cursor-pointer`}
     >
@@ -288,48 +287,24 @@ function Launch() {
   const { launchId } = params;
   const attendee = db.attendee.useValue(launchId, currentUser?.id);
 
+  console.log('WAVIER', launchId, attendee?.waiverTime);
   if (!currentUser) return <Loading wat='User (Launch)' />;
-
-  function WaiverRoute(props) {
-    if (!launchId || !attendee) return <Waiver />;
-    return <Route {...props} />;
-  }
+  if (!launchId || !attendee?.waiverTime) return <Waiver />;
 
   return (
     <>
-      <Switch>
-        <WaiverRoute exact path={'/launches/:launchId/cards'}>
-          <CardsPane launchId={launchId} />
-        </WaiverRoute>
-
-        <WaiverRoute path={'/launches/:launchId/cards/:cardId'}>
-          <CardEditor />
-        </WaiverRoute>
-
-        <Route path={'/launches/:launchId/edit'}>
-          <LaunchEditor />
-        </Route>
-
-        <WaiverRoute path={'/launches/:launchId/profile'}>
-          <ProfilePage user={attendee} launchId={launchId} />
-        </WaiverRoute>
-
-        <WaiverRoute path={'/launches/:launchId/rso'}>
-          <RangeSafetyPane />
-        </WaiverRoute>
-
-        <WaiverRoute path={'/launches/:launchId/lco'}>
-          <LaunchControlPane />
-        </WaiverRoute>
-
-        <WaiverRoute path={'/launches/:launchId/users'}>
-          <UsersPane launchId={launchId} />
-        </WaiverRoute>
-
-        <WaiverRoute path={'/launches/:launchId/'}>
-          <LaunchHome />
-        </WaiverRoute>
-      </Switch>
+      <Routes>
+        <Route path='cards' element={<CardsPane launchId={launchId} />} />
+        <Route path='cards/:cardId' element={<CardEditor />} />
+        <Route path='edit' element={<LaunchEditor />} />
+        <Route
+          path='profile'
+          element={<ProfilePage user={attendee} launchId={launchId} />}
+        />
+        <Route path='rso' element={<RangeSafetyPane />} />
+        <Route path='lco' element={<LaunchControlPane />} />
+        <Route path='users' element={<UsersPane launchId={launchId} />} />
+      </Routes>
     </>
   );
 }

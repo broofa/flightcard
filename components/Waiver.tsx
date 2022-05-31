@@ -1,12 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { AppContext, APPNAME } from './App';
 import { Loading } from './common/util';
 
 export function Waiver() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { currentUser, launch } = useContext(AppContext);
 
   const [agreedCheck, setAgreedCheck] = useState(false);
@@ -24,7 +24,7 @@ export function Waiver() {
   return (
     <>
       <h1 style={{ textTransform: 'uppercase', textAlign: 'center' }}>
-        {'\u2620'} Rockets launches are dangerous {'\u2620'}
+        {'\u2620'} Rocket launches are dangerous {'\u2620'}
       </h1>
 
       <p>
@@ -67,7 +67,7 @@ export function Waiver() {
       </label>
 
       <div className='d-flex mt-3'>
-        <Button variant='danger' onClick={() => history.goBack()}>
+        <Button variant='danger' onClick={() => navigate('/')}>
           I Do Not Agree
         </Button>
         <span className='flex-grow-1' />

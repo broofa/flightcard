@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import { Button } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AppContext } from './App';
 import { CardList } from './Launch';
 
 export function CardsPane({ launchId }: { launchId: string }) {
   const { currentUser, cards } = useContext(AppContext);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const userCards = Object.values(cards || {}).filter(
     c => c.userId == currentUser?.id
@@ -20,7 +20,7 @@ export function CardsPane({ launchId }: { launchId: string }) {
     <>
       <div className='d-flex my-2 gap-3'>
         <h2 className='flex-grow-1'>Drafts</h2>
-        <Button onClick={() => history.push(`/launches/${launchId}/cards/new`)}>
+        <Button onClick={() => navigate(`/launches/${launchId}/cards/new`)}>
           New Flight Card &hellip;
         </Button>
       </div>

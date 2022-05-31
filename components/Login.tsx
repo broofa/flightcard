@@ -7,7 +7,7 @@ import {
 } from 'firebase/auth';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 // import Logo from './LogoTest.jsx';
 import { auth } from '../firebase';
 import { APPNAME } from './App';
@@ -38,7 +38,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
   const sendRef = useRef<HTMLButtonElement>();
   const [error, setError] = useState<Error & { code: string }>();
   const busyRef = useRef();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Effect: When user is redirected after clicking on email link
   useEffect(() => {
@@ -69,7 +69,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
           setError(err);
         });
     }
-  }, [isRedirect, history]);
+  }, [isRedirect, navigate]);
 
   async function sendLink() {
     const redirectUrl = new URL(location as unknown as string);
@@ -116,7 +116,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
     body = msg ? <Alert variant='danger'>{msg}</Alert> : null;
 
     footer = (
-      <Button variant='secondary' onClick={() => history.push('/')}>
+      <Button variant='secondary' onClick={() => navigate('/')}>
         Close
       </Button>
     );

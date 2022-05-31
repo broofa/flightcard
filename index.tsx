@@ -1,4 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.css';
 import checkCSS, { monitorCSS } from 'checkcss';
 import React from 'react';
 import ReactDom from 'react-dom';

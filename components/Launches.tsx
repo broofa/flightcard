@@ -8,7 +8,7 @@ import {
   Modal,
   ModalProps,
 } from 'react-bootstrap';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router';
 import { db } from '../firebase';
 import { iLaunch } from '../types';
 import { sortArray } from '../util/sortArray';
@@ -40,7 +40,7 @@ function EventCard({ launch, ...props }: { launch: iLaunch } & CardProps) {
 function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   const { currentUser, launches } = useContext(AppContext);
   const [copyId, setCopyId] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   if (!currentUser) return <Loading wat='User' />;
   if (!launches) return <Loading wat='Launches' />;
@@ -83,7 +83,7 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       await busy(target, db.pads.set(launchId, newPads));
     }
 
-    history.push(`/launches/${launchId}/edit`);
+    navigate(`/launches/${launchId}/edit`);
   };
 
   return (

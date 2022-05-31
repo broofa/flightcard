@@ -6,13 +6,14 @@ import { AppContext } from './App';
 import { AttendeesLink, Loading, ProfileLink } from './common/util';
 import Icon from './Icon';
 import { AttendeeInfo } from './UserList';
+import { Waiver } from './Waiver';
 
 export default function LaunchHome() {
   const { launch, attendees, attendee, officers } = useContext(AppContext);
 
+  if (!attendee) return <Waiver />;
   if (!launch) return <Loading wat='Launch' />;
   if (!attendees) return <Loading wat='Attendees' />;
-  if (!attendee) return <Loading wat='Attendee' />;
 
   const role = Object.values(attendees);
   const lcos = role.filter(a => a.role == 'lco');
