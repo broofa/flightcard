@@ -23,7 +23,7 @@ import {
 } from '../types';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
 import { MKS, tUnitSystem, USCS } from '../util/units';
-import Admin from './Admin';
+import Admin from './common/admin/Admin';
 import './App.scss';
 import { ErrorFlash } from './common/ErrorFlash';
 import { Loading, usePrevious } from './common/util';

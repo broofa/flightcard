@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from 'react-bootstrap';
-import { auth, DELETE, util } from '../firebase';
+import { auth, DELETE, util } from '../../../firebase';
 import {
+  CertOrg,
   iAttendee,
   iAttendees,
   iCard,
@@ -15,9 +16,8 @@ import {
   iRocket,
   iUser,
   iUsers,
-} from '../types';
-import { MKS, Unit, unitParse } from '../util/units';
-import { sig } from './common/util';
+} from '../../../types';
+import { clear, log } from './AdminLogger';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 
 const SEED_PREFIX = 'fc_';
@@ -30,24 +30,9 @@ function genId(path) {
   return `${SEED_PREFIX}${path}${(seedId++).toString().padStart(3, '0')}`;
 }
 
-// "Hey, some sort of logging would be nice, but I don't want to think too hard about it...""
-const Logger = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  queue: [] as any[],
-  log(...args) {
-    this.queue.push(args);
-    this.onLog?.();
-  },
-  clear() {
-    this.queue.length = 0;
-    this.onLog?.();
-  },
-  onLog() {},
-};
-
 // "Push" a item into a resource collection, but do it with a human-readable name
-// that let's us also detect which items were "seeded" later on so we can remove them.
-export async function rtPush<T>(path: string, state: T): Promise<string> {
+// that let's us also detect which items were seeded later on so we can remove them.
+async function dbPush<T>(path: string, state: T): Promise<string> {
   const key = (state as { id?: string })?.id || genId(path);
   await util.set(`${path}/${key}`, state);
   return key;
@@ -62,7 +47,7 @@ async function purge(path) {
       .filter(key => key.startsWith(SEED_PREFIX))
       .map(key => {
         const keyPath = `${path}/${key}`;
-        Logger.log('Removing', keyPath);
+        log('Removing', keyPath);
         return util.remove(keyPath);
       })
   );
@@ -70,7 +55,7 @@ async function purge(path) {
 
 async function seedUsers(): Promise<iUsers> {
   const RESOURCE = 'users';
-  Logger.log('Seeding', RESOURCE);
+  log('Seeding', RESOURCE);
 
   const ALL: iUser[] = NAMES.slice(0, 100).map(name => {
     name = name + ' \u0307'; // Add a superscript dot so we know who the seeded users are
@@ -95,7 +80,7 @@ async function seedUsers(): Promise<iUsers> {
   });
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+    ALL.map(async l => dbPush(RESOURCE, l).then(id => [id, l]))
   );
 
   return Object.fromEntries(entries);
@@ -104,7 +89,7 @@ async function seedUsers(): Promise<iUsers> {
 async function seedLaunches(): Promise<iLaunchs> {
   const RESOURCE = 'launches';
 
-  Logger.log('Seeding', RESOURCE);
+  log('Seeding', RESOURCE);
 
   const ALL = [
     { name: 'AP Showers', startDate: '2021-04-23', endDate: '2021-04-25' },
@@ -133,7 +118,7 @@ async function seedLaunches(): Promise<iLaunchs> {
   );
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+    ALL.map(async l => dbPush(RESOURCE, l).then(id => [id, l]))
   );
 
   return Object.fromEntries(entries);
@@ -145,7 +130,7 @@ async function seedAttendees(
 ): Promise<iAttendees> {
   const RESOURCE = `attendees/${launchId}`;
 
-  Logger.log('Seeding', RESOURCE);
+  log('Seeding', RESOURCE);
 
   const ATTENDEES = Object.values(users).slice(0, 20);
 
@@ -156,11 +141,9 @@ async function seedAttendees(
     } as iCert;
 
     if (cert.level) {
-      cert.type = rndItem(['tra', 'nar']);
-      cert.number = 3000 + rnd(15000);
-      cert.expires = new Date(
-        Date.now() + rnd(365 * 24 * 3600e3)
-      ).toLocaleDateString();
+      cert.organization = rndItem([CertOrg.NAR, CertOrg.TRA]);
+      cert.memberId = 3000 + rnd(15000);
+      cert.expires = Date.now() + rnd(365 * 24 * 3600e3);
       if (Math.random() < 0.3) {
         cert.verifiedId = rndItem(ATTENDEES).id;
         cert.verifiedTime = Date.now();
@@ -178,7 +161,7 @@ async function seedAttendees(
   });
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+    ALL.map(async l => dbPush(RESOURCE, l).then(id => [id, l]))
   );
 
   return Object.fromEntries(entries);
@@ -186,7 +169,7 @@ async function seedAttendees(
 
 async function seedOfficers(launchId: string, users: iAttendees) {
   const RESOURCE = `officers/${launchId}`;
-  Logger.log('Seeding', RESOURCE);
+  log('Seeding', RESOURCE);
 
   const firstOfficer = auth.currentUser?.uid;
   if (!firstOfficer) throw Error('No current user(?!?)');
@@ -205,7 +188,7 @@ async function seedOfficers(launchId: string, users: iAttendees) {
 async function seedPads(launchId: string) {
   const RESOURCE = `pads/${launchId}`;
 
-  Logger.log('Seeding', RESOURCE);
+  log('Seeding', RESOURCE);
 
   // Seed pads
   const ALL: iPad[] = [];
@@ -242,7 +225,7 @@ async function seedPads(launchId: string) {
   }
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+    ALL.map(async l => dbPush(RESOURCE, l).then(id => [id, l]))
   );
 
   return Object.fromEntries(entries);
@@ -251,7 +234,7 @@ async function seedPads(launchId: string) {
 async function seedCards(launchId: string, attendees: iAttendees, pads: iPads) {
   const RESOURCE = `cards/${launchId}`;
 
-  Logger.log('Seeding', RESOURCE);
+  log('Seeding', RESOURCE);
 
   // Seed cards
   const ALL: iCard[] = [];
@@ -290,7 +273,7 @@ async function seedCards(launchId: string, attendees: iAttendees, pads: iPads) {
   }
 
   const entries = await Promise.all(
-    ALL.map(async l => rtPush(RESOURCE, l).then(id => [id, l]))
+    ALL.map(async l => dbPush(RESOURCE, l).then(id => [id, l]))
   );
 
   return Object.fromEntries(entries);
@@ -306,7 +289,7 @@ async function seedDB() {
   )
     return;
   seeding = true;
-  Logger.clear();
+  clear();
   seedId = 0;
 
   try {
@@ -318,7 +301,7 @@ async function seedDB() {
       'pads',
       'cards',
     ]) {
-      Logger.log('Purging', att);
+      log('Purging', att);
       await purge(att);
     }
 
@@ -335,163 +318,17 @@ async function seedDB() {
       await seedCards(launch.id, attendees, pads);
     }
   } catch (err) {
-    Logger.log(err);
+    log(err);
   } finally {
-    Logger.log('-- fin --');
+    log('-- fin --');
     seeding = false;
   }
 }
 
-async function testDB() {
-  const user = auth.currentUser;
-  const uid = user?.uid;
-
-  Logger.clear();
-
-  async function testAccess(path: string) {
-    let canRead, canWrite;
-    try {
-      await util.get(path);
-      canRead = true;
-    } catch (err) {}
-
-    try {
-      await util.update(path, { _temp: true });
-      await util.update(path, { _temp: null });
-      canWrite = true;
-    } catch (err) {}
-
-    return `${canRead ? '\u2705' : '\u274c'} ${
-      canWrite ? '\u2705' : '\u274c'
-    } ${path}`;
-  }
-
-  await Promise.all([
-    testAccess('test/foo'),
-    '---',
-    testAccess('users'),
-    testAccess('users/otherUser'),
-    testAccess(`users/${uid}`),
-    '---',
-    testAccess('attendees'),
-    testAccess('attendees/otherLaunch'),
-    testAccess('attendees/otherLaunch/otherUser'),
-    testAccess(`attendees/fc_launch098/${uid}`),
-    '---',
-    testAccess('officers'),
-    testAccess('officers/testLaunch'),
-    testAccess('officers/testLaunch/testUser'),
-    testAccess(`officers/testLaunch/${uid}`),
-    '---',
-    testAccess('cards'),
-    testAccess('cards/testLaunch'),
-    testAccess('cards/testLaunch/testCard'),
-  ]).then(results => results.forEach(v => Logger.log(v)));
-}
-
-function testUtil() {
-  Logger.clear();
-  Logger.log('Starting tests');
-
-  function expectUnit(v: string, unit: string, expected: number | string) {
-    let actual;
-    try {
-      actual = sig(unitParse(v, unit) as number, 4);
-    } catch (err) {
-      actual = (err as Error).message;
-    }
-
-    if (actual === expected) {
-      Logger.log('\u2705', v, 'to', unit, '=', expected);
-    } else {
-      Logger.log(
-        '\u274c',
-        v,
-        'to',
-        unit,
-        '=',
-        String(actual),
-        `(expected ${expected})`
-      );
-    }
-  }
-
-  // Misc
-  expectUnit('1.23', MKS.mass, 1.23); // unitless
-  expectUnit('-1.23', MKS.mass, -1.23); // negative
-  expectUnit('1ft', MKS.mass, 'Failed to convert 1 from ft to kg'); // incompatible units
-
-  // Incompatible units
-
-  // Metric units
-  expectUnit('1m', MKS.length, 1);
-  expectUnit('1kg', MKS.mass, 1);
-  expectUnit('1n', MKS.force, 1);
-  expectUnit('1n-s', MKS.impulse, 1);
-  expectUnit('1n-sec', MKS.impulse, 1);
-
-  // US length
-  expectUnit('1ft', MKS.length, 0.3048);
-  expectUnit('1 ft', MKS.length, 0.3048);
-  expectUnit('1 FT', MKS.length, 0.3048);
-  expectUnit("1'", MKS.length, 0.3048);
-  expectUnit('1in', MKS.length, 0.0254);
-  expectUnit('1"', MKS.length, 0.0254);
-  expectUnit('1ft1in', MKS.length, 0.3302);
-  expectUnit('1 ft 1 in', MKS.length, 0.3302);
-  expectUnit('1ft 1in', MKS.length, 0.3302);
-  expectUnit('1cm', MKS.length, 0.01);
-  expectUnit('1mm', MKS.length, 0.001);
-
-  // test mass
-  expectUnit('1lb', MKS.mass, 0.4536);
-  expectUnit('1oz', MKS.mass, 0.02835);
-  expectUnit('1lb1oz', MKS.mass, 0.4819);
-  expectUnit('1g', MKS.mass, 0.001);
-
-  // test force
-  expectUnit('1lbf', MKS.force, 4.448);
-
-  // test impulse
-  expectUnit('1lbf-s', MKS.impulse, 4.448);
-  expectUnit('1lbf-sec', MKS.impulse, 4.448);
-
-  const v = new Unit(123, 'kg');
-  Logger.log('HELLO', v);
-}
-
-export default function Admin() {
-  const [, setLogLength] = useState(Logger.queue.length);
-
-  // Trigger re-render when log changes
-  Logger.onLog = () => setLogLength(Logger.queue.length);
-
+export default function SeedDB() {
   return (
-    <>
-      <div className='deck'>
-        <Button variant='warning' onClick={seedDB}>
-          Seed DB
-        </Button>
-        <Button variant='warning' onClick={testDB}>
-          Test Access
-        </Button>
-        <Button variant='warning' onClick={testUtil}>
-          Test util
-        </Button>
-      </div>
-      <div
-        className='mt-4 text-dark text-monospace'
-        style={{ fontSize: '9pt' }}
-      >
-        {Logger.queue.map((args, i) => {
-          const err = args.find(v => v instanceof Error);
-          return (
-            <div key={i} className={err ? 'text-danger' : ''}>
-              {args.join(' ')}
-            </div>
-          );
-        })}
-      </div>
-    </>
+    <Button variant='warning' onClick={seedDB}>
+      Seed DB
+    </Button>
   );
 }

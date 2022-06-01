@@ -287,7 +287,6 @@ function Launch() {
   const { launchId } = params;
   const attendee = db.attendee.useValue(launchId, currentUser?.id);
 
-  console.log('WAVIER', launchId, attendee?.waiverTime);
   if (!currentUser) return <Loading wat='User (Launch)' />;
   if (!launchId || !attendee?.waiverTime) return <Waiver />;
 

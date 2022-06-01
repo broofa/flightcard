@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { iMotor, iRocket } from '../types';
+import { iMotor, iRocket } from '../../../types';
 
 export const NAMES = [
   'Shirley Baker',

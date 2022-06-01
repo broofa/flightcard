@@ -3,14 +3,14 @@ import 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 import 'firebase/database';
 import {
-  get as fbGet,
+  get as dbGet,
   getDatabase,
-  onValue as fbOnValue,
-  query as fbQuery,
-  ref as fbRef,
-  remove as fbRemove,
-  set as fbSet,
-  update as fbUpdate,
+  onValue as dbOnValue,
+  ref as dbRef,
+  remove as dbRemove,
+  set as dbSet,
+  update as dbUpdate,
+  query as dbQuery,
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { errorTrap } from './components/common/ErrorFlash';
@@ -30,11 +30,11 @@ import {
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
-let firebaseApp = (window as any).fbApp;
+let app = (window as any).app;
 
 // Prevent duplicate DBs with HMR'ing
-if (!firebaseApp) {
-  firebaseApp = (window as any).fbApp = initializeApp({
+if (!app) {
+  app = (window as any).app = initializeApp({
     apiKey: 'AIzaSyARx6u575DX4gjtzhHzT86DJ34s5GHxmRo',
     authDomain: 'flightcard-63595.firebaseapp.com',
     projectId: 'flightcard-63595',
@@ -49,21 +49,21 @@ if (!firebaseApp) {
 // Value for properties to delete when doing Realtime Database "update"s
 export const DELETE = null as unknown as undefined;
 
-export const database = getDatabase(firebaseApp);
-export const auth = getAuth(firebaseApp);
+export const database = getDatabase(app);
+export const auth = getAuth(app);
 
 export const util = {
   async get(path) {
-    return (await fbGet(fbRef(database, path))).val();
+    return (await dbGet(dbRef(database, path))).val();
   },
   async set(path: string, value) {
-    return await fbSet(fbRef(database, path), value);
+    return await dbSet(dbRef(database, path), value);
   },
   async remove(path: string) {
-    return await fbRemove(fbRef(database, path));
+    return await dbRemove(dbRef(database, path));
   },
   async update(path: string, state) {
-    return await fbUpdate(fbRef(database, path), state);
+    return await dbUpdate(dbRef(database, path), state);
   },
 };
 
@@ -125,7 +125,7 @@ function createAPI<T>(pathTemplate) {
   }
 
   function _ref(parts: string[]) {
-    return fbRef(database, _fullPath(parts));
+    return dbRef(database, _fullPath(parts));
   }
 
   function _deletify<T>(state: T): T {
@@ -140,31 +140,31 @@ function createAPI<T>(pathTemplate) {
 
   const api: DataAPI = {
     async get(...args: string[]): Promise<T> {
-      const result = await fbGet(fbQuery(_ref(args)));
+      const result = await dbGet(dbQuery(_ref(args)));
       return errorTrap(result.val());
     },
 
     async set(...parts) {
       const state = parts.pop() as unknown as T;
       const ref = _ref(parts);
-      errorTrap(fbSet(ref, state));
+      errorTrap(dbSet(ref, state));
       return state;
     },
 
     update(...args) {
       const state = args.pop() as unknown as Partial<T>;
       const ref = _ref(args);
-      return errorTrap(fbUpdate(ref, _deletify(state)));
+      return errorTrap(dbUpdate(ref, _deletify(state)));
     },
 
     updateChild(...args) {
       const state = args.pop();
-      const ref = fbRef(database, _fullPath(args, [...pathTemplate, ':child']));
-      return errorTrap(fbUpdate(ref, state));
+      const ref = dbRef(database, _fullPath(args, [...pathTemplate, ':child']));
+      return errorTrap(dbUpdate(ref, state));
     },
 
     remove(...args: string[]): Promise<any> {
-      return errorTrap(fbRemove(_ref(args)));
+      return errorTrap(dbRemove(_ref(args)));
     },
 
     useValue<T>(...args: string[]) {
@@ -178,7 +178,7 @@ function createAPI<T>(pathTemplate) {
           return setVal(undefined);
         }
 
-        return fbOnValue(_ref(args), s => setVal(s.val()));
+        return dbOnValue(_ref(args), s => setVal(s.val()));
       }, [...args]);
 
       return val;

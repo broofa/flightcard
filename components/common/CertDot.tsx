@@ -16,7 +16,7 @@ export function CertDot({
   let text = cert?.level ?? '?';
   let cn;
 
-  if (showType && cert?.type) text = cert?.type + ' ' + text;
+  if (showType && cert?.organization) text = cert?.organization + ' ' + text;
 
   if (!cert?.level || cert?.verifiedTime) {
     cn = `cert-dot-${cert?.level ?? 0}`;

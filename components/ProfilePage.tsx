@@ -1,9 +1,10 @@
 import React, { HTMLAttributes, useContext } from 'react';
 import { Alert, Button } from 'react-bootstrap';
 import { auth, db, DELETE } from '../firebase';
-import { iAttendee } from '../types';
+import { CertLevel, CertOrg, iAttendee } from '../types';
 import { tUnitSystemName } from '../util/units';
-import { ANONYMOUS, AppContext } from './App';
+import { AppContext } from './App';
+import CertForm from './CertForm';
 import { CertDot } from './common/CertDot';
 import FloatingInput from './common/FloatingInput';
 import { AttendeesLink, busy, LinkButton, Loading } from './common/util';
@@ -17,52 +18,6 @@ export default function ProfilePage({
   launchId: string;
 }) {
   const { currentUser, launch } = useContext(AppContext);
-
-  function CertInput({
-    type,
-    level,
-    children,
-    ...props
-  }: {
-    type?: 'tra' | 'nar';
-    level: 0 | 1 | 2 | 3;
-  } & HTMLAttributes<HTMLLabelElement>) {
-    function handleChange() {
-      if (user.cert?.verifiedTime) {
-        if (
-          !confirm(
-            "You'll need to re-verify your certification with a launch officer if you make this change.  Continue?"
-          )
-        )
-          return;
-      }
-      db.attendee.updateChild(launchId, user.id, 'cert', {
-        type: type ?? DELETE,
-        level,
-        verifiedTime: DELETE,
-        verifiedId: DELETE,
-      });
-    }
-
-    return (
-      <label {...props}>
-        <input
-          type='radio'
-          className='me-1'
-          onChange={handleChange}
-          checked={type == user.cert?.type && level == user.cert?.level}
-        />
-        {type ? (
-          <CertDot
-            cert={{ type, level, verifiedTime: 999 }}
-            showType
-            className='me-4'
-          />
-        ) : null}
-        {children}
-      </label>
-    );
-  }
 
   function setUnits(units: tUnitSystemName) {
     db.user.update(currentUser?.id, { units });
@@ -112,7 +67,7 @@ export default function ProfilePage({
       break;
     }
   }
-
+console.log('CERT', cert);
   return (
     <>
       <h1>Settings for {user?.name ?? <i>(unnamed user)</i>}</h1>
@@ -122,7 +77,8 @@ export default function ProfilePage({
       <div className='ms-3'>
         {!user?.name ? (
           <Alert className='mb-1 py-1' variant='warning'>
-            Please provide your name. (Names are important at in-person events like this.)
+            Please provide your name. (Names are important at in-person events
+            like this.)
           </Alert>
         ) : null}
         <FloatingInput defaultValue={user.name ?? ''} onBlur={onName}>
@@ -141,30 +97,7 @@ export default function ProfilePage({
         {cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}
       </h2>
 
-      <div className='ms-3'>
-        {certStatus}
-
-        <div
-          className='d-grid'
-          style={{
-            width: 'max-content',
-            gap: '0.3em 1em',
-            gridTemplateColumns: 'auto auto auto',
-          }}
-        >
-          <CertInput level={0} style={{ gridColumn: 'span 3' }}>
-            Not certified
-          </CertInput>
-
-          <CertInput type='nar' level={1} />
-          <CertInput type='nar' level={2} />
-          <CertInput type='nar' level={3} />
-
-          <CertInput type='tra' level={1} />
-          <CertInput type='tra' level={2} />
-          <CertInput type='tra' level={3} />
-        </div>
-      </div>
+      <CertForm user={user} launchId={launchId} />
 
       <h2>Units of Measure</h2>
       <div className='ms-3'>

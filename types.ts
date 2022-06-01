@@ -9,7 +9,7 @@ export type tCardStatus = 'review' | 'ready' | 'done';
 
 export type iPerm = boolean;
 export type iPerms = Record<string, iPerm>;
-
+export type Timestamp = number;
 export interface iUser {
   id: string;
   name?: string;
@@ -29,18 +29,28 @@ export interface iLaunch {
 }
 export type iLaunchs = Record<string, iLaunch>;
 
+export enum CertLevel {
+  NONE = 0,
+  L1 = 1,
+  L2 = 2,
+  L3 = 3,
+}
+export enum CertOrg {
+  NAR = 'NAR',
+  TRA = 'TRA',
+}
 export interface iCert {
-  level: number;
-  type: string;
-  number: number;
-  expires: string;
+  level: CertLevel;
+  organization: CertOrg;
+  memberId: number;
+  expires: Timestamp;
 
   verifiedId: string; // Id of attendee that verified the ID
-  verifiedTime: number;
+  verifiedTime: Timestamp;
 }
 
 export interface iAttendee extends iUser {
-  waiverTime: number;
+  waiverTime: Timestamp;
   cert?: iCert;
   role?: tRole;
 }
