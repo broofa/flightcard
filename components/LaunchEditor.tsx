@@ -3,12 +3,12 @@ import React, { useContext, useRef, useState } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
-import { db, DELETE } from '../firebase';
-import { iPad } from '../types';
+import { AppContext } from '/components/app/App';
+import FloatingInput from '/components/common/FloatingInput';
+import { busy, Loading } from '/components/common/util';
+import { db, DELETE } from '/firebase';
+import { iPad } from '/types';
 import { sortArray } from '../util/sortArray';
-import { AppContext } from './App';
-import FloatingInput from './common/FloatingInput';
-import { busy, Loading } from './common/util';
 
 function PadEditor({
   pad,

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { auth, DELETE, util } from '../../../firebase';
+import { clear, log } from './AdminLogger';
+import { createRocket, NAMES, rnd, rndItem } from './mock_data';
+import { auth, DELETE, util } from '/firebase';
 import {
   CertOrg,
   iAttendee,
@@ -16,9 +18,7 @@ import {
   iRocket,
   iUser,
   iUsers,
-} from '../../../types';
-import { clear, log } from './AdminLogger';
-import { createRocket, NAMES, rnd, rndItem } from './mock_data';
+} from '/types';
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;

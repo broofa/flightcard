@@ -8,19 +8,19 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { db } from '../firebase';
-import { iAttendee, iAttendees, iCard, iPerm } from '../types';
+import CardEditor from '/components/CardEditor';
+import { CardsPane } from '/components/CardsPane';
+import { CertDot } from '/components/common/CertDot';
+import { LinkButton, Loading } from '/components/common/util';
+import { LaunchCard } from '/components/LaunchCard';
+import LaunchEditor from '/components/LaunchEditor';
+import ProfilePage from '/components/ProfilePage';
+import { UserList } from '/components/UserList';
+import { Waiver } from '/components/Waiver';
+import { ANONYMOUS, AppContext } from '/components/app/App';
+import { db } from '/firebase';
+import { iAttendee, iAttendees, iCard, iPerm } from '/types';
 import { sortArray } from '../util/sortArray';
-import { ANONYMOUS, AppContext } from './App';
-import CardEditor from './CardEditor';
-import { CardsPane } from './CardsPane';
-import { CertDot } from './common/CertDot';
-import { LinkButton, Loading } from './common/util';
-import { LaunchCard } from './LaunchCard';
-import LaunchEditor from './LaunchEditor';
-import ProfilePage from './ProfilePage';
-import { UserList } from './UserList';
-import { Waiver } from './Waiver';
 
 export const OFFICERS = 'officers';
 export const LOW_POWER = 'low';
@@ -213,9 +213,7 @@ function PadCard({ padId }: { padId: string }) {
 
   return (
     <div
-      onClick={() =>
-        navigate(`/launches/${card.launchId}/cards/${card.id}`)
-      }
+      onClick={() => navigate(`/launches/${card.launchId}/cards/${card.id}`)}
       className={`${padCardClasses} border-dark cursor-pointer`}
     >
       <div className='d-flex' style={{ fontSize: '1.3rem' }}>

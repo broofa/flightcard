@@ -1,11 +1,11 @@
 import React, { HTMLAttributes, useContext, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { db, DELETE } from '../firebase';
-import { iAttendee, iCert, iPerm } from '../types';
+import { ANONYMOUS, AppContext } from '/components/app/App';
+import { CertDot } from '/components/common/CertDot';
+import { Loading } from '/components/common/util';
+import { db, DELETE } from '/firebase';
+import { iAttendee, iCert, iPerm } from '/types';
 import { sortArray } from '../util/sortArray';
-import { ANONYMOUS, AppContext } from './App';
-import { CertDot } from './common/CertDot';
-import { Loading } from './common/util';
 
 export function AttendeeInfo({
   attendee,

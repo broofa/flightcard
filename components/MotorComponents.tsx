@@ -14,15 +14,15 @@ import {
   ModalProps,
 } from 'react-bootstrap';
 import MOTORS, { Motor } from 'thrustcurve-db';
+import { AppContext } from '/components/app/App';
+import { sig } from '/components/common/util';
 // @ts-ignore: parcel module resolution handles this
-import tcLogo from '../art/thrustcurve.png';
-import { DELETE } from '../firebase';
-import { iMotor } from '../types';
+import tcLogo from '/art/thrustcurve.png';
+import { DELETE } from '/firebase';
+import { iMotor } from '/types';
 import { getMotorByDisplayName, motorDisplayName } from '../util/motor-util';
 import { sortArray } from '../util/sortArray';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '../util/units';
-import { AppContext } from './App';
-import { sig } from './common/util';
 
 type tMotorFields = {
   name: string;

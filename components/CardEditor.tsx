@@ -2,17 +2,17 @@ import { nanoid } from 'nanoid';
 import React, { HTMLAttributes, useContext, useEffect, useState } from 'react';
 import { Alert, Button, Form, FormCheckProps } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
-import { db, DELETE } from '../firebase';
-import { iCard, iMotor, iUser, tCardStatus } from '../types';
+import { AppContext } from '/components/app/App';
+import { errorTrap, showError } from '/components/common/ErrorFlash';
+import FloatingInput from '/components/common/FloatingInput';
+import { Loading, sig } from '/components/common/util';
+import { MotorDataList, MotorList } from '/components/MotorComponents';
+import { AttendeeInfo } from '/components/UserList';
+import { db, DELETE } from '/firebase';
+import { iCard, iMotor, iUser, tCardStatus } from '/types';
 import { padThrust } from '../util/motor-util';
 import { sortArray } from '../util/sortArray';
 import { MKS, unitConvert, unitParse } from '../util/units';
-import { AppContext } from './App';
-import { errorTrap, showError } from './common/ErrorFlash';
-import FloatingInput from './common/FloatingInput';
-import { Loading, sig } from './common/util';
-import { MotorDataList, MotorList } from './MotorComponents';
-import { AttendeeInfo } from './UserList';
 
 // Force of gravity (m/^2)
 const GRAVITY_ACC = 9.8066500286389;

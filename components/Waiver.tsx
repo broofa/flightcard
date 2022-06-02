@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
-import { AppContext, APPNAME } from './App';
-import { Loading } from './common/util';
+import { AppContext, APPNAME } from '/components/app/App';
+import { Loading } from '/components/common/util';
+import { db } from '/firebase';
 
 export function Waiver() {
   const navigate = useNavigate();

@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
-import { Alert } from 'react-bootstrap';
+import { Alert, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import simplur from 'simplur';
-import { AppContext } from './App';
-import { AttendeesLink, Loading, ProfileLink } from './common/util';
-import Icon from './Icon';
-import { AttendeeInfo } from './UserList';
-import { Waiver } from './Waiver';
+import { AppContext } from '/components/app/App';
+import { AttendeesLink, Loading, ProfileLink } from '/components/common/util';
+import Icon from '/components/common/Icon';
+import { AttendeeInfo } from '/components/UserList';
+import { Waiver } from '/components/Waiver';
 
 export default function LaunchHome() {
   const { launch, attendees, attendee, officers } = useContext(AppContext);
@@ -22,6 +22,40 @@ export default function LaunchHome() {
 
   return (
     <>
+      <div className='deck'>
+        <Card>
+          <Card.Body>
+            <Card.Title>Fliers</Card.Title>
+            <Card.Text>
+              Flight cards, launch history, and more
+            </Card.Text>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <Card.Title>Spectators</Card.Title>
+            <Card.Text>
+              See what's flying right now, and what's coming up
+            </Card.Text>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <Card.Title>Club Officers</Card.Title>
+            <Card.Text>Launch Control, Range Safety, and other launch management tools</Card.Text>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <Card.Title>Extras</Card.Title>
+            <Card.Text>Stats, contests, news, and more</Card.Text>
+          </Card.Body>
+        </Card>
+      </div>
+
       <div className='d-flex'>
         <h2 className='flex-grow-1'>Welcome to {launch.name}</h2>
         {officers?.[attendee.id] ? (

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import simplur from 'simplur';
-import { iAttendee, iCard } from '../types';
-import './LaunchCard.scss';
-import { AttendeeInfo } from './UserList';
+import '/components/LaunchCard.scss';
+import { AttendeeInfo } from '/components/UserList';
+import { iAttendee, iCard } from '/types';
 
 const IMPULSE_CLASSES = [
   'Micro',

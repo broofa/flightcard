@@ -26,7 +26,7 @@ export default function Admin() {
       >
         {log.map((args, i) => {
           if (isValidElement(args[0])) {
-            return cloneElement(args[0], {key: 1});
+            return cloneElement(args[0], { key: 1 });
           }
 
           const err = args.find(v => v instanceof Error);

@@ -1,31 +1,31 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { auth, util } from '../../../firebase';
 import { clear, log } from './AdminLogger';
-
-async function testAccess(path: string) {
-  let canRead, canWrite;
-  try {
-    await util.get(path);
-    canRead = true;
-  } catch (err) {}
-
-  try {
-    await util.update(path, { _temp: true });
-    await util.update(path, { _temp: null });
-    canWrite = true;
-  } catch (err) {}
-
-  return `${canRead ? '\u2705' : '\u274c'} ${
-    canWrite ? '\u2705' : '\u274c'
-  } ${path}`;
-}
+import { auth, util } from '/firebase';
 
 async function handleClick() {
   const user = auth.currentUser;
   const uid = user?.uid;
 
   clear();
+
+  async function testAccess(path: string) {
+    let canRead, canWrite;
+    try {
+      await util.get(path);
+      canRead = true;
+    } catch (err) {}
+
+    try {
+      await util.update(path, { _temp: true });
+      await util.update(path, { _temp: null });
+      canWrite = true;
+    } catch (err) {}
+
+    return `${canRead ? '\u2705' : '\u274c'} ${
+      canWrite ? '\u2705' : '\u274c'
+    } ${path}`;
+  }
 
   await Promise.all([
     testAccess('test/foo'),
@@ -50,10 +50,10 @@ async function handleClick() {
   ]).then(results => results.forEach(v => log(v)));
 }
 
-export default function TestUtil() {
+export default function TestDB() {
   return (
     <Button variant='info' onClick={handleClick}>
-      Test Util
+      Test Database Access
     </Button>
   );
 }

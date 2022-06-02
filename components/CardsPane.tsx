@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from './App';
-import { CardList } from './Launch';
+import { AppContext } from '/components/app/App';
+import { CardList } from '/components/Launch';
 
 export function CardsPane({ launchId }: { launchId: string }) {
   const { currentUser, cards } = useContext(AppContext);

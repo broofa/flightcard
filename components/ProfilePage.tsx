@@ -1,14 +1,13 @@
-import React, { HTMLAttributes, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Alert, Button } from 'react-bootstrap';
-import { auth, db, DELETE } from '../firebase';
-import { CertLevel, CertOrg, iAttendee } from '../types';
+import { AppContext } from '/components/app/App';
+import CertForm from '/components/CertForm';
+import FloatingInput from '/components/common/FloatingInput';
+import { AttendeesLink, busy, LinkButton, Loading } from '/components/common/util';
+import { OFFICERS } from '/components/Launch';
+import { auth, db, DELETE } from '/firebase';
+import { iAttendee } from '/types';
 import { tUnitSystemName } from '../util/units';
-import { AppContext } from './App';
-import CertForm from './CertForm';
-import { CertDot } from './common/CertDot';
-import FloatingInput from './common/FloatingInput';
-import { AttendeesLink, busy, LinkButton, Loading } from './common/util';
-import { OFFICERS } from './Launch';
 
 export default function ProfilePage({
   user,
@@ -67,7 +66,7 @@ export default function ProfilePage({
       break;
     }
   }
-console.log('CERT', cert);
+
   return (
     <>
       <h1>Settings for {user?.name ?? <i>(unnamed user)</i>}</h1>

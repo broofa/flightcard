@@ -9,11 +9,11 @@ import {
   ModalProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { db } from '../firebase';
-import { iLaunch } from '../types';
+import { AppContext } from '/components/app/App';
+import { busy, LinkButton, Loading } from '/components/common/util';
+import { db } from '/firebase';
+import { iLaunch } from '/types';
 import { sortArray } from '../util/sortArray';
-import { AppContext } from './App';
-import { busy, LinkButton, Loading } from './common/util';
 
 function dateString(ts) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();

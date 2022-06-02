@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from 'react';
-import { iCert } from '../../types';
 import './CertDot.scss';
+import { iCert } from '/types';
 
 export function CertDot({
   cert,

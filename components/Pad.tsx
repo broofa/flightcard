@@ -1,5 +1,5 @@
 import React from 'react';
-import { iPad } from '../types';
+import { iPad } from '/types';
 
 export default function Launch({ pad }: { pad: iPad }) {
   return (

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { util } from '../../../firebase';
-import { iAttendees } from '../../../types';
 import { clear, log } from './AdminLogger';
 import Busy from './Busy';
+import { util } from '/firebase';
+import { iAttendees } from '/types';
 
 async function completed_migrateCerts() {
   log(<h3>Migrating attendee certs...</h3>);

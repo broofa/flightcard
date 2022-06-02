@@ -10,7 +10,18 @@ import {
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { NavLink, Route, Routes, useMatch } from 'react-router-dom';
-import { auth, db, DELETE } from '../firebase';
+import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../../util/playSound';
+import { MKS, tUnitSystem, USCS } from '../../util/units';
+import Admin from '/components/admin/Admin';
+import './App.scss';
+import { ErrorFlash } from '/components/common/ErrorFlash';
+import Icon from '/components/common/Icon';
+import { Loading, usePrevious } from '/components/common/util';
+import Launch from '/components/Launch';
+import Launches from '/components/Launches';
+import LaunchHome from '/components/LaunchHome';
+import Login from '/components/Login';
+import { auth, db, DELETE } from '/firebase';
 import {
   iAttendee,
   iAttendees,
@@ -20,18 +31,7 @@ import {
   iPads,
   iUser,
   tRole,
-} from '../types';
-import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../util/playSound';
-import { MKS, tUnitSystem, USCS } from '../util/units';
-import Admin from './common/admin/Admin';
-import './App.scss';
-import { ErrorFlash } from './common/ErrorFlash';
-import { Loading, usePrevious } from './common/util';
-import Icon from './Icon';
-import Launch from './Launch';
-import Launches from './Launches';
-import LaunchHome from './LaunchHome';
-import Login from './Login';
+} from '/types';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';
@@ -272,8 +272,8 @@ export default function App() {
             <Login />
           ) : (
             <Routes>
-              <Route path='/'  element={<Launches />} />
-              <Route path='/admin'  element={<Admin />} />
+              <Route path='/' element={<Launches />} />
+              <Route path='/admin' element={<Admin />} />
               <Route path='/launches/:launchId' element={<LaunchHome />} />
               <Route path='/launches/:launchId/*' element={<Launch />} />
             </Routes>

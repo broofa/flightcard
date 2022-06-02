@@ -13,7 +13,7 @@ import {
   query as dbQuery,
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
-import { errorTrap } from './components/common/ErrorFlash';
+import { errorTrap } from '/components/common/ErrorFlash';
 import {
   iAttendee,
   iAttendees,
@@ -26,7 +26,7 @@ import {
   iPerm,
   iPerms,
   iUser,
-} from './types';
+} from '/types';
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 

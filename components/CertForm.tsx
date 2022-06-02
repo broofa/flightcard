@@ -1,11 +1,11 @@
 import React, { HTMLAttributes, useContext } from 'react';
 import { Alert } from 'react-bootstrap';
-import { db, DELETE } from '../firebase';
-import { CertLevel, CertOrg, iAttendee } from '../types';
-import { AppContext } from './App';
-import { CertDot } from './common/CertDot';
-import { AttendeesLink, Loading } from './common/util';
-import { OFFICERS } from './Launch';
+import { AppContext } from '/components/app/App';
+import { CertDot } from '/components/common/CertDot';
+import { OFFICERS } from '/components/Launch';
+import { AttendeesLink, Loading } from '/components/common/util';
+import { db, DELETE } from '/firebase';
+import { CertLevel, CertOrg, iAttendee } from '/types';
 
 export default function CertForm({
   user,

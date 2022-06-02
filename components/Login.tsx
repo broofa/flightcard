@@ -8,10 +8,9 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-// import Logo from './LogoTest.jsx';
-import { auth } from '../firebase';
-import { APPNAME } from './App';
-import { busy } from './common/util';
+import { APPNAME } from '/components/app/App';
+import { busy } from '/components/common/util';
+import { auth } from '/firebase';
 
 // localStorage key where user's email address is stored
 const EMAIL_KEY = 'fcEmail';
