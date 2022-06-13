@@ -8,18 +8,18 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import CardEditor from '/components/CardEditor';
+import CardEditor from './CardEditor/CardEditor';
 import { CardsPane } from '/components/CardsPane';
 import { CertDot } from '/components/common/CertDot';
 import { LinkButton, Loading } from '/components/common/util';
 import { LaunchCard } from '/components/LaunchCard';
-import LaunchEditor from '/components/LaunchEditor';
+import LaunchEditor from './launcheditor/LaunchEditor';
 import ProfilePage from '/components/ProfilePage';
 import { UserList } from '/components/UserList';
 import { Waiver } from '/components/Waiver';
-import { ANONYMOUS, AppContext } from '/components/app/App';
+import { ANONYMOUS, AppContext } from './App/App';
 import { db } from '/firebase';
-import { iAttendee, iAttendees, iCard, iPerm } from '/types';
+import { CardStatus, iAttendee, iAttendees, iCard, iPerm } from '/types';
 import { sortArray } from '../util/sortArray';
 
 export const OFFICERS = 'officers';
@@ -125,7 +125,7 @@ function RangeSafetyPane() {
 
   if (!attendees) return <Loading wat='Users' />;
 
-  const rsoCards = Object.values(cards || {}).filter(c => c.status == 'review');
+  const rsoCards = Object.values(cards || {}).filter(c => c.status == CardStatus.REVIEW);
 
   return (
     <>
@@ -159,7 +159,7 @@ function PadCard({ padId }: { padId: string }) {
   const pad = db.pad.useValue(launch?.id, padId);
 
   const padCards = cards
-    ? Object.values(cards).filter(c => c.padId == padId && c.status == 'ready')
+    ? Object.values(cards).filter(c => c.padId == padId && c.status == CardStatus.READY)
     : [];
 
   if (!pad) return <Loading wat='Pad' />;

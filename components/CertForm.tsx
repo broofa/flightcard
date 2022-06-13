@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useContext } from 'react';
 import { Alert } from 'react-bootstrap';
-import { AppContext } from '/components/app/App';
+import { AppContext } from './App/App';
 import { CertDot } from '/components/common/CertDot';
 import { OFFICERS } from '/components/Launch';
 import { AttendeesLink, Loading } from '/components/common/util';

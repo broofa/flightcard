@@ -12,7 +12,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { NavLink, Route, Routes, useMatch } from 'react-router-dom';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../../util/playSound';
 import { MKS, tUnitSystem, USCS } from '../../util/units';
-import Admin from '/components/admin/Admin';
+import Admin from '../Admin/Admin';
 import './App.scss';
 import { ErrorFlash } from '/components/common/ErrorFlash';
 import Icon from '/components/common/Icon';
@@ -110,7 +110,7 @@ function RoleDropdown({ launch, user }: { launch: iLaunch; user: iUser }) {
   const isOfficer = db.officer.useValue(launch.id, user.id);
   const attendee = db.attendee.useValue(launch.id, user.id);
 
-  function setRole(role: tRole | undefined) {
+  function setRole(role?: tRole) {
     db.attendee.update(launch.id, user.id, { role });
   }
 

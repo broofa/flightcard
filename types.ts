@@ -5,7 +5,11 @@ export type DeepPartial<T> = {
 };
 
 export type tRole = 'lco' | 'rso';
-export type tCardStatus = 'review' | 'ready' | 'done';
+export enum CardStatus {
+  REVIEW = 'review',
+  READY = 'ready',
+  DONE = 'done',
+}
 
 export type iPerm = boolean;
 export type iPerms = Record<string, iPerm>;
@@ -73,10 +77,17 @@ export interface iMotor {
   stage?: number;
 }
 
+export enum Recovery {
+  CHUTE = 'chute',
+  STREAMER = 'streamer',
+  DUAL_DEPLOY = 'dual-deploy',
+}
+
 export interface iRocket {
   name?: string;
   manufacturer?: string;
   color?: string;
+  recovery?: Recovery;
   diameter?: number; // meters
   length?: number; // meters
   mass?: number; // kg
@@ -92,7 +103,7 @@ export interface iCard {
   rsoId?: string;
   padId?: string;
 
-  status?: tCardStatus;
+  status?: CardStatus;
 
   firstFlight?: boolean;
   headsUp?: boolean;

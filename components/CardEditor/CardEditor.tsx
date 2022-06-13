@@ -1,18 +1,25 @@
 import { nanoid } from 'nanoid';
-import React, { HTMLAttributes, useContext, useEffect, useState } from 'react';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Alert, Button, Form, FormCheckProps } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
-import { AppContext } from '/components/app/App';
+import { padThrust } from '../../util/motor-util';
+import { sortArray } from '../../util/sortArray';
+import { MKS, unitConvert, unitParse } from '../../util/units';
+import { MotorList } from './MotorList';
+import { MotorDataList } from './MotorDataList';
+import { AppContext } from '../App/App';
 import { errorTrap, showError } from '/components/common/ErrorFlash';
 import FloatingInput from '/components/common/FloatingInput';
 import { Loading, sig } from '/components/common/util';
-import { MotorDataList, MotorList } from '/components/MotorComponents';
 import { AttendeeInfo } from '/components/UserList';
 import { db, DELETE } from '/firebase';
-import { iCard, iMotor, iUser, tCardStatus } from '/types';
-import { padThrust } from '../util/motor-util';
-import { sortArray } from '../util/sortArray';
-import { MKS, unitConvert, unitParse } from '../util/units';
+import { CardStatus, iCard, iMotor, iUser, Recovery } from '/types';
 
 // Force of gravity (m/^2)
 const GRAVITY_ACC = 9.8066500286389;
@@ -67,7 +74,8 @@ export default function CardEditor() {
     setCard(nc);
   }, [dbCard, attendee, launchId, userUnits]);
 
-  function peek(path: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function peek(path: string): any {
     const val = path.split('.').reduce((o, k) => o?.[k], card);
     return typeof val === 'number' ? sig(val) : val;
   }
@@ -206,15 +214,16 @@ export default function CardEditor() {
     return db.card.update(launchId, card.id, update);
   }
 
-  function setCardStatus(status?: tCardStatus) {
+  function setCardStatus(status?: CardStatus) {
     if (!card?.id) return;
 
     const update = { status: status ?? DELETE } as Partial<iCard>;
 
     if (!status) update.rsoId = update.lcoId = DELETE;
-    if (status == 'ready') update.rsoId = attendee?.id ?? DELETE;
-    if (!status || status == 'review') update.rsoId = DELETE;
-    if (!status || status == 'done') update.lcoId = attendee?.id ?? DELETE;
+    if (status == CardStatus.READY) update.rsoId = attendee?.id ?? DELETE;
+    if (!status || status == CardStatus.REVIEW) update.rsoId = DELETE;
+    if (!status || status == CardStatus.DONE)
+      update.lcoId = attendee?.id ?? DELETE;
 
     return cardUpdate(update);
   }
@@ -230,8 +239,8 @@ export default function CardEditor() {
   const isRSO = attendee.role === 'rso';
   const isLCO = attendee.role === 'lco';
   const isDraft = !card?.status;
-  const isReview = card?.status == 'review';
-  const isReady = card?.status == 'ready';
+  const isReview = card?.status == CardStatus.REVIEW;
+  const isReady = card?.status == CardStatus.READY;
 
   const onSave =
     isOwner || isLCO || isRSO
@@ -287,11 +296,11 @@ export default function CardEditor() {
       : null;
 
   // Compose action buttons based on role / card status
-  const actions: any[] = [];
+  const actions: ReactElement[] = [];
   if (isFlier && isOwner) {
     if (isDraft && !isNew) {
       actions.push(
-        <Button key='f1' onClick={() => setCardStatus('review')}>
+        <Button key='f1' onClick={() => setCardStatus(CardStatus.REVIEW)}>
           Request RSO Review
         </Button>
       );
@@ -313,7 +322,7 @@ export default function CardEditor() {
         </Button>
       );
       actions.push(
-        <Button key='r2' onClick={() => setCardStatus('ready')}>
+        <Button key='r2' onClick={() => setCardStatus(CardStatus.READY)}>
           RSO Approve
         </Button>
       );
@@ -325,7 +334,7 @@ export default function CardEditor() {
       <Button
         key='l1'
         variant='warning'
-        onClick={() => setCardStatus('review')}
+        onClick={() => setCardStatus(CardStatus.REVIEW)}
       >
         RSO Review
       </Button>
@@ -342,7 +351,7 @@ export default function CardEditor() {
       );
     }
     actions.push(
-      <Button key='l4' onClick={() => setCardStatus('done')}>
+      <Button key='l4' onClick={() => setCardStatus(CardStatus.DONE)}>
         Done
       </Button>
     );
@@ -356,12 +365,12 @@ export default function CardEditor() {
       break;
     }
 
-    case card.status == 'review': {
+    case card.status == CardStatus.REVIEW: {
       cardStatus = <p>Waiting for RSO review</p>;
       break;
     }
 
-    case (isOwner || isLCO) && card.status == 'ready': {
+    case (isOwner || isLCO) && card.status == CardStatus.READY: {
       const padOptions = sortArray(
         Object.values(pads),
         pad => `${pad.group ?? ''} ${pad.name}`
@@ -397,12 +406,12 @@ export default function CardEditor() {
       break;
     }
 
-    case card.status == 'ready': {
+    case card.status == CardStatus.READY: {
       cardStatus = <p>Ready to fly.</p>;
       break;
     }
 
-    case card.status == 'done': {
+    case card.status == CardStatus.DONE: {
       cardStatus = <p>This card is complete.</p>;
       break;
     }
@@ -442,7 +451,7 @@ export default function CardEditor() {
           className='flex-grow-1 text-end'
           style={{ fontSize: '8pt', color: '#ccc' }}
         >
-          card status: {card.status ?? 'no status'}
+          card status: {card.status ?? 'draft'}
         </span>
       </FormSection>
 
@@ -504,9 +513,9 @@ export default function CardEditor() {
           }}
         >
           {[
-            ['Chute', 'chute'],
-            ['Streamer', 'streamer'],
-            ['Dual-deploy', 'dual-deploy'],
+            ['Chute', Recovery.CHUTE],
+            ['Streamer', Recovery.STREAMER],
+            ['Dual-deploy', Recovery.DUAL_DEPLOY],
           ].map(([label, value]) => (
             <Form.Check
               id={`recovery-${value}`}
@@ -527,7 +536,7 @@ export default function CardEditor() {
       <FormSection>Motors</FormSection>
 
       <MotorList
-        motors={card.motors}
+        motors={card.motors ?? ([] as iMotor[])}
         onChange={(motors?: iMotor[]) => poke('motors', motors)}
       />
 

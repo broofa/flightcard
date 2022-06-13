@@ -4,6 +4,7 @@ import { clear, log } from './AdminLogger';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
 import { auth, DELETE, util } from '/firebase';
 import {
+  CardStatus,
   CertOrg,
   iAttendee,
   iAttendees,
@@ -245,7 +246,7 @@ async function seedCards(launchId: string, attendees: iAttendees, pads: iPads) {
       const { _motor: motor } = rocket as iRocket & { _motor?: iMotor };
       delete rocket._motor;
 
-      const status = [DELETE, 'review', 'ready', 'done'][i];
+      const status = [DELETE, CardStatus.REVIEW, CardStatus.READY, CardStatus.DONE][i];
 
       const id = genId('card');
       const padId = /ready|done/.test(status ?? '')

@@ -5,11 +5,11 @@ import { MKS, unitParse } from './units';
 const motorIndex = new Map<string, Motor>();
 const motorNameIndex = new Map<string, Motor>();
 
-export function getMotor(motorId: string | undefined) {
+export function getMotor(motorId?: string) {
   if (motorId) return motorIndex.get(motorId);
 }
 
-export function getMotorByDisplayName(name: string | undefined) {
+export function getMotorByDisplayName(name?: string) {
   return motorNameIndex.get(name?.toLowerCase() ?? '');
 }
 

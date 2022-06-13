@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useContext, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { ANONYMOUS, AppContext } from '/components/app/App';
+import { ANONYMOUS, AppContext } from './App/App';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { db, DELETE } from '/firebase';

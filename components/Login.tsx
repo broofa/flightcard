@@ -8,7 +8,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { APPNAME } from '/components/app/App';
+import { APPNAME } from './App/App';
 import { busy } from '/components/common/util';
 import { auth } from '/firebase';
 

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Alert, Button } from 'react-bootstrap';
-import { AppContext } from '/components/app/App';
+import { AppContext } from './App/App';
 import CertForm from '/components/CertForm';
 import FloatingInput from '/components/common/FloatingInput';
 import { AttendeesLink, busy, LinkButton, Loading } from '/components/common/util';

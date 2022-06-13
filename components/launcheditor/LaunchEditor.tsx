@@ -1,110 +1,14 @@
-import { nanoid } from 'nanoid';
-import React, { useContext, useRef, useState } from 'react';
-import { Button, Modal, ModalProps } from 'react-bootstrap';
+import React, { useContext, useState } from 'react';
+import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
-import { AppContext } from '/components/app/App';
+import { sortArray } from '../../util/sortArray';
+import { PadEditor } from './PadEditor';
+import { AppContext } from '../App/App';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
 import { db, DELETE } from '/firebase';
 import { iPad } from '/types';
-import { sortArray } from '../util/sortArray';
-
-function PadEditor({
-  pad,
-  groups,
-  ...props
-}: { pad: iPad; groups?: string[] } & ModalProps) {
-  const nameRef = useRef<HTMLInputElement>();
-  const groupRef = useRef<HTMLInputElement>();
-
-  const { launchId } = pad;
-  const { onHide } = props as any;
-
-  const handleSave = function (e) {
-    const { target } = e;
-
-    target.classList.toggle('busy', true);
-
-    const name = nameRef.current?.value;
-    const group = groupRef.current?.value || DELETE;
-    const id = nanoid();
-
-    const action = pad.id
-      ? db.pad.update(launchId, pad.id, { name, group })
-      : db.pad.set(launchId, id, { id, launchId, name, group });
-
-    busy(e, action).then(onHide);
-  };
-
-  const handleDelete = function (e) {
-    if (
-      !confirm(
-        `Permanently delete the "${
-          pad.name ?? '(unnamed pad)'
-        }" pad?  This can not be undone, and may affect users with cards assigned to this pad.`
-      )
-    )
-      return;
-    const action = db.pad.remove(launchId, pad.id);
-
-    busy(e, action).then(onHide);
-  };
-
-  return (
-    <Modal show={true} {...props}>
-      <Modal.Title className='p-2'>
-        {pad.id ? 'Edit Pad' : 'New Pad'}
-      </Modal.Title>
-
-      <Modal.Body className='d-flex gap-4'>
-        <FloatingInput
-          ref={nameRef}
-          className='flex-grow-1'
-          defaultValue={pad.name}
-        >
-          <label>Pad Name</label>
-        </FloatingInput>
-
-        <FloatingInput
-          ref={groupRef}
-          list='group-names'
-          className='flex-grow-1'
-          defaultValue={pad.group ?? ''}
-        >
-          <label>
-            Pad Group <span className='text-info'>(optional)</span>
-          </label>
-        </FloatingInput>
-
-        <datalist id='group-names'>
-          {groups
-            ?.filter(v => v)
-            .map(group => (
-              <option key={group} value={group} />
-            ))}
-        </datalist>
-      </Modal.Body>
-
-      <Modal.Footer className='d-flex'>
-        {pad.id ? (
-          <Button onClick={handleDelete} tabIndex={-1} variant='danger'>
-            {'\u2715'} Delete
-          </Button>
-        ) : null}
-        <div className='flex-grow-1' />
-        <Button
-          className='ms-5'
-          variant='secondary'
-          onClick={(props as any).onHide}
-        >
-          Cancel
-        </Button>
-        <Button onClick={handleSave}>{pad.id ? 'Update' : 'Create'}</Button>
-      </Modal.Footer>
-    </Modal>
-  );
-}
 
 export default function LaunchEditor() {
   const { launch, pads, attendees, cards } = useContext(AppContext);
@@ -122,9 +26,9 @@ export default function LaunchEditor() {
   const launchInputProps = function (field) {
     return {
       className: 'flex-grow-1',
-      style: {
-        minWidth: '20em',
-      },
+      // style: {
+      //   minWidth: '20em',
+      // },
 
       defaultValue: launch[field] ?? '',
 
@@ -194,15 +98,15 @@ export default function LaunchEditor() {
         <FloatingInput {...launchInputProps('location')}>
           <label>Location</label>
         </FloatingInput>
+      </div>
 
-        <div className='d-flex gap-3 flex-grow-1'>
-          <FloatingInput type='date' {...launchInputProps('startDate')}>
-            <label>Start Date</label>
-          </FloatingInput>
-          <FloatingInput type='date' {...launchInputProps('endDate')}>
-            <label>End Date</label>
-          </FloatingInput>
-        </div>
+      <div className='d-flex flex-wrap gap-3 mt-3'>
+        <FloatingInput type='date' {...launchInputProps('startDate')}>
+          <label>Start Date</label>
+        </FloatingInput>
+        <FloatingInput type='date' {...launchInputProps('endDate')}>
+          <label>End Date</label>
+        </FloatingInput>
       </div>
 
       <div className='d-flex align-items-baseline mt-4 pt-2 border-top'>
@@ -233,7 +137,7 @@ export default function LaunchEditor() {
                   <Button
                     variant='outline-primary'
                     key={pad.id}
-                    className=''
+                    style={{ minWidth: '5em', maxWidth: 'max-content' }}
                     onClick={() => setEditPad(pad)}
                   >
                     {pad.name ?? '(unnamed pad)'}
@@ -250,9 +154,6 @@ export default function LaunchEditor() {
         <div className='flex-grow-1' />
         <Button variant='secondary' onClick={() => navigate(-1)}>
           Back
-        </Button>
-        <Button onClick={() => navigate(`/launches/${launch.id}`)}>
-          Check In
         </Button>
       </div>
     </>

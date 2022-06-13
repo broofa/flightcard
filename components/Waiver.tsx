@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { AppContext, APPNAME } from '/components/app/App';
+import { AppContext, APPNAME } from './App/App';
 import { Loading } from '/components/common/util';
 import { db } from '/firebase';
 

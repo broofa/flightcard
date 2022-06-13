@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Alert, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import simplur from 'simplur';
-import { AppContext } from '/components/app/App';
+import { AppContext } from './App/App';
 import { AttendeesLink, Loading, ProfileLink } from '/components/common/util';
 import Icon from '/components/common/Icon';
 import { AttendeeInfo } from '/components/UserList';
@@ -50,8 +50,8 @@ export default function LaunchHome() {
 
         <Card>
           <Card.Body>
-            <Card.Title>Extras</Card.Title>
-            <Card.Text>Stats, contests, news, and more</Card.Text>
+            <Card.Title>Buzz</Card.Title>
+            <Card.Text>Stats, contests, social media</Card.Text>
           </Card.Body>
         </Card>
       </div>

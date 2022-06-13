@@ -9,7 +9,7 @@ import {
   ModalProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { AppContext } from '/components/app/App';
+import { AppContext } from './App/App';
 import { busy, LinkButton, Loading } from '/components/common/util';
 import { db } from '/firebase';
 import { iLaunch } from '/types';

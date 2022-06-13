@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '/components/app/App';
+import { AppContext } from './App/App';
 import { CardList } from '/components/Launch';
+import { CardStatus } from '/types';
 
 export function CardsPane({ launchId }: { launchId: string }) {
   const { currentUser, cards } = useContext(AppContext);
@@ -12,9 +13,9 @@ export function CardsPane({ launchId }: { launchId: string }) {
     c => c.userId == currentUser?.id
   );
   const draftCards = userCards.filter(c => !c.status);
-  const reviewCards = userCards.filter(c => c.status == 'review');
-  const readyCards = userCards.filter(c => c.status == 'ready');
-  const doneCards = userCards.filter(c => c.status == 'done');
+  const reviewCards = userCards.filter(c => c.status == CardStatus.REVIEW);
+  const readyCards = userCards.filter(c => c.status == CardStatus.READY);
+  const doneCards = userCards.filter(c => c.status == CardStatus.DONE);
 
   return (
     <>
