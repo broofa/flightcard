@@ -1,25 +1,25 @@
-import { nanoid } from 'nanoid';
 import React, {
   HTMLAttributes,
   ReactElement,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
-import { Alert, Button, Form, FormCheckProps } from 'react-bootstrap';
+import { Alert, Button, Form } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { padThrust } from '../../util/motor-util';
 import { sortArray } from '../../util/sortArray';
 import { MKS, unitConvert, unitParse } from '../../util/units';
-import { MotorList } from './MotorList';
-import { MotorDataList } from './MotorDataList';
 import { AppContext } from '../App/App';
-import { errorTrap, showError } from '/components/common/ErrorFlash';
-import FloatingInput from '/components/common/FloatingInput';
+import { createContext } from '../common/RTUI';
+import { MotorDataList } from './MotorDataList';
+import { MotorList } from './MotorList';
+import UnitsFAQ from './UnitsFAQ';
 import { Loading, sig } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
 import { db, DELETE } from '/firebase';
-import { CardStatus, iCard, iMotor, iUser, Recovery } from '/types';
+import { CardStatus, iCard, iUser, Recovery } from '/types';
 
 // Force of gravity (m/^2)
 const GRAVITY_ACC = 9.8066500286389;
@@ -41,11 +41,15 @@ export default function CardEditor() {
   const { userUnits, attendee, cards, launch, pads } = useContext(AppContext);
   const match = useMatch('launches/:launchId/cards/:cardId');
   const { cardId, launchId } = match?.params ?? {};
-  const [card, setCard] = useState<iCard>();
-  const flier = db.attendee.useValue(launchId, card?.userId);
+  const [xxxCard, setCard] = useState<iCard>();
+  const flier = db.attendee.useValue(launchId, xxxCard?.userId);
 
   const dbCard = cardId && cards?.[cardId];
   const disabled = attendee?.id !== flier?.id;
+
+  const rtui = useMemo(() => {
+    return createContext(`/cards/${launchId}/${cardId}`, userUnits);
+  }, [launchId, cardId, userUnits]);
 
   useEffect(() => {
     let nc: iCard;
@@ -74,17 +78,11 @@ export default function CardEditor() {
     setCard(nc);
   }, [dbCard, attendee, launchId, userUnits]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function peek(path: string): any {
-    const val = path.split('.').reduce((o, k) => o?.[k], card);
-    return typeof val === 'number' ? sig(val) : val;
-  }
-
   function poke(path: string, val) {
     const parts = path.split('.');
     const att = parts.pop();
 
-    const newCard: iCard = { ...card } as iCard;
+    const newCard: iCard = { ...xxxCard } as iCard;
 
     if (!att) return;
     let o = newCard;
@@ -96,126 +94,13 @@ export default function CardEditor() {
     setCard(newCard);
   }
 
-  function textInputProps(path: string, units?: string) {
-    const value = peek(path) ?? '';
-
-    return {
-      disabled,
-      value,
-      onChange({ target }) {
-        if (units) {
-          target.setCustomValidity('');
-          try {
-            unitParse(target.value, units);
-          } catch (error) {
-            target.setCustomValidity((error as Error).message);
-          }
-
-          target.reportValidity();
-        }
-        poke(path, target.value);
-      },
-
-      onBlur({ target }) {
-        if (units) {
-          try {
-            poke(path, unitParse(target.value, units));
-          } catch (err) {
-            // TODO: Don't put unparsable values in DB
-          }
-        }
-      },
-    };
-  }
-
-  function switchInputProps(path: string): FormCheckProps {
-    return {
-      id: path,
-      checked: !!peek(path),
-      type: 'switch',
-      disabled,
-      onChange({ target }) {
-        poke(path, target.checked || DELETE);
-      },
-    };
-  }
-
-  const faq = (
-    <details className='bg-light rounded mb-2 px-2 flex-grow-1'>
-      <summary className='text-tip flex-grow-1'>
-        FAQ: How do I enter values with different units?
-      </summary>
-
-      <p className='mt-3'>
-        Values may be entered using any of the notations shown below:
-      </p>
-
-      <p>
-        Note: Use the singular form. (E.g. "m", not "ms"). Plural forms are not
-        recognized.
-      </p>
-
-      <dl
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          gap: '.2em 1em',
-        }}
-      >
-        {/* Length */}
-        <div className='fw-normal text-end'>Length (metric)</div>
-        <div>
-          <code>1m</code>, <code>1cm</code>, <code>1mm</code>
-        </div>
-
-        <div className='fw-normal text-end'>Length (imperial)</div>
-        <div>
-          <code>1ft</code>, <code>1'</code>, <code>1in</code>, <code>1"</code>,{' '}
-          <code>1'1"</code>, <code>1ft 1in</code>
-        </div>
-
-        <div className='fw-normal text-end'>Mass (metric)</div>
-        <div>
-          <code>1kg</code>, <code>1g</code>
-        </div>
-
-        <div className='fw-normal text-end'>Mass (imperial)</div>
-        <div>
-          <code>1lb</code>, <code>1oz</code>, <code>1lb 1oz</code>
-        </div>
-
-        <div className='fw-normal text-end'>Thrust/force (metric)</div>
-        <div>
-          <code>1n</code>
-        </div>
-
-        <div className='fw-normal text-end'>Thrust/force (imperial)</div>
-        <div>
-          <code>1lbf</code>
-        </div>
-
-        <div className='fw-normal text-end'>Impulse (metric)</div>
-        <div>
-          <code>1n-s</code>,&ensp;
-          <code>1n-sec</code>
-        </div>
-
-        <div className='fw-normal text-end'>Impulse (imperial)</div>
-        <div>
-          <code>1lbf-s</code>,&ensp;
-          <code>1lbf-sec</code>
-        </div>
-      </dl>
-    </details>
-  );
-
   function cardUpdate(update: Partial<iCard>) {
-    if (!card?.id) return;
-    return db.card.update(launchId, card.id, update);
+    if (!xxxCard?.id) return;
+    return db.card.update(launchId, xxxCard.id, update);
   }
 
   function setCardStatus(status?: CardStatus) {
-    if (!card?.id) return;
+    if (!xxxCard?.id) return;
 
     const update = { status: status ?? DELETE } as Partial<iCard>;
 
@@ -228,69 +113,33 @@ export default function CardEditor() {
     return cardUpdate(update);
   }
 
-  if (!card) return <Loading wat='Card' />;
+  if (!xxxCard) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
   if (!launch) return <Loading wat='Launch' />;
   if (!pads) return <Loading wat='Pads' />;
 
-  const isOwner = attendee?.id == card?.userId;
-  const isNew = !card.id;
+  const isOwner = attendee?.id == xxxCard?.userId;
+  const isNew = !xxxCard.id;
   const isFlier = !attendee.role;
   const isRSO = attendee.role === 'rso';
   const isLCO = attendee.role === 'lco';
-  const isDraft = !card?.status;
-  const isReview = card?.status == CardStatus.REVIEW;
-  const isReady = card?.status == CardStatus.READY;
-
-  const onSave =
-    isOwner || isLCO || isRSO
-      ? async function () {
-          if (!card) return;
-
-          if (!card.id) card.id = nanoid();
-
-          // validate
-          try {
-            const { rocket } = card;
-
-            // Convert unit-based properties
-            if (rocket?.length != null) {
-              rocket.length =
-                unitConvert(rocket.length, userUnits.length, MKS.length) ||
-                DELETE;
-            }
-            if (rocket?.diameter != null) {
-              rocket.diameter =
-                unitConvert(rocket.diameter, userUnits.length, MKS.length) ||
-                DELETE;
-            }
-            if (rocket?.mass != null) {
-              rocket.mass =
-                unitConvert(rocket.mass, userUnits.mass, MKS.mass) || DELETE;
-            }
-          } catch (err) {
-            showError(err);
-            return;
-          }
-
-          await errorTrap(db.card.set(card.launchId, card.id, card));
-          navigate(-1);
-        }
-      : null;
+  const isDraft = !xxxCard?.status;
+  const isReview = xxxCard?.status == CardStatus.REVIEW;
+  const isReady = xxxCard?.status == CardStatus.READY;
 
   const onDelete =
-    card?.id && isOwner
+    xxxCard?.id && isOwner
       ? async () => {
           // TODO: Disallow deletion of cards that are ready to fly or that have been flown
           if (
             !confirm(
               `Delete the rocket named '${
-                card.rocket?.name ?? '(unnamed rocket)'
+                xxxCard.rocket?.name ?? '(unnamed rocket)'
               }'? (This cannot be undone!)`
             )
           )
             return;
-          await db.card.remove(card.launchId, card.id);
+          await db.card.remove(xxxCard.launchId, xxxCard.id);
           navigate(-1);
         }
       : null;
@@ -339,7 +188,7 @@ export default function CardEditor() {
         RSO Review
       </Button>
     );
-    if (card.padId) {
+    if (xxxCard.padId) {
       actions.push(
         <Button
           key='l3'
@@ -360,17 +209,17 @@ export default function CardEditor() {
   // Compose card status
   let cardStatus;
   switch (true) {
-    case !card.status: {
+    case !xxxCard.status: {
       cardStatus = <p>This is a draft</p>;
       break;
     }
 
-    case card.status == CardStatus.REVIEW: {
+    case xxxCard.status == CardStatus.REVIEW: {
       cardStatus = <p>Waiting for RSO review</p>;
       break;
     }
 
-    case (isOwner || isLCO) && card.status == CardStatus.READY: {
+    case (isOwner || isLCO) && xxxCard.status == CardStatus.READY: {
       const padOptions = sortArray(
         Object.values(pads),
         pad => `${pad.group ?? ''} ${pad.name}`
@@ -386,7 +235,7 @@ export default function CardEditor() {
           <div className='d-flex align-items-baseline gap-1 mt-2'>
             <label className='text-nowrap'>On pad</label>
             <Form.Select
-              value={card?.padId ?? ''}
+              value={xxxCard?.padId ?? ''}
               onChange={e =>
                 poke('padId', (e.target as HTMLSelectElement).value || DELETE)
               }
@@ -395,7 +244,7 @@ export default function CardEditor() {
               {padOptions}
             </Form.Select>
           </div>
-          {!card?.padId ? (
+          {!xxxCard?.padId ? (
             <div className='mt-1 text-secondary small'>
               (Only select pad after rocket is on the pad and ready for launch)
             </div>
@@ -406,12 +255,12 @@ export default function CardEditor() {
       break;
     }
 
-    case card.status == CardStatus.READY: {
+    case xxxCard.status == CardStatus.READY: {
       cardStatus = <p>Ready to fly.</p>;
       break;
     }
 
-    case card.status == CardStatus.DONE: {
+    case xxxCard.status == CardStatus.DONE: {
       cardStatus = <p>This card is complete.</p>;
       break;
     }
@@ -422,10 +271,10 @@ export default function CardEditor() {
   let thrust = NaN;
   let mass = NaN;
 
-  if (card) {
+  if (xxxCard) {
     try {
-      thrust = padThrust(card);
-      mass = unitParse(card.rocket?.mass ?? '', userUnits.mass, MKS.mass);
+      thrust = padThrust(xxxCard);
+      mass = unitParse(xxxCard.rocket?.mass ?? '', userUnits.mass, MKS.mass);
     } catch (err) {
       // Fail silently ()
     }
@@ -451,7 +300,7 @@ export default function CardEditor() {
           className='flex-grow-1 text-end'
           style={{ fontSize: '8pt', color: '#ccc' }}
         >
-          card status: {card.status ?? 'draft'}
+          card status: {xxxCard.status ?? 'draft'}
         </span>
       </FormSection>
 
@@ -459,42 +308,49 @@ export default function CardEditor() {
 
       <FormSection>Rocket</FormSection>
 
-      {faq}
+      <UnitsFAQ />
 
       <div className='d-grid deck'>
-        <FloatingInput {...textInputProps('rocket.name')}>
-          <label>Rocket Name</label>
-        </FloatingInput>
+        <rtui.StringInput field='rocket/name' label='Rocket Name' />
+        <rtui.StringInput field='rocket/manufacturer' label='Manufacturer' />
 
-        <FloatingInput {...textInputProps('rocket.manufacturer')}>
-          <label>Manufacturer</label>
-        </FloatingInput>
+        <rtui.UnitField
+          field='rocket/length'
+          unitType='length'
+          label={
+            <>
+              Length{' '}
+              <span className='text-info ms-2'>({userUnits.length})</span>
+            </>
+          }
+        />
 
-        <FloatingInput {...textInputProps('rocket.length', userUnits.length)}>
-          <label>
-            Length <span className='text-info ms-2'>({userUnits.length})</span>
-          </label>
-        </FloatingInput>
+        <rtui.UnitField
+          field='rocket/diameter'
+          unitType='length'
+          label={
+            <>
+              Diameter{' '}
+              <span className='text-info ms-2'>({userUnits.length})</span>
+            </>
+          }
+        />
 
-        <FloatingInput {...textInputProps('rocket.diameter', userUnits.length)}>
-          <label>
-            Diameter{' '}
-            <span className='text-info ms-2'>({userUnits.length})</span>
-          </label>
-        </FloatingInput>
+        <rtui.UnitField
+          field='rocket/mass'
+          unitType='mass'
+          label={
+            <>
+              Mass{' '}
+              <span className='text-info ms-2'>
+                {' '}
+                ({userUnits.mass}, incl. motors)
+              </span>
+            </>
+          }
+        />
 
-        <FloatingInput {...textInputProps('rocket.mass', userUnits.mass)}>
-          <label>
-            Mass{' '}
-            <span className='text-info ms-2'>
-              ({userUnits.mass}, incl. motors)
-            </span>
-          </label>
-        </FloatingInput>
-
-        <FloatingInput {...textInputProps('rocket.color')}>
-          <label>Color</label>
-        </FloatingInput>
+        <rtui.StringInput field='rocket/color' label='Color' />
       </div>
 
       <div
@@ -512,33 +368,27 @@ export default function CardEditor() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(8em, 1fr)',
           }}
         >
-          {[
-            ['Chute', Recovery.CHUTE],
-            ['Streamer', Recovery.STREAMER],
-            ['Dual-deploy', Recovery.DUAL_DEPLOY],
-          ].map(([label, value]) => (
-            <Form.Check
-              id={`recovery-${value}`}
-              key={label}
-              label={label}
-              disabled={disabled}
-              type='radio'
-              className='me-4 text-nowrap'
-              checked={peek('rocket.recovery') === value}
-              onChange={e =>
-                poke('rocket.recovery', e.target.checked ? value : DELETE)
-              }
-            />
-          ))}
+          <rtui.Radio
+            field='flight/recovery'
+            label='Chute'
+            value={Recovery.CHUTE}
+          />
+          <rtui.Radio
+            field='flight/recovery'
+            label='Streamer'
+            value={Recovery.STREAMER}
+          />
+          <rtui.Radio
+            field='flight/recovery'
+            label='Dual-deploy'
+            value={Recovery.DUAL_DEPLOY}
+          />
         </div>
       </div>
 
       <FormSection>Motors</FormSection>
 
-      <MotorList
-        motors={card.motors ?? ([] as iMotor[])}
-        onChange={(motors?: iMotor[]) => poke('motors', motors)}
-      />
+      {launchId && cardId && <MotorList launchId={launchId} cardId={cardId} />}
 
       {isNaN(thrustRatio) ? null : (
         <Alert
@@ -567,25 +417,13 @@ export default function CardEditor() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(8em, 1fr)',
           }}
         >
-          <Form.Check
-            {...switchInputProps('flight.firstFlight')}
-            label='1st Flight'
-          />
-          <Form.Check
-            {...switchInputProps('flight.headsUp')}
-            label='Heads Up'
-          />
-          <Form.Check {...switchInputProps('flight.complex')} label='Complex' />
+          <rtui.Check field='flight/firstFlight' label='1st Flight' />
+          <rtui.Check field='flight/headsUp' label='Heads Up' />
+          <rtui.Check field='flight/complex' label='Complex' />
         </div>
       </div>
 
-      {/* Use floating labels once https://github.com/twbs/bootstrap/issues/32800 is fixed */}
-      <label htmlFor='notes'>Notes</label>
-      <textarea
-        id='notes'
-        className='form-control rounded'
-        {...textInputProps('flight.notes')}
-      />
+      <rtui.TextArea field='flight/notes' label='Notes' />
 
       <div className='mt-4 d-flex gap-3'>
         {onDelete ? (
@@ -596,9 +434,8 @@ export default function CardEditor() {
         {actions}
         <div className='flex-grow-1' />
         <Button variant='secondary' onClick={() => navigate(-1)}>
-          Cancel
+          Close
         </Button>
-        {onSave ? <Button onClick={onSave}>Save Card</Button> : null}
       </div>
     </>
   );

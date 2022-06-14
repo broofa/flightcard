@@ -1,5 +1,8 @@
 import { tUnitSystemName } from './util/units';
 
+// Tell VSCode not to choke on Parcel's static file imports
+declare module '*.png'
+
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
@@ -70,7 +73,7 @@ export type iPads = Record<string, iPad>;
 
 export interface iMotor {
   id: string;
-  name: string;
+  name?: string;
   tcMotorId?: string; // thrustcurve.org motorId
   impulse?: number; // newton-secs
   delay?: number;

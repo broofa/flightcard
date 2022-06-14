@@ -1,35 +1,57 @@
+import { nanoid } from 'nanoid';
 import React, { useContext, useState } from 'react';
-import { Motor } from 'thrustcurve-db';
+import { Motor as TCMotor } from 'thrustcurve-db';
 import { sortArray } from '../../util/sortArray';
 // @ts-ignore: parcel module resolution handles this
 import { AppContext } from '../App/App';
 import { MotorItem } from './MotorItem';
 import { MotorModal } from './MotorModal';
+import { util } from '/firebase';
 import { iMotor } from '/types';
 
-export const BLANK_ID = 'blank_id';
-
-type BlankableMotor = iMotor & { isBlank?: boolean };
+export function isPlaceholderMotor(motor: iMotor) {
+  return (
+    !motor.name && !motor.impulse && !motor.delay && !!(motor.stage ?? 1 === 1)
+  );
+}
 
 export function MotorList({
-  motors = [],
-  onChange,
+  launchId,
+  cardId,
 }: {
-  motors: BlankableMotor[];
-  onChange: (motors: iMotor[]) => void;
+  launchId: string;
+  cardId: string;
 }) {
+  const MOTOR_PATH = `/cards/${launchId}/${cardId}/motors`;
   const { userUnits } = useContext(AppContext);
-  const [motorDetail, setMotorDetail] = useState<Motor>();
+  const [motorDetail, setMotorDetail] = useState<TCMotor>();
+  const motors = util.useValue<{[motorId: string]: iMotor}>(MOTOR_PATH);
 
-  const motorModal = motorDetail ? (
-    <MotorModal motor={motorDetail} onHide={() => setMotorDetail(undefined)} />
-  ) : null;
+  // We need an ordered array of motors
+  const motorEntries = motors ? Object.entries(motors) : [];
 
-  // Blank motor to allow adding new ones
-  const _motors = [...motors];
-  if (!_motors.some(m => m.id === BLANK_ID)) {
-    _motors.push({ name: '', id: BLANK_ID });
+  // Add a placeholder motor if there isn't one
+  if (!motorEntries.some(([, motor]) => isPlaceholderMotor(motor))) {
+    const id = nanoid();
+    motorEntries.push([id, {id}]);
   }
+
+  // Sort by stage (w/ placeholder motor at the end)
+  sortArray(motorEntries, ([, motor]) => {
+    return isPlaceholderMotor(motor) ? Infinity : (motor.stage ?? 1)
+  })
+
+  const motorList = motorEntries.map(([motorId, motor]) => {
+    return (
+      <MotorItem
+        key={motor.id}
+        rtPath={`${MOTOR_PATH}/${motorId}`}
+        motor={motor}
+        onDetail={setMotorDetail}
+        className='mb-3'
+      />
+    )
+  });
 
   return (
     <>
@@ -70,44 +92,16 @@ export function MotorList({
             style={{ width: '3em' }}
           ></div>
         </div>
-        {_motors.map(m => {
-          const key = m.id;
 
-          function handleChange(motor) {
-            const newMotors = [..._motors];
-            const i = newMotors.findIndex(m => m.id === key);
-
-            if (i < 0) throw Error(`Huh? Motor ${key} went away :-(`);
-
-            if (!motor?.name) {
-              newMotors.splice(i, 1);
-            } else {
-              const stageChanged = newMotors[i].stage != motor.stage;
-              newMotors[i] = motor;
-              // Sort motors if order may have changed
-              if (stageChanged) {
-                sortArray(newMotors, m =>
-                  m.id === BLANK_ID ? Infinity : m.stage ?? 1
-                );
-              }
-            }
-
-            onChange(newMotors.filter(m => m.id !== BLANK_ID));
-          }
-
-          return (
-            <MotorItem
-              key={m.id}
-              className='mb-3'
-              motor={m}
-              onDetail={setMotorDetail}
-              onChange={handleChange}
-            />
-          );
-        })}
+        {motorList}
       </div>
 
-      {motorModal}
+      {motorDetail ? (
+        <MotorModal
+          motor={motorDetail}
+          onHide={() => setMotorDetail(undefined)}
+        />
+      ) : null}
     </>
   );
 }

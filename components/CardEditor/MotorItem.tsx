@@ -3,118 +3,128 @@ import React, {
   ChangeEvent,
   HTMLAttributes,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import { Button, Form, FormSelect, Image } from 'react-bootstrap';
-import { Motor } from 'thrustcurve-db';
+import { Motor as TCMotor } from 'thrustcurve-db';
 import { getMotorByDisplayName } from '../../util/motor-util';
 import { MKS, unitConvert, unitParse } from '../../util/units';
-import { BLANK_ID } from './MotorList';
-import tcLogo from '/art/thrustcurve.png'; // 'Wish there was a way to ignore VSCode error here
-import { AppContext } from '/components/app/App';
-import { sig } from '/components/common/util';
-import { DELETE } from '/firebase';
+import { AppContext } from '../App/App';
+import { sig, usePrevious } from '../common/util';
+import { isPlaceholderMotor } from './MotorList';
+import tcLogo from '/art/thrustcurve.png';
+import { DELETE, util } from '/firebase';
 import { iMotor } from '/types';
-
-type tMotorFields = {
-  name: string;
-  delay: string;
-  impulse: string;
-  stage: string;
-};
 
 export function MotorItem({
   motor,
-  onChange,
+  rtPath,
   onDetail,
 }: {
   motor: iMotor;
-  onChange: (motor?: iMotor) => void;
-  onDetail: (motor?: Motor) => void;
+  rtPath: string;
+  onDetail: (motor?: TCMotor) => void;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
-  const [delayListId] = useState(nanoid());
-  const tcMotor = getMotorByDisplayName(motor?.name);
+  const [delayListId] = useState(nanoid()); // 'Just need a unique ID of some sort here
   const { userUnits } = useContext(AppContext);
 
-  const [fields, setFields] = useState<tMotorFields>({
-    name: motor?.name ?? '',
-    stage: String(motor?.stage ?? '1'),
-    delay: String(motor?.delay ?? ''),
-    impulse: motor?.impulse
+  const [name, setName] = useState(motor.name);
+  const [stage, setStage] = useState(String(motor?.stage ?? '1'));
+  const [delay, setDelay] = useState(String(motor?.delay ?? ''));
+  const [impulse, setImpulse] = useState(
+    motor?.impulse
       ? String(unitConvert(motor.impulse, MKS.impulse, userUnits.impulse))
-      : '',
-  });
+      : ''
+  );
+  const [newMotor, setNewMotor] = useState(motor);
+  const [savedMotor, setSavedMotor] = useState(motor);
+  const [saving, setSaving] = useState(false);
 
-  const delays = tcMotor?.delays?.split(',');
+  const tcMotor = getMotorByDisplayName(name);
+  const previousTCMotor = usePrevious(tcMotor);
+  const [isPlaceholder, setIsPlaceholder] = useState(isPlaceholderMotor(motor));
 
-  function patchFields(patch: Partial<tMotorFields>) {
-    const newFields: tMotorFields = { ...fields, ...patch };
-    setFields(newFields);
+  // Update UI if rt data changes
+  // util.useValue<iMotor>(rtPath, motor => {
+  //   if (!motor) return;
+  //   setName(motor?.name ?? '');
+  //   setStage(String(motor?.stage ?? '1'));
+  //   setDelay(String(motor?.delay ?? ''));
+  //   setImpulse(
+  //     motor?.impulse
+  //       ? String(
+  //           sig(unitConvert(motor.impulse, MKS.impulse, userUnits.impulse))
+  //         )
+  //       : ''
+  //   );
+  //   setNewMotor(motor);
+  //   setSavedMotor(motor);
+  // });
 
-    // Create new Motor
-    const newMotor: iMotor = {
-      id: nanoid(),
-      name: newFields.name,
-      impulse: DELETE,
-      delay: DELETE,
-      stage: DELETE,
-      tcMotorId: DELETE,
-    };
+  // Effect for saving motor
+  useEffect(() => {
+    if (newMotor === savedMotor) return;
 
-    const _tcMotor = getMotorByDisplayName(newMotor.name);
-    if (_tcMotor) newMotor.tcMotorId = _tcMotor.motorId;
+    const placeholder = isPlaceholderMotor(newMotor);
+    setIsPlaceholder(placeholder);
 
-    if (newFields.delay) newMotor.delay = Number(newFields.delay);
-    if (newFields.stage != '1') newMotor.stage = Number(newFields.stage);
-    if (newFields.impulse) {
-      try {
-        newMotor.impulse = unitParse(
-          newFields.impulse,
-          userUnits.impulse,
-          MKS.impulse
-        );
-      } catch (err) {
-        // Fail silently - this should be surfaced via validity message
+    let abort = false;
+    const timer = setTimeout(() => {
+      setSaving(true);
+      if (!placeholder) {
+        util.set(rtPath, newMotor).then(() => {
+          !abort && setSaving(false);
+          setSavedMotor(newMotor);
+        });
+      } else {
+        util.remove(rtPath).then(() => !abort && setSaving(false));
       }
-    }
+    }, 500);
 
-    onChange(newMotor);
+    return () => {
+      abort = true;
+      clearTimeout(timer);
+    };
+  }, [rtPath, newMotor, savedMotor]);
+
+  function onNameChange(e: ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setName(val);
+    const tcm = getMotorByDisplayName(val);
+    const nm = { ...newMotor, name: val };
+    if (tcm !== previousTCMotor) {
+      console.log('UPDATING TCM', tcm);
+      nm.impulse = tcm?.totImpulseNs ?? DELETE;
+      nm.tcMotorId = tcm?.motorId ?? DELETE;
+    }
+    setNewMotor(nm);
   }
 
-  function onNameChange({ target }) {
-    const name = target.value;
-    const patch: Partial<tMotorFields> = { name };
-
-    const _tcMotor = getMotorByDisplayName(name);
-    if (_tcMotor) {
-      patch.impulse = String(
-        sig(unitConvert(_tcMotor.totImpulseNs, MKS.impulse, userUnits.impulse))
-      );
-    }
-    patchFields(patch);
+  function onDelayChange(e: ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setDelay(val);
+    const delay = parseInt(val);
+    setNewMotor({ ...newMotor, delay: isNaN(delay) ? DELETE : delay });
   }
 
-  function onImpulseChange({ type, target }) {
-    const val: string = target.value;
+  function onStageChange(e: ChangeEvent<HTMLSelectElement>) {
+    const val = e.target.value;
+    setStage(val);
+    const stage = parseInt(val);
+    setNewMotor({ ...newMotor, stage: isNaN(stage) ? DELETE : stage });
+  }
 
-    // Is value parsable
-    let parsed: number | undefined;
-    try {
-      target.setCustomValidity('');
-      parsed = unitParse(val, userUnits.impulse);
-    } catch (err) {
-      const { message } = err as Error;
-      target.setCustomValidity(message);
-    }
+  function onImpulseChange(e: ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setImpulse(val);
+    const impulse = unitParse(val, userUnits.impulse);
+    setNewMotor({ ...newMotor, impulse: isNaN(impulse) ? DELETE : impulse });
+  }
 
-    if (type == 'blur' && parsed) {
-      patchFields({ impulse: String(sig(parsed)) });
-    } else {
-      patchFields({ impulse: val });
-    }
-
-    target.reportValidity();
+  function onDelete() {
+    util.remove(rtPath);
   }
 
   return (
@@ -124,7 +134,8 @@ export function MotorItem({
           <Form.Control
             onChange={onNameChange}
             list='tc-motors'
-            value={fields?.name ?? ''}
+            value={name}
+            className={saving ? 'busy' : ''}
             placeholder='Add motor ...'
             style={{
               borderRight: 0,
@@ -134,7 +145,7 @@ export function MotorItem({
           />
 
           <Button
-            onClick={() => onDetail?.(tcMotor)}
+            onClick={() => onDetail(tcMotor)}
             className='p-0 rounded-end border-start-0'
             disabled={!tcMotor}
             style={{
@@ -150,7 +161,7 @@ export function MotorItem({
           </Button>
         </div>
 
-        {fields?.name ? (
+        {!isPlaceholder ? (
           <>
             <label className='d-inline d-sm-none mx-2'>
               I<sub>t</sub>:
@@ -159,9 +170,8 @@ export function MotorItem({
               className='ms-sm-3'
               style={{ width: '5em' }}
               disabled={!!tcMotor}
-              value={fields.impulse ?? ''}
+              value={impulse ?? ''}
               onChange={onImpulseChange}
-              onBlur={onImpulseChange}
             />
           </>
         ) : (
@@ -170,11 +180,11 @@ export function MotorItem({
       </div>
 
       <div className='d-flex flex-grow-1 flex-sm-grow-0 align-items-baseline'>
-        {fields?.name ? (
+        {!isPlaceholder ? (
           <>
             <label className='d-inline d-sm-none mx-2'>Delay:</label>
             <datalist id={delayListId}>
-              {delays?.map(d => (
+              {tcMotor?.delays?.split(',')?.map(d => (
                 <option key={String(d)} value={String(d)} />
               ))}
             </datalist>
@@ -182,24 +192,22 @@ export function MotorItem({
               className='flex-grow-1 ms-sm-2'
               style={{ width: '5em' }}
               list={delayListId}
-              value={fields.delay ?? ''}
-              onChange={e => patchFields({ delay: e.target.value })}
+              value={delay}
+              onChange={onDelayChange}
             />
           </>
         ) : (
           <div />
         )}
 
-        {fields?.name ? (
+        {!isPlaceholder ? (
           <>
             <label className='d-inline d-sm-none mx-2'>Stage:</label>
             <FormSelect
               className='flex-grow-1 ms-sm-3'
               style={{ width: '5em' }}
-              value={fields.stage ?? ''}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                patchFields({ stage: e.target.value })
-              }
+              value={stage}
+              onChange={onStageChange}
             >
               <option value='1'>1</option>
               <option value='2'>2</option>
@@ -211,12 +219,12 @@ export function MotorItem({
           <div></div>
         )}
 
-        {motor.id !== BLANK_ID ? (
+        {!isPlaceholder ? (
           <Button
             className='ms-3 mt-2 '
             tabIndex={-1}
             variant='danger'
-            onClick={() => onChange(undefined)}
+            onClick={onDelete}
           >
             {'\u2715'}
           </Button>

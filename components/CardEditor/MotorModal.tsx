@@ -1,11 +1,11 @@
 import React from 'react';
 import { Modal, ModalProps } from 'react-bootstrap';
-import { Motor } from 'thrustcurve-db';
+import { Motor as TCMotor } from 'thrustcurve-db';
 import { motorDisplayName } from '../../util/motor-util';
 import { MKSValue } from './MKSValue';
 import { sig } from '/components/common/util';
 
-export function MotorModal({ motor, ...props }: { motor: Motor } & ModalProps) {
+export function MotorModal({ motor, ...props }: { motor: TCMotor } & ModalProps) {
   let graph;
   const { samples } = motor;
   if (samples) {

@@ -51,10 +51,11 @@ function totalImpulseClass(
   motors: Array<{ impulse?: number; totImpulseNs?: number }>
 ) {
   if (!motors) return undefined;
-  const impulse = motors.reduce(
-    (acc: number, m) => acc + (m.impulse ?? m.totImpulseNs ?? NaN),
+  const impulse = Object.entries(motors).reduce(
+    (acc: number, [, m]) => acc + (m.impulse ?? m.totImpulseNs ?? NaN),
     0
   );
+  console.log('MOTORS IMPULSE', impulse, motors);
   return isNaN(impulse)
     ? undefined
     : IMPULSE_CLASSES.find((v, i) => impulse < 0.3125 * 2 ** i);

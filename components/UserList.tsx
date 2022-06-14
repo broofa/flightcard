@@ -1,11 +1,16 @@
-import React, { HTMLAttributes, useContext, useState } from 'react';
+import React, {
+  ChangeEvent,
+  HTMLAttributes,
+  useContext,
+  useState,
+} from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
+import { sortArray } from '../util/sortArray';
 import { ANONYMOUS, AppContext } from './App/App';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { db, DELETE } from '/firebase';
 import { iAttendee, iCert, iPerm } from '/types';
-import { sortArray } from '../util/sortArray';
 
 export function AttendeeInfo({
   attendee,
@@ -62,7 +67,7 @@ function UserEditor({
   if (!user) return <Loading wat='User' />;
   if (!currentUser) return <Loading wat='Current user' />;
 
-  const onVerify = function (e: any) {
+  const onVerify = function (e: ChangeEvent<HTMLInputElement>) {
     const cert = {
       // Properties to update
       verifiedId: e.target.checked ? currentUser.id : DELETE,

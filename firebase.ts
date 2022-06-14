@@ -6,11 +6,11 @@ import {
   get as dbGet,
   getDatabase,
   onValue as dbOnValue,
+  query as dbQuery,
   ref as dbRef,
   remove as dbRemove,
   set as dbSet,
   update as dbUpdate,
-  query as dbQuery,
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { errorTrap } from '/components/common/ErrorFlash';
@@ -52,18 +52,64 @@ export const DELETE = null as unknown as undefined;
 export const database = getDatabase(app);
 export const auth = getAuth(app);
 
+// Adapter for converting values between DB and control types
+export type RTAdapter<RTType, ControlType> = {
+  toRT: (value: ControlType) => RTType | undefined;
+  fromRT: (value: RTType | undefined) => ControlType;
+};
+
+//
+// Useful RT adapters.  Specifying these here avoids having to memoize them.
+//
+
+export const STRING_ADAPTER: RTAdapter<string, string> = {
+  fromRT(v) {
+    return v ?? '';
+  },
+  toRT(v) {
+    return v.trim();
+  },
+};
+
+export const BOOL_ADAPTER: RTAdapter<boolean, boolean> = {
+  fromRT(v) {
+    return !!v;
+  },
+  toRT(v) {
+    return v;
+  },
+};
+
 export const util = {
-  async get(path) {
+  async get<T>(path) : Promise<T> {
     return (await dbGet(dbRef(database, path))).val();
   },
+
   async set(path: string, value) {
     return await dbSet(dbRef(database, path), value);
   },
+
   async remove(path: string) {
     return await dbRemove(dbRef(database, path));
   },
+
   async update(path: string, state) {
     return await dbUpdate(dbRef(database, path), state);
+  },
+
+  useValue<T>(path: string, setter?: (val: T) => void): T | undefined {
+    const [val, setVal] = useState<T | undefined>();
+
+    useEffect(() => {
+      const unsubscribe = dbOnValue(dbRef(database, path), s => {
+        const dbVal = s.val();
+        if (setter) setter(dbVal);
+        setVal(dbVal);
+      });
+      return unsubscribe;
+    }, [path, setter]);
+
+    return val;
   },
 };
 
