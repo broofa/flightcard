@@ -1,14 +1,19 @@
-import React, { useContext, useState } from 'react';
+import React, {
+  FocusEventHandler,
+  MouseEventHandler,
+  useContext,
+  useState,
+} from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
 import { sortArray } from '../../util/sortArray';
-import { PadEditor } from './PadEditor';
 import { AppContext } from '../App/App';
+import { PadEditor } from '../LaunchEditor/PadEditor';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
 import { db, DELETE } from '/firebase';
-import { iPad } from '/types';
+import { iLaunch, iPad } from '/types';
 
 export default function LaunchEditor() {
   const { launch, pads, attendees, cards } = useContext(AppContext);
@@ -23,30 +28,33 @@ export default function LaunchEditor() {
       ).sort()
     : [];
 
-  const launchInputProps = function (field) {
+  function launchInputProps(field: keyof iLaunch): {
+    className: string;
+    defaultValue: string;
+    onBlur: FocusEventHandler;
+  } {
     return {
       className: 'flex-grow-1',
-      // style: {
-      //   minWidth: '20em',
-      // },
 
-      defaultValue: launch[field] ?? '',
+      defaultValue: String(launch?.[field] ?? ''),
 
       onBlur(e) {
-        const { target } = e;
-        let { value } = target;
+        if (!launch?.id) throw Error('Launch has no id');
 
-        if (value == null || value === '') value = undefined;
-        if (value == launch[field]) return;
+        const target = e.target as HTMLInputElement;
+        let value: string | undefined = target.value;
 
-        busy(target, db.launch.update(launch.id, { [field]: value ?? DELETE }));
+        if (value == null || value === '') value = DELETE;
+        if (value == launch?.[field]) return;
+
+        busy(e.target as HTMLElement, db.launch.update(launch.id, { [field]: value ?? DELETE }));
+
+        return;
       },
     };
-  };
+  }
 
-  const deleteLaunch = async e => {
-    const { target } = e;
-
+  const deleteLaunch: MouseEventHandler = async e => {
     const nAttendees = attendees ? Object.keys(attendees).length : 0;
     const nCards = cards ? Object.keys(cards).length : 0;
 
@@ -58,7 +66,7 @@ export default function LaunchEditor() {
       return;
 
     await busy(
-      target,
+      e.target as HTMLElement,
       db.launch
         .remove(launch.id)
         .then(() =>

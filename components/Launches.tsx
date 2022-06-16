@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import React, { useContext, useState } from 'react';
+import React, { MouseEventHandler, useContext, useState } from 'react';
 import {
   Button,
   Card,
@@ -9,13 +9,13 @@ import {
   ModalProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
+import { sortArray } from '../util/sortArray';
 import { AppContext } from './App/App';
 import { busy, LinkButton, Loading } from '/components/common/util';
 import { db } from '/firebase';
-import { iLaunch } from '/types';
-import { sortArray } from '../util/sortArray';
+import { iLaunch, iPad } from '/types';
 
-function dateString(ts) {
+function dateString(ts: string) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();
 }
 
@@ -45,8 +45,8 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   if (!currentUser) return <Loading wat='User' />;
   if (!launches) return <Loading wat='Launches' />;
 
-  const createLaunch = async e => {
-    const { target } = e;
+  const createLaunch: MouseEventHandler = async e => {
+    const target = e.target as HTMLButtonElement;
     const launchId = nanoid();
 
     // Hide modal so button can't get clicked twice by mistake
@@ -74,7 +74,7 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
     // Copy launch pads
     if (src) {
       const pads = await db.pads.get(src.id);
-      const newPads = {};
+      const newPads: { [padId: string]: iPad } = {};
       for (const pad of Object.values(pads)) {
         pad.id = nanoid();
         pad.launchId = launchId;

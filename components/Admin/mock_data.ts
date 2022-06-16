@@ -330,7 +330,7 @@ export function rndItem<Type>(arr: Type[]): Type {
   return arr[rnd(arr.length)];
 }
 
-export function createRocket(): iRocket & { _motor?: iMotor } {
+export function createRocket(): iRocket {
   const name = rndItem(ROCKET_NAMES);
   const manufacturer = rndItem([
     'Estes',
@@ -360,15 +360,15 @@ export function createRocket(): iRocket & { _motor?: iMotor } {
   motorName = `${motorName}${thrust.toFixed(thrust < 1 ? 1 : 0)}`;
   if (delay <= 20) motorName = `${motorName}-${Math.ceil(delay)}`;
 
-  const motor = {
+  const motor: iMotor = {
+    id: nanoid(),
     name: motorName,
     impulse: impulse,
   };
 
   const color = rndItem(COLORS);
 
-  const rocket = {
-    id: nanoid(),
+  const rocket : iRocket = {
     name,
     manufacturer,
     color,

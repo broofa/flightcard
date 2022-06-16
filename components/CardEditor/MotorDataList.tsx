@@ -1,10 +1,10 @@
-import React from 'react';
-import MOTORS from 'thrustcurve-db';
+import React, { HTMLAttributes } from 'react';
+import MOTORS, { Motor } from 'thrustcurve-db';
 import { motorDisplayName } from '../../util/motor-util';
 import { sortArray } from '../../util/sortArray';
 
-export function MotorDataList(props) {
-  function sortKey(motor) {
+export function MotorDataList(props: HTMLAttributes<HTMLDataListElement>) {
+  function sortKey(motor: Motor) {
     const { manufacturerAbbrev, commonName, availability } = motor;
 
     return (

@@ -81,11 +81,11 @@ export const BOOL_ADAPTER: RTAdapter<boolean, boolean> = {
 };
 
 export const util = {
-  async get<T>(path) : Promise<T> {
+  async get<T>(path: string): Promise<T> {
     return (await dbGet(dbRef(database, path))).val();
   },
 
-  async set(path: string, value) {
+  async set(path: string, value: unknown) {
     return await dbSet(dbRef(database, path), value);
   },
 
@@ -93,7 +93,7 @@ export const util = {
     return await dbRemove(dbRef(database, path));
   },
 
-  async update(path: string, state) {
+  async update(path: string, state: object) {
     return await dbUpdate(dbRef(database, path), state);
   },
 
@@ -116,50 +116,24 @@ export const util = {
 //
 // Structured database access
 //
-function createAPI<T>(pathTemplate) {
+function createAPI<T>(pathTemplate: string) {
   type Part = string | undefined;
 
-  interface DataAPI {
-    get(): Promise<T>;
-    get(a: Part): Promise<T>;
-    get(a: Part, b: Part): Promise<T>;
-
-    set(state: T): Promise<T>;
-    set(a: Part, state: T): Promise<T>;
-    set(a: Part, b: Part, state: T): Promise<T>;
-
-    update(state: Partial<T>): Promise<void>;
-    update(a: Part, state: Partial<T>): Promise<void>;
-    update(a: Part, b: Part, state: Partial<T>): Promise<void>;
-
-    updateChild<S>(a: Part, state: Partial<S>): Promise<S>;
-    updateChild<S>(a: Part, b: Part, state: Partial<S>): Promise<S>;
-    updateChild<S>(a: Part, b: Part, c: Part, state: Partial<S>): Promise<S>;
-
-    remove(): Promise<any>;
-    remove(a: Part): Promise<any>;
-    remove(a: Part, b: Part): Promise<any>;
-
-    useValue(): T;
-    useValue(a: Part): T;
-    useValue(a: Part, b: Part): T;
-  }
-
-  pathTemplate = pathTemplate.split('/');
-  const path = pathTemplate.shift();
+  const templateParts = pathTemplate.split('/');
+  const path = templateParts.shift();
 
   function _fullPath(
     parts: string[],
-    template: string[] = pathTemplate
+    template: string[] = templateParts
   ): string {
     if (parts.length != template.length)
       throw Error(
         `Received ${parts.length} parts but expected ${template.length}`
       );
 
-    pathTemplate.forEach((t, i) => {
+    templateParts.forEach((t, i) => {
       if (typeof parts[i] != 'string')
-        throw Error(`${pathTemplate[i]} (${parts[i]}) is not a string`);
+        throw Error(`${templateParts[i]} (${parts[i]}) is not a string`);
     });
 
     // Only the last part may be compound
@@ -183,6 +157,31 @@ function createAPI<T>(pathTemplate) {
     }
     return state;
   }
+  interface DataAPI {
+    get(): Promise<T>;
+    get(a: Part): Promise<T>;
+    get(a: Part, b: Part): Promise<T>;
+
+    set(state: T | undefined): Promise<T>;
+    set(a: Part, state: T | undefined): Promise<T>;
+    set(a: Part, b: Part, state: T | undefined): Promise<T>;
+
+    update(state: Partial<T>): Promise<void>;
+    update(a: Part, state: Partial<T>): Promise<void>;
+    update(a: Part, b: Part, state: Partial<T>): Promise<void>;
+
+    updateChild<S>(a: Part, state: Partial<S>): Promise<S>;
+    updateChild<S>(a: Part, b: Part, state: Partial<S>): Promise<S>;
+    updateChild<S>(a: Part, b: Part, c: Part, state: Partial<S>): Promise<S>;
+
+    remove(): Promise<void>;
+    remove(a: Part): Promise<void>;
+    remove(a: Part, b: Part): Promise<void>;
+
+    useValue(): T;
+    useValue(a: Part): T;
+    useValue(a: Part, b: Part): T;
+  }
 
   const api: DataAPI = {
     async get(...args: string[]): Promise<T> {
@@ -190,26 +189,29 @@ function createAPI<T>(pathTemplate) {
       return errorTrap(result.val());
     },
 
-    async set(...parts) {
-      const state = parts.pop() as unknown as T;
-      const ref = _ref(parts);
+    async set(...parts: unknown[]) {
+      const state = parts.pop() as T;
+      const ref = _ref(parts as string[]);
       errorTrap(dbSet(ref, state));
       return state;
     },
 
-    update(...args) {
-      const state = args.pop() as unknown as Partial<T>;
-      const ref = _ref(args);
+    update(...args: unknown[]) {
+      const state = args.pop() as Partial<T>;
+      const ref = _ref(args as string[]);
       return errorTrap(dbUpdate(ref, _deletify(state)));
     },
 
-    updateChild(...args) {
-      const state = args.pop();
-      const ref = dbRef(database, _fullPath(args, [...pathTemplate, ':child']));
+    updateChild(...args: unknown[]) {
+      const state = args.pop() as object;
+      const ref = dbRef(
+        database,
+        _fullPath(args as string[], [...templateParts, ':child'])
+      );
       return errorTrap(dbUpdate(ref, state));
     },
 
-    remove(...args: string[]): Promise<any> {
+    remove(...args: string[]) {
       return errorTrap(dbRemove(_ref(args)));
     },
 

@@ -1,4 +1,4 @@
-import React, { cloneElement, InputHTMLAttributes, ReactElement } from 'react';
+import React, { cloneElement, ForwardedRef, InputHTMLAttributes, ReactElement, Ref } from 'react';
 
 function FloatingInput(
   {
@@ -7,7 +7,7 @@ function FloatingInput(
     children,
     ...props
   }: InputHTMLAttributes<HTMLInputElement>,
-  ref
+  ref: ForwardedRef<HTMLInputElement>
 ) {
   const label = children as ReactElement;
 

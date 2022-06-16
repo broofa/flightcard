@@ -23,7 +23,7 @@ import {
 
 const SEED_PREFIX = 'fc_';
 let seedId = 0;
-function genId(path) {
+function genId(path: string) {
   path = path
     .replace(/\/.*/, '')
     .toLowerCase()
@@ -39,8 +39,8 @@ async function dbPush<T>(path: string, state: T): Promise<string> {
   return key;
 }
 
-async function purge(path) {
-  const obj = await util.get(path);
+async function purge(path: string) {
+  const obj = await util.get<object>(path);
   if (!obj) return;
 
   await Promise.all(

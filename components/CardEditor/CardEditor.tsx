@@ -78,14 +78,18 @@ export default function CardEditor() {
     setCard(nc);
   }, [dbCard, attendee, launchId, userUnits]);
 
-  function poke(path: string, val) {
+  function poke(path: string, val: string | undefined) {
     const parts = path.split('.');
     const att = parts.pop();
+
+    if (!att) {
+      throw Error(`Invalid path: ${path}`);
+    }
 
     const newCard: iCard = { ...xxxCard } as iCard;
 
     if (!att) return;
-    let o = newCard;
+    let o = newCard as unknown as { [key: string]: unknown };
     for (const k of parts) {
       o = o[k] = Object.assign({}, o[k]);
     }

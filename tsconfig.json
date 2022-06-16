@@ -7,23 +7,24 @@
     "dist"
   ],
   "compilerOptions": {
-    "target": "es5",
-    "module": "es2020",
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
     "lib": [
       "dom",
       "es2019"
     ],
-    "jsx": "react",
-    "downlevelIteration": true,
-    "strict": true,
+    "module": "es2020",
     "moduleResolution": "node",
+    "outDir": "dist_tsc",
     "paths": {
       "/*": [
         "./*"
       ]
     },
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "strict": true,
+    "target": "es5"
   }
 }

@@ -20,7 +20,8 @@ export default function LaunchHome() {
   const rsos = role.filter(a => a.role == 'rso');
   const cert = attendee?.cert;
 
-  function launchUrl(suffix) {
+  function launchUrl(suffix: string) {
+    if (!launch?.id) throw Error('No launch id'); // Should never happen
     return `/launches/${launch.id}/${suffix}`;
   }
 
@@ -28,7 +29,8 @@ export default function LaunchHome() {
     <>
       {!attendee.name || cert?.level == null || !cert?.verifiedTime ? (
         <Alert variant='warning'>
-          Please provide your name and certification level on your <ProfileLink launchId={launch.id} />.
+          Please provide your name and certification level on your{' '}
+          <ProfileLink launchId={launch.id} />.
         </Alert>
       ) : null}
 
@@ -40,7 +42,9 @@ export default function LaunchHome() {
               <Nav.Link href={launchUrl('cards/new')}>
                 Fill Out A Flight Card
               </Nav.Link>
-              <Nav.Link disabled href={launchUrl('cards')}>My Flight Cards</Nav.Link>
+              <Nav.Link disabled href={launchUrl('cards')}>
+                My Flight Cards
+              </Nav.Link>
               <Nav.Link href={launchUrl('users?filter=officers')}>
                 Find a Launch Officer
               </Nav.Link>

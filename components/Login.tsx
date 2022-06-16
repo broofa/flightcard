@@ -34,26 +34,28 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
   const isRedirect = /apiKey/.test(location.href);
   const [email, setEmail] = useState(localStorage.getItem(EMAIL_KEY) ?? '');
   const [emailSent, setEmailSent] = useState(false);
-  const sendRef = useRef<HTMLButtonElement>();
+  const sendRef = useRef<HTMLButtonElement>(null);
   const [error, setError] = useState<Error & { code: string }>();
-  const busyRef = useRef();
+  const busyRef = useRef(null);
   const navigate = useNavigate();
 
   // Effect: When user is redirected after clicking on email link
   useEffect(() => {
     if (!isRedirect) return;
 
-    if (isSignInWithEmailLink(auth, location.href)) {
+    const busyEl = busyRef.current;
+    if (isSignInWithEmailLink(auth, location.href) && busyEl) {
       let email = localStorage.getItem(EMAIL_KEY);
       if (!email) {
         email = window.prompt('Please provide your email for confirmation');
       }
 
+
       busy(
-        busyRef.current,
+        busyEl,
         signInWithEmailLink(auth, email ?? '', location.href)
       )
-        .then(result => {
+        .then(() => {
           // Clear email from storage.
           // You can access the new user via result.user
           // Additional user info profile not available via:
@@ -62,7 +64,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
           // result.additionalUserInfo.isNewUser
           window.localStorage.removeItem(EMAIL_KEY);
         })
-        .catch(err => {
+        .catch((err : Error & {code: string}) => {
           console.error('Login failed', err);
           setError(err);
         });
@@ -73,8 +75,11 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
     const redirectUrl = new URL(location as unknown as string);
     redirectUrl.pathname = '/login';
 
+    const sendButton = sendRef.current;
+    if (!sendButton) return;
+
     const sendP = busy(
-      sendRef?.current,
+      sendButton,
       sendSignInLinkToEmail(auth, email, {
         url: String(redirectUrl), // URL user is redirected back to
         handleCodeInApp: true, // This must be true.
@@ -161,7 +166,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
     );
     footer = (
       <>
-        <Button ref={sendRef ?? null} onClick={sendLink}>
+        <Button ref={sendRef ?? undefined} onClick={sendLink}>
           Send Login Link
         </Button>
         <div className='flex-grow-1' />

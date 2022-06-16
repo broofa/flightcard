@@ -57,7 +57,7 @@ export function useField<RTType, ControlType>(
 // Create a RTUI context.  Specifies the RT path that `field` specifier is
 // relative to, and also the preferred units of measure (where applicable).
 export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
-  function fullRTPath(field) {
+  function fullRTPath(field: string) {
     return `${rtPath}/${field}`;
   }
 
@@ -208,11 +208,11 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
               sig(unitConvert(v as number, MKS[fromType], userUnits[unitType]))
             );
           },
-          toRT(v) {
+          toRT(v: string) {
             return unitParse(v, userUnits[unitType], MKS[fromType]);
           },
         };
-      }, [unitType]);
+      }, [unitType, fromType]);
 
       const { val, setVal, save, isSaving, id } = useField<number, string>(
         fullRTPath(field),

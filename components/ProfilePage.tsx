@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 import { Alert, Button } from 'react-bootstrap';
 import { AppContext } from './App/App';
 import CertForm from '/components/CertForm';
@@ -27,9 +27,8 @@ export default function ProfilePage({
 
   const { cert } = user;
 
-  const onName = e => {
-    let name = e?.target?.value;
-    if (!name) name = DELETE;
+  const onName = (e:ChangeEvent<HTMLInputElement>) => {
+    const name  = e?.target?.value || DELETE;
     busy(
       e.target,
       Promise.all([

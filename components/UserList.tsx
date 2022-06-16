@@ -77,8 +77,12 @@ function UserEditor({
     db.attendee.updateChild<iCert>(launchId, user.id, 'cert', cert);
   };
 
-  const onOfficerToggle = async function (e) {
-    await db.officer.set(launchId, user.id, e.target.checked || DELETE);
+  const onOfficerToggle = async function (e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.checked) {
+      await db.officer.set(launchId, user.id, true);
+    } else {
+      await db.officer.remove(launchId, user.id);
+    }
   };
 
   return (

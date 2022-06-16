@@ -31,7 +31,9 @@ export function Loading({
   );
 }
 
-export function ProfileLink({ launchId }: Omit<LinkProps, 'to'> & { launchId: string }) {
+export function ProfileLink({
+  launchId,
+}: Omit<LinkProps, 'to'> & { launchId: string }) {
   return <Link to={`/launches/${launchId}/profile`}>Profile Page</Link>;
 }
 
@@ -70,9 +72,7 @@ export function LinkButton({
 /**
  * Style a DOMElement as "busy" during an async operation
  */
-export function busy(target, p) {
-  target = target.target ?? target; // Extract target from DOMEvents
-
+export function busy(target: Element, p: Promise<unknown>) {
   // Start busy animation
   target.classList.toggle('busy', true);
 

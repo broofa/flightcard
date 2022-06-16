@@ -13,7 +13,7 @@ import { CardsPane } from '/components/CardsPane';
 import { CertDot } from '/components/common/CertDot';
 import { LinkButton, Loading } from '/components/common/util';
 import { LaunchCard } from '/components/LaunchCard';
-import LaunchEditor from './launcheditor/LaunchEditor';
+import LaunchEditor from './LaunchEditor/LaunchEditor';
 import ProfilePage from '/components/ProfilePage';
 import { UserList } from '/components/UserList';
 import { Waiver } from '/components/Waiver';

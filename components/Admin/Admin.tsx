@@ -29,8 +29,8 @@ export default function Admin() {
             return cloneElement(args[0], { key: i });
           }
 
-          const err = args.find(v => v instanceof Error);
-          args = args.map(v => {
+          const err: Error = args.find((v: unknown) => v instanceof Error);
+          args = args.map((v: unknown) => {
             const cons = Object.getPrototypeOf(v)?.constructor;
             if (cons === Object || cons === Array) {
               return JSON.stringify(v);

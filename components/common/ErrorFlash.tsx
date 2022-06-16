@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Alert } from 'react-bootstrap';
 
-let onError: ((any) => any) | null = null;
+let onError: ((err: Error) => void) | null = null;
 
 // Wrapper function that surfaces errors in ErrorFlash
-export function showError(err) {
+export function showError(err: Error) {
   console.error('showError()', err);
   onError?.(err);
 }

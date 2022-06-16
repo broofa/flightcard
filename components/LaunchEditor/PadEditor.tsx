@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import React, { useRef } from 'react';
+import React, { MouseEventHandler, useRef } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy } from '/components/common/util';
@@ -11,21 +11,19 @@ export function PadEditor({
   groups,
   ...props
 }: { pad: iPad; groups?: string[] } & ModalProps) {
-  const nameRef = useRef<HTMLInputElement>();
-  const groupRef = useRef<HTMLInputElement>();
+  const nameRef = useRef<HTMLInputElement>(null);
+  const groupRef = useRef<HTMLInputElement>(null);
 
   const { launchId } = pad;
-  const { onHide } = props as any;
+  const { onHide } = props;
 
-  const handleSave = function (e) {
-    const { target } = e;
+  const handleSave: MouseEventHandler = function (e) {
+    const target = e.target as HTMLButtonElement;
 
     target.classList.toggle('busy', true);
 
     const name = nameRef.current?.value ?? '';
     const group = groupRef.current?.value || DELETE;
-
-    const id = nanoid();
 
     let action;
     if (pad.id) {
@@ -45,10 +43,10 @@ export function PadEditor({
       );
     }
 
-    busy(e, action).then(onHide);
+    busy(e.target as HTMLElement, action).then(onHide);
   };
 
-  const handleDelete = function (e) {
+  const handleDelete: MouseEventHandler = function (e) {
     if (
       !confirm(
         `Permanently delete the "${
@@ -59,7 +57,7 @@ export function PadEditor({
       return;
     const action = db.pad.remove(launchId, pad.id);
 
-    busy(e, action).then(onHide);
+    busy(e.target as HTMLElement, action).then(onHide);
   };
 
   return (
