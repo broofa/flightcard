@@ -43,8 +43,8 @@ export function useField<RTType, ControlType>(
   //
   // Calling with no args saves the current `val`, or pass an arg to explicitely
   // specify the RT value to save.
-  function save(override?: RTType) {
-    const v = override ?? adapter.toRT(val);
+  function save(override?: ControlType) {
+    const v = adapter.toRT(override ?? val);
     if (saveAction) return;
     const saving = util.set(path, v ?? DELETE);
     saving.finally(() => setSaveAction(undefined));
@@ -197,17 +197,19 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
       label: ReactElement | string;
       unitType: keyof tUnitSystem;
     }) {
-      // Need to memoize the adapter because useField's useEffect hook is constrained
-      // by it
+      const fromType = unitType == 'lengthSmall' ? 'length' : unitType;
+
+      // Need to memoize the adapter because useField's useEffect hook is
+      // constrained by it
       const adapter = useMemo(() => {
         return {
           fromRT(v: number | undefined) {
             return String(
-              sig(unitConvert(v as number, MKS[unitType], userUnits[unitType]))
+              sig(unitConvert(v as number, MKS[fromType], userUnits[unitType]))
             );
           },
           toRT(v) {
-            return unitParse(v, userUnits[unitType], MKS[unitType]);
+            return unitParse(v, userUnits[unitType], MKS[fromType]);
           },
         };
       }, [unitType]);
@@ -229,7 +231,6 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
             }`}
             {...props}
             onChange={e => {
-              console.log('VAL', e.target.value);
               setVal(e.target.value);
             }}
             onBlur={() => save()}

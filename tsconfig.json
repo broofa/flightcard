@@ -3,6 +3,9 @@
     "**/*.ts",
     "**/*.tsx"
   ],
+  "exclude": [
+    "dist"
+  ],
   "compilerOptions": {
     "target": "es5",
     "module": "es2020",
@@ -13,7 +16,6 @@
     "jsx": "react",
     "downlevelIteration": true,
     "strict": true,
-    "noImplicitAny": false,
     "moduleResolution": "node",
     "paths": {
       "/*": [

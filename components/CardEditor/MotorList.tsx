@@ -38,7 +38,7 @@ export function MotorList({
 
   // Sort by stage (w/ placeholder motor at the end)
   sortArray(motorEntries, ([, motor]) => {
-    return isPlaceholderMotor(motor) ? Infinity : (motor.stage ?? 1)
+    return isPlaceholderMotor(motor) ? 1 : (motor.stage ?? 1)
   })
 
   const motorList = motorEntries.map(([motorId, motor]) => {
@@ -58,11 +58,11 @@ export function MotorList({
       <div>
         <div className='d-none d-sm-flex'>
           <div className='d-flex flex-grow-1'>
-            <div className='text-secondary text-center flex-grow-1 ms-sm-3'>
+            <div className='text-secondary text-center flex-grow-1 ms-sm-2'>
               Motor
             </div>
             <div
-              className='text-secondary text-center ms-sm-3'
+              className='text-secondary text-center ms-sm-2'
               style={{ width: '4em' }}
             >
               I<sub>t</sub>
@@ -73,7 +73,7 @@ export function MotorList({
           </div>
 
           <div
-            className='text-secondary text-center ms-sm-3'
+            className='text-secondary text-center ms-sm-2'
             style={{ width: '5em' }}
           >
             Delay
@@ -81,15 +81,15 @@ export function MotorList({
           </div>
 
           <div
-            className='text-secondary text-center ms-sm-3'
+            className='text-secondary text-center ms-sm-2'
             style={{ width: 'auto' }}
           >
             Stage
           </div>
 
           <div
-            className='text-secondary text-center ms-sm-3'
-            style={{ width: '3em' }}
+            className='text-secondary text-center ms-sm-4'
+            style={{ width: '2.5em' }}
           ></div>
         </div>
 

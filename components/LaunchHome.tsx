@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
-import { Alert, Card } from 'react-bootstrap';
+import { Alert, Card, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import simplur from 'simplur';
 import { AppContext } from './App/App';
-import { AttendeesLink, Loading, ProfileLink } from '/components/common/util';
 import Icon from '/components/common/Icon';
+import { AttendeesLink, Loading, ProfileLink } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
 import { Waiver } from '/components/Waiver';
 
@@ -20,14 +20,30 @@ export default function LaunchHome() {
   const rsos = role.filter(a => a.role == 'rso');
   const cert = attendee?.cert;
 
+  function launchUrl(suffix) {
+    return `/launches/${launch.id}/${suffix}`;
+  }
+
   return (
     <>
+      {!attendee.name || cert?.level == null || !cert?.verifiedTime ? (
+        <Alert variant='warning'>
+          Please provide your name and certification level on your <ProfileLink launchId={launch.id} />.
+        </Alert>
+      ) : null}
+
       <div className='deck'>
         <Card>
           <Card.Body>
             <Card.Title>Fliers</Card.Title>
             <Card.Text>
-              Flight cards, launch history, and more
+              <Nav.Link href={launchUrl('cards/new')}>
+                Fill Out A Flight Card
+              </Nav.Link>
+              <Nav.Link disabled href={launchUrl('cards')}>My Flight Cards</Nav.Link>
+              <Nav.Link href={launchUrl('users?filter=officers')}>
+                Find a Launch Officer
+              </Nav.Link>
             </Card.Text>
           </Card.Body>
         </Card>
@@ -36,7 +52,9 @@ export default function LaunchHome() {
           <Card.Body>
             <Card.Title>Spectators</Card.Title>
             <Card.Text>
-              See what's flying right now, and what's coming up
+              <Nav.Link href={launchUrl('lco')}>
+                Tune Into Launch Control
+              </Nav.Link>
             </Card.Text>
           </Card.Body>
         </Card>
@@ -44,14 +62,29 @@ export default function LaunchHome() {
         <Card>
           <Card.Body>
             <Card.Title>Club Officers</Card.Title>
-            <Card.Text>Launch Control, Range Safety, and other launch management tools</Card.Text>
+            <Card.Text>
+              <Nav>
+                <Nav.Item>
+                  <Nav.Link href={launchUrl('lco')}>
+                    Report For Duty (Launch Control)
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link href={launchUrl('rso')}>
+                    Report For Duty (Range Safety)
+                  </Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </Card.Text>
           </Card.Body>
         </Card>
 
         <Card>
           <Card.Body>
-            <Card.Title>Buzz</Card.Title>
+            <Card.Title>Information</Card.Title>
             <Card.Text>Stats, contests, social media</Card.Text>
+            <Nav.Link href={launchUrl('users')}>View Attendees</Nav.Link>
+            <Nav.Link href={launchUrl('/report')}>View Launch Stats</Nav.Link>
           </Card.Body>
         </Card>
       </div>
@@ -64,13 +97,6 @@ export default function LaunchHome() {
           </Link>
         ) : null}
       </div>
-
-      {cert?.level == null || !cert?.verifiedTime ? (
-        <Alert variant='warning'>
-          Please indicate your certification level on the{' '}
-          <ProfileLink launchId={launch.id} />.
-        </Alert>
-      ) : null}
 
       <p>
         <strong>{simplur`${role.length} [person has|people have] checked in`}</strong>

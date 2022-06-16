@@ -11,7 +11,7 @@ import { Motor as TCMotor } from 'thrustcurve-db';
 import { getMotorByDisplayName } from '../../util/motor-util';
 import { MKS, unitConvert, unitParse } from '../../util/units';
 import { AppContext } from '../App/App';
-import { sig, usePrevious } from '../common/util';
+import { usePrevious } from '../common/util';
 import { isPlaceholderMotor } from './MotorList';
 import tcLogo from '/art/thrustcurve.png';
 import { DELETE, util } from '/firebase';
@@ -46,23 +46,6 @@ export function MotorItem({
   const previousTCMotor = usePrevious(tcMotor);
   const [isPlaceholder, setIsPlaceholder] = useState(isPlaceholderMotor(motor));
 
-  // Update UI if rt data changes
-  // util.useValue<iMotor>(rtPath, motor => {
-  //   if (!motor) return;
-  //   setName(motor?.name ?? '');
-  //   setStage(String(motor?.stage ?? '1'));
-  //   setDelay(String(motor?.delay ?? ''));
-  //   setImpulse(
-  //     motor?.impulse
-  //       ? String(
-  //           sig(unitConvert(motor.impulse, MKS.impulse, userUnits.impulse))
-  //         )
-  //       : ''
-  //   );
-  //   setNewMotor(motor);
-  //   setSavedMotor(motor);
-  // });
-
   // Effect for saving motor
   useEffect(() => {
     if (newMotor === savedMotor) return;
@@ -71,8 +54,8 @@ export function MotorItem({
     setIsPlaceholder(placeholder);
 
     let abort = false;
+    setSaving(true);
     const timer = setTimeout(() => {
-      setSaving(true);
       if (!placeholder) {
         util.set(rtPath, newMotor).then(() => {
           !abort && setSaving(false);
@@ -95,7 +78,6 @@ export function MotorItem({
     const tcm = getMotorByDisplayName(val);
     const nm = { ...newMotor, name: val };
     if (tcm !== previousTCMotor) {
-      console.log('UPDATING TCM', tcm);
       nm.impulse = tcm?.totImpulseNs ?? DELETE;
       nm.tcMotorId = tcm?.motorId ?? DELETE;
     }
@@ -128,14 +110,13 @@ export function MotorItem({
   }
 
   return (
-    <div className='d-flex flex-wrap flex-sm-nowrap'>
-      <div className='d-flex align-items-baseline flex-grow-1 mt-4 mt-sm-2'>
+    <div className={`d-flex flex-wrap flex-sm-nowrap my-1 py-2 ${saving ? 'busy' : ''}`}>
+      <div className='d-flex align-items-baseline flex-grow-1 py-1 py-sm-0'>
         <div className='d-flex flex-grow-1'>
           <Form.Control
             onChange={onNameChange}
             list='tc-motors'
             value={name}
-            className={saving ? 'busy' : ''}
             placeholder='Add motor ...'
             style={{
               borderRight: 0,
@@ -167,7 +148,7 @@ export function MotorItem({
               I<sub>t</sub>:
             </label>
             <Form.Control
-              className='ms-sm-3'
+              className='ms-sm-2'
               style={{ width: '5em' }}
               disabled={!!tcMotor}
               value={impulse ?? ''}
@@ -179,7 +160,7 @@ export function MotorItem({
         )}
       </div>
 
-      <div className='d-flex flex-grow-1 flex-sm-grow-0 align-items-baseline'>
+      <div className='d-flex flex-grow-1 flex-sm-grow-0  py-1 py-sm-0 align-items-baseline'>
         {!isPlaceholder ? (
           <>
             <label className='d-inline d-sm-none mx-2'>Delay:</label>
@@ -204,7 +185,7 @@ export function MotorItem({
           <>
             <label className='d-inline d-sm-none mx-2'>Stage:</label>
             <FormSelect
-              className='flex-grow-1 ms-sm-3'
+              className='flex-grow-1 ms-sm-2'
               style={{ width: '5em' }}
               value={stage}
               onChange={onStageChange}
@@ -221,7 +202,7 @@ export function MotorItem({
 
         {!isPlaceholder ? (
           <Button
-            className='ms-3 mt-2 '
+            className='ms-4'
             tabIndex={-1}
             variant='danger'
             onClick={onDelete}

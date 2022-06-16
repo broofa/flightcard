@@ -76,7 +76,7 @@ export const BOOL_ADAPTER: RTAdapter<boolean, boolean> = {
     return !!v;
   },
   toRT(v) {
-    return v;
+    return v ? true : DELETE;
   },
 };
 

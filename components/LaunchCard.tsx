@@ -55,7 +55,7 @@ function totalImpulseClass(
     (acc: number, [, m]) => acc + (m.impulse ?? m.totImpulseNs ?? NaN),
     0
   );
-  console.log('MOTORS IMPULSE', impulse, motors);
+
   return isNaN(impulse)
     ? undefined
     : IMPULSE_CLASSES.find((v, i) => impulse < 0.3125 * 2 ** i);
@@ -68,6 +68,7 @@ export function LaunchCard({
   card: iCard;
   attendee?: iAttendee;
 }) {
+  const motors = Object.values(card?.motors ?? {});
   return (
     <div className='d-flex rounded border border-dark '>
       <Link
@@ -88,17 +89,16 @@ export function LaunchCard({
             <em>Unnamed rocket</em>
           )}
         </div>
-        {card.motors?.length ? (
+        {motors?.length ? (
           <div className=''>
-            {simplur`${[card.motors?.length]} motor[|s]`}:{' '}
-            <strong>{card.motors.map(m => m.name ?? '(?)').join(', ')}</strong>
+            <span className='text-muted'>{motors.map(m => m.name ?? '(?)').join(', ')}</span>
           </div>
         ) : null}
       </Link>
 
-      {card.motors ? (
+      {motors ? (
         <div className='flex-grow-0 fs-1 px-3 bg-light rounded'>
-          {totalImpulseClass(card.motors)}
+          {totalImpulseClass(motors)}
         </div>
       ) : (
         <div />

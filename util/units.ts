@@ -5,6 +5,7 @@
 export type tUnitSystemName = 'mks' | 'uscs';
 
 export type tUnitSystem = {
+  lengthSmall: string;
   length: string;
   mass: string;
   force: string;
@@ -12,6 +13,7 @@ export type tUnitSystem = {
 };
 
 export const MKS: tUnitSystem = {
+  lengthSmall: 'cm',
   length: 'm',
   mass: 'kg',
   force: 'n',
@@ -19,6 +21,7 @@ export const MKS: tUnitSystem = {
 };
 
 export const USCS: tUnitSystem = {
+  lengthSmall: 'in',
   length: 'ft',
   mass: 'lb',
   force: 'lbf',

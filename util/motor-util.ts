@@ -1,12 +1,11 @@
 import MOTORS, { Motor } from 'thrustcurve-db';
 import { iCard } from '/types';
-import { MKS, unitParse } from './units';
 
 const motorIndex = new Map<string, Motor>();
 const motorNameIndex = new Map<string, Motor>();
 
-export function getMotor(motorId?: string) {
-  if (motorId) return motorIndex.get(motorId);
+export function getMotor(motorId: string) {
+  return motorIndex.get(motorId);
 }
 
 export function getMotorByDisplayName(name?: string) {
@@ -30,16 +29,30 @@ for (const motor of MOTORS) {
 }
 
 /**
- * Calculate pad thrust of rocket motors
- * @returns {Number | NaN} Sum of all stage-1 motor thrust in Newtons, or NaN if thrust cannot be accurately determined
+ * Calculate total thrust of all stage-1 motor thrust in Newtons, or NaN if
+ * thrust cannot be accurately determined
  */
-export function padThrust(card: iCard) {
-  const motors = card?.motors?.filter(m => (m.stage ?? 1) === 1);
+export function padThrust(cardMotors: iCard['motors']) {
+  if (!cardMotors) return NaN;
+
+  const motors = Object.values(cardMotors).filter(m => (m.stage ?? 1) === 1);
 
   if (!motors?.length) return NaN;
 
-  return motors.reduce((t, m) => {
-    const thrust = /[a-z]([\d.]+)/i.test(m.name ?? '') && RegExp.$1;
-    return t + (thrust ? unitParse(thrust, MKS.force) : NaN);
+  return motors.reduce((acc, motor) => {
+    let thrust: number;
+    if (motor.tcMotorId) {
+      // Use thrust from thrustcurve data if available
+      thrust = getMotor(motor.tcMotorId)?.avgThrustN ?? NaN;
+    } else if (motor.name) {
+      // Scrape from motor name
+      const match = motor.name.match(/[a-z]([\d.]+)/i)?.[1];
+      thrust = match ? parseInt(match) : NaN;
+    } else {
+      // No thrust data available
+      thrust = NaN;
+    }
+
+    return acc + thrust;
   }, 0);
 }

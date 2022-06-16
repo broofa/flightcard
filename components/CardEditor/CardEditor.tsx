@@ -6,17 +6,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
-import { padThrust } from '../../util/motor-util';
 import { sortArray } from '../../util/sortArray';
-import { MKS, unitConvert, unitParse } from '../../util/units';
+import { MKS, unitConvert } from '../../util/units';
 import { AppContext } from '../App/App';
 import { createContext } from '../common/RTUI';
+import MotorAnalysis from './Analysis';
 import { MotorDataList } from './MotorDataList';
 import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
-import { Loading, sig } from '/components/common/util';
+import { Loading } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
 import { db, DELETE } from '/firebase';
 import { CardStatus, iCard, iUser, Recovery } from '/types';
@@ -266,23 +266,6 @@ export default function CardEditor() {
     }
   }
 
-  // Thrust:weight analysis
-  let thrustRatio = NaN;
-  let thrust = NaN;
-  let mass = NaN;
-
-  if (xxxCard) {
-    try {
-      thrust = padThrust(xxxCard);
-      mass = unitParse(xxxCard.rocket?.mass ?? '', userUnits.mass, MKS.mass);
-    } catch (err) {
-      // Fail silently ()
-    }
-  }
-  try {
-    thrustRatio = thrust / (mass * GRAVITY_ACC);
-  } catch (err) {}
-
   return (
     <>
       <MotorDataList id='tc-motors' />
@@ -327,11 +310,11 @@ export default function CardEditor() {
 
         <rtui.UnitField
           field='rocket/diameter'
-          unitType='length'
+          unitType='lengthSmall'
           label={
             <>
               Diameter{' '}
-              <span className='text-info ms-2'>({userUnits.length})</span>
+              <span className='text-info ms-2'>({userUnits.lengthSmall})</span>
             </>
           }
         />
@@ -390,14 +373,8 @@ export default function CardEditor() {
 
       {launchId && cardId && <MotorList launchId={launchId} cardId={cardId} />}
 
-      {isNaN(thrustRatio) ? null : (
-        <Alert
-          className='mt-3 p-2'
-          variant={thrustRatio >= 5 ? 'success' : 'danger'}
-        >
-          Stage 1 thrust:weight ratio is{' '}
-          <strong>{sig(thrustRatio, 2)} : 1</strong>
-        </Alert>
+      {launchId && cardId && (
+        <MotorAnalysis launchId={launchId} cardId={cardId} />
       )}
 
       <FormSection>Flight</FormSection>

@@ -43,7 +43,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
   useEffect(() => {
     if (!isRedirect) return;
 
-    if (isSignInWithEmailLink(auth, location.search)) {
+    if (isSignInWithEmailLink(auth, location.href)) {
       let email = localStorage.getItem(EMAIL_KEY);
       if (!email) {
         email = window.prompt('Please provide your email for confirmation');
@@ -54,7 +54,6 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
         signInWithEmailLink(auth, email ?? '', location.href)
       )
         .then(result => {
-          console.log('Login result', result);
           // Clear email from storage.
           // You can access the new user via result.user
           // Additional user info profile not available via:
@@ -186,7 +185,6 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
 
 export default function Login() {
   const [showEmailModal, setShowEmailModal] = useState(false);
-
   return (
     <div className='text-center'>
       <EmailModal
