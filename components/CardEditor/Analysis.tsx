@@ -27,6 +27,10 @@ export default function MotorAnalysis({
     `/cards/${launchId}/${cardId}/motors`
   );
 
+  if (!motors?.length) {
+    return null;
+  }
+
   if (mass == null) {
     return (
       <Alert className='mt-3 p-2' variant='warning'>

@@ -183,22 +183,3 @@ export function unitParse(
 
   return v;
 }
-
-export class Unit extends Number {
-  static from(val: string, units: string) {
-    const parsed = unitParse(val, units);
-    return new Unit(parsed, units);
-  }
-
-  units: string;
-
-  constructor(val: number, units: string) {
-    super(val);
-    this.units = units;
-  }
-
-  to(units: string) {
-    if (units == this.units) return this;
-    return new Unit(unitConvert(this.valueOf(), this.units, units), this.units);
-  }
-}

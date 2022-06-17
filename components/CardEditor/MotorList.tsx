@@ -38,7 +38,7 @@ export function MotorList({
 
   // Sort by stage (w/ placeholder motor at the end)
   sortArray(motorEntries, ([, motor]) => {
-    return isPlaceholderMotor(motor) ? 1 : (motor.stage ?? 1)
+    return isPlaceholderMotor(motor) ? 0 : (motor.stage ?? 1)
   })
 
   const motorList = motorEntries.map(([motorId, motor]) => {

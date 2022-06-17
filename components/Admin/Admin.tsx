@@ -1,9 +1,10 @@
 import React, { cloneElement, isValidElement } from 'react';
 import { useLog } from './AdminLogger';
 import MigrateDB from './MigrateDB';
+import MotorStats from './MotorStats';
 import SeedDB from './SeedDB';
 import TestDB from './TestDB';
-import TestUtil from './TestUtil';
+import TestUtil from './TestUnits';
 
 export default function Admin() {
   const log = useLog();
@@ -11,14 +12,18 @@ export default function Admin() {
   // Trigger re-render when log changes
   return (
     <>
-      <div className='deck'>
+      <h2>Probably-Safe Zone</h2>
+      <section className='deck'>
         <TestDB />
         <TestUtil />
+        <MotorStats />
+      </section>
 
-        {/* Dangerous shit */}
+      <h2>Danger Zone</h2>
+      <section className='deck'>
         <SeedDB />
         <MigrateDB />
-      </div>
+      </section>
 
       <div
         className='mt-4 text-dark font-monospace'
@@ -31,6 +36,7 @@ export default function Admin() {
 
           const err: Error = args.find((v: unknown) => v instanceof Error);
           args = args.map((v: unknown) => {
+            if (v === undefined) return 'undefined';
             const cons = Object.getPrototypeOf(v)?.constructor;
             if (cons === Object || cons === Array) {
               return JSON.stringify(v);

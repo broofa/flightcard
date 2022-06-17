@@ -12,6 +12,8 @@ export function sortArray<T>(
     extractor = function (item: T) {
       return (item as unknown as { [k: string]: Comparable })[prop];
     };
+  } else {
+    extractor = extract;
   }
 
   function comparator(a: T, b: T) {
