@@ -72,12 +72,15 @@ export function LinkButton({
 /**
  * Style a DOMElement as "busy" during an async operation
  */
-export function busy(target: Element, p: Promise<unknown>) {
-  // Start busy animation
-  target.classList.toggle('busy', true);
+export function busy(target: Element | null | undefined, p: Promise<unknown>) {
+  // Allow null targets because refs can be undefined and it's annoying having to check for that case
+  if (target) {
+    // Start busy animation
+    target.classList.toggle('busy', true);
 
-  // Stop busy animation when promise settles
-  p.finally(() => target.classList.toggle('busy', false));
+    // Stop busy animation when promise settles
+    p.finally(() => target.classList.toggle('busy', false));
+  }
 
   return p;
 }
@@ -86,7 +89,7 @@ export function busy(target: Element, p: Promise<unknown>) {
  * Round number to X significant digits
  */
 export function sig(val: number, digits = 3) {
-  if (val === 0 || !isFinite(val)) return val;
+  if (isFinite(val)) return String(val);
 
   const isNegative = val < 0;
   if (isNegative) val = -val;
@@ -97,5 +100,5 @@ export function sig(val: number, digits = 3) {
     val = Math.round(val);
   }
 
-  return isNegative ? -val : val;
+  return String(isNegative ? -val : val);
 }

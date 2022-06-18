@@ -46,7 +46,7 @@ if (!app) {
   });
 }
 
-// Value for properties to delete when doing Realtime Database "update"s
+// Value for properties to delete when doing Realtime Database updates
 export const DELETE = null as unknown as undefined;
 
 export const database = getDatabase(app);
@@ -256,3 +256,28 @@ export const db = {
   pads: createAPI<iPads>('pads/:launchId'),
   pad: createAPI<iPad>('pads/:launchId/:padId'),
 };
+
+//
+//  Paths and Fields
+//
+
+export function rtpath(path: string, fields: { [key: string]: string }) {
+  return path.replace(/:(\w+)/g, token => {
+    token = token.substring(1);
+    if (!fields[token]) throw Error(`Missing field ${token} in ${path}`);
+    return fields[token];
+  });
+}
+
+export type CardFields = { launchId: string; cardId: string };
+export const CARD_PATH = '/cards/:launchId/:cardId';
+export const CARD_FLIGHT_PATH = '/cards/:launchId/:cardId/flight';
+export const CARD_MOTORS_PATH = '/cards/:launchId/:cardId/motors';
+export const CARD_ROCKET_PATH = '/cards/:launchId/:cardId/rocket';
+
+export type MotorFields = {
+  launchId: string;
+  cardId: string;
+  motorId?: string;
+};
+export const CARD_MOTOR_PATH = '/cards/:launchId/:cardId/motors/:motorId';

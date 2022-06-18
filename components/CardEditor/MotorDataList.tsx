@@ -1,7 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import MOTORS, { Motor } from 'thrustcurve-db';
+import { arraySort } from '../../util/arrayUtils';
 import { motorDisplayName } from '../../util/motor-util';
-import { sortArray } from '../../util/sortArray';
 
 export function MotorDataList(props: HTMLAttributes<HTMLDataListElement>) {
   function sortKey(motor: Motor) {
@@ -16,7 +16,7 @@ export function MotorDataList(props: HTMLAttributes<HTMLDataListElement>) {
     );
   }
 
-  const motors = sortArray(MOTORS, sortKey);
+  const motors = arraySort(MOTORS, sortKey);
 
   return (
     <datalist {...props}>

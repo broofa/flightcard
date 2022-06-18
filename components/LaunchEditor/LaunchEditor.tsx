@@ -7,7 +7,7 @@ import React, {
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
-import { sortArray } from '../../util/sortArray';
+import { arraySort } from '../../util/arrayUtils';
 import { AppContext } from '../App/App';
 import { PadEditor } from '../LaunchEditor/PadEditor';
 import FloatingInput from '/components/common/FloatingInput';
@@ -47,7 +47,10 @@ export default function LaunchEditor() {
         if (value == null || value === '') value = DELETE;
         if (value == launch?.[field]) return;
 
-        busy(e.target as HTMLElement, db.launch.update(launch.id, { [field]: value ?? DELETE }));
+        busy(
+          e.target as HTMLElement,
+          db.launch.update(launch.id, { [field]: value ?? DELETE })
+        );
 
         return;
       },
@@ -136,7 +139,7 @@ export default function LaunchEditor() {
           {group ? <h3>{group}</h3> : null}
           <div className='d-flex flex-wrap gap-3'>
             {pads
-              ? sortArray(
+              ? arraySort(
                   Object.values(pads).filter(
                     pad => (pad.group ?? '') === group
                   ),

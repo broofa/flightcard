@@ -8,21 +8,21 @@ import React, {
 } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
-import { sortArray } from '../../util/sortArray';
+import { Motor as TCMotor } from 'thrustcurve-db';
+import { arraySort } from '../../util/arrayUtils';
 import { MKS, unitConvert } from '../../util/units';
 import { AppContext } from '../App/App';
 import { createContext } from '../common/RTUI';
 import MotorAnalysis from './Analysis';
 import { MotorDataList } from './MotorDataList';
+import { MotorDetail } from './MotorDetail';
+import { MotorEditor } from './MotorEditor';
 import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
 import { db, DELETE } from '/firebase';
-import { CardStatus, iCard, iUser, Recovery } from '/types';
-
-// Force of gravity (m/^2)
-const GRAVITY_ACC = 9.8066500286389;
+import { CardStatus, iCard, iMotor, iUser, Recovery } from '/types';
 
 function FormSection({
   className,
@@ -41,8 +41,10 @@ export default function CardEditor() {
   const { userUnits, attendee, cards, launch, pads } = useContext(AppContext);
   const match = useMatch('launches/:launchId/cards/:cardId');
   const { cardId, launchId } = match?.params ?? {};
-  const [xxxCard, setCard] = useState<iCard>();
-  const flier = db.attendee.useValue(launchId, xxxCard?.userId);
+  const [card, setCard] = useState<iCard>();
+  const flier = db.attendee.useValue(launchId, card?.userId);
+  const [detailMotor, setDetailMotor] = useState<TCMotor>();
+  const [editMotor, setEditMotor] = useState<iMotor>();
 
   const dbCard = cardId && cards?.[cardId];
   const disabled = attendee?.id !== flier?.id;
@@ -86,7 +88,7 @@ export default function CardEditor() {
       throw Error(`Invalid path: ${path}`);
     }
 
-    const newCard: iCard = { ...xxxCard } as iCard;
+    const newCard: iCard = { ...card } as iCard;
 
     if (!att) return;
     let o = newCard as unknown as { [key: string]: unknown };
@@ -99,12 +101,12 @@ export default function CardEditor() {
   }
 
   function cardUpdate(update: Partial<iCard>) {
-    if (!xxxCard?.id) return;
-    return db.card.update(launchId, xxxCard.id, update);
+    if (!card?.id) return;
+    return db.card.update(launchId, card.id, update);
   }
 
   function setCardStatus(status?: CardStatus) {
-    if (!xxxCard?.id) return;
+    if (!card?.id) return;
 
     const update = { status: status ?? DELETE } as Partial<iCard>;
 
@@ -117,33 +119,33 @@ export default function CardEditor() {
     return cardUpdate(update);
   }
 
-  if (!xxxCard) return <Loading wat='Card' />;
+  if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
   if (!launch) return <Loading wat='Launch' />;
   if (!pads) return <Loading wat='Pads' />;
 
-  const isOwner = attendee?.id == xxxCard?.userId;
-  const isNew = !xxxCard.id;
+  const isOwner = attendee?.id == card?.userId;
+  const isNew = !card.id;
   const isFlier = !attendee.role;
   const isRSO = attendee.role === 'rso';
   const isLCO = attendee.role === 'lco';
-  const isDraft = !xxxCard?.status;
-  const isReview = xxxCard?.status == CardStatus.REVIEW;
-  const isReady = xxxCard?.status == CardStatus.READY;
+  const isDraft = !card?.status;
+  const isReview = card?.status == CardStatus.REVIEW;
+  const isReady = card?.status == CardStatus.READY;
 
   const onDelete =
-    xxxCard?.id && isOwner
+    card?.id && isOwner
       ? async () => {
           // TODO: Disallow deletion of cards that are ready to fly or that have been flown
           if (
             !confirm(
               `Delete the rocket named '${
-                xxxCard.rocket?.name ?? '(unnamed rocket)'
+                card.rocket?.name ?? '(unnamed rocket)'
               }'? (This cannot be undone!)`
             )
           )
             return;
-          await db.card.remove(xxxCard.launchId, xxxCard.id);
+          await db.card.remove(card.launchId, card.id);
           navigate(-1);
         }
       : null;
@@ -192,7 +194,7 @@ export default function CardEditor() {
         RSO Review
       </Button>
     );
-    if (xxxCard.padId) {
+    if (card.padId) {
       actions.push(
         <Button
           key='l3'
@@ -213,18 +215,18 @@ export default function CardEditor() {
   // Compose card status
   let cardStatus;
   switch (true) {
-    case !xxxCard.status: {
+    case !card.status: {
       cardStatus = <p>This is a draft</p>;
       break;
     }
 
-    case xxxCard.status == CardStatus.REVIEW: {
+    case card.status == CardStatus.REVIEW: {
       cardStatus = <p>Waiting for RSO review</p>;
       break;
     }
 
-    case (isOwner || isLCO) && xxxCard.status == CardStatus.READY: {
-      const padOptions = sortArray(
+    case (isOwner || isLCO) && card.status == CardStatus.READY: {
+      const padOptions = arraySort(
         Object.values(pads),
         pad => `${pad.group ?? ''} ${pad.name}`
       ).map(pad => (
@@ -239,7 +241,7 @@ export default function CardEditor() {
           <div className='d-flex align-items-baseline gap-1 mt-2'>
             <label className='text-nowrap'>On pad</label>
             <Form.Select
-              value={xxxCard?.padId ?? ''}
+              value={card?.padId ?? ''}
               onChange={e =>
                 poke('padId', (e.target as HTMLSelectElement).value || DELETE)
               }
@@ -248,7 +250,7 @@ export default function CardEditor() {
               {padOptions}
             </Form.Select>
           </div>
-          {!xxxCard?.padId ? (
+          {!card?.padId ? (
             <div className='mt-1 text-secondary small'>
               (Only select pad after rocket is on the pad and ready for launch)
             </div>
@@ -259,12 +261,12 @@ export default function CardEditor() {
       break;
     }
 
-    case xxxCard.status == CardStatus.READY: {
+    case card.status == CardStatus.READY: {
       cardStatus = <p>Ready to fly.</p>;
       break;
     }
 
-    case xxxCard.status == CardStatus.DONE: {
+    case card.status == CardStatus.DONE: {
       cardStatus = <p>This card is complete.</p>;
       break;
     }
@@ -287,7 +289,7 @@ export default function CardEditor() {
           className='flex-grow-1 text-end'
           style={{ fontSize: '8pt', color: '#ccc' }}
         >
-          card status: {xxxCard.status ?? 'draft'}
+          card status: {card.status ?? 'draft'}
         </span>
       </FormSection>
 
@@ -373,9 +375,19 @@ export default function CardEditor() {
         </div>
       </div>
 
-      <FormSection>Motors</FormSection>
+      <FormSection className='d-flex'>
+        <div>Motors</div>
+        <div className='flex-grow-1' />
+        <Button onClick={() => setEditMotor({ id: '' })}>Add Motor...</Button>
+      </FormSection>
 
-      {launchId && cardId && <MotorList launchId={launchId} cardId={cardId} />}
+      {launchId && cardId && (
+        <MotorList
+          rtFields={{ launchId, cardId }}
+          setEditMotor={setEditMotor}
+          setDetailMotor={setDetailMotor}
+        />
+      )}
 
       {launchId && cardId && (
         <MotorAnalysis launchId={launchId} cardId={cardId} />
@@ -418,6 +430,21 @@ export default function CardEditor() {
           Close
         </Button>
       </div>
+
+      {editMotor && launchId && cardId ? (
+        <MotorEditor
+          rtFields={{ launchId, cardId }}
+          motor={editMotor}
+          onHide={() => setEditMotor(undefined)}
+        />
+      ) : null}
+
+      {detailMotor ? (
+        <MotorDetail
+          motor={detailMotor}
+          onHide={() => setDetailMotor(undefined)}
+        />
+      ) : null}
     </>
   );
 }

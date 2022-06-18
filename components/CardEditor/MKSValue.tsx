@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useContext } from 'react';
+import React, { useContext } from 'react';
 import { MKS, tUnitSystem, unitConvert } from '../../util/units';
 import { AppContext } from '../App/App';
 import { sig } from '/components/common/util';
@@ -13,7 +13,7 @@ export function MKSValue({
   value: number;
   long: boolean;
   type: keyof tUnitSystem;
-} & HTMLAttributes<HTMLSpanElement>) {
+}) {
   const { userUnits } = useContext(AppContext);
   const fromUnit = MKS[type];
   const toUnit = userUnits[type];

@@ -21,14 +21,13 @@
     "react-router-bootstrap": "^0.26.1",
     "react-router-dom": "^6.3.0",
     "simplur": "^3.0.1",
-    "thrustcurve-db": "^2.0.0"
+    "thrustcurve-db": "^2.0.2"
   },
   "devDependencies": {
     "@parcel/babel-plugin-transform-runtime": "^2.0.0-nightly.2312",
     "@parcel/packager-raw-url": "^2.0.0-nightly.2312",
     "@parcel/transformer-image": "^2.0.0-nightly.2400",
     "@parcel/transformer-sass": "^2.0.0-nightly.690",
-    "@parcel/transformer-svg-react": "^2.0.0-nightly.2312",
     "@parcel/transformer-webmanifest": "^2.0.0-nightly.2312",
     "@types/react-dom": "^18.0.5",
     "@types/react-router-dom": "^5.1.7",

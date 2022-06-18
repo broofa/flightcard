@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import { arraySort } from '../../util/arrayUtils';
 import { clear, log } from './AdminLogger';
 import { util } from '/firebase';
 import { iCards } from '/types';
 import { getMotor } from '/util/motor-util';
-import { sortArray } from '/util/sortArray';
 
 async function handleClick() {
   clear();
@@ -23,7 +23,7 @@ async function handleClick() {
     }
   }
 
-  const counts = sortArray(
+  const counts = arraySort(
     Object.entries(motorCounts),
     ([, count]) => count
   ).reverse();

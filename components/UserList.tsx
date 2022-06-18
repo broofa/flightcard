@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { sortArray } from '../util/sortArray';
+import { arraySort } from '../util/arrayUtils';
 import { ANONYMOUS, AppContext } from './App/App';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
@@ -150,7 +150,7 @@ export function UserList({
       ) : null}
 
       <div className='deck' {...props}>
-        {sortArray(Object.values(attendees), 'name').map(attendee => {
+        {arraySort(Object.values(attendees), 'name').map(attendee => {
           const isOfficer = !!officers?.[attendee.id];
           if (filter && !filter(attendee, isOfficer)) {
             return null;

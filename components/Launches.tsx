@@ -9,7 +9,7 @@ import {
   ModalProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { sortArray } from '../util/sortArray';
+import { arraySort } from '../util/arrayUtils';
 import { AppContext } from './App/App';
 import { busy, LinkButton, Loading } from '/components/common/util';
 import { db } from '/firebase';
@@ -107,7 +107,7 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
           onChange={e => setCopyId((e as any).target.value)}
         >
           <option>(Optional) Launch to copy...</option>
-          {sortArray(Object.values(launches), 'name').map(launch => (
+          {arraySort(Object.values(launches), 'name').map(launch => (
             <option key={launch.id} value={launch.id}>
               {launch.name}
             </option>

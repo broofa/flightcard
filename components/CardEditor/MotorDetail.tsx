@@ -1,11 +1,17 @@
 import React from 'react';
-import { Modal, ModalProps } from 'react-bootstrap';
+import { Alert, Modal, ModalProps } from 'react-bootstrap';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { motorDisplayName } from '../../util/motor-util';
 import { MKSValue } from './MKSValue';
+import { Sparky } from '../common/Sparky';
 import { sig } from '/components/common/util';
 
-export function MotorModal({ motor, ...props }: { motor: TCMotor } & ModalProps) {
+export const fire = new URL('/art/fire.gif', import.meta.url).toString();
+
+export function MotorDetail({
+  motor,
+  ...props
+}: { motor: TCMotor } & ModalProps) {
   let graph;
   const { samples } = motor;
   if (samples) {
@@ -59,18 +65,36 @@ export function MotorModal({ motor, ...props }: { motor: TCMotor } & ModalProps)
           </div>
         </div>
 
-        <div className='d-grid' style={{ gridTemplateColumns: '1fr 1fr' }}>
-          <div>Max thrust</div>
+        <div
+          className='d-grid'
+          style={{ gridTemplateColumns: 'max-content 1fr', gap: '0.5em 1em' }}
+        >
+          <div>Total Impulse</div>
+          <div>
+            <MKSValue value={motor.totImpulseNs} type='impulse' long />
+          </div>
+          <div>Max Thrust</div>
           <div>
             <MKSValue value={motor.maxThrustN} type='force' long />
           </div>
-          <div>Average thrust</div>
+          <div>Average Thrust</div>
           <div>
             <MKSValue value={motor.avgThrustN} type='force' long />
           </div>
           <div>Propellent</div>
-          <div>{motor.propInfo}</div>
+          <div>
+            <div>{motor.propInfo}</div>
+          </div>
         </div>
+        {motor.sparky ? (
+          <Alert variant='warning' className='d-flex'>
+            <Sparky />
+            <div className='flex-grow-1'>
+              Heads up! This is a sparky motor. Please make sure you're allowed
+              to fly these kinds of motor at this launch.
+            </div>
+          </Alert>
+        ) : null}
       </Modal.Body>
     </Modal>
   );

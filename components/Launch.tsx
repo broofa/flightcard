@@ -8,6 +8,8 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
+import { arraySort } from '../util/arrayUtils';
+import { ANONYMOUS, AppContext } from './App/App';
 import CardEditor from './CardEditor/CardEditor';
 import { CardsPane } from '/components/CardsPane';
 import { CertDot } from '/components/common/CertDot';
@@ -17,10 +19,8 @@ import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
 import ProfilePage from '/components/ProfilePage';
 import { UserList } from '/components/UserList';
 import { Waiver } from '/components/Waiver';
-import { ANONYMOUS, AppContext } from './App/App';
 import { db } from '/firebase';
 import { CardStatus, iAttendee, iAttendees, iCard, iPerm } from '/types';
-import { sortArray } from '../util/sortArray';
 
 export const OFFICERS = 'officers';
 export const LOW_POWER = 'low';
@@ -102,9 +102,9 @@ export function CardList({
   attendees?: iAttendees;
 }) {
   if (attendees) {
-    sortArray(cards, card => attendees[card.userId].name);
+    arraySort(cards, card => attendees[card.userId].name);
   } else {
-    sortArray(cards, card => card.rocket?.name);
+    arraySort(cards, card => card.rocket?.name);
   }
 
   return (
@@ -125,7 +125,9 @@ function RangeSafetyPane() {
 
   if (!attendees) return <Loading wat='Users' />;
 
-  const rsoCards = Object.values(cards || {}).filter(c => c.status == CardStatus.REVIEW);
+  const rsoCards = Object.values(cards || {}).filter(
+    c => c.status == CardStatus.REVIEW
+  );
 
   return (
     <>
@@ -159,7 +161,9 @@ function PadCard({ padId }: { padId: string }) {
   const pad = db.pad.useValue(launch?.id, padId);
 
   const padCards = cards
-    ? Object.values(cards).filter(c => c.padId == padId && c.status == CardStatus.READY)
+    ? Object.values(cards).filter(
+        c => c.padId == padId && c.status == CardStatus.READY
+      )
     : [];
 
   if (!pad) return <Loading wat='Pad' />;
@@ -265,7 +269,7 @@ function LaunchControlPane() {
         <div key={group}>
           {group ? <h2 className='mt-5'>{group}</h2> : null}
           <div className='deck ms-3'>
-            {sortArray(
+            {arraySort(
               Object.values(pads).filter(pad => (pad.group ?? '') === group),
               'name'
             ).map((pad, i) => (

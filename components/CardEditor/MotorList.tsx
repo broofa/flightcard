@@ -1,107 +1,87 @@
-import { nanoid } from 'nanoid';
-import React, { useContext, useState } from 'react';
+import React from 'react';
+import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import { Motor as TCMotor } from 'thrustcurve-db';
-import { sortArray } from '../../util/sortArray';
-// @ts-ignore: parcel module resolution handles this
-import { AppContext } from '../App/App';
-import { MotorItem } from './MotorItem';
-import { MotorModal } from './MotorModal';
-import { util } from '/firebase';
+import { arrayGroup, arraySort } from '../../util/arrayUtils';
+import { Sparky } from '../common/Sparky';
+import { CardFields, CARD_MOTORS_PATH, rtpath, util } from '/firebase';
 import { iMotor } from '/types';
+import { getMotor } from '/util/motor-util';
 
-export function isPlaceholderMotor(motor: iMotor) {
+const tcLogo = new URL('/art/thrustcurve.svg', import.meta.url);
+
+function MotorButton({
+  motor,
+  setEditMotor,
+  setDetailMotor,
+}: {
+  motor: iMotor;
+  setEditMotor: (motor: iMotor | undefined) => void;
+  setDetailMotor: (motor: TCMotor | undefined) => void;
+}) {
+  const tcMotor = getMotor(motor.tcMotorId ?? '');
   return (
-    !motor.name && !motor.impulse && !motor.delay && !!(motor.stage ?? 1 === 1)
+    <ButtonGroup className='d-flex' key={motor.id}>
+      <Button
+        className='flex-grow-1'
+        variant='outline-dark'
+        onClick={() => setEditMotor(motor)}
+      >
+        {motor.name}
+      </Button>
+      <Button
+        onClick={() => setDetailMotor(tcMotor)}
+        className='flex-grow-0 p-0'
+        disabled={!motor.tcMotorId}
+        style={{
+          backgroundColor: '#0793d6',
+          filter: tcMotor ? '' : 'grayscale(1)',
+        }}
+      >
+        {tcMotor?.sparky ? (
+          <Sparky />
+        ) : (
+          <Image src={String(tcLogo)} style={{ height: '2.5em' }} />
+        )}
+      </Button>
+    </ButtonGroup>
   );
 }
 
 export function MotorList({
-  launchId,
-  cardId,
+  rtFields,
+  setEditMotor,
+  setDetailMotor,
 }: {
-  launchId: string;
-  cardId: string;
+  rtFields: CardFields;
+  setEditMotor: (motor: iMotor | undefined) => void;
+  setDetailMotor: (motor: TCMotor | undefined) => void;
 }) {
-  const MOTOR_PATH = `/cards/${launchId}/${cardId}/motors`;
-  const { userUnits } = useContext(AppContext);
-  const [motorDetail, setMotorDetail] = useState<TCMotor>();
-  const motors = util.useValue<{[motorId: string]: iMotor}>(MOTOR_PATH);
+  const motors = util.useValue<{ [motorId: string]: iMotor }>(
+    rtpath(CARD_MOTORS_PATH, rtFields)
+  );
 
   // We need an ordered array of motors
-  const motorEntries = motors ? Object.entries(motors) : [];
+  const motorItems = motors ? Object.values(motors) : [];
+  const motorsByStage = arrayGroup(motorItems, motor => motor.stage);
+  const motorList = [];
+  const stages = arraySort(Object.entries(motorsByStage), '0'); // Sort by stage
+  for (const [stage, stageMotors] of stages) {
+    if (stages.length > 1) {
+      motorList.push(<h3 key={`stage-${stage}-label`}>Stage {stage}</h3>);
+    }
 
-  // Add a placeholder motor if there isn't one
-  if (!motorEntries.some(([, motor]) => isPlaceholderMotor(motor))) {
-    const id = nanoid();
-    motorEntries.push([id, {id}]);
-  }
-
-  // Sort by stage (w/ placeholder motor at the end)
-  sortArray(motorEntries, ([, motor]) => {
-    return isPlaceholderMotor(motor) ? 0 : (motor.stage ?? 1)
-  })
-
-  const motorList = motorEntries.map(([motorId, motor]) => {
-    return (
-      <MotorItem
-        key={motor.id}
-        rtPath={`${MOTOR_PATH}/${motorId}`}
-        motor={motor}
-        onDetail={setMotorDetail}
-        className='mb-3'
-      />
-    )
-  });
-
-  return (
-    <>
-      <div>
-        <div className='d-none d-sm-flex'>
-          <div className='d-flex flex-grow-1'>
-            <div className='text-secondary text-center flex-grow-1 ms-sm-2'>
-              Motor
-            </div>
-            <div
-              className='text-secondary text-center ms-sm-2'
-              style={{ width: '4em' }}
-            >
-              I<sub>t</sub>
-              <span className='text-info small ms-1'>
-                ({userUnits.impulse})
-              </span>
-            </div>
-          </div>
-
-          <div
-            className='text-secondary text-center ms-sm-2'
-            style={{ width: '5em' }}
-          >
-            Delay
-            <span className='text-info small ms-1'>(s)</span>
-          </div>
-
-          <div
-            className='text-secondary text-center ms-sm-2'
-            style={{ width: 'auto' }}
-          >
-            Stage
-          </div>
-
-          <div
-            className='text-secondary text-center ms-sm-4'
-            style={{ width: '2.5em' }}
-          ></div>
-        </div>
-
-        {motorList}
+    motorList.push(
+      <div key={`stage-${stage}`} className='deck'>
+        {stageMotors.map(motor => (
+          <MotorButton
+            key={motor.id}
+            motor={motor}
+            setEditMotor={setEditMotor}
+            setDetailMotor={setDetailMotor}
+          />
+        ))}
       </div>
-
-      {motorDetail ? (
-        <MotorModal
-          motor={motorDetail}
-          onHide={() => setMotorDetail(undefined)}
-        />
-      ) : null}
-    </>
-  );
+    );
+  }
+  return <>{motorList}</>;
 }

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Alert, Card, Nav } from 'react-bootstrap';
+import { NavLink } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import simplur from 'simplur';
 import { AppContext } from './App/App';
@@ -37,27 +38,27 @@ export default function LaunchHome() {
       <div className='deck'>
         <Card>
           <Card.Body>
-            <Card.Title>Fliers</Card.Title>
+            <Card.Title>Spectators</Card.Title>
             <Card.Text>
-              <Nav.Link href={launchUrl('cards/new')}>
-                Fill Out A Flight Card
-              </Nav.Link>
-              <Nav.Link disabled href={launchUrl('cards')}>
-                My Flight Cards
-              </Nav.Link>
-              <Nav.Link href={launchUrl('users?filter=officers')}>
-                Find a Launch Officer
-              </Nav.Link>
+              <NavLink to={launchUrl('lco')}>
+                Tune Into Launch Control
+              </NavLink>
             </Card.Text>
           </Card.Body>
         </Card>
 
         <Card>
           <Card.Body>
-            <Card.Title>Spectators</Card.Title>
+            <Card.Title>Fliers</Card.Title>
             <Card.Text>
-              <Nav.Link href={launchUrl('lco')}>
-                Tune Into Launch Control
+              <Nav.Link href={launchUrl('cards/new')}>
+                Fill Out A Flight Card
+              </Nav.Link>
+              <Nav.Link href={launchUrl('cards')}>
+                My Flight Cards
+              </Nav.Link>
+              <Nav.Link href={launchUrl('users?filter=officers')}>
+                Find a Launch Officer
               </Nav.Link>
             </Card.Text>
           </Card.Body>
