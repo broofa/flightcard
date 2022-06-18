@@ -9,9 +9,8 @@ async function handleClick() {
   log('Starting tests');
 
   function expectUnit(v: string, unit: string, expected: number) {
-    let actual;
+    const actual = parseFloat(unitParse(v, unit).toPrecision(4));
     try {
-      actual = sig(unitParse(v, unit) as number, 4);
     } catch (err) {
       log(v, unit, 'ERROR', (err as Error).message);
       return;
