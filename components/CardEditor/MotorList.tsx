@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { Sparky } from '../common/Sparky';
-import { CardFields, CARD_MOTORS_PATH, rtpath, util } from '/firebase';
+import { CardFields, CARD_MOTORS_PATH, util } from '/firebase';
 import { iMotor } from '/types';
 import { getMotor } from '/util/motor-util';
 
@@ -38,7 +38,7 @@ function MotorButton({
         }}
       >
         {tcMotor?.sparky ? (
-          <Sparky />
+          <Sparky style={{ width: '40px' }} />
         ) : (
           <Image src={String(tcLogo)} style={{ height: '2.5em' }} />
         )}
@@ -57,12 +57,12 @@ export function MotorList({
   setDetailMotor: (motor: TCMotor | undefined) => void;
 }) {
   const motors = util.useValue<{ [motorId: string]: iMotor }>(
-    rtpath(CARD_MOTORS_PATH, rtFields)
+    CARD_MOTORS_PATH.gen(rtFields)
   );
 
   // We need an ordered array of motors
   const motorItems = motors ? Object.values(motors) : [];
-  const motorsByStage = arrayGroup(motorItems, motor => motor.stage);
+  const motorsByStage = arrayGroup(motorItems, motor => motor.stage ?? 1);
   const motorList = [];
   const stages = arraySort(Object.entries(motorsByStage), '0'); // Sort by stage
   for (const [stage, stageMotors] of stages) {

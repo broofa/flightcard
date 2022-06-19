@@ -261,23 +261,37 @@ export const db = {
 //  Paths and Fields
 //
 
-export function rtpath(path: string, fields: { [key: string]: string }) {
-  return path.replace(/:(\w+)/g, token => {
-    token = token.substring(1);
-    if (!fields[token]) throw Error(`Missing field ${token} in ${path}`);
-    return fields[token];
-  });
+/**
+ * Typed realtime paths
+ */
+class RTPath<Fields> {
+  constructor(public readonly path: string) {}
+
+  // Generate the path with the given field substitutions
+  gen(fields: Fields) {
+    return this.toString().replace(/:(\w+)/g, match => {
+      const token = match.substring(1);
+      // TODO: Is there a better way to handle the types here?
+      const val = (fields as unknown as Record<string, string>)[token];
+      if (!val) throw Error(`Missing field ${token as string} in ${this}`);
+      return val;
+    });
+  }
+
+  append<T>(subpath: string) {
+    return new RTPath<Fields & T>(this + '/' + subpath);
+  }
+
+  toString() {
+    return this.path;
+  }
 }
 
 export type CardFields = { launchId: string; cardId: string };
-export const CARD_PATH = '/cards/:launchId/:cardId';
-export const CARD_FLIGHT_PATH = '/cards/:launchId/:cardId/flight';
-export const CARD_MOTORS_PATH = '/cards/:launchId/:cardId/motors';
-export const CARD_ROCKET_PATH = '/cards/:launchId/:cardId/rocket';
+export type MotorFields = CardFields & { motorId: string };
 
-export type MotorFields = {
-  launchId: string;
-  cardId: string;
-  motorId?: string;
-};
-export const CARD_MOTOR_PATH = '/cards/:launchId/:cardId/motors/:motorId';
+export const CARD_PATH = new RTPath<CardFields>('/cards/:launchId/:cardId');
+export const CARD_MOTORS_PATH = CARD_PATH.append('motors');
+export const CARD_MOTOR_PATH = CARD_MOTORS_PATH.append<{ motorId: string }>(':motorId');
+
+export const CARD_ROCKET_PATH = CARD_PATH.append('rocket');

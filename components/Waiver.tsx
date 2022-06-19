@@ -1,12 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import { AppContext, APPNAME } from './App/App';
+import { FCLinkButton } from './common/FCLinkButton';
 import { Loading } from '/components/common/util';
 import { db } from '/firebase';
 
 export function Waiver() {
-  const navigate = useNavigate();
   const { currentUser, launch } = useContext(AppContext);
 
   const [agreedCheck, setAgreedCheck] = useState(false);
@@ -67,9 +66,9 @@ export function Waiver() {
       </label>
 
       <div className='d-flex mt-3'>
-        <Button variant='danger' onClick={() => navigate('/')}>
+        <FCLinkButton variant='danger' to='/'>
           I Do Not Agree
-        </Button>
+        </FCLinkButton>
         <span className='flex-grow-1' />
         <Button disabled={!agreedCheck} onClick={launchAgree}>
           I Agree

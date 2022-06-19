@@ -4,28 +4,25 @@ import { padThrust } from '../../util/motor-util';
 import { MKS, unitConvert } from '../../util/units';
 import { AppContext } from '/components/App/App';
 import { sig } from '/components/common/util';
-import { util } from '/firebase';
+import {
+  CardFields,
+  CARD_MOTORS_PATH,
+  CARD_ROCKET_PATH,
+  util,
+} from '/firebase';
 import { iCard, iRocket } from '/types';
 
 // Force of gravity (m/^2)
 const GRAVITY_ACC = 9.8066500286389;
 const MIN_VELOCITY = 13.89; // meters/second
 
-export default function MotorAnalysis({
-  launchId,
-  cardId,
-}: {
-  launchId: string;
-  cardId: string;
-}) {
+export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   const { userUnits } = useContext(AppContext);
 
   const mass = util.useValue<iRocket['mass']>(
-    `/cards/${launchId}/${cardId}/rocket/mass`
+    CARD_ROCKET_PATH.append('mass').gen(rtFields)
   );
-  const motors = util.useValue<iCard['motors']>(
-    `/cards/${launchId}/${cardId}/motors`
-  );
+  const motors = util.useValue<iCard['motors']>(CARD_MOTORS_PATH.gen(rtFields));
 
   if (!motors?.length) {
     return null;

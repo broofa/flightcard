@@ -1,13 +1,11 @@
 import React, { useContext } from 'react';
-import { Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import { AppContext } from './App/App';
+import { FCLinkButton } from './common/FCLinkButton';
 import { CardList } from '/components/Launch';
 import { CardStatus } from '/types';
 
 export function CardsPane({ launchId }: { launchId: string }) {
   const { currentUser, cards } = useContext(AppContext);
-  const navigate = useNavigate();
 
   const userCards = Object.values(cards || {}).filter(
     c => c.userId == currentUser?.id
@@ -21,9 +19,9 @@ export function CardsPane({ launchId }: { launchId: string }) {
     <>
       <div className='d-flex my-2 gap-3'>
         <h2 className='flex-grow-1'>Drafts</h2>
-        <Button onClick={() => navigate(`/launches/${launchId}/cards/new`)}>
+        <FCLinkButton className='my-1' to={`/launches/${launchId}/cards/new`}>
           New Flight Card &hellip;
-        </Button>
+        </FCLinkButton>
       </div>
       {draftCards.length ? (
         <CardList cards={draftCards} />

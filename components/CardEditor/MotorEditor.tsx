@@ -8,10 +8,9 @@ import React, {
   useState,
 } from 'react';
 import { Button, Form, FormSelect, Modal } from 'react-bootstrap';
-import { Motor } from 'thrustcurve-db';
 import { AppContext } from '../App/App';
 import { busy, sig } from '../common/util';
-import { CARD_MOTOR_PATH, DELETE, MotorFields, rtpath, util } from '/firebase';
+import { CardFields, CARD_MOTOR_PATH, DELETE, util } from '/firebase';
 import { iMotor } from '/types';
 import { getMotorByDisplayName } from '/util/motor-util';
 import { MKS, unitConvert, unitParse } from '/util/units';
@@ -22,7 +21,7 @@ export function MotorEditor({
   onHide,
 }: {
   motor: iMotor;
-  rtFields: MotorFields;
+  rtFields: CardFields;
   onHide: () => void;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
@@ -95,7 +94,7 @@ export function MotorEditor({
     busy(
       saveButton.current,
       util.set(
-        rtpath(CARD_MOTOR_PATH, { ...rtFields, motorId: _newMotor.id }),
+        CARD_MOTOR_PATH.gen({ ...rtFields, motorId: _newMotor.id }),
         _newMotor
       )
     ).then(onHide);
@@ -104,11 +103,9 @@ export function MotorEditor({
   function onDelete() {
     busy(
       deleteButton.current,
-      util.remove(rtpath(CARD_MOTOR_PATH, { ...rtFields, motorId: motor.id }))
+      util.remove(CARD_MOTOR_PATH.gen({ ...rtFields, motorId: motor.id }))
     ).then(onHide);
   }
-
-  function onDetail(motor?: Motor) {}
 
   return (
     <Modal size='lg' show={true} onHide={onHide}>

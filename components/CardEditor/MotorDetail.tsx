@@ -2,8 +2,8 @@ import React from 'react';
 import { Alert, Modal, ModalProps } from 'react-bootstrap';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { motorDisplayName } from '../../util/motor-util';
-import { MKSValue } from './MKSValue';
 import { Sparky } from '../common/Sparky';
+import { MKSValue } from './MKSValue';
 import { sig } from '/components/common/util';
 
 export const fire = new URL('/art/fire.gif', import.meta.url).toString();
@@ -88,7 +88,7 @@ export function MotorDetail({
         </div>
         {motor.sparky ? (
           <Alert variant='warning' className='d-flex'>
-            <Sparky />
+            <Sparky className='m-auto' />
             <div className='flex-grow-1'>
               Heads up! This is a sparky motor. Please make sure you're allowed
               to fly these kinds of motor at this launch.

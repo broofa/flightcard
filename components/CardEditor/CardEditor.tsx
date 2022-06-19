@@ -13,7 +13,7 @@ import { arraySort } from '../../util/arrayUtils';
 import { MKS, unitConvert } from '../../util/units';
 import { AppContext } from '../App/App';
 import { createContext } from '../common/RTUI';
-import MotorAnalysis from './Analysis';
+import MotorAnalysis from './MotorAnalysis';
 import { MotorDataList } from './MotorDataList';
 import { MotorDetail } from './MotorDetail';
 import { MotorEditor } from './MotorEditor';
@@ -79,6 +79,8 @@ export default function CardEditor() {
 
     setCard(nc);
   }, [dbCard, attendee, launchId, userUnits]);
+
+  const rtFields = launchId && cardId && { launchId, cardId };
 
   function poke(path: string, val: string | undefined) {
     const parts = path.split('.');
@@ -381,17 +383,15 @@ export default function CardEditor() {
         <Button onClick={() => setEditMotor({ id: '' })}>Add Motor...</Button>
       </FormSection>
 
-      {launchId && cardId && (
+      {rtFields && (
         <MotorList
-          rtFields={{ launchId, cardId }}
+          rtFields={rtFields}
           setEditMotor={setEditMotor}
           setDetailMotor={setDetailMotor}
         />
       )}
 
-      {launchId && cardId && (
-        <MotorAnalysis launchId={launchId} cardId={cardId} />
-      )}
+      {rtFields && <MotorAnalysis rtFields={rtFields} />}
 
       <FormSection>Flight</FormSection>
 
@@ -431,9 +431,9 @@ export default function CardEditor() {
         </Button>
       </div>
 
-      {editMotor && launchId && cardId ? (
+      {editMotor && rtFields ? (
         <MotorEditor
-          rtFields={{ launchId, cardId }}
+          rtFields={rtFields}
           motor={editMotor}
           onHide={() => setEditMotor(undefined)}
         />

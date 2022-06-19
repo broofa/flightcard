@@ -12,7 +12,7 @@ import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
 import Launch from '/components/Launch';
 import Launches from '/components/Launches';
-import LaunchHome from '/components/LaunchHome';
+import NavButton from '/components/LaunchHome';
 import Login from '/components/Login';
 import { auth, db, DELETE } from '/firebase';
 import {
@@ -220,7 +220,7 @@ export default function App() {
             <Routes>
               <Route path='/' element={<Launches />} />
               <Route path='/admin' element={<Admin />} />
-              <Route path='/launches/:launchId' element={<LaunchHome />} />
+              <Route path='/launches/:launchId' element={<NavButton />} />
               <Route path='/launches/:launchId/*' element={<Launch />} />
             </Routes>
           )}

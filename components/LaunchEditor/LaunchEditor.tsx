@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 import simplur from 'simplur';
 import { arraySort } from '../../util/arrayUtils';
 import { AppContext } from '../App/App';
+import { FCLinkButton } from '../common/FCLinkButton';
 import { PadEditor } from '../LaunchEditor/PadEditor';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
@@ -163,9 +164,9 @@ export default function LaunchEditor() {
           Delete This Launch
         </Button>
         <div className='flex-grow-1' />
-        <Button variant='secondary' onClick={() => navigate(-1)}>
+        <FCLinkButton variant='secondary' to={-1}>
           Back
-        </Button>
+        </FCLinkButton>
       </div>
     </>
   );
