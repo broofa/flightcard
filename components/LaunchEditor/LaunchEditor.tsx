@@ -1,15 +1,11 @@
-import React, {
-  FocusEventHandler,
-  MouseEventHandler,
-  useContext,
-  useState,
-} from 'react';
+import React, { FocusEventHandler, MouseEventHandler, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
 import { arraySort } from '../../util/arrayUtils';
-import { AppContext } from '../App/App';
 import { FCLinkButton } from '../common/FCLinkButton';
+import { useAttendees, useCards, usePads } from '../contexts/derived';
+import { useLaunch } from '../contexts/LaunchContext';
 import { PadEditor } from '../LaunchEditor/PadEditor';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
@@ -17,7 +13,12 @@ import { db, DELETE } from '/firebase';
 import { iLaunch, iPad } from '/types';
 
 export default function LaunchEditor() {
-  const { launch, pads, attendees, cards } = useContext(AppContext);
+  const [launch] = useLaunch();
+  const [pads] = usePads();
+  const [cards] = useCards();
+
+  const [attendees] = useAttendees();
+
   const [editPad, setEditPad] = useState<iPad>();
   const navigate = useNavigate();
 
@@ -165,7 +166,7 @@ export default function LaunchEditor() {
         </Button>
         <div className='flex-grow-1' />
         <FCLinkButton variant='secondary' to={-1}>
-          Back
+          Okay
         </FCLinkButton>
       </div>
     </>

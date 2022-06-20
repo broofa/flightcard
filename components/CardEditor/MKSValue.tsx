@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { MKS, tUnitSystem, unitConvert } from '../../util/units';
-import { AppContext } from '../App/App';
+import { useUserUnits } from '../contexts/derived';
 import { sig } from '/components/common/util';
 
 // Playing around with a component that knows about unit types
@@ -14,7 +14,7 @@ export function MKSValue({
   long: boolean;
   type: keyof tUnitSystem;
 }) {
-  const { userUnits } = useContext(AppContext);
+  const [userUnits = MKS] = useUserUnits();
   const fromUnit = MKS[type];
   const toUnit = userUnits[type];
 

@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { padThrust } from '../../util/motor-util';
 import { MKS, unitConvert } from '../../util/units';
-import { AppContext } from '/components/App/App';
+import { useUserUnits } from '../contexts/derived';
 import { sig } from '/components/common/util';
 import {
   CardFields,
@@ -17,12 +17,14 @@ const GRAVITY_ACC = 9.8066500286389;
 const MIN_VELOCITY = 13.89; // meters/second
 
 export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
-  const { userUnits } = useContext(AppContext);
+  const [userUnits = MKS] = useUserUnits();
 
-  const mass = util.useValue<iRocket['mass']>(
-    CARD_ROCKET_PATH.append('mass').gen(rtFields)
+  const mass = util.useSimpleValue<iRocket['mass']>(
+    CARD_ROCKET_PATH.append('mass').with(rtFields)
   );
-  const motors = util.useValue<iCard['motors']>(CARD_MOTORS_PATH.gen(rtFields));
+  const motors = util.useSimpleValue<iCard['motors']>(
+    CARD_MOTORS_PATH.with(rtFields)
+  );
 
   if (!motors?.length) {
     return null;

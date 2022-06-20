@@ -1,10 +1,12 @@
-import React, { useContext } from 'react';
-import { Alert, Card } from 'react-bootstrap';
-import { AppContext } from './App/App';
-import { FCLink } from './common/FCLink';
-import { FCLinkButton } from './common/FCLinkButton';
+import React from 'react';
+import { Card } from 'react-bootstrap';
+import { FCLink } from '../common/FCLink';
+import { FCLinkButton } from '../common/FCLinkButton';
+import { useAttendee, useAttendees, useOfficers } from '../contexts/derived';
+import { useLaunch } from '../contexts/LaunchContext';
+import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
-import { Loading, ProfileLink } from '/components/common/util';
+import { Loading } from '/components/common/util';
 import { Waiver } from '/components/Waiver';
 
 const spectateImage = new URL('/art/home_spectate.webp', import.meta.url);
@@ -12,13 +14,14 @@ const flyImage = new URL('/art/home_fly.webp', import.meta.url);
 const officiateImage = new URL('/art/home_officiate.webp', import.meta.url);
 
 export default function LaunchHome() {
-  const { launch, attendees, attendee, officers } = useContext(AppContext);
+  const [attendee] = useAttendee();
+  const [launch] = useLaunch();
+  const [attendees] = useAttendees();
+  const [officers] = useOfficers();
 
   if (!attendee) return <Waiver />;
   if (!launch) return <Loading wat='Launch' />;
   if (!attendees) return <Loading wat='Attendees' />;
-
-  const cert = attendee?.cert;
 
   function launchUrl(suffix: string) {
     if (!launch?.id) throw Error('No launch id'); // Should never happen
@@ -33,26 +36,36 @@ export default function LaunchHome() {
 
   const isOfficer = officers?.[attendee.id];
 
+  if (!attendee.name) {
+    return (
+      <>
+        <p>
+          Please start by telling us your name. This helps us keep the launch
+          safe and fun!
+        </p>
+        <ProfileName
+          attendeeFields={{ launchId: launch.id, userId: attendee.id }}
+        />
+        <FCLinkButton className='mt-3' to={'.'}>
+          Done
+        </FCLinkButton>
+      </>
+    );
+  }
+
   return (
     <>
       <div className='d-flex mb-2'>
         <h2 className='flex-grow-1'>Welcome to {launch.name}</h2>
         {isOfficer ? (
           <FCLinkButton
-            className='btn-sm text-nowrap my-2 ms-2'
+            className='btn-sm text-nowrap my-auto ms-2'
             to={`/launches/${launch.id}/edit`}
           >
-            Edit <Icon name='pencil-fill' />
+            <Icon name='pencil-fill' /> Edit
           </FCLinkButton>
         ) : null}
       </div>
-
-      {!attendee.name || cert?.level == null || !cert?.verifiedTime ? (
-        <Alert variant='warning'>
-          Please provide your name and certification level on your{' '}
-          <ProfileLink launchId={launch.id} />.
-        </Alert>
-      ) : null}
 
       <div
         className='d-grid'
@@ -64,9 +77,25 @@ export default function LaunchHome() {
         <Card style={{ backgroundImage: `url(${spectateImage})`, ...bgStyle }}>
           <Card.Title className='px-2 py-1'>Spectate</Card.Title>
           <Card.Body>
-            <FCLink to={launchUrl('lco')}>Tune Into Launch Control</FCLink>
-            <FCLink to={launchUrl('users')}>View Attendees</FCLink>
-            <FCLink to={launchUrl('/report')}>View Launch Stats</FCLink>
+            {attendee?.name ? (
+              <>
+                <FCLink to={launchUrl('lco')}>Launch Control Ride Along</FCLink>
+                <FCLink to={launchUrl('users')}>View Attendees</FCLink>
+                <FCLink disabled to={launchUrl('/report')}>
+                  View Launch Stats
+                </FCLink>
+              </>
+            ) : (
+              <>
+                <p>
+                  Please start by telling us your name. This helps us keep the
+                  launch safe and fun!
+                </p>
+                <ProfileName
+                  attendeeFields={{ launchId: launch.id, userId: attendee.id }}
+                />
+              </>
+            )}
           </Card.Body>
         </Card>
 
@@ -87,8 +116,15 @@ export default function LaunchHome() {
             <FCLink disabled={!isOfficer} to={launchUrl('lco')}>
               Launch Control Duty
             </FCLink>
-            <FCLink disabled={!isOfficer} to={launchUrl('rso')}>Range Safety Duty</FCLink>
-            <FCLink disabled={!isOfficer} to={launchUrl('rso')}>Registration Duty</FCLink>
+            <FCLink disabled={!isOfficer} to={launchUrl('rso')}>
+              Range Safety Duty
+            </FCLink>
+            <FCLink disabled to={launchUrl('rso')}>
+              Flight Card Helper
+            </FCLink>
+            <FCLink disabled to={launchUrl('rso')}>
+              Verify Attendees
+            </FCLink>
           </Card.Body>
         </Card>
       </div>

@@ -1,12 +1,15 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { AppContext, APPNAME } from './App/App';
+import { APPNAME } from './App/App';
 import { FCLinkButton } from './common/FCLinkButton';
+import { useCurrentUser } from './contexts/CurrentUserContext';
+import { useLaunch } from './contexts/LaunchContext';
 import { Loading } from '/components/common/util';
 import { db } from '/firebase';
 
 export function Waiver() {
-  const { currentUser, launch } = useContext(AppContext);
+  const [launch] = useLaunch();
+  const [currentUser] = useCurrentUser();
 
   const [agreedCheck, setAgreedCheck] = useState(false);
 

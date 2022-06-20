@@ -1,18 +1,12 @@
-import React, {
-  HTMLAttributes,
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import { Button, Form } from 'react-bootstrap';
+import React, { HTMLAttributes, ReactElement, useMemo, useState } from 'react';
+import { Button } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { arraySort } from '../../util/arrayUtils';
-import { MKS, unitConvert } from '../../util/units';
-import { AppContext } from '../App/App';
-import { createContext } from '../common/RTUI';
+import { MKS } from '../../util/units';
+import { useAttendee, usePads, useUserUnits } from '../contexts/derived';
+import { useLaunch } from '../contexts/LaunchContext';
+import { rtuiFromPath } from '../rtui/RTUI';
 import MotorAnalysis from './MotorAnalysis';
 import { MotorDataList } from './MotorDataList';
 import { MotorDetail } from './MotorDetail';
@@ -21,8 +15,8 @@ import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
-import { db, DELETE } from '/firebase';
-import { CardStatus, iCard, iMotor, iUser, Recovery } from '/types';
+import { CARD_PATH, db, DELETE } from '/firebase';
+import { CardStatus, iCard, iMotor, Recovery } from '/types';
 
 function FormSection({
   className,
@@ -38,69 +32,25 @@ function FormSection({
 
 export default function CardEditor() {
   const navigate = useNavigate();
-  const { userUnits, attendee, cards, launch, pads } = useContext(AppContext);
+  const [userUnits = MKS] = useUserUnits();
+  const [attendee] = useAttendee();
+  const [launch] = useLaunch();
+  const [pads] = usePads();
   const match = useMatch('launches/:launchId/cards/:cardId');
-  const { cardId, launchId } = match?.params ?? {};
+  const { cardId } = match?.params ?? {};
+  const { launchId } = match?.params ?? {};
   const [card, setCard] = useState<iCard>();
-  const flier = db.attendee.useValue(launchId, card?.userId);
+  const [flier] = useAttendee();
   const [detailMotor, setDetailMotor] = useState<TCMotor>();
   const [editMotor, setEditMotor] = useState<iMotor>();
 
-  const dbCard = cardId && cards?.[cardId];
+  const rtFields = launchId && cardId ? { launchId, cardId } : undefined;
+
   const disabled = attendee?.id !== flier?.id;
 
   const rtui = useMemo(() => {
-    return createContext(`/cards/${launchId}/${cardId}`, userUnits);
+    return rtuiFromPath(CARD_PATH.with(rtFields), userUnits);
   }, [launchId, cardId, userUnits]);
-
-  useEffect(() => {
-    let nc: iCard;
-    if (dbCard) {
-      nc = JSON.parse(JSON.stringify(dbCard));
-
-      // Convert to display units
-      if (nc.rocket?.length != null)
-        nc.rocket.length = unitConvert(
-          nc.rocket.length,
-          MKS.length,
-          userUnits.length
-        );
-      if (nc.rocket?.diameter != null)
-        nc.rocket.diameter = unitConvert(
-          nc.rocket.diameter,
-          MKS.length,
-          userUnits.length
-        );
-      if (nc.rocket?.mass != null)
-        nc.rocket.mass = unitConvert(nc.rocket.mass, MKS.mass, userUnits.mass);
-    } else {
-      nc = { launchId, userId: (attendee as iUser)?.id } as iCard;
-    }
-
-    setCard(nc);
-  }, [dbCard, attendee, launchId, userUnits]);
-
-  const rtFields = launchId && cardId && { launchId, cardId };
-
-  function poke(path: string, val: string | undefined) {
-    const parts = path.split('.');
-    const att = parts.pop();
-
-    if (!att) {
-      throw Error(`Invalid path: ${path}`);
-    }
-
-    const newCard: iCard = { ...card } as iCard;
-
-    if (!att) return;
-    let o = newCard as unknown as { [key: string]: unknown };
-    for (const k of parts) {
-      o = o[k] = Object.assign({}, o[k]);
-    }
-    o[att] = val;
-
-    setCard(newCard);
-  }
 
   function cardUpdate(update: Partial<iCard>) {
     if (!card?.id) return;
@@ -242,7 +192,8 @@ export default function CardEditor() {
         <>
           <div className='d-flex align-items-baseline gap-1 mt-2'>
             <label className='text-nowrap'>On pad</label>
-            <Form.Select
+            <strong>PAD SELECTION UI GOES HERE</strong>
+            {/* <Form.Select
               value={card?.padId ?? ''}
               onChange={e =>
                 poke('padId', (e.target as HTMLSelectElement).value || DELETE)
@@ -250,7 +201,7 @@ export default function CardEditor() {
             >
               <option value=''>Select Pad...</option>
               {padOptions}
-            </Form.Select>
+            </Form.Select> */}
           </div>
           {!card?.padId ? (
             <div className='mt-1 text-secondary small'>

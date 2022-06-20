@@ -2,14 +2,13 @@ import { nanoid } from 'nanoid';
 import React, {
   ChangeEvent,
   HTMLAttributes,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { Button, Form, FormSelect, Modal } from 'react-bootstrap';
-import { AppContext } from '../App/App';
 import { busy, sig } from '../common/util';
+import { useUserUnits } from '../contexts/derived';
 import { CardFields, CARD_MOTOR_PATH, DELETE, util } from '/firebase';
 import { iMotor } from '/types';
 import { getMotorByDisplayName } from '/util/motor-util';
@@ -26,7 +25,7 @@ export function MotorEditor({
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
   const [delayListId] = useState(nanoid()); // 'Just need a unique ID of some sort here
-  const { userUnits } = useContext(AppContext);
+  const [userUnits = MKS] = useUserUnits();
   const saveButton = useRef<HTMLButtonElement>(null);
   const deleteButton = useRef<HTMLButtonElement>(null);
 
@@ -94,7 +93,7 @@ export function MotorEditor({
     busy(
       saveButton.current,
       util.set(
-        CARD_MOTOR_PATH.gen({ ...rtFields, motorId: _newMotor.id }),
+        CARD_MOTOR_PATH.with({ ...rtFields, motorId: _newMotor.id }),
         _newMotor
       )
     ).then(onHide);
@@ -103,7 +102,7 @@ export function MotorEditor({
   function onDelete() {
     busy(
       deleteButton.current,
-      util.remove(CARD_MOTOR_PATH.gen({ ...rtFields, motorId: motor.id }))
+      util.remove(CARD_MOTOR_PATH.with({ ...rtFields, motorId: motor.id }))
     ).then(onHide);
   }
 

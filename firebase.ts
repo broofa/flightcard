@@ -80,36 +80,61 @@ export const BOOL_ADAPTER: RTAdapter<boolean, boolean> = {
   },
 };
 
+export type RTState<T> = [T | undefined, boolean, Error | undefined];
+
 export const util = {
-  async get<T>(path: string): Promise<T> {
-    return (await dbGet(dbRef(database, path))).val();
+  async get<T>(path: RTPath): Promise<T> {
+    return path.isValid()
+      ? (await dbGet(dbRef(database, String(path)))).val()
+      : undefined;
   },
 
-  async set(path: string, value: unknown) {
-    return await dbSet(dbRef(database, path), value);
+  async set(path: RTPath, value: unknown) {
+    return await dbSet(dbRef(database, String(path)), value);
   },
 
-  async remove(path: string) {
-    return await dbRemove(dbRef(database, path));
+  async remove(path: RTPath) {
+    return await dbRemove(dbRef(database, String(path)));
   },
 
-  async update(path: string, state: object) {
-    return await dbUpdate(dbRef(database, path), state);
+  async update(path: RTPath, state: object) {
+    return await dbUpdate(dbRef(database, String(path)), state);
   },
 
-  useValue<T>(path: string, setter?: (val: T) => void): T | undefined {
+  useSimpleValue<T>(path: RTPath, setter?: (val?: T) => void): T | undefined {
+    const [val] = this.useValue(path, setter);
+    return val;
+  },
+
+  useValue<T>(path: RTPath, setter?: (val?: T) => void): RTState<T> {
     const [val, setVal] = useState<T | undefined>();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error>();
 
     useEffect(() => {
-      const unsubscribe = dbOnValue(dbRef(database, path), s => {
-        const dbVal = s.val();
-        if (setter) setter(dbVal);
-        setVal(dbVal);
-      });
+      // Silently ignore attempts to use invalid paths.
+      if (!path.isValid()) {
+        setError(new Error(path.errorMessage));
+        return;
+      }
+
+      const unsubscribe = dbOnValue(
+        dbRef(database, String(path)),
+        s => {
+          const dbVal = s.val() as T | undefined;
+          if (setter) setter(dbVal);
+          setVal(dbVal);
+          setLoading(false);
+        },
+        err => {
+          setError(err);
+          setLoading(false);
+        }
+      );
       return unsubscribe;
     }, [path, setter]);
 
-    return val;
+    return [val, loading, error];
   },
 };
 
@@ -257,41 +282,98 @@ export const db = {
   pad: createAPI<iPad>('pads/:launchId/:padId'),
 };
 
-//
-//  Paths and Fields
-//
-
 /**
- * Typed realtime paths
+ * Typed realtime path support.  RTPath instances are immutable, and consist of
+ * a path template like "/users/:launchId/:userId" and an optional field tokens
+ * object (e.g. {launchId: '123', userId: '456'}) to use when rendering the path
+ * to a string.
+ *
+ * RTPaths due double duty as both path templates, and as path strings.  Because
+ * of this, they are allowed to exist in "invalid" states where an instance may
+ * not have the fields needed to wholly render a path.   In this case,
+ * attempting to convert the path to a string will throw an error!  Callers are
+ * expected to validate any path prior to using it.  To that end, paths support
+ * validate() and isValid() methods.
  */
-class RTPath<Fields> {
-  constructor(public readonly path: string) {}
+export class RTPath<Fields = Record<string, string>> {
+  private _memo: string | undefined;
+  private _error: string | undefined;
+  private _cache = new Map<string, RTPath<Fields>>();
 
-  // Generate the path with the given field substitutions
-  gen(fields: Fields) {
-    return this.toString().replace(/:(\w+)/g, match => {
+  constructor(
+    private readonly template: string,
+    private readonly fields?: Fields
+  ) {}
+
+  private render() {
+    if (this._memo) return;
+    const missing = [];
+    this._memo = this.template.replace(/:\w+/g, match => {
       const token = match.substring(1);
-      // TODO: Is there a better way to handle the types here?
-      const val = (fields as unknown as Record<string, string>)[token];
-      if (!val) throw Error(`Missing field ${token as string} in ${this}`);
-      return val;
+      const val = (this.fields as unknown as Record<string, string>)?.[token];
+      if (!val) {
+        missing.push(token);
+      }
+      return val || '<missing>';
     });
   }
 
+  with(fields?: Fields) {
+    // ad-hoc memoization logic (avoids looping in React).  This isn't perfect,
+    // but it's good enough for now.
+    const key = JSON.stringify(fields ?? null);
+    let path: RTPath<Fields> | undefined = this._cache.get(key);
+    if (!path) {
+      path = new RTPath(this.template, fields);
+      this._cache.set(key, path);
+    }
+
+    return path;
+  }
+
   append<T>(subpath: string) {
-    return new RTPath<Fields & T>(this + '/' + subpath);
+    return new RTPath<Fields & T>(this.template + '/' + subpath);
+  }
+
+  isValid() {
+    this.render();
+    return !this._error;
+  }
+
+  get errorMessage() {
+    this.render();
+    return this._error;
   }
 
   toString() {
-    return this.path;
+    this.render();
+    if (this._error) throw Error(this._error);
+    return this._memo;
   }
 }
 
-export type CardFields = { launchId: string; cardId: string };
-export type MotorFields = CardFields & { motorId: string };
+type UserField = { userId: string };
+type LaunchField = { launchId: string };
+type CardField = { cardId: string };
+type MotorField = { motorId: string };
+export type AuthFields = { authId: string };
+export type CardFields = LaunchField & CardField;
+export type MotorFields = CardFields & MotorField;
+export type AttendeeFields = LaunchField & UserField;
 
-export const CARD_PATH = new RTPath<CardFields>('/cards/:launchId/:cardId');
+export const USER_PATH = new RTPath<AuthFields>('/users/:authId');
+
+export const ATTENDEES_PATH = new RTPath<LaunchField>('/attendees/:launchId/');
+export const ATTENDEE_PATH = ATTENDEES_PATH.append<AttendeeFields>(':userId');
+
+export const OFFICERS_PATH = new RTPath<LaunchField>('/officers/:launchId');
+export const PADS_PATH = new RTPath<LaunchField>('/pads/:launchId');
+
+export const LAUNCHES_PATH = new RTPath('/launches');
+export const LAUNCH_PATH = LAUNCHES_PATH.append<LaunchField>(':launchId');
+
+export const CARDS_PATH = new RTPath<LaunchField>('/cards/:launchId');
+export const CARD_PATH = CARDS_PATH.append<CardField>(':cardId');
 export const CARD_MOTORS_PATH = CARD_PATH.append('motors');
-export const CARD_MOTOR_PATH = CARD_MOTORS_PATH.append<{ motorId: string }>(':motorId');
-
+export const CARD_MOTOR_PATH = CARD_MOTORS_PATH.append<MotorField>(':motorId');
 export const CARD_ROCKET_PATH = CARD_PATH.append('rocket');

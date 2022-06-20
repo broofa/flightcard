@@ -1,13 +1,19 @@
-import React, { ChangeEvent, useContext } from 'react';
+import React, { ChangeEvent } from 'react';
 import { Alert, Button } from 'react-bootstrap';
-import { AppContext } from './App/App';
-import CertForm from '/components/CertForm';
-import FloatingInput from '/components/common/FloatingInput';
-import { AttendeesLink, busy, LinkButton, Loading } from '/components/common/util';
-import { OFFICERS } from '/components/Launch';
+import { tUnitSystemName } from '../../util/units';
+import { useCurrentUser } from '../contexts/CurrentUserContext';
+import { useLaunch } from '../contexts/LaunchContext';
+import { OFFICERS } from '../Launch/UsersPane';
+import CertForm from './CertForm';
+import ProfileName from './ProfileName';
+import {
+  AttendeesLink,
+  busy,
+  LinkButton,
+  Loading
+} from '/components/common/util';
 import { auth, db, DELETE } from '/firebase';
 import { iAttendee } from '/types';
-import { tUnitSystemName } from '../util/units';
 
 export default function ProfilePage({
   user,
@@ -16,7 +22,8 @@ export default function ProfilePage({
   user: iAttendee;
   launchId: string;
 }) {
-  const { currentUser, launch } = useContext(AppContext);
+  const [currentUser] = useCurrentUser();
+  const [launch] = useLaunch();
 
   function setUnits(units: tUnitSystemName) {
     db.user.update(currentUser?.id, { units });
@@ -27,8 +34,8 @@ export default function ProfilePage({
 
   const { cert } = user;
 
-  const onName = (e:ChangeEvent<HTMLInputElement>) => {
-    const name  = e?.target?.value || DELETE;
+  const onName = (e: ChangeEvent<HTMLInputElement>) => {
+    const name = e?.target?.value || DELETE;
     busy(
       e.target,
       Promise.all([
@@ -72,23 +79,7 @@ export default function ProfilePage({
 
       <h2>Profile</h2>
 
-      <div className='ms-3'>
-        {!user?.name ? (
-          <Alert className='mb-1 py-1' variant='warning'>
-            Please provide your name. (Names are important at in-person events
-            like this.)
-          </Alert>
-        ) : null}
-        <FloatingInput defaultValue={user.name ?? ''} onBlur={onName}>
-          <label>
-            Your Name
-            <span className='ms-3 text-tip'>
-              {' '}
-              (as shown on your NAR / TRA card, if applicable)
-            </span>
-          </label>
-        </FloatingInput>
-      </div>
+      <ProfileName attendeeFields={{ launchId, userId: user.id }} />
 
       <h2>
         High-Power Certification{' '}

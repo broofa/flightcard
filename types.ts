@@ -1,7 +1,7 @@
 import { tUnitSystemName } from './util/units';
 
 // Tell VSCode not to choke on Parcel's static file imports
-declare module '*.png'
+declare module '*.png';
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
@@ -48,12 +48,12 @@ export enum CertOrg {
 }
 export interface iCert {
   level: CertLevel;
-  organization: CertOrg;
-  memberId: number;
-  expires: Timestamp;
+  organization?: CertOrg;
+  memberId?: number;
+  expires?: Timestamp;
 
-  verifiedId: string; // Id of attendee that verified the ID
-  verifiedTime: Timestamp;
+  verifiedId?: string; // Id of attendee that verified the ID
+  verifiedTime?: Timestamp;
 }
 
 export interface iAttendee extends iUser {
@@ -62,6 +62,8 @@ export interface iAttendee extends iUser {
   role?: tRole;
 }
 export type iAttendees = Record<string, iAttendee>;
+
+export type iOfficers = Record<string, boolean>;
 
 export interface iPad {
   id: string;
@@ -114,6 +116,6 @@ export interface iCard {
   notes?: string;
 
   rocket?: iRocket;
-  motors?: {[motorId: string] : iMotor};
+  motors?: { [motorId: string]: iMotor };
 }
 export type iCards = Record<string, iCard>;

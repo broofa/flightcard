@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import React, { MouseEventHandler, useContext, useState } from 'react';
+import React, { MouseEventHandler, useState } from 'react';
 import {
   Button,
   Card,
@@ -10,7 +10,8 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import { arraySort } from '../util/arrayUtils';
-import { AppContext } from './App/App';
+import { useCurrentUser } from './contexts/CurrentUserContext';
+import { useLaunches } from './contexts/derived';
 import { busy, LinkButton, Loading } from '/components/common/util';
 import { db } from '/firebase';
 import { iLaunch, iPad } from '/types';
@@ -38,7 +39,8 @@ function EventCard({ launch, ...props }: { launch: iLaunch } & CardProps) {
 }
 
 function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
-  const { currentUser, launches } = useContext(AppContext);
+  const [launches] = useLaunches();
+  const [currentUser] = useCurrentUser();
   const [copyId, setCopyId] = useState('');
   const navigate = useNavigate();
 
@@ -126,7 +128,8 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
 }
 
 export default function Launches() {
-  const { launches, currentUser } = useContext(AppContext);
+  const [launches] = useLaunches();
+  const [currentUser] = useCurrentUser();
   const [showLaunchModal, setShowLaunchModal] = useState(false);
 
   if (!currentUser) return <Loading wat='User (Launches)' />;

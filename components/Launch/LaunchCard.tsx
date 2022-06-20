@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import simplur from 'simplur';
-import '/components/LaunchCard.scss';
+import '/components/Launch/LaunchCard.scss';
 import { AttendeeInfo } from '/components/UserList';
 import { iAttendee, iCard } from '/types';
 
@@ -91,7 +90,9 @@ export function LaunchCard({
         </div>
         {motors?.length ? (
           <div className=''>
-            <span className='text-muted'>{motors.map(m => m.name ?? '(?)').join(', ')}</span>
+            <span className='text-muted'>
+              {motors.map(m => m.name ?? '(?)').join(', ')}
+            </span>
           </div>
         ) : null}
       </Link>

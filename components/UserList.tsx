@@ -1,12 +1,10 @@
-import React, {
-  ChangeEvent,
-  HTMLAttributes,
-  useContext,
-  useState,
-} from 'react';
+import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { arraySort } from '../util/arrayUtils';
-import { ANONYMOUS, AppContext } from './App/App';
+import { ANONYMOUS } from './App/App';
+import { useCurrentUser } from './contexts/CurrentUserContext';
+import { useAttendees, useOfficers } from './contexts/derived';
+import { useLaunch } from './contexts/LaunchContext';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { db, DELETE } from '/firebase';
@@ -60,7 +58,7 @@ function UserEditor({
   userId: string;
   onHide: () => void;
 }) {
-  const { currentUser } = useContext(AppContext);
+  const [currentUser] = useCurrentUser();
   const isOfficer = db.officer.useValue(launchId, userId);
   const user = db.attendee.useValue(launchId, userId);
 
@@ -109,7 +107,6 @@ function UserEditor({
           id={'officer'}
           className='ms-2 mt-4'
           label='Club officer (RSO / LCO qualified)'
-          disabled={(user.cert?.level ?? 0) <= 1}
           onChange={onOfficerToggle}
           checked={isOfficer ?? false}
         />
@@ -128,7 +125,9 @@ export function UserList({
   filter?: UserFilterFunction;
 } & HTMLAttributes<HTMLDivElement>) {
   const [editUserId, setEditUserId] = useState<string>();
-  const { attendees, launch, officers } = useContext(AppContext);
+  const [launch] = useLaunch();
+  const [attendees] = useAttendees();
+  const [officers] = useOfficers();
 
   if (!launch) {
     return <Loading wat='User launch' />;

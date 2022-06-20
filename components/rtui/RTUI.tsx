@@ -8,19 +8,20 @@ import React, {
   useState,
 } from 'react';
 import { Form, FormCheckProps } from 'react-bootstrap';
-import { sig } from './util';
+import { sig } from '../common/util';
 import {
   BOOL_ADAPTER,
   DELETE,
   RTAdapter,
+  RTPath,
   STRING_ADAPTER,
   util,
 } from '/firebase';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
 
 // ALL THE HOOKZ for RTUI controls
-export function useField<RTType, ControlType>(
-  path: string,
+function useRealtimeField<RTType, ControlType>(
+  path: RTPath,
   defaultValue: ControlType,
   adapter: RTAdapter<RTType, ControlType>
 ) {
@@ -33,9 +34,9 @@ export function useField<RTType, ControlType>(
   // Identifier for connecting label and control
   const [id] = useState(nanoid());
 
-  util.useValue<RTType>(
+  util.useSimpleValue<RTType>(
     path,
-    useCallback((v: RTType) => setVal(adapter.fromRT(v)), [adapter])
+    useCallback((v?: RTType) => setVal(adapter.fromRT(v)), [adapter])
   );
 
   // Function to save current control value to db.  This also updates the
@@ -54,13 +55,7 @@ export function useField<RTType, ControlType>(
   return { val, setVal, save, isSaving: !!saveAction, id };
 }
 
-// Create a RTUI context.  Specifies the RT path that `field` specifier is
-// relative to, and also the preferred units of measure (where applicable).
-export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
-  function fullRTPath(field: string) {
-    return `${rtPath}/${field}`;
-  }
-
+export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
   return {
     StringInput({
       label,
@@ -71,11 +66,10 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
       field: string;
       label: ReactElement | string;
     }) {
-      const { val, setVal, save, isSaving, id } = useField<string, string>(
-        fullRTPath(field),
-        '',
-        STRING_ADAPTER
-      );
+      const { val, setVal, save, isSaving, id } = useRealtimeField<
+        string,
+        string
+      >(rtpath, '', STRING_ADAPTER);
 
       return (
         <div className='form-floating'>
@@ -104,11 +98,10 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
       field: string;
       label: ReactElement | string;
     }) {
-      const { val, setVal, save, isSaving, id } = useField<string, string>(
-        fullRTPath(field),
-        '',
-        STRING_ADAPTER
-      );
+      const { val, setVal, save, isSaving, id } = useRealtimeField<
+        string,
+        string
+      >(fieldPath(field), '', STRING_ADAPTER);
 
       return (
         <div className='form-floating'>
@@ -135,8 +128,8 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
     }: FormCheckProps & {
       field: string;
     }) {
-      const { val, save, isSaving, id } = useField<boolean, boolean>(
-        fullRTPath(field),
+      const { val, save, isSaving, id } = useRealtimeField<boolean, boolean>(
+        fieldPath(field),
         false,
         BOOL_ADAPTER
       );
@@ -166,8 +159,8 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
       label: string;
       value: string;
     }) {
-      const { val, save, isSaving, id } = useField<string, string>(
-        fullRTPath(field),
+      const { val, save, isSaving, id } = useRealtimeField<string, string>(
+        fieldPath(field),
         '',
         STRING_ADAPTER
       );
@@ -199,7 +192,7 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
     }) {
       const fromType = unitType == 'lengthSmall' ? 'length' : unitType;
 
-      // Need to memoize the adapter because useField's useEffect hook is
+      // Need to memoize the adapter because useRealtimeField's useEffect hook is
       // constrained by it
       const adapter = useMemo(() => {
         return {
@@ -214,11 +207,10 @@ export function createContext(rtPath: string, userUnits: tUnitSystem = MKS) {
         };
       }, [unitType, fromType]);
 
-      const { val, setVal, save, isSaving, id } = useField<number, string>(
-        fullRTPath(field),
-        '',
-        adapter
-      );
+      const { val, setVal, save, isSaving, id } = useRealtimeField<
+        number,
+        string
+      >(fieldPath(field), '', adapter);
 
       return (
         <div className='form-floating'>

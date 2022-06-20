@@ -56,8 +56,8 @@ export function MotorList({
   setEditMotor: (motor: iMotor | undefined) => void;
   setDetailMotor: (motor: TCMotor | undefined) => void;
 }) {
-  const motors = util.useValue<{ [motorId: string]: iMotor }>(
-    CARD_MOTORS_PATH.gen(rtFields)
+  const motors = util.useSimpleValue<{ [motorId: string]: iMotor }>(
+    CARD_MOTORS_PATH.with(rtFields)
   );
 
   // We need an ordered array of motors

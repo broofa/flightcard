@@ -1,241 +1,142 @@
-import md5 from 'blueimp-md5';
-import React, { createContext, useEffect, useState } from 'react';
-import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import React, { PropsWithChildren } from 'react';
+import { Alert, Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { NavLink, Route, Routes, useMatch } from 'react-router-dom';
-import { MKS, tUnitSystem, USCS } from '../../util/units';
+import { NavLink, Outlet, Route, Routes, useMatch } from 'react-router-dom';
 import Admin from '../Admin/Admin';
+import {
+  CurrentUserProvider,
+  useCurrentUser,
+} from '../contexts/CurrentUserContext';
+import { LaunchProvider, useLaunch } from '../contexts/LaunchContext';
+import Login from '../Login';
 import './App.scss';
 import { RangeStatus } from './RangeStatus';
+import { RoleDropdown } from './RoleDropdown';
 import { ErrorFlash } from '/components/common/ErrorFlash';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import Launch from '/components/Launch';
+import Launch from '/components/Launch/Launch';
+import LaunchHome from '/components/Launch/LaunchHome';
 import Launches from '/components/Launches';
-import NavButton from '/components/LaunchHome';
-import Login from '/components/Login';
-import { auth, db, DELETE } from '/firebase';
-import {
-  iAttendee,
-  iAttendees,
-  iCards,
-  iLaunch,
-  iLaunchs,
-  iPads,
-  iUser,
-  tRole,
-} from '/types';
+import { ATTENDEE_PATH, auth, OFFICERS_PATH, util } from '/firebase';
+import { iAttendee, iOfficers } from '/types';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';
 
-// Enhancements to globals
-declare global {
-  interface Window {
-    appContext: tAppContext;
-  }
+function ChromeRoute() {
+  return (
+    <div style={{ border: 'solid 20px red' }}>
+      <Outlet />
+    </div>
+  );
 }
 
-type tAppContext = {
-  currentUser?: iUser;
-  userUnits: tUnitSystem;
-  launches?: iLaunchs;
-  launch?: iLaunch;
-  attendees?: iAttendees;
-  officers?: Record<string, boolean>;
-  attendee?: iAttendee;
-  cards?: iCards;
-  pads?: iPads;
-};
+function LaunchRoute() {
+  const [launch, loading, error] = useLaunch();
+  const [currentUser] = useCurrentUser();
 
-const DEFAULT_APP_STATE = { userUnits: MKS };
+  const [attendee] = util.useValue<iAttendee>(
+    ATTENDEE_PATH.with({
+      launchId: launch?.id ?? '',
+      userId: currentUser?.id ?? '',
+    })
+  );
+  const [officers] = util.useValue<iOfficers>(
+    OFFICERS_PATH.with({ launchId: launch?.id ?? '' })
+  );
 
-export const AppContext = createContext<tAppContext>(DEFAULT_APP_STATE);
-
-function RoleDropdown({ launch, user }: { launch: iLaunch; user: iUser }) {
-  const isOfficer = db.officer.useValue(launch.id, user.id);
-  const attendee = db.attendee.useValue(launch.id, user.id);
-
-  function setRole(role?: tRole) {
-    db.attendee.update(launch.id, user.id, { role });
+  if (loading) {
+    return <Loading wat='Launch' />;
+  } else if (error) {
+    return <Alert variant='danger'>{error.message}</Alert>;
+  } else if (!launch) {
+    return <Alert variant='warning'>Launch Not Found</Alert>;
   }
 
-  if (!attendee) return null;
-
-  const roleTitle = attendee.role?.toUpperCase() ?? 'Off Duty';
-
   return (
-    <NavDropdown title={roleTitle} id='collasible-nav-dropdown'>
-      <NavDropdown.Item onClick={() => setRole(undefined)}>
-        Off Duty
-      </NavDropdown.Item>
-      {isOfficer ? (
-        <>
-          <NavDropdown.Item onClick={() => setRole('lco')}>
-            LCO
-          </NavDropdown.Item>
-          <NavDropdown.Item onClick={() => setRole('rso')}>
-            RSO
-          </NavDropdown.Item>
-        </>
+    <div className='d-flex flex-column vh-100'>
+      <Navbar bg='dark' variant='dark' className='d-flex py-0'>
+        {currentUser && launch ? (
+          <>
+            {[
+              ['', 'house-fill'],
+              ['cards', 'card-fill'],
+              ['rso', 'officer'],
+              ['lco', 'rocket'],
+              ['users', 'people-fill'],
+              ['profile', 'gear-fill'],
+            ].map(([path, icon]) => (
+              <NavLink
+                to={`/launches/${launch.id}/${path}`}
+                key={path}
+                className='flex-grow-1 text-center py-2'
+              >
+                {<Icon size='2em' name={icon} />}
+              </NavLink>
+            ))}
+            {attendee && officers?.[attendee.id] ? (
+              <RoleDropdown user={currentUser} launch={launch} />
+            ) : null}
+          </>
+        ) : (
+          <>
+            <LinkContainer className='ms-2' to={'/'}>
+              <Navbar.Brand>{APPNAME}</Navbar.Brand>
+            </LinkContainer>
+            <div className='flex-grow-1' />
+            {currentUser ? (
+              <Nav.Link onClick={() => auth.signOut()}>Logout</Nav.Link>
+            ) : null}
+          </>
+        )}
+      </Navbar>
+
+      <div className='flex-grow-1 overflow-auto p-3'>
+        <Outlet />
+      </div>
+
+      {launch ? (
+        <RangeStatus
+          className='text-white bg-dark flex-grow-0'
+          launch={launch}
+          isLCO={attendee?.role == 'lco'}
+        />
       ) : null}
-    </NavDropdown>
+
+      <ErrorFlash />
+    </div>
   );
+}
+
+function ProtectedRoute<Route>({ children }: PropsWithChildren) {
+  const [currentUser, loading, error] = useCurrentUser();
+  if (loading) {
+    return <Route element={<Loading wat='User Credentials' />} />;
+  } else if (error) {
+    return <Route element={<Alert variant='danger'>{error.message}</Alert>} />;
+  } else if (!currentUser) {
+    return <Route element={<Login />} />;
+  }
+
+  return <>{children}</>;
 }
 
 export default function App() {
-  const [authId, setAuthId] = useState<string>();
-  const match = useMatch<'launchId', string>('/launches/:launchId/*');
-  const { launchId } = match?.params ?? {};
-
-  // const [ctx, setCtx] = useState({});
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
-
-  const [appContext, setAppContext] = useState<tAppContext>({
-    ...DEFAULT_APP_STATE,
-  });
-
-  const currentUser = db.user.useValue(authId);
-  const launches = db.launches.useValue();
-  const launch = db.launch.useValue(launchId);
-  const attendees = db.attendees.useValue(launchId);
-  const officers = db.officers.useValue(launchId);
-  const cards = db.cards.useValue(launchId);
-  const pads = db.pads.useValue(launchId);
-  const attendee = attendees?.[currentUser?.id];
-
-  // Effect: Update authId when user is authenticated / logs out
-  useEffect(
-    () =>
-      auth.onAuthStateChanged(async authUser => {
-        if (authUser) {
-          let { photoURL } = authUser;
-
-          if (!photoURL && authUser.email) {
-            // Use Gravatar image
-            const hash = md5(authUser.email.toLowerCase());
-            photoURL = `https://gravatar.com/avatar/${hash}?d=robohash`;
-          }
-
-          const user: iUser = {
-            id: authUser.uid,
-            photoURL: photoURL ?? DELETE,
-          };
-          if (authUser.displayName) user.name = authUser.displayName;
-
-          // Save/Update in-app user state
-          await db.user.update(authUser.uid, user);
-          setAuthId(authUser.uid);
-          setIsLoadingUser(false);
-        } else {
-          setAuthId(undefined);
-          setIsLoadingUser(false);
-        }
-      }),
-    []
-  );
-
-  // Effect: Update app-wide shared state
-  useEffect(() => {
-    const userUnits = currentUser?.units == 'uscs' ? USCS : MKS;
-
-    setAppContext({
-      attendee,
-      attendees,
-      cards,
-      launch,
-      launches,
-      currentUser,
-      userUnits,
-      officers,
-      pads,
-    });
-  }, [
-    attendee,
-    attendees,
-    cards,
-    launch,
-    launches,
-    currentUser,
-    officers,
-    pads,
-  ]);
-
-  window.appContext = appContext;
-
-  if (isLoadingUser) return <Loading className='busy' wat='Credentials' />;
-
-  if (!currentUser) {
-    return (
-      <>
-        <Login />
-        <ErrorFlash />
-      </>
-    );
-  }
-
   return (
-    <AppContext.Provider value={appContext}>
-      <div className='d-flex flex-column vh-100'>
-        <Navbar bg='dark' variant='dark' className='d-flex py-0'>
-          {currentUser && launch ? (
-            <>
-              {[
-                ['', 'house-fill'],
-                ['cards', 'card-fill'],
-                ['rso', 'officer'],
-                ['lco', 'rocket'],
-                ['users', 'people-fill'],
-                ['profile', 'gear-fill'],
-              ].map(([path, icon]) => (
-                <NavLink
-                  to={`/launches/${launch.id}/${path}`}
-                  key={path}
-                  className='flex-grow-1 text-center py-2'
-                >
-                  {<Icon size='2em' name={icon} />}
-                </NavLink>
-              ))}
-              {attendee && officers?.[attendee.id] ? (
-                <RoleDropdown user={currentUser} launch={launch} />
-              ) : null}
-            </>
-          ) : (
-            <>
-              <LinkContainer className='ms-2' to={'/'}>
-                <Navbar.Brand>{APPNAME}</Navbar.Brand>
-              </LinkContainer>
-              <div className='flex-grow-1' />
-              {currentUser ? (
-                <Nav.Link onClick={() => auth.signOut()}>Logout</Nav.Link>
-              ) : null}
-            </>
-          )}
-        </Navbar>
-
-        <div className='flex-grow-1 overflow-auto p-3'>
-          {!currentUser ? (
-            <Login />
-          ) : (
-            <Routes>
-              <Route path='/' element={<Launches />} />
-              <Route path='/admin' element={<Admin />} />
-              <Route path='/launches/:launchId' element={<NavButton />} />
-              <Route path='/launches/:launchId/*' element={<Launch />} />
-            </Routes>
-          )}
-        </div>
-
-        {launch ? (
-          <RangeStatus
-            className='text-white bg-dark flex-grow-0'
-            launch={launch}
-            isLCO={attendee?.role == 'lco'}
-          />
-        ) : null}
-
-        <ErrorFlash />
-      </div>
-    </AppContext.Provider>
+    <CurrentUserProvider>
+      <LaunchProvider>
+        <Routes>
+          {/* <ProtectedRoute> */}
+          <Route index element={<Launches />} />
+          <Route element={<LaunchRoute />}>
+            <Route path='/admin' element={<Admin />} />
+            <Route path='/launches/:launchId' element={<LaunchHome />} />
+            <Route path='/launches/:launchId/*' element={<Launch />} />
+          </Route>
+          {/* </ProtectedRoute> */}
+        </Routes>
+      </LaunchProvider>
+    </CurrentUserProvider>
   );
 }

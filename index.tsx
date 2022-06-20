@@ -1,6 +1,6 @@
 import checkCSS, { monitorCSS } from 'checkcss';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './components/App/App';
 
@@ -10,4 +10,10 @@ if (process.env.NODE_ENV == 'development') {
   monitorCSS();
 }
 
-ReactDom.render(<BrowserRouter><App/></BrowserRouter>, document.querySelector('#content'));
+const root = createRoot(document.querySelector('#content') as Element);
+
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);

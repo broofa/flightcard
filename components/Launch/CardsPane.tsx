@@ -1,11 +1,13 @@
-import React, { useContext } from 'react';
-import { AppContext } from './App/App';
-import { FCLinkButton } from './common/FCLinkButton';
-import { CardList } from '/components/Launch';
+import React from 'react';
+import { FCLinkButton } from '../common/FCLinkButton';
+import { useCurrentUser } from '../contexts/CurrentUserContext';
+import { useCards } from '../contexts/derived';
+import { CardList } from './Launch';
 import { CardStatus } from '/types';
 
 export function CardsPane({ launchId }: { launchId: string }) {
-  const { currentUser, cards } = useContext(AppContext);
+  const [currentUser] = useCurrentUser();
+  const [cards] = useCards();
 
   const userCards = Object.values(cards || {}).filter(
     c => c.userId == currentUser?.id

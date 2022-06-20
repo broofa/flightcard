@@ -1,98 +1,27 @@
-import React, { HTMLAttributes, useContext } from 'react';
-import { Alert, ButtonGroup } from 'react-bootstrap';
+import React, { HTMLAttributes } from 'react';
+import { Alert } from 'react-bootstrap';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { arraySort } from '../../util/arrayUtils';
+import { ANONYMOUS } from '../App/App';
+import CardEditor from '../CardEditor/CardEditor';
+import { useCurrentUser } from '../contexts/CurrentUserContext';
 import {
-  Link,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from 'react-router-dom';
-import { arraySort } from '../util/arrayUtils';
-import { ANONYMOUS, AppContext } from './App/App';
-import CardEditor from './CardEditor/CardEditor';
-import { CardsPane } from '/components/CardsPane';
+  useAttendee,
+  useAttendees,
+  useCards,
+  usePads,
+} from '../contexts/derived';
+import { useLaunch } from '../contexts/LaunchContext';
+import ProfilePage from '../Profile/ProfilePage';
+import { CardsPane } from './CardsPane';
+import { UsersPane } from './UsersPane';
 import { CertDot } from '/components/common/CertDot';
-import { LinkButton, Loading } from '/components/common/util';
-import { LaunchCard } from '/components/LaunchCard';
+import { Loading } from '/components/common/util';
+import { LaunchCard } from '/components/Launch/LaunchCard';
 import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
-import ProfilePage from '/components/ProfilePage';
-import { UserList } from '/components/UserList';
 import { Waiver } from '/components/Waiver';
 import { db } from '/firebase';
-import { CardStatus, iAttendee, iAttendees, iCard, iPerm } from '/types';
-
-export const OFFICERS = 'officers';
-export const LOW_POWER = 'low';
-export const HIGH_POWER = 'high';
-
-function officerUsers(user?: iAttendee, isOfficer?: iPerm) {
-  return isOfficer ?? false;
-}
-
-function lowPowerUsers(user: iAttendee) {
-  return (user.cert?.level ?? 0) == 0;
-}
-
-function highPowerUsers(user: iAttendee) {
-  return (user.cert?.level ?? 0) > 0;
-}
-
-function UsersPane({ launchId }: { launchId: string }) {
-  const location = useLocation();
-  const filter = new URLSearchParams(location.search).get('filter');
-
-  let title, userFilter;
-  switch (filter) {
-    case OFFICERS:
-      title = '\u2605 Officers';
-      userFilter = officerUsers;
-      break;
-    case LOW_POWER:
-      title = 'Low Power Attendees';
-      userFilter = lowPowerUsers;
-      break;
-    case HIGH_POWER:
-      title = 'High Power Attendees';
-      userFilter = highPowerUsers;
-      break;
-    default:
-      title = 'All Attendees';
-      break;
-  }
-
-  return (
-    <>
-      <ButtonGroup className='mt-2'>
-        <LinkButton isActive={() => !filter} to={`/launches/${launchId}/users`}>
-          All
-        </LinkButton>
-        <LinkButton
-          isActive={() => filter == OFFICERS}
-          to={`/launches/${launchId}/users?filter=${OFFICERS}`}
-        >
-          {'\u2605'}
-        </LinkButton>
-        <LinkButton
-          isActive={() => filter == LOW_POWER}
-          to={`/launches/${launchId}/users?filter=${LOW_POWER}`}
-        >
-          LP
-        </LinkButton>
-        <LinkButton
-          isActive={() => filter == HIGH_POWER}
-          to={`/launches/${launchId}/users?filter=${HIGH_POWER}`}
-        >
-          HP
-        </LinkButton>
-      </ButtonGroup>
-
-      <UserList launchId={launchId} filter={userFilter}>
-        {title}
-      </UserList>
-    </>
-  );
-}
+import { CardStatus, iAttendees, iCard } from '/types';
 
 export function CardList({
   cards,
@@ -121,7 +50,8 @@ export function CardList({
 }
 
 function RangeSafetyPane() {
-  const { cards, attendees } = useContext(AppContext);
+  const [cards] = useCards();
+  const [attendees] = useAttendees();
 
   if (!attendees) return <Loading wat='Users' />;
 
@@ -156,7 +86,9 @@ function PadName({
 }
 
 function PadCard({ padId }: { padId: string }) {
-  const { launch, cards, attendees } = useContext(AppContext);
+  const [cards] = useCards();
+  const [launch] = useLaunch();
+  const [attendees] = useAttendees();
   const navigate = useNavigate();
   const pad = db.pad.useValue(launch?.id, padId);
 
@@ -255,7 +187,7 @@ function PadCard({ padId }: { padId: string }) {
 }
 
 function LaunchControlPane() {
-  const { pads } = useContext(AppContext);
+  const [pads] = usePads();
 
   if (!pads) return <Loading wat='Pads' />;
 
@@ -283,28 +215,27 @@ function LaunchControlPane() {
 }
 
 function Launch() {
-  const { currentUser } = useContext(AppContext);
-  const params = useParams<{ launchId: string }>();
+  const [currentUser, userLoading] = useCurrentUser();
+  const [launch] = useLaunch();
 
-  const { launchId } = params;
-  const attendee = db.attendee.useValue(launchId, currentUser?.id);
+  const [attendee] = useAttendee();
 
-  if (!currentUser) return <Loading wat='User (Launch)' />;
-  if (!launchId || !attendee?.waiverTime) return <Waiver />;
+  if (!currentUser && userLoading) return <Loading wat='User (Launch)' />;
+  if (!launch?.id || !attendee?.waiverTime) return <Waiver />;
 
   return (
     <>
       <Routes>
-        <Route path='cards' element={<CardsPane launchId={launchId} />} />
+        <Route path='cards' element={<CardsPane launchId={launch?.id} />} />
         <Route path='cards/:cardId' element={<CardEditor />} />
         <Route path='edit' element={<LaunchEditor />} />
         <Route
           path='profile'
-          element={<ProfilePage user={attendee} launchId={launchId} />}
+          element={<ProfilePage user={attendee} launchId={launch?.id} />}
         />
         <Route path='rso' element={<RangeSafetyPane />} />
         <Route path='lco' element={<LaunchControlPane />} />
-        <Route path='users' element={<UsersPane launchId={launchId} />} />
+        <Route path='users' element={<UsersPane launchId={launch?.id} />} />
       </Routes>
     </>
   );
