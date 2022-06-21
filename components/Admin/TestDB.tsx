@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
-import { auth, util } from '/firebase';
+import { auth, util } from '/rt';
+import { RTPath } from '/rt/RTPath';
 
 async function handleClick() {
   const user = auth.currentUser;
@@ -10,15 +11,16 @@ async function handleClick() {
   clear();
 
   async function testAccess(path: string) {
+    const rtpath = new RTPath(path);
     let canRead, canWrite;
     try {
-      await util.get(path);
+      await util.get(rtpath);
       canRead = true;
     } catch (err) {}
 
     try {
-      await util.update(path, { _temp: true });
-      await util.update(path, { _temp: null });
+      await util.update(rtpath, { _temp: true });
+      await util.update(rtpath, { _temp: null });
       canWrite = true;
     } catch (err) {}
 

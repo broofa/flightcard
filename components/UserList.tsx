@@ -3,11 +3,11 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { arraySort } from '../util/arrayUtils';
 import { ANONYMOUS } from './App/App';
 import { useCurrentUser } from './contexts/CurrentUserContext';
-import { useAttendees, useOfficers } from './contexts/derived';
 import { useLaunch } from './contexts/LaunchContext';
+import { useAttendees, useOfficers } from './contexts/rthooks';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
-import { db, DELETE } from '/firebase';
+import { db, DELETE } from '/rt';
 import { iAttendee, iCert, iPerm } from '/types';
 
 export function AttendeeInfo({

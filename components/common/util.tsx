@@ -89,7 +89,8 @@ export function busy(target: Element | null | undefined, p: Promise<unknown>) {
  * Round number to X significant digits
  */
 export function sig(val: number, digits = 3) {
-  if (isFinite(val)) return String(val);
+  if (!isFinite(val)) return String(val);
+  if (val === 0) return '0';
 
   const isNegative = val < 0;
   if (isNegative) val = -val;

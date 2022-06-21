@@ -1,6 +1,7 @@
-import React, { Attributes, useEffect, useState } from 'react';
+import React from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
-import { AttendeeFields, ATTENDEE_PATH, util } from '/firebase';
+import { util } from '/rt';
+import { ATTENDEE_CERT_PATH } from '/rt/rtconstants';
 import { CertLevel, CertOrg, iCert } from '/types';
 
 const CERT: Record<string, iCert> = {
@@ -12,32 +13,55 @@ const CERT: Record<string, iCert> = {
   TRA3: { organization: CertOrg.TRA, level: CertLevel.L3 },
 };
 
-function certString(cert: iCert) {
-  return `${cert?.organization ?? ''}${cert?.level ?? '0'}`;
+function certString(cert?: iCert) {
+  return `${cert?.organization ?? ''} ${cert?.level ?? '0'}`;
+}
+
+function CertButton({ cert }: { cert: iCert }) {
+  const certname = certString(cert);
+  return (
+    <ToggleButton variant='outline-secondary' id={certname} value={certname}>
+      {certname}
+    </ToggleButton>
+  );
 }
 
 export default function CertForm({
-  attendeeFields,
-  ...props
+  launchId,
+  userId,
 }: {
-  attendeeFields: AttendeeFields;
-} & Attributes) {
-  const rtPath = ATTENDEE_PATH.append('cert').with(attendeeFields);
-  const [cert, setCert] = useState<iCert | null>();
-  util.useSimpleValue<iCert>(rtPath, setCert);
-
-  useEffect(() => {}, [attendeeFields]);
-
+  launchId: string;
+  userId: string;
+}) {
+  const rtPath = ATTENDEE_CERT_PATH.with({ launchId, userId });
+  const [cert] = util.useValue<iCert>(rtPath);
+  const certname = certString(cert);
+  console.log(rtPath, cert, certname);
   return (
     <>
-      <ToggleButtonGroup name='user_cert' type='radio'>
-        <ToggleButton value='NAR1'>NAR 1</ToggleButton>
-        <ToggleButton value='NAR1'>NAR 2</ToggleButton>
-        <ToggleButton value='NAR1'>NAR 3</ToggleButton>
-        <br />
-        <ToggleButton value='TRA1'>TRA 1</ToggleButton>
-        <ToggleButton value='TRA1'>TRA 2</ToggleButton>
-        <ToggleButton value='TRA1'>TRA 3</ToggleButton>
+      <ToggleButtonGroup
+        onChange={console.log}
+        name='user_cert'
+        type='radio'
+        style={{ width: '15em' }}
+        value={certname}
+      >
+        <CertButton cert={CERT.NAR1} />
+        <CertButton cert={CERT.NAR2} />
+        <CertButton cert={CERT.NAR3} />
+      </ToggleButtonGroup>
+      <br />
+      <ToggleButtonGroup
+        onChange={console.log}
+        className='mt-2'
+        name='user_cert'
+        type='radio'
+        style={{ width: '15em' }}
+        value={certname}
+      >
+        <CertButton cert={CERT.TRA1} />
+        <CertButton cert={CERT.TRA2} />
+        <CertButton cert={CERT.TRA3} />
       </ToggleButtonGroup>
     </>
   );

@@ -3,25 +3,33 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
 import Busy from './Busy';
-import { util } from '/firebase';
+import { util } from '/rt';
+import {
+  ATTENDEES_INDEX_PATH,
+  ATTENDEE_PATH,
+  CARDS_INDEX_PATH,
+  CARD_MOTORS_PATH,
+} from '/rt/rtconstants';
 import { iAttendees, iCards } from '/types';
 
 async function completed_migrateCerts() {
   log(<h3>Migrating attendee certs...</h3>);
-  const allAttendees = await util.get<Record<string, iAttendees>>('/attendees');
+  const allAttendees = await util.get<Record<string, iAttendees>>(
+    ATTENDEES_INDEX_PATH
+  );
   for (const [launchId, attendees] of Object.entries(allAttendees)) {
     log(<h4>{launchId}</h4>);
-    for (const [attendeeId, attendee] of Object.entries(attendees)) {
-      const cert = attendee.cert as any;
+    for (const [userId, attendee] of Object.entries(attendees)) {
+      const cert = attendee.cert;
       if (!cert) continue;
 
       if (cert.memberId != null) {
         // cert.memberId = cert.memberId;
-        const dbPath = `/attendees/${launchId}/${attendeeId}/cert`;
-        const p = util.set(dbPath, cert);
+        const rtPath = ATTENDEE_PATH.with({ launchId, userId });
+        const p = util.set(rtPath, cert);
         const entry = (
           <div>
-            <Busy promise={p} text={`Updating ${dbPath}`} />
+            <Busy promise={p} text={`Updating ${rtPath}`} />
           </div>
         );
         log(entry);
@@ -32,7 +40,7 @@ async function completed_migrateCerts() {
 
 async function complete_migrateMotors() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
-  const allCards = await util.get<Record<string, iCards>>('/cards');
+  const allCards = await util.get<Record<string, iCards>>(CARDS_INDEX_PATH);
   for (const [launchId, cards] of Object.entries(allCards)) {
     log(<h4>Launch {launchId}</h4>);
     for (const [cardId, card] of Object.entries(cards)) {
@@ -50,7 +58,7 @@ async function complete_migrateMotors() {
       }
 
       if (needsWrite) {
-        const rtPath = `/cards/${launchId}/${cardId}/motors`;
+        const rtPath = CARD_MOTORS_PATH.with({ launchId, cardId });
         log('Updating', rtPath);
         await util.set(rtPath, Object.fromEntries(motorEntries));
       }

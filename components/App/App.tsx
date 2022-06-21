@@ -18,7 +18,8 @@ import { Loading } from '/components/common/util';
 import Launch from '/components/Launch/Launch';
 import LaunchHome from '/components/Launch/LaunchHome';
 import Launches from '/components/Launches';
-import { ATTENDEE_PATH, auth, OFFICERS_PATH, util } from '/firebase';
+import { auth, util } from '/rt';
+import { ATTENDEE_PATH, OFFICERS_PATH } from '/rt/rtconstants';
 import { iAttendee, iOfficers } from '/types';
 
 export const APPNAME = 'FlightCard';
@@ -27,6 +28,7 @@ export const ANONYMOUS = '(anonymous)';
 function ChromeRoute() {
   return (
     <div style={{ border: 'solid 20px red' }}>
+      <h1>Hello</h1>
       <Outlet />
     </div>
   );
@@ -35,7 +37,6 @@ function ChromeRoute() {
 function LaunchRoute() {
   const [launch, loading, error] = useLaunch();
   const [currentUser] = useCurrentUser();
-
   const [attendee] = util.useValue<iAttendee>(
     ATTENDEE_PATH.with({
       launchId: launch?.id ?? '',
@@ -49,14 +50,19 @@ function LaunchRoute() {
   if (loading) {
     return <Loading wat='Launch' />;
   } else if (error) {
-    return <Alert variant='danger'>{error.message}</Alert>;
+    return <Alert variant='danger'>LaunchRoute: {error.message}</Alert>;
   } else if (!launch) {
     return <Alert variant='warning'>Launch Not Found</Alert>;
   }
 
   return (
-    <div className='d-flex flex-column vh-100'>
-      <Navbar bg='dark' variant='dark' className='d-flex py-0'>
+    <div>
+      <Navbar
+        bg='dark'
+        variant='dark'
+        className='position-sticky top-0'
+        style={{ zIndex: 3 }}
+      >
         {currentUser && launch ? (
           <>
             {[
@@ -92,13 +98,13 @@ function LaunchRoute() {
         )}
       </Navbar>
 
-      <div className='flex-grow-1 overflow-auto p-3'>
+      <div className='p-3' style={{minHeight: '100vh'}}>
         <Outlet />
       </div>
 
       {launch ? (
         <RangeStatus
-          className='text-white bg-dark flex-grow-0'
+          className='position-sticky bottom-0 w-100'
           launch={launch}
           isLCO={attendee?.role == 'lco'}
         />
@@ -123,20 +129,24 @@ function ProtectedRoute<Route>({ children }: PropsWithChildren) {
 }
 
 export default function App() {
+  const match = useMatch<'launchId', string>('/launches/:launchId/*');
+  const { launchId } = match?.params ?? {};
+
   return (
-    <CurrentUserProvider>
-      <LaunchProvider>
+    <LaunchProvider launchId={launchId}>
+      <CurrentUserProvider>
         <Routes>
+          {/* <Route path='*' element={<h1>World</h1>} /> */}
           {/* <ProtectedRoute> */}
           <Route index element={<Launches />} />
+          <Route path='/admin' element={<Admin />} />
           <Route element={<LaunchRoute />}>
-            <Route path='/admin' element={<Admin />} />
             <Route path='/launches/:launchId' element={<LaunchHome />} />
             <Route path='/launches/:launchId/*' element={<Launch />} />
           </Route>
           {/* </ProtectedRoute> */}
         </Routes>
-      </LaunchProvider>
-    </CurrentUserProvider>
+      </CurrentUserProvider>
+    </LaunchProvider>
   );
 }

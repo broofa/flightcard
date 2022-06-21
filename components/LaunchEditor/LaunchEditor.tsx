@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router';
 import simplur from 'simplur';
 import { arraySort } from '../../util/arrayUtils';
 import { FCLinkButton } from '../common/FCLinkButton';
-import { useAttendees, useCards, usePads } from '../contexts/derived';
 import { useLaunch } from '../contexts/LaunchContext';
+import { useAttendees, useCards, usePads } from '../contexts/rthooks';
 import { PadEditor } from '../LaunchEditor/PadEditor';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
-import { db, DELETE } from '/firebase';
+import { db, DELETE } from '/rt';
 import { iLaunch, iPad } from '/types';
 
 export default function LaunchEditor() {

@@ -5,7 +5,7 @@ import { FCLinkButton } from './common/FCLinkButton';
 import { useCurrentUser } from './contexts/CurrentUserContext';
 import { useLaunch } from './contexts/LaunchContext';
 import { Loading } from '/components/common/util';
-import { db } from '/firebase';
+import { db } from '/rt';
 
 export function Waiver() {
   const [launch] = useLaunch();

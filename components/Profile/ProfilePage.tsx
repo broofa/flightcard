@@ -6,13 +6,14 @@ import { useLaunch } from '../contexts/LaunchContext';
 import { OFFICERS } from '../Launch/UsersPane';
 import CertForm from './CertForm';
 import ProfileName from './ProfileName';
+import UnitsPref from './UnitsPref';
 import {
   AttendeesLink,
   busy,
   LinkButton,
-  Loading
+  Loading,
 } from '/components/common/util';
-import { auth, db, DELETE } from '/firebase';
+import { auth, db, DELETE } from '/rt';
 import { iAttendee } from '/types';
 
 export default function ProfilePage({
@@ -34,16 +35,6 @@ export default function ProfilePage({
 
   const { cert } = user;
 
-  const onName = (e: ChangeEvent<HTMLInputElement>) => {
-    const name = e?.target?.value || DELETE;
-    busy(
-      e.target,
-      Promise.all([
-        db.attendee.update(launchId, user.id, { name }),
-        db.user.update(user.id, { name }),
-      ])
-    );
-  };
 
   // Compose certification status
   let certStatus;
@@ -86,39 +77,14 @@ export default function ProfilePage({
         {cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}
       </h2>
 
-      <CertForm user={user} launchId={launchId} />
+      <CertForm launchId={launch.id} userId={user.id} />
 
       <h2>Units of Measure</h2>
-      <div className='ms-3'>
-        <p>
-          Values for length, mass, force, etc. will be shown in these units:
-        </p>
-        <div>
-          <input
-            id='mksUnits'
-            checked={currentUser?.units == 'mks'}
-            className='me-2'
-            type='radio'
-            onChange={() => setUnits('mks')}
-          />
-          <label htmlFor='mksUnits'>Metric (Meters, Kilograms, Newtons)</label>
-        </div>
-        <div>
-          <input
-            id='uscsUnits'
-            checked={currentUser?.units == 'uscs'}
-            className='me-2'
-            type='radio'
-            onChange={() => setUnits('uscs')}
-          />
-          <label htmlFor='uscsUnits'>
-            Imperial (Feet, Pounds, Pounds-Force)
-          </label>
-        </div>
-      </div>
+
+      <UnitsPref authId={user.id} />
 
       <h2>Actions</h2>
-      <div className='d-flex flex-wrap gap-3 mb-3 ms-3'>
+      <div className='d-flex flex-wrap gap-3 mb-3'>
         <LinkButton to={'/'}>Other Launches&hellip;</LinkButton>
         {currentUser?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
           <LinkButton to={'/admin'}>Admin</LinkButton>

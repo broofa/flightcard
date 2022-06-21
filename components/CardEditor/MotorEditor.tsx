@@ -8,8 +8,9 @@ import React, {
 } from 'react';
 import { Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import { busy, sig } from '../common/util';
-import { useUserUnits } from '../contexts/derived';
-import { CardFields, CARD_MOTOR_PATH, DELETE, util } from '/firebase';
+import { useUserUnits } from '../contexts/rthooks';
+import { DELETE, util } from '/rt';
+import { CardFields, CARD_MOTOR_PATH } from '/rt/rtconstants';
 import { iMotor } from '/types';
 import { getMotorByDisplayName } from '/util/motor-util';
 import { MKS, unitConvert, unitParse } from '/util/units';
@@ -119,7 +120,7 @@ export function MotorEditor({
           ))}
         </datalist>
 
-        <Form.Control
+        <Form.Control autoFocus
           className='flex-grow-1'
           onChange={onNameChange}
           list='tc-motors'

@@ -2,14 +2,14 @@ import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { padThrust } from '../../util/motor-util';
 import { MKS, unitConvert } from '../../util/units';
-import { useUserUnits } from '../contexts/derived';
+import { useUserUnits } from '../contexts/rthooks';
 import { sig } from '/components/common/util';
+import { util } from '/rt';
 import {
   CardFields,
   CARD_MOTORS_PATH,
-  CARD_ROCKET_PATH,
-  util,
-} from '/firebase';
+  ROCKET_MASS_PATH,
+} from '/rt/rtconstants';
 import { iCard, iRocket } from '/types';
 
 // Force of gravity (m/^2)
@@ -19,14 +19,14 @@ const MIN_VELOCITY = 13.89; // meters/second
 export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   const [userUnits = MKS] = useUserUnits();
 
-  const mass = util.useSimpleValue<iRocket['mass']>(
-    CARD_ROCKET_PATH.append('mass').with(rtFields)
+  const [mass] = util.useValue<iRocket['mass']>(
+    ROCKET_MASS_PATH.with(rtFields)
   );
-  const motors = util.useSimpleValue<iCard['motors']>(
+  const [motors] = util.useValue<iCard['motors']>(
     CARD_MOTORS_PATH.with(rtFields)
   );
 
-  if (!motors?.length) {
+  if (!motors || !Object.entries(motors).length) {
     return null;
   }
 

@@ -3,7 +3,7 @@ import React, { MouseEventHandler, useRef } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy } from '/components/common/util';
-import { db, DELETE } from '/firebase';
+import { db, DELETE } from '/rt';
 import { iPad } from '/types';
 
 export function PadEditor({

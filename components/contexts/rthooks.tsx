@@ -1,16 +1,14 @@
 import { useCurrentUser } from './CurrentUserContext';
 import { useLaunch } from './LaunchContext';
+import { RTState, util } from '/rt';
 import {
   ATTENDEES_PATH,
   ATTENDEE_PATH,
   CARDS_PATH,
   LAUNCHES_PATH,
-  LAUNCH_PATH,
   OFFICERS_PATH,
   PADS_PATH,
-  RTState,
-  util,
-} from '/firebase';
+} from '/rt/rtconstants';
 import {
   iAttendee,
   iAttendees,

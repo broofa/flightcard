@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavDropdown } from 'react-bootstrap';
-import { db } from '/firebase';
+import { db } from '/rt';
 import { iLaunch, iUser, tRole } from '/types';
 
 export function RoleDropdown({

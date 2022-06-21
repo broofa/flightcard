@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
-import { auth, DELETE, util } from '/firebase';
+import { auth, DELETE, util } from '/rt';
 import {
   CardStatus,
   CertOrg,
@@ -246,7 +246,12 @@ async function seedCards(launchId: string, attendees: iAttendees, pads: iPads) {
       const { _motor: motor } = rocket as iRocket & { _motor?: iMotor };
       delete rocket._motor;
 
-      const status = [DELETE, CardStatus.REVIEW, CardStatus.READY, CardStatus.DONE][i];
+      const status = [
+        DELETE,
+        CardStatus.REVIEW,
+        CardStatus.READY,
+        CardStatus.DONE,
+      ][i];
 
       const id = genId('card');
       const padId = /ready|done/.test(status ?? '')

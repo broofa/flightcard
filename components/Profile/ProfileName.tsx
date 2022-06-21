@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes } from 'react';
 import { rtuiFromPath } from '../rtui/RTUI';
-import { AttendeeFields, ATTENDEE_PATH } from '/firebase';
+import { AttendeeFields, ATTENDEE_PATH } from '/rt/rtconstants';
 
 export default function ProfileName({
   attendeeFields,
@@ -8,7 +8,7 @@ export default function ProfileName({
 }: {
   attendeeFields: AttendeeFields;
 } & InputHTMLAttributes<HTMLInputElement>) {
-  const rtui = rtuiFromPath(ATTENDEE_PATH.append('name').with(attendeeFields));
+  const rtui = rtuiFromPath(ATTENDEE_PATH.with(attendeeFields));
 
   return <rtui.StringInput label='Name' field='name' {...props} />;
 }

@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { useMatch } from 'react-router-dom';
-import { LAUNCH_PATH, RTState, util } from '/firebase';
+import { RTState, util } from '/rt';
+import { LAUNCH_PATH } from '/rt/rtconstants';
 import { iLaunch } from '/types';
 
 const launchContext = createContext<RTState<iLaunch>>([
@@ -13,11 +13,11 @@ export function useLaunch() {
   return useContext(launchContext);
 }
 
-export function LaunchProvider({ children }: PropsWithChildren) {
+export function LaunchProvider({
+  launchId,
+  children,
+}: PropsWithChildren<{ launchId?: string }>) {
   const { Provider } = launchContext;
-
-  const match = useMatch<'launchId', string>('/launches/:launchId/*');
-  const { launchId } = match?.params ?? {};
 
   const launchFields = launchId ? { launchId } : undefined;
   const rtpath = LAUNCH_PATH.with(launchFields);

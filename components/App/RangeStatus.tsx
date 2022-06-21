@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, ButtonGroup, ButtonGroupProps } from 'react-bootstrap';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../../util/playSound';
 import { usePrevious } from '/components/common/util';
-import { db } from '/firebase';
+import { db } from '/rt';
 import { iLaunch } from '/types';
 
 export function RangeStatus({

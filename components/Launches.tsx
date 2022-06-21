@@ -11,9 +11,9 @@ import {
 import { useNavigate } from 'react-router';
 import { arraySort } from '../util/arrayUtils';
 import { useCurrentUser } from './contexts/CurrentUserContext';
-import { useLaunches } from './contexts/derived';
+import { useLaunches } from './contexts/rthooks';
 import { busy, LinkButton, Loading } from '/components/common/util';
-import { db } from '/firebase';
+import { db } from '/rt';
 import { iLaunch, iPad } from '/types';
 
 function dateString(ts: string) {

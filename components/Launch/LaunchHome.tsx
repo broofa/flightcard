@@ -2,8 +2,8 @@ import React from 'react';
 import { Card } from 'react-bootstrap';
 import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
-import { useAttendee, useAttendees, useOfficers } from '../contexts/derived';
 import { useLaunch } from '../contexts/LaunchContext';
+import { useAttendee, useOfficers } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
@@ -16,12 +16,10 @@ const officiateImage = new URL('/art/home_officiate.webp', import.meta.url);
 export default function LaunchHome() {
   const [attendee] = useAttendee();
   const [launch] = useLaunch();
-  const [attendees] = useAttendees();
   const [officers] = useOfficers();
 
   if (!attendee) return <Waiver />;
   if (!launch) return <Loading wat='Launch' />;
-  if (!attendees) return <Loading wat='Attendees' />;
 
   function launchUrl(suffix: string) {
     if (!launch?.id) throw Error('No launch id'); // Should never happen

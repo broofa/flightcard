@@ -4,8 +4,8 @@ import { useMatch, useNavigate } from 'react-router-dom';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { arraySort } from '../../util/arrayUtils';
 import { MKS } from '../../util/units';
-import { useAttendee, usePads, useUserUnits } from '../contexts/derived';
-import { useLaunch } from '../contexts/LaunchContext';
+import { useAttendee, usePads, useUserUnits } from '../contexts/rthooks';
+import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
 import MotorAnalysis from './MotorAnalysis';
 import { MotorDataList } from './MotorDataList';
@@ -15,8 +15,14 @@ import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
-import { CARD_PATH, db, DELETE } from '/firebase';
-import { CardStatus, iCard, iMotor, Recovery } from '/types';
+import { db, DELETE, util } from '/rt';
+import {
+  AttendeeFields,
+  ATTENDEE_PATH,
+  CardFields,
+  CARD_PATH,
+} from '/rt/rtconstants';
+import { CardStatus, iAttendee, iCard, iMotor, Recovery } from '/types';
 
 function FormSection({
   className,
@@ -31,30 +37,35 @@ function FormSection({
 }
 
 export default function CardEditor() {
-  const navigate = useNavigate();
   const [userUnits = MKS] = useUserUnits();
   const [attendee] = useAttendee();
-  const [launch] = useLaunch();
   const [pads] = usePads();
-  const match = useMatch('launches/:launchId/cards/:cardId');
-  const { cardId } = match?.params ?? {};
-  const { launchId } = match?.params ?? {};
-  const [card, setCard] = useState<iCard>();
-  const [flier] = useAttendee();
   const [detailMotor, setDetailMotor] = useState<TCMotor>();
   const [editMotor, setEditMotor] = useState<iMotor>();
+  const match = useMatch('launches/:launchId/cards/:cardId');
+  const cardFields: CardFields = {
+    launchId: match?.params.launchId ?? '',
+    cardId: match?.params.cardId ?? '',
+  };
+  const [card] = util.useValue<iCard>(CARD_PATH.with(cardFields));
+  const cardPath = CARD_PATH.with(cardFields);
 
-  const rtFields = launchId && cardId ? { launchId, cardId } : undefined;
+  const navigate = useNavigate();
 
+  const flierFields: AttendeeFields = {
+    launchId: match?.params.launchId ?? '',
+    userId: card?.userId ?? '',
+  };
+  const flierPath = ATTENDEE_PATH.with(flierFields);
+  const [flier] = util.useValue<iAttendee>(flierPath);
   const disabled = attendee?.id !== flier?.id;
 
   const rtui = useMemo(() => {
-    return rtuiFromPath(CARD_PATH.with(rtFields), userUnits);
-  }, [launchId, cardId, userUnits]);
+    return rtuiFromPath(cardPath, userUnits);
+  }, [cardPath, userUnits]);
 
   function cardUpdate(update: Partial<iCard>) {
-    if (!card?.id) return;
-    return db.card.update(launchId, card.id, update);
+    return util.update(cardPath, update);
   }
 
   function setCardStatus(status?: CardStatus) {
@@ -73,7 +84,6 @@ export default function CardEditor() {
 
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
-  if (!launch) return <Loading wat='Launch' />;
   if (!pads) return <Loading wat='Pads' />;
 
   const isOwner = attendee?.id == card?.userId;
@@ -91,7 +101,7 @@ export default function CardEditor() {
           // TODO: Disallow deletion of cards that are ready to fly or that have been flown
           if (
             !confirm(
-              `Delete the rocket named '${
+              `Delete flight card for '${
                 card.rocket?.name ?? '(unnamed rocket)'
               }'? (This cannot be undone!)`
             )
@@ -229,12 +239,14 @@ export default function CardEditor() {
     <>
       <MotorDataList id='tc-motors' />
 
+
       {flier ? (
         <>
           <FormSection>Flier</FormSection>
           <AttendeeInfo className='me-3' attendee={flier} />
         </>
       ) : null}
+      Units preference: <UnitsPref authId={attendee.id} className='ms-3' />
 
       <FormSection className='d-flex align-items-baseline'>
         <span>Status</span>
@@ -334,15 +346,15 @@ export default function CardEditor() {
         <Button onClick={() => setEditMotor({ id: '' })}>Add Motor...</Button>
       </FormSection>
 
-      {rtFields && (
+      {cardFields && (
         <MotorList
-          rtFields={rtFields}
+          rtFields={cardFields}
           setEditMotor={setEditMotor}
           setDetailMotor={setDetailMotor}
         />
       )}
 
-      {rtFields && <MotorAnalysis rtFields={rtFields} />}
+      {cardFields && <MotorAnalysis rtFields={cardFields} />}
 
       <FormSection>Flight</FormSection>
 
@@ -382,9 +394,9 @@ export default function CardEditor() {
         </Button>
       </div>
 
-      {editMotor && rtFields ? (
+      {editMotor && cardFields ? (
         <MotorEditor
-          rtFields={rtFields}
+          rtFields={cardFields}
           motor={editMotor}
           onHide={() => setEditMotor(undefined)}
         />

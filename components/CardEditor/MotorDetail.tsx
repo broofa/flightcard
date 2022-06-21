@@ -90,8 +90,8 @@ export function MotorDetail({
           <Alert variant='warning' className='d-flex'>
             <Sparky className='m-auto' />
             <div className='flex-grow-1'>
-              Heads up! This is a sparky motor. Please make sure you're allowed
-              to fly these kinds of motor at this launch.
+              Heads up! Sparky motors may not be allowed at some launches. Check
+              with the RSO.
             </div>
           </Alert>
         ) : null}

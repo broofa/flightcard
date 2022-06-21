@@ -9,14 +9,8 @@ import React, {
 } from 'react';
 import { Form, FormCheckProps } from 'react-bootstrap';
 import { sig } from '../common/util';
-import {
-  BOOL_ADAPTER,
-  DELETE,
-  RTAdapter,
-  RTPath,
-  STRING_ADAPTER,
-  util,
-} from '/firebase';
+import { BOOL_ADAPTER, DELETE, RTAdapter, STRING_ADAPTER, util } from '/rt';
+import { RTPath } from '/rt/RTPath';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
 
 // ALL THE HOOKZ for RTUI controls
@@ -34,7 +28,7 @@ function useRealtimeField<RTType, ControlType>(
   // Identifier for connecting label and control
   const [id] = useState(nanoid());
 
-  util.useSimpleValue<RTType>(
+  util.useValue<RTType>(
     path,
     useCallback((v?: RTType) => setVal(adapter.fromRT(v)), [adapter])
   );
@@ -69,7 +63,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       const { val, setVal, save, isSaving, id } = useRealtimeField<
         string,
         string
-      >(rtpath, '', STRING_ADAPTER);
+      >(rtpath.append(field, {}), '', STRING_ADAPTER);
 
       return (
         <div className='form-floating'>
@@ -101,7 +95,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       const { val, setVal, save, isSaving, id } = useRealtimeField<
         string,
         string
-      >(fieldPath(field), '', STRING_ADAPTER);
+      >(rtpath.append(field, {}), '', STRING_ADAPTER);
 
       return (
         <div className='form-floating'>
@@ -129,7 +123,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       field: string;
     }) {
       const { val, save, isSaving, id } = useRealtimeField<boolean, boolean>(
-        fieldPath(field),
+        rtpath.append(field, {}),
         false,
         BOOL_ADAPTER
       );
@@ -160,7 +154,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       value: string;
     }) {
       const { val, save, isSaving, id } = useRealtimeField<string, string>(
-        fieldPath(field),
+        rtpath.append(field, {}),
         '',
         STRING_ADAPTER
       );
@@ -210,7 +204,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       const { val, setVal, save, isSaving, id } = useRealtimeField<
         number,
         string
-      >(fieldPath(field), '', adapter);
+      >(rtpath.append(field, {}), '', adapter);
 
       return (
         <div className='form-floating'>

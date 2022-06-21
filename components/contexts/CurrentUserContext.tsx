@@ -6,7 +6,8 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { auth, DELETE, RTState, USER_PATH, util } from '/firebase';
+import { auth, DELETE, RTState, util } from '/rt';
+import { USER_PATH } from '/rt/rtconstants';
 import { iUser } from '/types';
 
 const currentUserContext = createContext<RTState<iUser>>([

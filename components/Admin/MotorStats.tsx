@@ -2,14 +2,15 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { arraySort } from '../../util/arrayUtils';
 import { clear, log } from './AdminLogger';
-import { util } from '/firebase';
+import { util } from '/rt';
+import { CARDS_INDEX_PATH } from '/rt/rtconstants';
 import { iCards } from '/types';
 import { getMotor } from '/util/motor-util';
 
 async function handleClick() {
   clear();
   log(<h3>Fetching cards...</h3>);
-  const allCards = await util.get<Record<string, iCards>>('/cards');
+  const allCards = await util.get<Record<string, iCards>>(CARDS_INDEX_PATH);
   const motorCounts: { [tcMotorId: string]: number } = {};
   for (const [launchId, cards] of Object.entries(allCards)) {
     log(<h4>Launch {launchId}</h4>);

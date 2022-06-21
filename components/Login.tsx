@@ -10,7 +10,7 @@ import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import { APPNAME } from './App/App';
 import { busy } from '/components/common/util';
-import { auth } from '/firebase';
+import { auth } from '/rt';
 
 // localStorage key where user's email address is stored
 const EMAIL_KEY = 'fcEmail';
@@ -50,11 +50,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
         email = window.prompt('Please provide your email for confirmation');
       }
 
-
-      busy(
-        busyEl,
-        signInWithEmailLink(auth, email ?? '', location.href)
-      )
+      busy(busyEl, signInWithEmailLink(auth, email ?? '', location.href))
         .then(() => {
           // Clear email from storage.
           // You can access the new user via result.user
@@ -64,7 +60,7 @@ function EmailModal({ show, ...props }: ModalProps & { show: boolean }) {
           // result.additionalUserInfo.isNewUser
           window.localStorage.removeItem(EMAIL_KEY);
         })
-        .catch((err : Error & {code: string}) => {
+        .catch((err: Error & { code: string }) => {
           console.error('Login failed', err);
           setError(err);
         });
