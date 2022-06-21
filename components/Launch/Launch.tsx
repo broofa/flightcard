@@ -4,12 +4,12 @@ import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { arraySort } from '../../util/arrayUtils';
 import { ANONYMOUS } from '../App/App';
 import CardEditor from '../CardEditor/CardEditor';
-import { useCurrentUser } from '../contexts/CurrentUserContext';
 import { useLaunch } from '../contexts/LaunchContext';
 import {
   useAttendee,
   useAttendees,
   useCards,
+  useCurrentUser,
   usePads,
 } from '../contexts/rthooks';
 import ProfilePage from '../Profile/ProfilePage';
@@ -226,16 +226,17 @@ function Launch() {
   return (
     <>
       <Routes>
-        <Route path='cards' element={<CardsPane launchId={launch?.id} />} />
+        <Route path='cards' element={<CardsPane />} />
         <Route path='cards/:cardId' element={<CardEditor />} />
         <Route path='edit' element={<LaunchEditor />} />
-        <Route
-          path='profile'
-          element={<ProfilePage user={attendee} launchId={launch?.id} />}
-        />
+        <Route path='profile' element={<ProfilePage />} />
         <Route path='rso' element={<RangeSafetyPane />} />
         <Route path='lco' element={<LaunchControlPane />} />
-        <Route path='users' element={<UsersPane launchId={launch?.id} />} />
+        <Route path='users' element={<UsersPane />} />
+        <Route
+          path='*'
+          element={<Alert variant='warning'>Page not found</Alert>}
+        />
       </Routes>
     </>
   );

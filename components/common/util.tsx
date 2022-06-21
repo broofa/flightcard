@@ -72,7 +72,7 @@ export function LinkButton({
 /**
  * Style a DOMElement as "busy" during an async operation
  */
-export function busy(target: Element | null | undefined, p: Promise<unknown>) {
+export function busy<T extends Promise<unknown>>(target: Element | null | undefined, p: T): T {
   // Allow null targets because refs can be undefined and it's annoying having to check for that case
   if (target) {
     // Start busy animation

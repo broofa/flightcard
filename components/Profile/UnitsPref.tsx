@@ -4,7 +4,10 @@ import { util } from '/rt';
 import { USER_UNITS } from '/rt/rtconstants';
 import { tUnitSystemName } from '/util/units';
 
-export default function UnitsPref({ authId, ...props }: { authId: string } & HTMLAttributes<HTMLDivElement>) {
+export default function UnitsPref({
+  authId,
+  ...props
+}: { authId: string } & HTMLAttributes<HTMLDivElement>) {
   const rtpath = USER_UNITS.with({ authId });
   const [units] = util.useValue<string>(rtpath);
 

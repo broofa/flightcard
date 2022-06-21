@@ -10,8 +10,7 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import { arraySort } from '../util/arrayUtils';
-import { useCurrentUser } from './contexts/CurrentUserContext';
-import { useLaunches } from './contexts/rthooks';
+import { useCurrentUser, useLaunches } from './contexts/rthooks';
 import { busy, LinkButton, Loading } from '/components/common/util';
 import { db } from '/rt';
 import { iLaunch, iPad } from '/types';
@@ -106,7 +105,7 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
         <FormSelect
           className='mt-3'
           value={copyId}
-          onChange={e => setCopyId((e as any).target.value)}
+          onChange={e => setCopyId(e.target.value)}
         >
           <option>(Optional) Launch to copy...</option>
           {arraySort(Object.values(launches), 'name').map(launch => (

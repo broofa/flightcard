@@ -16,10 +16,6 @@ const currentUserContext = createContext<RTState<iUser>>([
   undefined,
 ]);
 
-export function useCurrentUser() {
-  return useContext(currentUserContext);
-}
-
 export function CurrentUserProvider({ children }: PropsWithChildren) {
   const { Provider } = currentUserContext;
 

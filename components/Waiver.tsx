@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { APPNAME } from './App/App';
 import { FCLinkButton } from './common/FCLinkButton';
-import { useCurrentUser } from './contexts/CurrentUserContext';
 import { useLaunch } from './contexts/LaunchContext';
+import { useCurrentUser } from './contexts/rthooks';
 import { Loading } from '/components/common/util';
 import { db } from '/rt';
 

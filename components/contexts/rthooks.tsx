@@ -1,4 +1,4 @@
-import { useCurrentUser } from './CurrentUserContext';
+import { useAuthUser } from './AuthIdContext';
 import { useLaunch } from './LaunchContext';
 import { RTState, util } from '/rt';
 import {
@@ -8,6 +8,7 @@ import {
   LAUNCHES_PATH,
   OFFICERS_PATH,
   PADS_PATH,
+  USER_PATH,
 } from '/rt/rtconstants';
 import {
   iAttendee,
@@ -16,6 +17,7 @@ import {
   iLaunchs,
   iOfficers,
   iPads,
+  iUser,
 } from '/types';
 import { MKS, tUnitSystem, USCS } from '/util/units';
 
@@ -29,6 +31,23 @@ export function useAttendee() {
       userId: currentUser?.id ?? '',
     })
   );
+}
+
+export function useCurrentUser() {
+  const [authUser, authLoading, authError] = useAuthUser();
+
+  const authFields = authUser ? { authId: authUser.uid } : undefined;
+  const rtpath = USER_PATH.with(authFields);
+
+  const userState = util.useValue<iUser>(rtpath);
+
+  if (authLoading) {
+    return [undefined, true, undefined] as RTState<iUser>;
+  } else if (authError) {
+    return [undefined, false, authError] as RTState<iUser>;
+  }
+
+  return userState;
 }
 
 export function useLaunches(): RTState<iLaunchs> {

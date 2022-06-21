@@ -1,40 +1,22 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import { Alert, Button } from 'react-bootstrap';
-import { tUnitSystemName } from '../../util/units';
-import { useCurrentUser } from '../contexts/CurrentUserContext';
 import { useLaunch } from '../contexts/LaunchContext';
+import { useAttendee } from '../contexts/rthooks';
 import { OFFICERS } from '../Launch/UsersPane';
 import CertForm from './CertForm';
 import ProfileName from './ProfileName';
 import UnitsPref from './UnitsPref';
-import {
-  AttendeesLink,
-  busy,
-  LinkButton,
-  Loading,
-} from '/components/common/util';
-import { auth, db, DELETE } from '/rt';
-import { iAttendee } from '/types';
+import { AttendeesLink, LinkButton, Loading } from '/components/common/util';
+import { auth } from '/rt';
 
-export default function ProfilePage({
-  user,
-  launchId,
-}: {
-  user: iAttendee;
-  launchId: string;
-}) {
-  const [currentUser] = useCurrentUser();
+export default function ProfilePage() {
   const [launch] = useLaunch();
+  const [attendee] = useAttendee();
 
-  function setUnits(units: tUnitSystemName) {
-    db.user.update(currentUser?.id, { units });
-  }
-
-  if (!user) return <Loading wat='Attendee' />;
+  if (!attendee) return <Loading wat='Attendee' />;
   if (!launch) return <Loading wat='Launch' />;
 
-  const { cert } = user;
-
+  const { cert } = attendee;
 
   // Compose certification status
   let certStatus;
@@ -66,27 +48,29 @@ export default function ProfilePage({
 
   return (
     <>
-      <h1>Settings for {user?.name ?? <i>(unnamed user)</i>}</h1>
+      <h1>Settings for {attendee?.name ?? <i>(unnamed user)</i>}</h1>
 
       <h2>Profile</h2>
 
-      <ProfileName attendeeFields={{ launchId, userId: user.id }} />
+      <ProfileName
+        attendeeFields={{ launchId: launch.id, userId: attendee.id }}
+      />
 
       <h2>
         High-Power Certification{' '}
         {cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}
       </h2>
 
-      <CertForm launchId={launch.id} userId={user.id} />
+      <CertForm launchId={launch.id} userId={attendee.id} />
 
       <h2>Units of Measure</h2>
 
-      <UnitsPref authId={user.id} />
+      <UnitsPref authId={attendee.id} />
 
       <h2>Actions</h2>
       <div className='d-flex flex-wrap gap-3 mb-3'>
         <LinkButton to={'/'}>Other Launches&hellip;</LinkButton>
-        {currentUser?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
+        {attendee?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
           <LinkButton to={'/admin'}>Admin</LinkButton>
         ) : null}
         <div className='flex-grow-1' />

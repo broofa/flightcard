@@ -1,7 +1,8 @@
 import React from 'react';
-import { Card } from 'react-bootstrap';
+import { Card, Nav } from 'react-bootstrap';
 import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
+import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendee, useOfficers } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
@@ -17,6 +18,8 @@ export default function LaunchHome() {
   const [attendee] = useAttendee();
   const [launch] = useLaunch();
   const [officers] = useOfficers();
+
+  const makeNewCard = useMakeNewCard();
 
   if (!attendee) return <Waiver />;
   if (!launch) return <Loading wat='Launch' />;
@@ -100,7 +103,7 @@ export default function LaunchHome() {
         <Card style={{ backgroundImage: `url(${flyImage})`, ...bgStyle }}>
           <Card.Title className='px-2 py-1'>Fly</Card.Title>
           <Card.Body>
-            <FCLink to={launchUrl('cards/new')}>Fill Out A Flight Card</FCLink>
+            <Nav.Link onClick={makeNewCard}>Fill Out A Flight Card</Nav.Link>
             <FCLink to={launchUrl('cards')}>My Flight Cards</FCLink>
             <FCLink to={launchUrl('users?filter=officers')}>
               Find a Launch Officer

@@ -111,7 +111,7 @@ export const util = {
       // Silently ignore attempts to use invalid paths.
       if (!path.isValid()) {
         setError(new Error(path.errorMessage));
-        setLoading(true);
+        setLoading(false);
         return;
       }
 

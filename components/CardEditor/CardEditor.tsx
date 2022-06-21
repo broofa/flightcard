@@ -87,7 +87,6 @@ export default function CardEditor() {
   if (!pads) return <Loading wat='Pads' />;
 
   const isOwner = attendee?.id == card?.userId;
-  const isNew = !card.id;
   const isFlier = !attendee.role;
   const isRSO = attendee.role === 'rso';
   const isLCO = attendee.role === 'lco';
@@ -115,7 +114,7 @@ export default function CardEditor() {
   // Compose action buttons based on role / card status
   const actions: ReactElement[] = [];
   if (isFlier && isOwner) {
-    if (isDraft && !isNew) {
+    if (isDraft) {
       actions.push(
         <Button key='f1' onClick={() => setCardStatus(CardStatus.REVIEW)}>
           Request RSO Review
@@ -239,14 +238,12 @@ export default function CardEditor() {
     <>
       <MotorDataList id='tc-motors' />
 
-
       {flier ? (
         <>
           <FormSection>Flier</FormSection>
           <AttendeeInfo className='me-3' attendee={flier} />
         </>
       ) : null}
-      Units preference: <UnitsPref authId={attendee.id} className='ms-3' />
 
       <FormSection className='d-flex align-items-baseline'>
         <span>Status</span>
@@ -260,7 +257,10 @@ export default function CardEditor() {
 
       {cardStatus}
 
-      <FormSection>Rocket</FormSection>
+      <FormSection className='d-flex'>
+          <div className='flex-grow-1'>Rocket</div>
+          <UnitsPref authId={attendee.id} className='ms-3' />
+      </FormSection>
 
       <UnitsFAQ />
 

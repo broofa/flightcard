@@ -1,38 +1,35 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 import { Alert, Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { NavLink, Outlet, Route, Routes, useMatch } from 'react-router-dom';
-import Admin from '../Admin/Admin';
 import {
-  CurrentUserProvider,
-  useCurrentUser,
-} from '../contexts/CurrentUserContext';
+  Navigate,
+  NavLink,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useMatch,
+} from 'react-router-dom';
+import Admin from '../Admin/Admin';
+import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
 import { LaunchProvider, useLaunch } from '../contexts/LaunchContext';
-import Login from '../Login';
+import { useCurrentUser } from '../contexts/rthooks';
+import Launch from '../Launch/Launch';
+import LaunchHome from '../Launch/LaunchHome';
+import Launches from '../Launches';
+import Login from '../Login/Login';
 import './App.scss';
 import { RangeStatus } from './RangeStatus';
 import { RoleDropdown } from './RoleDropdown';
 import { ErrorFlash } from '/components/common/ErrorFlash';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import Launch from '/components/Launch/Launch';
-import LaunchHome from '/components/Launch/LaunchHome';
-import Launches from '/components/Launches';
 import { auth, util } from '/rt';
 import { ATTENDEE_PATH, OFFICERS_PATH } from '/rt/rtconstants';
 import { iAttendee, iOfficers } from '/types';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';
-
-function ChromeRoute() {
-  return (
-    <div style={{ border: 'solid 20px red' }}>
-      <h1>Hello</h1>
-      <Outlet />
-    </div>
-  );
-}
 
 function LaunchRoute() {
   const [launch, loading, error] = useLaunch();
@@ -98,7 +95,7 @@ function LaunchRoute() {
         )}
       </Navbar>
 
-      <div className='p-3' style={{minHeight: '100vh'}}>
+      <div className='p-3' style={{ minHeight: '100vh' }}>
         <Outlet />
       </div>
 
@@ -115,17 +112,22 @@ function LaunchRoute() {
   );
 }
 
-function ProtectedRoute<Route>({ children }: PropsWithChildren) {
-  const [currentUser, loading, error] = useCurrentUser();
+// REF: https://stackoverflow.com/a/69592617/109538
+function RequireAuth() {
+  const [authUser, loading, error] = useAuthUser();
+  const location = useLocation();
+
   if (loading) {
-    return <Route element={<Loading wat='User Credentials' />} />;
+    return <Loading wat='User Credentials' />;
   } else if (error) {
-    return <Route element={<Alert variant='danger'>{error.message}</Alert>} />;
-  } else if (!currentUser) {
-    return <Route element={<Login />} />;
+    return (
+      <Alert variant='danger'>Authentication error: {error.message}</Alert>
+    );
+  } else if (!authUser) {
+    return <Navigate to='/login' state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }
 
 export default function App() {
@@ -133,20 +135,22 @@ export default function App() {
   const { launchId } = match?.params ?? {};
 
   return (
-    <LaunchProvider launchId={launchId}>
-      <CurrentUserProvider>
+    <AuthUserProvider>
+      <LaunchProvider launchId={launchId}>
         <Routes>
-          {/* <Route path='*' element={<h1>World</h1>} /> */}
-          {/* <ProtectedRoute> */}
-          <Route index element={<Launches />} />
-          <Route path='/admin' element={<Admin />} />
-          <Route element={<LaunchRoute />}>
-            <Route path='/launches/:launchId' element={<LaunchHome />} />
-            <Route path='/launches/:launchId/*' element={<Launch />} />
+          <Route path='/login' element={<Login />} />
+
+          <Route element={<RequireAuth />}>
+            <Route path='/' element={<Navigate to='/launches' />} />
+            <Route path='/admin' element={<Admin />} />
+            <Route path='/launches' element={<Launches />} />
+            <Route path='/launches/:launchid' element={<LaunchRoute />}>
+              <Route index element={<LaunchHome />} />
+              <Route path='*' element={<Launch />} />
+            </Route>
           </Route>
-          {/* </ProtectedRoute> */}
         </Routes>
-      </CurrentUserProvider>
-    </LaunchProvider>
+      </LaunchProvider>
+    </AuthUserProvider>
   );
 }
