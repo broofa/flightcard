@@ -1,6 +1,15 @@
 // Import bootstrap
 @import "./node_modules/bootstrap/scss/bootstrap";
 
+// Simple hack to support dark mode
+// REF: https://stackoverflow.com/a/40725251/109538
+@media (prefers-color-scheme: dark) {
+  html {
+    filter: invert(100%) hue-rotate(180deg);
+    // background-color: black;
+  }
+  img {filter: invert(100%) hue-rotate(180deg) !important;}
+}
 
 h1, .h1 {
   font-size: 1.8rem;

@@ -68,11 +68,10 @@ export function Waiver() {
         I understand and agree to the above terms
       </label>
 
-      <div className='d-flex mt-3'>
+      <div className='d-flex justify-content-between mt-3'>
         <FCLinkButton variant='danger' to='/'>
           I Do Not Agree
         </FCLinkButton>
-        <span className='flex-grow-1' />
         <Button disabled={!agreedCheck} onClick={launchAgree}>
           I Agree
         </Button>

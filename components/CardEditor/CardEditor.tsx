@@ -340,9 +340,8 @@ export default function CardEditor() {
         </div>
       </div>
 
-      <FormSection className='d-flex'>
+      <FormSection className='d-flex justify-content-between'>
         <div>Motors</div>
-        <div className='flex-grow-1' />
         <Button onClick={() => setEditMotor({ id: '' })}>Add Motor...</Button>
       </FormSection>
 

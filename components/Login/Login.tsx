@@ -12,6 +12,8 @@ import { APPNAME } from '../App/App';
 import { busy } from '../common/util';
 import { EmailModal } from './EmailModal';
 import { auth } from '/rt';
+import './Login.scss';
+
 
 // localStorage key where user's email address is stored
 export const EMAIL_KEY = 'fcEmail';
@@ -94,7 +96,7 @@ export default function Login() {
   }
 
   return (
-    <div className='text-center'>
+    <div id='login_page' className='text-center'>
       {showEmailModal ? (
         <EmailModal
           from={from}

@@ -10,10 +10,11 @@ import {
   useAttendees,
   useCards,
   useCurrentUser,
-  usePads,
 } from '../contexts/rthooks';
 import ProfilePage from '../Profile/ProfilePage';
 import { CardsPane } from './CardsPane';
+import { LaunchControlPane } from './LaunchControlPane';
+import { RangeSafetyPane } from './RangeSafetyPane';
 import { UsersPane } from './UsersPane';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
@@ -49,28 +50,6 @@ export function CardList({
   );
 }
 
-function RangeSafetyPane() {
-  const [cards] = useCards();
-  const [attendees] = useAttendees();
-
-  if (!attendees) return <Loading wat='Users' />;
-
-  const rsoCards = Object.values(cards || {}).filter(
-    c => c.status == CardStatus.REVIEW
-  );
-
-  return (
-    <>
-      <h2>RSO Requests</h2>
-      {rsoCards?.length ? (
-        <CardList cards={rsoCards} attendees={attendees} />
-      ) : (
-        <Alert variant='secondary'>No RSO requests at this time.</Alert>
-      )}
-    </>
-  );
-}
-
 function PadName({
   children,
   className = '',
@@ -85,7 +64,7 @@ function PadName({
   );
 }
 
-function PadCard({ padId }: { padId: string }) {
+export function PadCard({ padId }: { padId: string }) {
   const [cards] = useCards();
   const [launch] = useLaunch();
   const [attendees] = useAttendees();
@@ -183,34 +162,6 @@ function PadCard({ padId }: { padId: string }) {
         ) : null}
       </div>
     </div>
-  );
-}
-
-function LaunchControlPane() {
-  const [pads] = usePads();
-
-  if (!pads) return <Loading wat='Pads' />;
-
-  const padGroups = Array.from(
-    new Set(Object.values(pads).map(pad => pad.group ?? ''))
-  ).sort();
-
-  return (
-    <>
-      {padGroups.map(group => (
-        <div key={group}>
-          {group ? <h2 className='mt-5'>{group}</h2> : null}
-          <div className='deck ms-3'>
-            {arraySort(
-              Object.values(pads).filter(pad => (pad.group ?? '') === group),
-              'name'
-            ).map((pad, i) => (
-              <PadCard key={i} padId={pad.id} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </>
   );
 }
 

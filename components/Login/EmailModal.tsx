@@ -102,7 +102,9 @@ export function EmailModal({
     <Modal show={true} {...props}>
       <Modal.Title className='mx-3 mt-3'>{title}</Modal.Title>
       <Modal.Body>{body}</Modal.Body>
-      <Modal.Footer>{footer}</Modal.Footer>
+      <Modal.Footer className='d-flex justify-content-between'>
+        {footer}
+      </Modal.Footer>
     </Modal>
   );
 }

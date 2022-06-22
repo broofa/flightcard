@@ -26,7 +26,7 @@ export default function UnitsPref({
       {...props}
     >
       <ToggleButton
-        variant='outline-secondary'
+        variant='outline-primary'
         size='sm'
         id='unit-mks'
         value='mks'
@@ -34,7 +34,7 @@ export default function UnitsPref({
         Metric
       </ToggleButton>
       <ToggleButton
-        variant='outline-secondary'
+        variant='outline-primary'
         size='sm'
         id='unit-uscs'
         value='uscs'

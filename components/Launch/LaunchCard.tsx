@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Icon from '../common/Icon';
 import '/components/Launch/LaunchCard.scss';
 import { AttendeeInfo } from '/components/UserList';
 import { iAttendee, iCard } from '/types';
@@ -54,6 +55,14 @@ function totalImpulseClass(
     (acc: number, [, m]) => acc + (m.impulse ?? m.totImpulseNs ?? NaN),
     0
   );
+
+  if (isNaN(impulse)) {
+    return undefined;
+  }
+
+  if (impulse === 0) {
+    return '-';
+  }
 
   return isNaN(impulse)
     ? undefined

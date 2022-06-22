@@ -160,11 +160,10 @@ export default function LaunchEditor() {
           </div>
         </div>
       ))}
-      <div className='mt-4 d-flex gap-3'>
+      <div className='d-flex justify-content-between mt-4 gap-3'>
         <Button variant='danger' onClick={deleteLaunch} tabIndex={-1}>
           Delete This Launch
         </Button>
-        <div className='flex-grow-1' />
         <FCLinkButton variant='secondary' to={-1}>
           Okay
         </FCLinkButton>

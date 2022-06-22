@@ -3,7 +3,7 @@ import { Alert, Button } from 'react-bootstrap';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendee } from '../contexts/rthooks';
 import { OFFICERS } from '../Launch/UsersPane';
-import CertForm from './CertForm';
+import CertPref from './CertPref';
 import ProfileName from './ProfileName';
 import UnitsPref from './UnitsPref';
 import { AttendeesLink, LinkButton, Loading } from '/components/common/util';
@@ -61,7 +61,7 @@ export default function ProfilePage() {
         {cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}
       </h2>
 
-      <CertForm launchId={launch.id} userId={attendee.id} />
+      <CertPref launchId={launch.id} userId={attendee.id} />
 
       <h2>Units of Measure</h2>
 

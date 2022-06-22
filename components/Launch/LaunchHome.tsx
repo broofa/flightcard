@@ -4,7 +4,8 @@ import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useAttendee, useOfficers } from '../contexts/rthooks';
+import { useRoleAPI } from '../contexts/OfficersContext';
+import { useAttendee } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
@@ -17,7 +18,7 @@ const officiateImage = new URL('/art/home_officiate.webp', import.meta.url);
 export default function LaunchHome() {
   const [attendee] = useAttendee();
   const [launch] = useLaunch();
-  const [officers] = useOfficers();
+  const roleApi = useRoleAPI();
 
   const makeNewCard = useMakeNewCard();
 
@@ -29,13 +30,13 @@ export default function LaunchHome() {
     return `/launches/${launch.id}/${suffix}`;
   }
 
+  const isOfficer = roleApi.isOfficer(attendee);
+
   const bgStyle = {
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right',
     backgroundSize: 'contain',
   };
-
-  const isOfficer = officers?.[attendee.id];
 
   if (!attendee.name) {
     return (
@@ -103,10 +104,10 @@ export default function LaunchHome() {
         <Card style={{ backgroundImage: `url(${flyImage})`, ...bgStyle }}>
           <Card.Title className='px-2 py-1'>Fly</Card.Title>
           <Card.Body>
-            <Nav.Link onClick={makeNewCard}>Fill Out A Flight Card</Nav.Link>
             <FCLink to={launchUrl('cards')}>My Flight Cards</FCLink>
+            <Nav.Link onClick={makeNewCard}>Create a Flight Card</Nav.Link>
             <FCLink to={launchUrl('users?filter=officers')}>
-              Find a Launch Officer
+              View Club Officers
             </FCLink>
           </Card.Body>
         </Card>
