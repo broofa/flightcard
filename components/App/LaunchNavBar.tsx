@@ -6,12 +6,11 @@ import { useLaunch } from '../contexts/LaunchContext';
 import { useCurrentUser } from '../contexts/rthooks';
 import { APPNAME } from './App';
 import { RangeStatus } from './RangeStatus';
-import { ErrorFlash } from '/components/common/ErrorFlash';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
 import { auth, util } from '/rt';
-import { ATTENDEE_PATH, OFFICERS_PATH } from '/rt/rtconstants';
-import { iAttendee, iOfficers } from '/types';
+import { ATTENDEE_PATH } from '/rt/rtconstants';
+import { iAttendee } from '/types';
 
 export function LaunchNavBar() {
   const [launch, loading, error] = useLaunch();
@@ -21,9 +20,6 @@ export function LaunchNavBar() {
       launchId: launch?.id ?? '',
       userId: currentUser?.id ?? '',
     })
-  );
-  const [officers] = util.useValue<iOfficers>(
-    OFFICERS_PATH.with({ launchId: launch?.id ?? '' })
   );
 
   if (loading) {
@@ -36,11 +32,7 @@ export function LaunchNavBar() {
 
   return (
     <div>
-      <Navbar
-      bg='dark'
-        className='position-sticky top-0'
-        style={{ zIndex: 3 }}
-      >
+      <Navbar bg='dark' className='position-sticky top-0' style={{ zIndex: 3 }}>
         {currentUser && launch ? (
           <>
             {[
@@ -84,8 +76,6 @@ export function LaunchNavBar() {
           isLCO={attendee?.role == 'lco'}
         />
       ) : null}
-
-      <ErrorFlash />
     </div>
   );
 }

@@ -35,16 +35,18 @@ export function useAttendee() {
 
 export function useCurrentUser() {
   const [authUser, authLoading, authError] = useAuthUser();
-
   const authFields = authUser ? { authId: authUser.uid } : undefined;
   const rtpath = USER_PATH.with(authFields);
-
   const userState = util.useValue<iUser>(rtpath);
 
   if (authLoading) {
     return [undefined, true, undefined] as RTState<iUser>;
   } else if (authError) {
     return [undefined, false, authError] as RTState<iUser>;
+  }
+
+  if (!userState) {
+    console.error('User authed, but no user found');
   }
 
   return userState;

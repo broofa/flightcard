@@ -17,7 +17,7 @@ export function EmailModal({
 
   async function sendLink() {
     const redirectUrl = new URL(String(location));
-    redirectUrl.pathname = '/';
+    redirectUrl.pathname = from;
 
     try {
       await busy(
