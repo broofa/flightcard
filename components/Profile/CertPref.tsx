@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { usePrevious } from '../common/util';
-import { DELETE, util } from '/rt';
+import { DELETE, rtSet, useRTValue } from '/rt';
 import { ATTENDEE_CERT_PATH } from '/rt/rtconstants';
 import { CertLevel, CertOrg, iCert } from '/types';
 
@@ -26,7 +25,7 @@ export default function CertPref({
   userId: string;
 }) {
   const rtPath = ATTENDEE_CERT_PATH.with({ launchId, userId });
-  const [cert] = util.useValue<iCert>(rtPath);
+  const [cert] = useRTValue<iCert>(rtPath);
   function onCertChange(e: ChangeEvent<HTMLSelectElement>) {
     const { value } = e.target;
     const newCert = CERT[value];
@@ -36,7 +35,7 @@ export default function CertPref({
       );
       if (!okay) return;
     }
-    util.set(rtPath, newCert ?? DELETE);
+    rtSet(rtPath, newCert ?? DELETE);
   }
 
   return (

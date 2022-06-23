@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
 import Busy from './Busy';
-import { util } from '/rt';
+import { rtGet, rtSet } from '/rt';
 import {
   ATTENDEES_INDEX_PATH,
   ATTENDEE_PATH,
@@ -14,7 +14,7 @@ import { iAttendees, iCards } from '/types';
 
 async function completed_migrateCerts() {
   log(<h3>Migrating attendee certs...</h3>);
-  const allAttendees = await util.get<Record<string, iAttendees>>(
+  const allAttendees = await rtGet<Record<string, iAttendees>>(
     ATTENDEES_INDEX_PATH
   );
   for (const [launchId, attendees] of Object.entries(allAttendees)) {
@@ -26,7 +26,7 @@ async function completed_migrateCerts() {
       if (cert.memberId != null) {
         // cert.memberId = cert.memberId;
         const rtPath = ATTENDEE_PATH.with({ launchId, userId });
-        const p = util.set(rtPath, cert);
+        const p = rtSet(rtPath, cert);
         const entry = (
           <div>
             <Busy promise={p} text={`Updating ${rtPath}`} />
@@ -40,7 +40,7 @@ async function completed_migrateCerts() {
 
 async function complete_migrateMotors() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
-  const allCards = await util.get<Record<string, iCards>>(CARDS_INDEX_PATH);
+  const allCards = await rtGet<Record<string, iCards>>(CARDS_INDEX_PATH);
   for (const [launchId, cards] of Object.entries(allCards)) {
     log(<h4>Launch {launchId}</h4>);
     for (const [cardId, card] of Object.entries(cards)) {
@@ -60,7 +60,7 @@ async function complete_migrateMotors() {
       if (needsWrite) {
         const rtPath = CARD_MOTORS_PATH.with({ launchId, cardId });
         log('Updating', rtPath);
-        await util.set(rtPath, Object.fromEntries(motorEntries));
+        await rtSet(rtPath, Object.fromEntries(motorEntries));
       }
     }
   }

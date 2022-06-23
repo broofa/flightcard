@@ -3,10 +3,16 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { arraySort } from '../util/arrayUtils';
 import { ANONYMOUS } from './App/App';
 import { useLaunch } from './contexts/LaunchContext';
+import { useRoleAPI } from './contexts/OfficersContext';
 import { useAttendees, useCurrentUser, useOfficers } from './contexts/rthooks';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
-import { db, DELETE } from '/rt';
+import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';
+import {
+  ATTENDEE_CERT_PATH,
+  ATTENDEE_PATH,
+  OFFICER_PATH,
+} from '/rt/rtconstants';
 import { iAttendee, iCert, iPerm } from '/types';
 
 export function AttendeeInfo({
@@ -58,8 +64,11 @@ function UserEditor({
   onHide: () => void;
 }) {
   const [currentUser] = useCurrentUser();
-  const isOfficer = db.officer.useValue(launchId, userId);
-  const user = db.attendee.useValue(launchId, userId);
+  const roleApi = useRoleAPI();
+  const isOfficer = roleApi.isOfficer(userId);
+  const rtFields = { launchId, userId };
+
+  const [user] = useRTValue<iAttendee>(ATTENDEE_PATH.with(rtFields));
 
   if (!user) return <Loading wat='User' />;
   if (!currentUser) return <Loading wat='Current user' />;
@@ -71,14 +80,14 @@ function UserEditor({
       verifiedTime: e.target.checked ? Date.now() : DELETE,
     };
 
-    db.attendee.updateChild<iCert>(launchId, user.id, 'cert', cert);
+    return rtUpdate<iCert>(ATTENDEE_CERT_PATH.with(rtFields), cert);
   };
 
   const onOfficerToggle = async function (e: ChangeEvent<HTMLInputElement>) {
     if (e.target.checked) {
-      await db.officer.set(launchId, user.id, true);
+      await rtSet<boolean>(OFFICER_PATH.with(rtFields), true);
     } else {
-      await db.officer.remove(launchId, user.id);
+      await rtRemove(OFFICER_PATH.with(rtFields));
     }
   };
 

@@ -16,13 +16,14 @@ import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
 import { AttendeeInfo } from '/components/UserList';
-import { db, DELETE, util } from '/rt';
+import { DELETE, rtRemove, rtUpdate, useRTValue } from '/rt';
+
 import {
   AttendeeFields,
   ATTENDEE_PATH,
   CardFields,
   CARD_PATH,
-  ROCKET_PATH
+  ROCKET_PATH,
 } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard, iMotor, Recovery } from '/types';
 
@@ -49,7 +50,7 @@ export default function CardEditor() {
     launchId: match?.params.launchId ?? '',
     cardId: match?.params.cardId ?? '',
   };
-  const [card] = util.useValue<iCard>(CARD_PATH.with(cardFields));
+  const [card] = useRTValue<iCard>(CARD_PATH.with(cardFields));
   const cardPath = CARD_PATH.with(cardFields);
 
   const navigate = useNavigate();
@@ -59,18 +60,18 @@ export default function CardEditor() {
     userId: card?.userId ?? '',
   };
   const flierPath = ATTENDEE_PATH.with(flierFields);
-  const [flier] = util.useValue<iAttendee>(flierPath);
+  const [flier] = useRTValue<iAttendee>(flierPath);
   const disabled = attendee?.id !== flier?.id;
 
   const colorsPath = ROCKET_PATH.append('color').with(cardFields);
-  const [colors] = util.useValue<string>(colorsPath);
+  const [colors] = useRTValue<string>(colorsPath);
 
   const rtui = useMemo(() => {
     return rtuiFromPath(cardPath, userUnits);
   }, [cardPath, userUnits]);
 
   function cardUpdate(update: Partial<iCard>) {
-    return util.update(cardPath, update);
+    return rtUpdate(cardPath, update);
   }
 
   function setCardStatus(status?: CardStatus) {
@@ -111,7 +112,9 @@ export default function CardEditor() {
             )
           )
             return;
-          await db.card.remove(card.launchId, card.id);
+          await rtRemove(
+            CARD_PATH.with({ launchId: card.launchId, cardId: card.id })
+          );
           navigate(-1);
         }
       : null;
@@ -241,8 +244,17 @@ export default function CardEditor() {
 
   return (
     <>
-      <UnitsPref authId={attendee.id} className='mt-1 me-1' style={{position: 'fixed', right: 0, top: '4em', zIndex: 999, backgroundColor: '#fff'
-}} />
+      <UnitsPref
+        authId={attendee.id}
+        className='mt-1 me-1'
+        style={{
+          position: 'fixed',
+          right: 0,
+          top: '4em',
+          zIndex: 999,
+          backgroundColor: '#fff',
+        }}
+      />
 
       <MotorDataList id='tc-motors' />
 

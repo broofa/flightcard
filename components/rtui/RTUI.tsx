@@ -9,7 +9,14 @@ import React, {
 } from 'react';
 import { Form, FormCheckProps } from 'react-bootstrap';
 import { sig } from '../common/util';
-import { BOOL_ADAPTER, DELETE, RTAdapter, STRING_ADAPTER, util } from '/rt';
+import {
+  BOOL_ADAPTER,
+  DELETE,
+  RTAdapter,
+  rtSet,
+  STRING_ADAPTER,
+  useRTValue,
+} from '/rt';
 import { RTPath } from '/rt/RTPath';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
 
@@ -28,7 +35,7 @@ function useRealtimeField<RTType, ControlType>(
   // Identifier for connecting label and control
   const [id] = useState(nanoid());
 
-  util.useValue<RTType>(
+  useRTValue<RTType>(
     path,
     useCallback((v?: RTType) => setVal(adapter.fromRT(v)), [adapter])
   );
@@ -41,7 +48,7 @@ function useRealtimeField<RTType, ControlType>(
   function save(override?: ControlType) {
     const v = adapter.toRT(override ?? val);
     if (saveAction) return;
-    const saving = util.set(path, v ?? DELETE);
+    const saving = rtSet(path, v ?? DELETE);
     saving.finally(() => setSaveAction(undefined));
     setSaveAction(saving);
   }

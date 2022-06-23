@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
 import { createRocket, NAMES, rnd, rndItem } from './mock_data';
-import { auth, DELETE, util } from '/rt';
+import { auth, DELETE } from '/rt';
 import {
   CardStatus,
   CertOrg,
@@ -35,12 +35,12 @@ function genId(path: string) {
 // that let's us also detect which items were seeded later on so we can remove them.
 async function dbPush<T>(path: string, state: T): Promise<string> {
   const key = (state as { id?: string })?.id || genId(path);
-  await util.set(`${path}/${key}`, state);
+  await rtSet(`${path}/${key}`, state);
   return key;
 }
 
 async function purge(path: string) {
-  const obj = await util.get<object>(path);
+  const obj = await rtGet<object>(path);
   if (!obj) return;
 
   await Promise.all(
@@ -49,7 +49,7 @@ async function purge(path: string) {
       .map(key => {
         const keyPath = `${path}/${key}`;
         log('Removing', keyPath);
-        return util.remove(keyPath);
+        return rtRemove(keyPath);
       })
   );
 }
@@ -183,7 +183,7 @@ async function seedOfficers(launchId: string, users: iAttendees) {
       officers[attendee.id] = true;
     }
   });
-  await util.set(RESOURCE, officers);
+  await rtSet(RESOURCE, officers);
 }
 
 async function seedPads(launchId: string) {

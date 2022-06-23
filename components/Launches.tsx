@@ -12,9 +12,10 @@ import { useNavigate } from 'react-router';
 import { arraySort } from '../util/arrayUtils';
 import { APPNAME } from './App/App';
 import { useCurrentUser, useLaunches } from './contexts/rthooks';
-import { busy, LinkButton, Loading } from '/components/common/util';
-import { db } from '/rt';
-import { iLaunch, iPad } from '/types';
+import { LinkButton, Loading } from '/components/common/util';
+import { rtGet, rtSet } from '/rt';
+import { LAUNCH_PATH, OFFICER_PATH, PADS_PATH } from '/rt/rtconstants';
+import { iLaunch, iPad, iPads } from '/types';
 
 function dateString(ts: string) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();
@@ -61,28 +62,39 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
     };
 
     // Copy properties if needed
-    const src = launches[copyId];
-    if (src) {
-      newLaunch.host = src.host;
-      newLaunch.location = src.location;
+    const srcLaunch = launches[copyId];
+    if (srcLaunch) {
+      newLaunch.host = srcLaunch.host;
+      newLaunch.location = srcLaunch.location;
     }
 
     // Save launch
-    await busy(target, db.launch.set(newLaunch.id, newLaunch as iLaunch));
+    await rtSet<iLaunch>(
+      LAUNCH_PATH.with({ launchId: newLaunch.id ?? '' }),
+      newLaunch as iLaunch
+    );
 
     // Make current user the first officer
-    await busy(target, db.officer.set(launchId, currentUser.id, true));
+    await rtSet(
+      OFFICER_PATH.with({
+        launchId: newLaunch.id ?? '',
+        userId: currentUser.id,
+      }),
+      newLaunch
+    );
 
     // Copy launch pads
-    if (src) {
-      const pads = await db.pads.get(src.id);
+    if (srcLaunch) {
+      const pads = await rtGet<iPads>(
+        PADS_PATH.with({ launchId: srcLaunch.id })
+      );
       const newPads: { [padId: string]: iPad } = {};
       for (const pad of Object.values(pads)) {
         pad.id = nanoid();
         pad.launchId = launchId;
         newPads[pad.id] = pad;
       }
-      await busy(target, db.pads.set(launchId, newPads));
+      await rtSet<iPads>(PADS_PATH.with({ launchId }), newPads);
     }
 
     navigate(`/launches/${launchId}/edit`);
@@ -95,12 +107,14 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       </Modal.Header>
       <Modal.Body>
         <p>
-          Has your club used {APPNAME} previously?  If so, you can select one of your previous launches below to copy the host, location, and pad
+          Has your club used {APPNAME} previously? If so, you can select one of
+          your previous launches below to copy the host, location, and pad
           configuration to your new launch.
         </p>
 
         <p className='text-tip'>
-          ... or just click "Create Launch" to start with a fresh, new launch! :-)
+          ... or just click "Create Launch" to start with a fresh, new launch!
+          :-)
         </p>
 
         <FormSelect

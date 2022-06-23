@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
-import { DELETE, util } from '/rt';
+import { DELETE, rtSet, useRTValue } from '/rt';
 import { ATTENDEE_ROLE_PATH } from '/rt/rtconstants';
 import { tRole } from '/types';
 
@@ -10,10 +10,10 @@ export default function RolePref({
   ...props
 }: { launchId: string; userId: string } & HTMLAttributes<HTMLDivElement>) {
   const rtpath = ATTENDEE_ROLE_PATH.with({ launchId, userId });
-  const [role] = util.useValue<string>(rtpath);
+  const [role] = useRTValue<string>(rtpath);
 
   function setRole(role: tRole | '') {
-    util.set(rtpath, role || DELETE);
+    rtSet(rtpath, role || DELETE);
   }
 
   return (
@@ -37,7 +37,7 @@ export default function RolePref({
           size='sm'
           id={`role-pref-${value}`}
           value={value}
-          style={{minWidth: '6em'}}
+          style={{ minWidth: '6em' }}
           key={`role-${value}`}
         >
           {name}

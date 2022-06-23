@@ -9,7 +9,7 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import { showError } from '../common/ErrorFlash';
 import { checkForEmailLinkLogin } from '../Login/checkForEmailLinkLogin';
-import { auth, DELETE, RTState, util } from '/rt';
+import { auth, DELETE, rtGet, RTState, rtUpdate } from '/rt';
 import { USER_PATH } from '/rt/rtconstants';
 import { iUser } from '/types';
 
@@ -75,7 +75,7 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
 
         const rtpath = USER_PATH.with({ authId: user.uid });
         // Get most recent state
-        const userState = await util.get<iUser>(rtpath).catch(console.error);
+        const userState = await rtGet<iUser>(rtpath).catch(console.error);
         // Update user's state
         const currentUser: iUser = {
           ...userState,
@@ -84,7 +84,7 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
           name: (user.displayName || userState?.name) ?? DELETE,
         };
 
-        await util.update(rtpath, currentUser).catch(console.error);
+        await rtUpdate(rtpath, currentUser).catch(console.error);
 
         navigate('/');
       }

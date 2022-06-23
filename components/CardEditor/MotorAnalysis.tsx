@@ -4,7 +4,7 @@ import { padThrust } from '../../util/motor-util';
 import { MKS, unitConvert } from '../../util/units';
 import { useUserUnits } from '../contexts/rthooks';
 import { sig } from '/components/common/util';
-import { util } from '/rt';
+import { useRTValue } from '/rt';
 import {
   CardFields,
   CARD_MOTORS_PATH,
@@ -19,12 +19,8 @@ const MIN_VELOCITY = 13.89; // meters/second
 export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   const [userUnits = MKS] = useUserUnits();
 
-  const [mass] = util.useValue<iRocket['mass']>(
-    ROCKET_MASS_PATH.with(rtFields)
-  );
-  const [motors] = util.useValue<iCard['motors']>(
-    CARD_MOTORS_PATH.with(rtFields)
-  );
+  const [mass] = useRTValue<iRocket['mass']>(ROCKET_MASS_PATH.with(rtFields));
+  const [motors] = useRTValue<iCard['motors']>(CARD_MOTORS_PATH.with(rtFields));
 
   if (!motors || !Object.entries(motors).length) {
     return null;

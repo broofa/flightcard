@@ -8,14 +8,14 @@ import { APPNAME } from './App';
 import { RangeStatus } from './RangeStatus';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import { auth, util } from '/rt';
+import { auth, useRTValue } from '/rt';
 import { ATTENDEE_PATH } from '/rt/rtconstants';
 import { iAttendee } from '/types';
 
 export function LaunchNavBar() {
   const [launch, loading, error] = useLaunch();
   const [currentUser] = useCurrentUser();
-  const [attendee] = util.useValue<iAttendee>(
+  const [attendee] = useRTValue<iAttendee>(
     ATTENDEE_PATH.with({
       launchId: launch?.id ?? '',
       userId: currentUser?.id ?? '',

@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { Sparky } from '../common/Sparky';
-import { util } from '/rt';
+import { useRTValue } from '/rt';
 import { CardFields, CARD_MOTORS_PATH } from '/rt/rtconstants';
 import { iMotor } from '/types';
 import { getMotor } from '/util/motor-util';
@@ -57,7 +57,7 @@ export function MotorList({
   setEditMotor: (motor: iMotor | undefined) => void;
   setDetailMotor: (motor: TCMotor | undefined) => void;
 }) {
-  const [motors] = util.useValue<{ [motorId: string]: iMotor }>(
+  const [motors] = useRTValue<{ [motorId: string]: iMotor }>(
     CARD_MOTORS_PATH.with(rtFields)
   );
 

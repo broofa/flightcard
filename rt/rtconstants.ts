@@ -21,6 +21,7 @@ export const ATTENDEE_CERT_PATH = ATTENDEE_PATH.append('cert');
 export const ATTENDEE_ROLE_PATH = ATTENDEE_PATH.append('role');
 
 export const OFFICERS_PATH = new RTPath<LaunchField>('/officers/:launchId');
+export const OFFICER_PATH = OFFICERS_PATH.append<UserField>(':userId');
 
 export const PADS_PATH = new RTPath<LaunchField>('/pads/:launchId');
 export const PAD_PATH = PADS_PATH.append<PadField>(':padId');

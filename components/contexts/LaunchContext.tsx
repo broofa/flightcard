@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { RTState, util } from '/rt';
+import { RTState, useRTValue } from '/rt';
 import { LAUNCH_PATH } from '/rt/rtconstants';
 import { iLaunch } from '/types';
 
@@ -22,7 +22,7 @@ export function LaunchProvider({
   const launchFields = launchId ? { launchId } : undefined;
   const rtpath = LAUNCH_PATH.with(launchFields);
 
-  const value = util.useValue<iLaunch>(rtpath);
+  const value = useRTValue<iLaunch>(rtpath);
 
   return <Provider value={value}>{children}</Provider>;
 }

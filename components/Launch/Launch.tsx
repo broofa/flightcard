@@ -15,8 +15,9 @@ import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { LaunchCard } from '/components/Launch/LaunchCard';
 import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
-import { db } from '/rt';
-import { CardStatus, iAttendees, iCard } from '/types';
+import { useRTValue } from '/rt';
+import { PAD_PATH } from '/rt/rtconstants';
+import { CardStatus, iAttendees, iCard, iPad } from '/types';
 
 export function CardList({
   cards,
@@ -63,7 +64,9 @@ export function PadCard({ padId }: { padId: string }) {
   const [launch] = useLaunch();
   const [attendees] = useAttendees();
   const navigate = useNavigate();
-  const pad = db.pad.useValue(launch?.id, padId);
+  const [pad] = useRTValue<iPad>(
+    PAD_PATH.with({ launchId: launch?.id ?? '', padId })
+  );
 
   const padCards = cards
     ? Object.values(cards).filter(

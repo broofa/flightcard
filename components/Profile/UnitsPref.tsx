@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
-import { util } from '/rt';
+import { rtSet, useRTValue } from '/rt';
 import { USER_UNITS } from '/rt/rtconstants';
 import { tUnitSystemName } from '/util/units';
 
@@ -9,10 +9,10 @@ export default function UnitsPref({
   ...props
 }: { authId: string } & HTMLAttributes<HTMLDivElement>) {
   const rtpath = USER_UNITS.with({ authId });
-  const [units] = util.useValue<string>(rtpath);
+  const [units] = useRTValue<string>(rtpath);
 
   function setUnits(unitsName: tUnitSystemName) {
-    util.set(rtpath, unitsName);
+    rtSet(rtpath, unitsName);
   }
 
   return (

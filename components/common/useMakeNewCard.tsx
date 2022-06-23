@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import { useNavigate } from 'react-router-dom';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useCurrentUser } from '../contexts/rthooks';
-import { util } from '/rt';
+import { rtSet } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { iCard } from '/types';
 
@@ -27,9 +27,9 @@ export function useMakeNewCard() {
       userId,
     };
     const rtpath = CARD_PATH.with({ launchId: card.launchId, cardId: card.id });
-    return util
-      .set(rtpath, card)
-      .then(() => navigate(`/launches/${card.launchId}/cards/${card.id}`));
+    return rtSet(rtpath, card).then(() =>
+      navigate(`/launches/${card.launchId}/cards/${card.id}`)
+    );
   }
 
   return gotoNewCard;

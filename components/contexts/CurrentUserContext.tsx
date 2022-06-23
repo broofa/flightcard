@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
 import { useAuthUser } from './AuthIdContext';
-import { RTState, util } from '/rt';
+import { RTState, useRTValue } from '/rt';
 import { USER_PATH } from '/rt/rtconstants';
 import { iUser } from '/types';
 
@@ -19,7 +19,7 @@ export function CurrentUserProvider({ children }: PropsWithChildren) {
   const [authUser] = useAuthUser();
   console.log('AUTH USER', authUser);
   const authFields = authUser ? { authId: authUser.uid } : undefined;
-  const value = util.useValue<iUser>(USER_PATH.with(authFields));
+  const value = useRTValue<iUser>(USER_PATH.with(authFields));
 
   return <Provider value={value}>{children}</Provider>;
 }

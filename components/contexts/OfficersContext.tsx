@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
 import { useLaunch } from './LaunchContext';
-import { RTState, util } from '/rt';
+import { RTState, useRTValue } from '/rt';
 import { OFFICERS_PATH } from '/rt/rtconstants';
 import { iAttendee, iOfficers } from '/types';
 
@@ -18,8 +18,8 @@ export function useRoleAPI() {
   const [officers] = useOfficers();
 
   return {
-    isOfficer(attendee?: iAttendee) {
-      return !!officers?.[attendee?.id ?? ''];
+    isOfficer(attendee?: iAttendee | string) {
+      return !!officers?.[(attendee as iAttendee)?.id ?? attendee];
     },
 
     isRSO(attendee?: iAttendee) {
@@ -41,7 +41,7 @@ export function OfficersProvider({ children }: PropsWithChildren) {
   const [launch] = useLaunch();
 
   const rtpath = OFFICERS_PATH.with({ launchId: launch?.id ?? '' });
-  const value = util.useValue<iOfficers>(rtpath);
+  const value = useRTValue<iOfficers>(rtpath);
 
   return <Provider value={value}>{children}</Provider>;
 }

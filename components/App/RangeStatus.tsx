@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Button, ButtonGroup, ButtonGroupProps } from 'react-bootstrap';
 import { playSound, RANGE_CLOSED, RANGE_OPEN } from '../../util/playSound';
 import { usePrevious } from '/components/common/util';
-import { db } from '/rt';
+import { rtUpdate } from '/rt';
+import { LAUNCH_PATH } from '/rt/rtconstants';
 import { iLaunch } from '/types';
 
 export function RangeStatus({
@@ -15,7 +16,9 @@ export function RangeStatus({
   const prev = usePrevious(rangeOpen);
 
   async function rangeClick() {
-    await db.launch.update(launch.id, { rangeOpen: !rangeOpen });
+    await rtUpdate(LAUNCH_PATH.with({ launchId: launch.id }), {
+      rangeOpen: !rangeOpen,
+    });
   }
 
   if (!muted && prev !== undefined && prev != rangeOpen)

@@ -1,16 +1,23 @@
-import React, { FocusEventHandler, MouseEventHandler, useState } from 'react';
+import React, { FocusEventHandler, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
-import { arrayGroup, arraySort } from '../../util/arrayUtils';
+import { arraySort } from '../../util/arrayUtils';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendees, useCards, usePads } from '../contexts/rthooks';
 import { PadEditor } from '../LaunchEditor/PadEditor';
 import { PadGroupEditor } from './PadGroupEditor';
 import FloatingInput from '/components/common/FloatingInput';
-import { busy, Loading } from '/components/common/util';
-import { db, DELETE } from '/rt';
+import { Loading } from '/components/common/util';
+import { DELETE, rtRemove, rtUpdate } from '/rt';
+import {
+  ATTENDEES_PATH,
+  CARDS_PATH,
+  LAUNCH_PATH,
+  OFFICERS_PATH,
+  PADS_PATH,
+} from '/rt/rtconstants';
 import { iLaunch, iPad } from '/types';
 
 export default function LaunchEditor() {
@@ -50,43 +57,36 @@ export default function LaunchEditor() {
         if (value == null || value === '') value = DELETE;
         if (value == launch?.[field]) return;
 
-        busy(
-          e.target as HTMLElement,
-          db.launch.update(launch.id, { [field]: value ?? DELETE })
-        );
-
-        return;
+        rtUpdate(LAUNCH_PATH.with({ launchId: launch.id }), { [field]: value });
       },
     };
   }
 
-  const deleteLaunch: MouseEventHandler = async e => {
+  async function deleteLaunch() {
     const nAttendees = attendees ? Object.keys(attendees).length : 0;
     const nCards = cards ? Object.keys(cards).length : 0;
 
-    if (
-      prompt(
-        simplur`This will permanently DELETE this launch and all activity associated with it, including ${nAttendees} attendee[|s] and ${nCards} flightcard[|s].\n\nYou will not be able to undo this!\n\nTo proceed type the name of the launch here ("${launch.name}") and click OK.`
-      ) != launch.name
-    )
-      return;
+    if (!launch) return;
 
-    await busy(
-      e.target as HTMLElement,
-      db.launch
-        .remove(launch.id)
-        .then(() =>
-          Promise.all([
-            db.officers.remove(launch.id),
-            db.pads.remove(launch.id),
-            db.attendees.remove(launch.id),
-            db.cards.remove(launch.id),
-          ])
-        )
+    // Verify delete request
+    const response = prompt(
+      simplur`This will permanently DELETE this launch and all activity associated with it, including ${nAttendees} attendee[|s] and ${nCards} flightcard[|s].\n\nYou will not be able to undo this!\n\nTo proceed type the name of the launch here ("${launch.name}") and click OK.`
     );
+    if (response != launch.name) return;
+
+    const rtFields = { launchId: launch.id };
+    try {
+      await rtRemove(LAUNCH_PATH.with(rtFields));
+      await rtRemove(OFFICERS_PATH.with(rtFields));
+      await rtRemove(PADS_PATH.with(rtFields));
+      await rtRemove(ATTENDEES_PATH.with(rtFields));
+      await rtRemove(CARDS_PATH.with(rtFields));
+    } catch (err) {
+      console.error('Failed to delete launch', err);
+    }
 
     navigate('/');
-  };
+  }
 
   return (
     <>

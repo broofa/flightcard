@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
-import { auth, util } from '/rt';
+import { auth, rtGet, rtUpdate } from '/rt';
 import { RTPath } from '/rt/RTPath';
 
 async function handleClick() {
@@ -14,13 +14,13 @@ async function handleClick() {
     const rtpath = new RTPath(path);
     let canRead, canWrite;
     try {
-      await util.get(rtpath);
+      await rtGet(rtpath);
       canRead = true;
     } catch (err) {}
 
     try {
-      await util.update(rtpath, { _temp: true });
-      await util.update(rtpath, { _temp: null });
+      await rtUpdate(rtpath, { _temp: true });
+      await rtUpdate(rtpath, { _temp: null });
       canWrite = true;
     } catch (err) {}
 

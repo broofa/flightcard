@@ -5,7 +5,7 @@ import { FCLinkButton } from './common/FCLinkButton';
 import { useLaunch } from './contexts/LaunchContext';
 import { useCurrentUser } from './contexts/rthooks';
 import { busy, Loading } from '/components/common/util';
-import { util } from '/rt';
+import { rtSet } from '/rt';
 import { ATTENDEE_PATH } from '/rt/rtconstants';
 
 export function Waiver() {
@@ -24,7 +24,7 @@ export function Waiver() {
   async function launchAgree() {
     await busy(
       agreeRef.current,
-      util.set(rtPath, {
+      rtSet(rtPath, {
         ...currentUser,
         waiverTime: Date.now(),
       })

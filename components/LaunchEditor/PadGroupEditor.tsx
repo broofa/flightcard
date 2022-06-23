@@ -1,7 +1,8 @@
 import React, { HTMLAttributes } from 'react';
-import { util } from '/rt';
+import { rtGet, rtSet } from '/rt';
 import { PADS_PATH, PAD_PATH } from '/rt/rtconstants';
 import { iPads } from '/types';
+
 export function PadGroupEditor({
   launchId,
   padGroup: groupName,
@@ -13,7 +14,7 @@ export function PadGroupEditor({
 
   async function onSave() {
     if (newName?.trim() !== groupName?.trim()) {
-      const pads = await util.get<iPads>(rtPath);
+      const pads = await rtGet<iPads>(rtPath);
 
       // We have the realtime db set up to disallow bulk edits of the entire pads
       // collection for a launch, so we have to iterate through each one
@@ -23,10 +24,7 @@ export function PadGroupEditor({
           if ((pad.group ?? '') !== groupName) return;
 
           pad.group = newName?.trim();
-          return await util.set(
-            PAD_PATH.with({ launchId, padId: pad.id }),
-            pad
-          );
+          return await rtSet(PAD_PATH.with({ launchId, padId: pad.id }), pad);
         })
       );
     }

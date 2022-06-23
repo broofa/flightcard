@@ -1,6 +1,6 @@
 import { useAuthUser } from './AuthIdContext';
 import { useLaunch } from './LaunchContext';
-import { RTState, util } from '/rt';
+import { RTState, useRTValue } from '/rt';
 import {
   ATTENDEES_PATH,
   ATTENDEE_PATH,
@@ -25,7 +25,7 @@ export function useAttendee() {
   const [currentUser] = useCurrentUser();
   const [launch] = useLaunch();
 
-  return util.useValue<iAttendee>(
+  return useRTValue<iAttendee>(
     ATTENDEE_PATH.with({
       launchId: launch?.id ?? '',
       userId: currentUser?.id ?? '',
@@ -37,7 +37,7 @@ export function useCurrentUser() {
   const [authUser, authLoading, authError] = useAuthUser();
   const authFields = authUser ? { authId: authUser.uid } : undefined;
   const rtpath = USER_PATH.with(authFields);
-  const userState = util.useValue<iUser>(rtpath);
+  const userState = useRTValue<iUser>(rtpath);
 
   if (authLoading) {
     return [undefined, true, undefined] as RTState<iUser>;
@@ -53,7 +53,7 @@ export function useCurrentUser() {
 }
 
 export function useLaunches(): RTState<iLaunchs> {
-  return util.useValue<iLaunchs>(LAUNCHES_PATH);
+  return useRTValue<iLaunchs>(LAUNCHES_PATH);
 }
 
 export function useUserUnits(): RTState<tUnitSystem> {
@@ -64,7 +64,7 @@ export function useUserUnits(): RTState<tUnitSystem> {
 export function useAttendees(): RTState<iAttendees> {
   const [launch] = useLaunch();
 
-  return util.useValue<iAttendees>(
+  return useRTValue<iAttendees>(
     ATTENDEES_PATH.with({ launchId: launch?.id ?? '' })
   );
 }
@@ -72,7 +72,7 @@ export function useAttendees(): RTState<iAttendees> {
 export function useOfficers(): RTState<iOfficers> {
   const [launch] = useLaunch();
 
-  return util.useValue<iOfficers>(
+  return useRTValue<iOfficers>(
     OFFICERS_PATH.with({ launchId: launch?.id ?? '' })
   );
 }
@@ -80,11 +80,11 @@ export function useOfficers(): RTState<iOfficers> {
 export function useCards(): RTState<iCards> {
   const [launch] = useLaunch();
 
-  return util.useValue<iCards>(CARDS_PATH.with({ launchId: launch?.id ?? '' }));
+  return useRTValue<iCards>(CARDS_PATH.with({ launchId: launch?.id ?? '' }));
 }
 
 export function usePads(): RTState<iPads> {
   const [launch] = useLaunch();
 
-  return util.useValue<iPads>(PADS_PATH.with({ launchId: launch?.id ?? '' }));
+  return useRTValue<iPads>(PADS_PATH.with({ launchId: launch?.id ?? '' }));
 }

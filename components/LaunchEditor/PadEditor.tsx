@@ -3,7 +3,8 @@ import React, { MouseEventHandler, useRef } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy } from '/components/common/util';
-import { db, DELETE } from '/rt';
+import { DELETE, rtRemove, rtSet, rtUpdate } from '/rt';
+import { PAD_PATH } from '/rt/rtconstants';
 import { iPad } from '/types';
 
 export function PadEditor({
@@ -27,13 +28,16 @@ export function PadEditor({
 
     let action;
     if (pad.id) {
-      action = db.pad.update(launchId, pad.id, { name: name.trim(), group });
+      action = rtUpdate<iPad>(PAD_PATH.with({ launchId, padId: pad.id }), {
+        name: name.trim(),
+        group,
+      });
     } else {
       const names = name.split(',').filter(v => v);
       action = Promise.all(
         names.map(padName => {
           const id = nanoid();
-          return db.pad.set(launchId, id, {
+          return rtSet<iPad>(PAD_PATH.with({ launchId, padId: id }), {
             id,
             launchId,
             name: padName.trim(),
@@ -55,7 +59,7 @@ export function PadEditor({
       )
     )
       return;
-    const action = db.pad.remove(launchId, pad.id);
+    const action = rtRemove(PAD_PATH.with({ launchId, padId: pad.id }));
 
     busy(e.target as HTMLElement, action).then(onHide);
   };

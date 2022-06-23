@@ -9,7 +9,7 @@ import React, {
 import { Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import { busy, sig } from '../common/util';
 import { useUserUnits } from '../contexts/rthooks';
-import { DELETE, util } from '/rt';
+import { DELETE, rtRemove, rtSet } from '/rt';
 import { CardFields, CARD_MOTOR_PATH } from '/rt/rtconstants';
 import { iMotor } from '/types';
 import { getMotorByDisplayName } from '/util/motor-util';
@@ -93,7 +93,7 @@ export function MotorEditor({
 
     busy(
       saveButton.current,
-      util.set(
+      rtSet(
         CARD_MOTOR_PATH.with({ ...rtFields, motorId: _newMotor.id }),
         _newMotor
       )
@@ -103,7 +103,7 @@ export function MotorEditor({
   function onDelete() {
     busy(
       deleteButton.current,
-      util.remove(CARD_MOTOR_PATH.with({ ...rtFields, motorId: motor.id }))
+      rtRemove(CARD_MOTOR_PATH.with({ ...rtFields, motorId: motor.id }))
     ).then(onHide);
   }
 
@@ -120,7 +120,8 @@ export function MotorEditor({
           ))}
         </datalist>
 
-        <Form.Control autoFocus
+        <Form.Control
+          autoFocus
           className='flex-grow-1'
           onChange={onNameChange}
           list='tc-motors'
