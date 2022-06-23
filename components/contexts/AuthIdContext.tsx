@@ -37,10 +37,8 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
     setLoading(false);
   }
 
-  // Subscribe to auth changes once only
+  // Subscribe to auth changes, once only
   useEffect(() => auth.onAuthStateChanged(onAuth, onError), []);
-
-  // console.log('AUTH CONTEXT', authUser, loading, error);
 
   return <Provider value={[authUser, loading, error]}>{children}</Provider>;
 }

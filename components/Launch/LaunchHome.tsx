@@ -9,11 +9,13 @@ import { useAttendee } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import { Waiver } from '/components/Waiver';
 
-const spectateImage = new URL('/art/home_spectate.webp', import.meta.url);
-const flyImage = new URL('/art/home_fly.webp', import.meta.url);
-const officiateImage = new URL('/art/home_officiate.webp', import.meta.url);
+const IMAGES = {
+  SPECTATOR: new URL('/art/home_spectate.webp', import.meta.url),
+  FLIER: new URL('/art/home_fly.webp', import.meta.url),
+  OFFICER: new URL('/art/home_officiate.webp', import.meta.url),
+  OTHER: new URL('/art/home_other.webp', import.meta.url),
+};
 
 export default function LaunchHome() {
   const [attendee] = useAttendee();
@@ -22,7 +24,7 @@ export default function LaunchHome() {
 
   const makeNewCard = useMakeNewCard();
 
-  if (!attendee) return <Waiver />;
+  if (!attendee) return <Loading wat='Attendee' />;
   if (!launch) return <Loading wat='Launch' />;
 
   function launchUrl(suffix: string) {
@@ -32,19 +34,14 @@ export default function LaunchHome() {
 
   const isOfficer = roleApi.isOfficer(attendee);
 
-  const bgStyle = {
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right',
-    backgroundSize: 'contain',
-  };
-
   if (!attendee.name) {
     return (
       <>
         <p>
           Please start by telling us your name:
           <div className='text-tip'>
-          Knowing who's here helps keep the launchsafe and fun!  You can always change this letter in <code>Settings</code>
+            Knowing who's here helps keep the launchsafe and fun! You can always
+            change this letter in <code>Settings</code>
           </div>
         </p>
         <ProfileName
@@ -62,10 +59,7 @@ export default function LaunchHome() {
       <div className='d-flex mb-2'>
         <h2 className='flex-grow-1'>Welcome to {launch.name}</h2>
         {isOfficer ? (
-          <FCLinkButton
-            className='btn-sm text-nowrap my-auto ms-2'
-            to={`/launches/${launch.id}/edit`}
-          >
+          <FCLinkButton className='btn-sm text-nowrap my-auto ms-2' to='edit'>
             <Icon name='pencil-fill' /> Edit
           </FCLinkButton>
         ) : null}
@@ -78,46 +72,68 @@ export default function LaunchHome() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(20em, 1fr))',
         }}
       >
-        <Card style={{ backgroundImage: `url(${spectateImage})`, ...bgStyle }}>
-          <Card.Title className='px-2 py-1'>Spectate</Card.Title>
-          <Card.Body>
-            <>
-              <FCLink to={launchUrl('lco')}>Launch Control Ride Along</FCLink>
-              <FCLink to={launchUrl('users')}>View Attendees</FCLink>
-              <FCLink disabled to={launchUrl('/report')}>
-                View Launch Stats
-              </FCLink>
-            </>
-          </Card.Body>
-        </Card>
-
-        <Card style={{ backgroundImage: `url(${flyImage})`, ...bgStyle }}>
-          <Card.Title className='px-2 py-1'>Fly</Card.Title>
-          <Card.Body>
-            <FCLink to={launchUrl('cards')}>My Flight Cards</FCLink>
-            <Nav.Link onClick={makeNewCard}>Create a Flight Card</Nav.Link>
-            <FCLink to={launchUrl('users?filter=officers')}>
-              View Club Officers
+        <Card className='d-flex flex-row'>
+          <img
+            className='me-4'
+            src={IMAGES.SPECTATOR.toString()}
+            style={{ height: '12em' }}
+          />
+          <div className='flex-grow-1'>
+            <h5 className='mt-3'>Spectators</h5>
+            <FCLink to='lco'>Launch Control Ride Along</FCLink>
+            <FCLink to='users'>View Attendees</FCLink>
+            <FCLink disabled to={launchUrl('/report')}>
+              View Launch Stats
             </FCLink>
-          </Card.Body>
+          </div>
         </Card>
 
-        <Card style={{ backgroundImage: `url(${officiateImage})`, ...bgStyle }}>
-          <Card.Title className='px-2 py-1'>Officiate</Card.Title>
-          <Card.Body>
-            <FCLink disabled={!isOfficer} to={launchUrl('lco')}>
+        <Card className='d-flex flex-row'>
+          <img
+            className='me-4'
+            src={IMAGES.FLIER.toString()}
+            style={{ height: '12em' }}
+          />
+          <div className='flex-grow-1'>
+            <h5 className='mt-3'>Fliers</h5>
+            <FCLink to='cards'>My Flight Cards</FCLink>
+            <Nav.Link onClick={makeNewCard}>Create a Flight Card</Nav.Link>
+            <FCLink to='users?filter=officers'>View Club Officers</FCLink>
+          </div>
+        </Card>
+
+        <Card className='d-flex flex-row '>
+          <img
+            className='me-4'
+            src={IMAGES.OFFICER.toString()}
+            style={{ height: '12em' }}
+          />
+          <div className='flex-grow-1'>
+            <h5 className='mt-3'>Officers</h5>
+            <FCLink disabled={!isOfficer} to='lco'>
               Launch Control Duty
             </FCLink>
-            <FCLink disabled={!isOfficer} to={launchUrl('rso')}>
+            <FCLink disabled={!isOfficer} to='rso'>
               Range Safety Duty
             </FCLink>
-            <FCLink disabled to={launchUrl('rso')}>
-              Flight Card Helper
-            </FCLink>
-            <FCLink disabled to={launchUrl('rso')}>
+            <FCLink disabled to='rso'>
               Verify Attendees
             </FCLink>
-          </Card.Body>
+          </div>
+        </Card>
+
+        <Card className='d-flex flex-row '>
+          <img
+            className='me-4'
+            src={IMAGES.OTHER.toString()}
+            style={{ height: '12em' }}
+          />
+          <div className='flex-grow-1'>
+            <h5 className='mt-3'>Other</h5>
+            <FCLink to='/launches'>Other Launches</FCLink>
+            <FCLink to='profile'>My Profile</FCLink>
+            <FCLink to='/'>Log Out</FCLink>
+          </div>
         </Card>
       </div>
     </>

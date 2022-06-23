@@ -8,7 +8,9 @@
     filter: invert(100%) hue-rotate(180deg);
     // background-color: black;
   }
-  img {filter: invert(100%) hue-rotate(180deg) !important;}
+  img {
+    filter: invert(100%) hue-rotate(180deg) !important;
+  }
 }
 
 h1, .h1 {

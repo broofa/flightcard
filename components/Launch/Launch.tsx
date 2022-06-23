@@ -5,12 +5,7 @@ import { arraySort } from '../../util/arrayUtils';
 import { ANONYMOUS } from '../App/App';
 import CardEditor from '../CardEditor/CardEditor';
 import { useLaunch } from '../contexts/LaunchContext';
-import {
-  useAttendee,
-  useAttendees,
-  useCards,
-  useCurrentUser,
-} from '../contexts/rthooks';
+import { useAttendees, useCards, useCurrentUser } from '../contexts/rthooks';
 import ProfilePage from '../Profile/ProfilePage';
 import { CardsPane } from './CardsPane';
 import { LaunchControlPane } from './LaunchControlPane';
@@ -20,7 +15,6 @@ import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { LaunchCard } from '/components/Launch/LaunchCard';
 import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
-import { Waiver } from '/components/Waiver';
 import { db } from '/rt';
 import { CardStatus, iAttendees, iCard } from '/types';
 
@@ -167,12 +161,8 @@ export function PadCard({ padId }: { padId: string }) {
 
 function Launch() {
   const [currentUser, userLoading] = useCurrentUser();
-  const [launch] = useLaunch();
-
-  const [attendee] = useAttendee();
 
   if (!currentUser && userLoading) return <Loading wat='User (Launch)' />;
-  if (!launch?.id || !attendee?.waiverTime) return <Waiver />;
 
   return (
     <>

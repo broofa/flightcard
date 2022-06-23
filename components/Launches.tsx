@@ -10,6 +10,7 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import { arraySort } from '../util/arrayUtils';
+import { APPNAME } from './App/App';
 import { useCurrentUser, useLaunches } from './contexts/rthooks';
 import { busy, LinkButton, Loading } from '/components/common/util';
 import { db } from '/rt';
@@ -90,16 +91,16 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   return (
     <Modal {...props}>
       <Modal.Header closeButton>
-        <Modal.Title>Copy Another Launch?</Modal.Title>
+        <Modal.Title>New Launch</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>
-          Select a launch below to copy the host, location, and pad
+          Has your club used {APPNAME} previously?  If so, you can select one of your previous launches below to copy the host, location, and pad
           configuration to your new launch.
         </p>
 
         <p className='text-tip'>
-          Don't wory, you can edit all this stuff later if you want.
+          ... or just click "Create Launch" to start with a fresh, new launch! :-)
         </p>
 
         <FormSelect
@@ -147,6 +148,7 @@ export default function Launches() {
         <h2 className='flex-grow-1 my-0'>Current and Upcoming Launches</h2>
         <Button
           className='flex-grow-0'
+          size='sm'
           onClick={() => setShowLaunchModal(true)}
         >
           New Launch ...

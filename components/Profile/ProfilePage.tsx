@@ -74,9 +74,6 @@ export default function ProfilePage() {
           <LinkButton to={'/admin'}>Admin</LinkButton>
         ) : null}
         <div className='flex-grow-1' />
-        <Button variant='danger' tabIndex={-1} onClick={() => auth.signOut()}>
-          Logout
-        </Button>
       </div>
     </>
   );

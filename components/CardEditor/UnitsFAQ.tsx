@@ -29,7 +29,7 @@ export default function UnitsFAQ() {
           <code>1m</code>, <code>1cm</code>, <code>1mm</code>
         </div>
 
-        <div className='fw-normal text-end'>Length (imperial)</div>
+        <div className='fw-normal text-end'>Length (english)</div>
         <div>
           <code>1ft</code>, <code>1'</code>, <code>1in</code>, <code>1"</code>,{' '}
           <code>1'1"</code>, <code>1ft 1in</code>
@@ -40,7 +40,7 @@ export default function UnitsFAQ() {
           <code>1kg</code>, <code>1g</code>
         </div>
 
-        <div className='fw-normal text-end'>Mass (imperial)</div>
+        <div className='fw-normal text-end'>Mass (english)</div>
         <div>
           <code>1lb</code>, <code>1oz</code>, <code>1lb 1oz</code>
         </div>
@@ -50,7 +50,7 @@ export default function UnitsFAQ() {
           <code>1n</code>
         </div>
 
-        <div className='fw-normal text-end'>Thrust/force (imperial)</div>
+        <div className='fw-normal text-end'>Thrust/force (english)</div>
         <div>
           <code>1lbf</code>
         </div>
@@ -61,7 +61,7 @@ export default function UnitsFAQ() {
           <code>1n-sec</code>
         </div>
 
-        <div className='fw-normal text-end'>Impulse (imperial)</div>
+        <div className='fw-normal text-end'>Impulse (english)</div>
         <div>
           <code>1lbf-s</code>,&ensp;
           <code>1lbf-sec</code>

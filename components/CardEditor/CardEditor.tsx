@@ -22,7 +22,7 @@ import {
   ATTENDEE_PATH,
   CardFields,
   CARD_PATH,
-  ROCKET_PATH,
+  ROCKET_PATH
 } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard, iMotor, Recovery } from '/types';
 
@@ -64,7 +64,7 @@ export default function CardEditor() {
 
   const colorsPath = ROCKET_PATH.append('color').with(cardFields);
   const [colors] = util.useValue<string>(colorsPath);
-  console.log('COLORS', colorsPath, colors);
+
   const rtui = useMemo(() => {
     return rtuiFromPath(cardPath, userUnits);
   }, [cardPath, userUnits]);
@@ -241,6 +241,9 @@ export default function CardEditor() {
 
   return (
     <>
+      <UnitsPref authId={attendee.id} className='mt-1 me-1' style={{position: 'fixed', right: 0, top: '4em', zIndex: 999, backgroundColor: '#fff'
+}} />
+
       <MotorDataList id='tc-motors' />
 
       {flier ? (
@@ -262,10 +265,7 @@ export default function CardEditor() {
 
       {cardStatus}
 
-      <FormSection className='d-flex'>
-        <div className='flex-grow-1'>Rocket</div>
-        <UnitsPref authId={attendee.id} className='ms-3' />
-      </FormSection>
+      <FormSection className='d-flex'>Rocket</FormSection>
 
       <UnitsFAQ />
 
