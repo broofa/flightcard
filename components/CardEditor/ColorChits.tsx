@@ -28,7 +28,7 @@ export default function ColorChits({
   className,
   ...props
 }: { colors: string } & HTMLAttributes<HTMLDivElement>) {
-  const match = colors?.match(/\w+/g);
+  const match = colors?.match(/\w+/g)?.map(v => v.toLowerCase());
   if (!match) return null;
 
   return (
