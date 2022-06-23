@@ -1,30 +1,38 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { Button } from 'react-bootstrap';
 import { APPNAME } from './App/App';
 import { FCLinkButton } from './common/FCLinkButton';
 import { useLaunch } from './contexts/LaunchContext';
 import { useCurrentUser } from './contexts/rthooks';
-import { Loading } from '/components/common/util';
-import { db } from '/rt';
+import { busy, Loading } from '/components/common/util';
+import { util } from '/rt';
+import { ATTENDEE_PATH } from '/rt/rtconstants';
 
 export function Waiver() {
   const [launch] = useLaunch();
   const [currentUser] = useCurrentUser();
-
-  const [agreedCheck, setAgreedCheck] = useState(false);
+  const agreeRef = useRef<HTMLButtonElement>(null);
 
   if (!currentUser) return <Loading wat='User' />;
   if (!launch) return <Loading wat='Launch' />;
 
-  const launchAgree = () => {
-    db.attendee.update(launch?.id, currentUser.id, {
-      ...currentUser,
-      waiverTime: Date.now(),
-    });
-  };
+  const rtPath = ATTENDEE_PATH.with({
+    launchId: launch.id,
+    userId: currentUser.id,
+  });
+
+  async function launchAgree() {
+    await busy(
+      agreeRef.current,
+      util.set(rtPath, {
+        ...currentUser,
+        waiverTime: Date.now(),
+      })
+    );
+  }
 
   return (
-    <>
+    <div className='m-4'>
       <h1 style={{ textTransform: 'uppercase', textAlign: 'center' }}>
         {'\u2620'} Rocket launches are dangerous {'\u2620'}
       </h1>
@@ -37,12 +45,12 @@ export function Waiver() {
       <p>
         <strong>You must meet the requirements set by the event host.</strong>
         <br />
-        These may include, but are not limited to: attending safety briefings,
+        This may include, but is not limited to, attending safety briefings,
         following established safety practices, and signing release forms.
         <br />
-        <em>
-          If you do not know what these are, contact the event host before
-          proceeding
+        <em className='text-danger'>
+          If you do not know what's required of you, contact the event host
+          before proceeding
         </em>
         .
       </p>
@@ -55,27 +63,20 @@ export function Waiver() {
         unavailable. Information {APPNAME} provides may be delayed, incomplete,
         or incorrect.
         <br />
-        <em>No warranties are provided for {APPNAME}.</em>
+        <em className='text-danger'>
+          No warrantee or guarantees are provided for {APPNAME}, either express
+          or implied.
+        </em>
       </p>
-
-      <label style={{ color: agreedCheck ? 'green' : 'red' }}>
-        <input
-          type='checkbox'
-          className='me-4'
-          checked={agreedCheck}
-          onChange={e => setAgreedCheck(e.target.checked)}
-        />
-        I understand and agree to the above terms
-      </label>
 
       <div className='d-flex justify-content-between mt-3'>
         <FCLinkButton variant='danger' to='/'>
-          I Do Not Agree
+          Nope
         </FCLinkButton>
-        <Button disabled={!agreedCheck} onClick={launchAgree}>
-          I Agree
+        <Button ref={agreeRef} onClick={launchAgree}>
+          I Understand and Agree
         </Button>
       </div>
-    </>
+    </div>
   );
 }

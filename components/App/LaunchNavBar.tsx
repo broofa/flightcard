@@ -37,8 +37,7 @@ export function LaunchNavBar() {
   return (
     <div>
       <Navbar
-        bg='dark'
-        variant='dark'
+      bg='dark'
         className='position-sticky top-0'
         style={{ zIndex: 3 }}
       >
@@ -49,8 +48,8 @@ export function LaunchNavBar() {
               ['cards', 'card-fill'],
               ['rso', 'officer'],
               ['lco', 'rocket'],
-              ['users', 'people-fill'],
-              ['profile', 'gear-fill'],
+              // ['users', 'people-fill'],
+              // ['profile', 'gear-fill'],
             ].map(([path, icon]) => (
               <NavLink
                 to={`/launches/${launch.id}/${path}`}

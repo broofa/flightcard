@@ -5,7 +5,7 @@ import { APPNAME } from './App';
 import { ErrorFlash } from '/components/common/ErrorFlash';
 import { auth } from '/rt';
 
-const logoImage = require('/art/logo.svg');
+const logoImage = new URL('/art/logo.svg', import.meta.url).toString();
 
 export function HomeNavBar() {
   return (
@@ -16,7 +16,9 @@ export function HomeNavBar() {
         className='position-sticky top-0'
         style={{ zIndex: 3 }}
       >
-        <img src={logoImage} style={{ height: '2.5em', alignItem: 'center' }} />
+        <NavLink to='/' className='text-center p-1'>
+        <img src={logoImage} style={{ height: '2.5em' }} />
+        </NavLink>
         <div className='flex-grow-1'>{APPNAME}</div>
         <NavLink to='' className='p-2' onClick={() => auth.signOut()}>
           Log Out

@@ -30,7 +30,7 @@ export function LaunchControlPane() {
 
       {padGroups.map(group => (
         <div key={group}>
-          {group ? <h2 className='mt-5'>{group}</h2> : null}
+          {group ? <h2 className='mt-3'>{group}</h2> : null}
           <div className='deck ms-3'>
             {arraySort(
               Object.values(pads).filter(pad => (pad.group ?? '') === group),

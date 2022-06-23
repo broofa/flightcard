@@ -47,7 +47,7 @@ export function CardsPane() {
         <p className='text-secondary'>Nothing here</p>
       )}
 
-      <h2>Launch</h2>
+      <h2>Ready to Launch</h2>
       {readyCards.length ? (
         <CardList cards={readyCards} />
       ) : (

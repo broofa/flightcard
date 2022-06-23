@@ -29,7 +29,7 @@ export default function RolePref({
       {[
         ['RSO', 'rso'],
         ['LCO', 'lco'],
-        ['Off Duty', 'off-duty'],
+        ['Off Duty', ''],
       ].map(([name, value]) => (
         <ToggleButton
           variant='outline-primary'

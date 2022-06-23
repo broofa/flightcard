@@ -117,7 +117,7 @@ export default function LaunchHome() {
               Range Safety Duty
             </FCLink>
             <FCLink disabled to='rso'>
-              Verify Attendees
+              Registration Desk Duty
             </FCLink>
           </div>
         </Card>

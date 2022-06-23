@@ -29,6 +29,7 @@ export function RangeSafetyPane() {
           <RolePref launchId={launch?.id ?? ''} userId={user?.id ?? ''} />
         </div>
       ) : null}
+
       <h2>RSO Requests</h2>
       {rsoCards?.length ? (
         <CardList cards={rsoCards} attendees={attendees} />
