@@ -2,7 +2,7 @@ import React, { FocusEventHandler, MouseEventHandler, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
-import { arraySort } from '../../util/arrayUtils';
+import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendees, useCards, usePads } from '../contexts/rthooks';
@@ -90,14 +90,6 @@ export default function LaunchEditor() {
 
   return (
     <>
-      {editPad ? (
-        <PadEditor
-          onHide={() => setEditPad(undefined)}
-          pad={editPad}
-          groups={padGroups}
-        />
-      ) : null}
-
       <h1>Edit Launch</h1>
 
       <div className='d-flex flex-wrap gap-3'>
@@ -139,10 +131,8 @@ export default function LaunchEditor() {
 
       {padGroups.map(group => (
         <div key={group}>
-          {group ? (
-            <PadGroupEditor launchId={launch.id} padGroup={group} />
-          ) : null}{' '}
-          <div className='d-flex flex-wrap gap-3 mb-3'>
+          <PadGroupEditor launchId={launch.id} padGroup={group} />
+          <div className='d-flex flex-wrap gap-3 mb-4'>
             {pads
               ? arraySort(
                   Object.values(pads).filter(
@@ -163,7 +153,7 @@ export default function LaunchEditor() {
           </div>
         </div>
       ))}
-      <div className='d-flex justify-content-between mt-4 gap-3'>
+      <div className='d-flex justify-content-between mt-5 gap-3'>
         <Button variant='danger' onClick={deleteLaunch} tabIndex={-1}>
           Delete This Launch
         </Button>
@@ -171,6 +161,14 @@ export default function LaunchEditor() {
           Okay
         </FCLinkButton>
       </div>
+
+      {editPad ? (
+        <PadEditor
+          onHide={() => setEditPad(undefined)}
+          pad={editPad}
+          groups={padGroups}
+        />
+      ) : null}
     </>
   );
 }

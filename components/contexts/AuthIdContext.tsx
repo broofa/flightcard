@@ -31,6 +31,18 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
   const [error, setError] = useState<Error>();
   const navigate = useNavigate();
 
+  async function onAuth(user: User | null) {
+    setAuthUser(user ?? undefined);
+    setError(undefined);
+    setLoading(false);
+  }
+
+  function onError(err: Error) {
+    setAuthUser(undefined);
+    setError(err);
+    setLoading(false);
+  }
+
   // Check href to see if this is a login via email-link
   useEffect(() => {
     (async function () {
@@ -53,45 +65,34 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
         }
       }
 
-      if (!userCredential) return;
-      console.log('userCredential', userCredential);
+      if (userCredential) {
+        console.log('userCredential', userCredential);
 
-      const userInfo = getAdditionalUserInfo(userCredential);
-      console.log('userInfo', userInfo);
+        const userInfo = getAdditionalUserInfo(userCredential);
+        console.log('userInfo', userInfo);
 
-      const { user } = userCredential;
+        const { user } = userCredential;
 
-      const rtpath = USER_PATH.with({ authId: user.uid });
-      // Get most recent state
-      const userState = await util.get<iUser>(rtpath).catch(console.error);
-      // Update user's state
-      const currentUser: iUser = {
-        ...userState,
-        id: user.uid,
-        photoURL: user.photoURL ?? DELETE,
-        name: (user.displayName || userState?.name) ?? DELETE,
-      };
+        const rtpath = USER_PATH.with({ authId: user.uid });
+        // Get most recent state
+        const userState = await util.get<iUser>(rtpath).catch(console.error);
+        // Update user's state
+        const currentUser: iUser = {
+          ...userState,
+          id: user.uid,
+          photoURL: user.photoURL ?? DELETE,
+          name: (user.displayName || userState?.name) ?? DELETE,
+        };
 
-      await util.update(rtpath, currentUser).catch(console.error);
+        await util.update(rtpath, currentUser).catch(console.error);
 
-      navigate('/');
+        navigate('/');
+      }
+
+      // Sign up for auth changes
+      auth.onAuthStateChanged(onAuth, onError);
     })();
   }, []);
-
-  async function onAuth(user: User | null) {
-    setAuthUser(user ?? undefined);
-    setError(undefined);
-    setLoading(false);
-  }
-
-  function onError(err: Error) {
-    setAuthUser(undefined);
-    setError(err);
-    setLoading(false);
-  }
-
-  // Subscribe to auth changes, once only
-  useEffect(() => auth.onAuthStateChanged(onAuth, onError), []);
 
   return <Provider value={[authUser, loading, error]}>{children}</Provider>;
 }

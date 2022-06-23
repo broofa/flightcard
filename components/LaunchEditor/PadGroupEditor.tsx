@@ -1,5 +1,4 @@
 import React, { HTMLAttributes } from 'react';
-import { Button } from 'react-bootstrap';
 import { util } from '/rt';
 import { PADS_PATH, PAD_PATH } from '/rt/rtconstants';
 import { iPads } from '/types';
@@ -8,7 +7,6 @@ export function PadGroupEditor({
   padGroup: groupName,
   ...props
 }: { launchId: string; padGroup?: string } & HTMLAttributes<HTMLDivElement>) {
-  const [editing, setEditing] = React.useState(false);
   const [newName, setNewName] = React.useState(groupName);
 
   const rtPath = PADS_PATH.with({ launchId });
@@ -22,7 +20,7 @@ export function PadGroupEditor({
       // individually
       await Promise.all(
         Object.values(pads).map(async pad => {
-          if (pad.group !== groupName) return;
+          if ((pad.group ?? '') !== groupName) return;
 
           pad.group = newName?.trim();
           return await util.set(
@@ -32,41 +30,22 @@ export function PadGroupEditor({
         })
       );
     }
-
-    setEditing(false);
   }
 
   return (
     <div
-      className='d-grid mb-3 align-items-stretch'
-      style={{ gridTemplateColumns: '15em 5em' }}
+      className='d-grid mb-2  align-items-stretch'
+      style={{ width: '20em', gridTemplateColumns: '1fr 0fr' }}
       {...props}
     >
-      {editing ? (
-        <>
-          <input
-            autoFocus
-            type='text'
-            className='h3 me-2'
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
-          />
-          <Button size='sm' className='my-2' onClick={onSave}>
-            Save
-          </Button>
-        </>
-      ) : (
-        <>
-          <div className='h3 me-3'>{groupName}</div>
-          <Button
-            variant='outline-secondary'
-            className='p-0 my-2'
-            onClick={() => setEditing(true)}
-          >
-            Rename
-          </Button>
-        </>
-      )}
+      <input
+        autoFocus
+        type='text'
+        value={newName}
+        placeholder='(default group)'
+        onChange={e => setNewName(e.target.value)}
+        onBlur={onSave}
+      />
     </div>
   );
 }
