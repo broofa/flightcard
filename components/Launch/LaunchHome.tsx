@@ -42,8 +42,10 @@ export default function LaunchHome() {
     return (
       <>
         <p>
-          Please start by telling us your name. This helps us keep the launch
-          safe and fun!
+          Please start by telling us your name:
+          <div className='text-tip'>
+          Knowing who's here helps keep the launchsafe and fun!  You can always change this letter in <code>Settings</code>
+          </div>
         </p>
         <ProfileName
           attendeeFields={{ launchId: launch.id, userId: attendee.id }}
@@ -79,25 +81,13 @@ export default function LaunchHome() {
         <Card style={{ backgroundImage: `url(${spectateImage})`, ...bgStyle }}>
           <Card.Title className='px-2 py-1'>Spectate</Card.Title>
           <Card.Body>
-            {attendee?.name ? (
-              <>
-                <FCLink to={launchUrl('lco')}>Launch Control Ride Along</FCLink>
-                <FCLink to={launchUrl('users')}>View Attendees</FCLink>
-                <FCLink disabled to={launchUrl('/report')}>
-                  View Launch Stats
-                </FCLink>
-              </>
-            ) : (
-              <>
-                <p>
-                  Please start by telling us your name. This helps us keep the
-                  launch safe and fun!
-                </p>
-                <ProfileName
-                  attendeeFields={{ launchId: launch.id, userId: attendee.id }}
-                />
-              </>
-            )}
+            <>
+              <FCLink to={launchUrl('lco')}>Launch Control Ride Along</FCLink>
+              <FCLink to={launchUrl('users')}>View Attendees</FCLink>
+              <FCLink disabled to={launchUrl('/report')}>
+                View Launch Stats
+              </FCLink>
+            </>
           </Card.Body>
         </Card>
 

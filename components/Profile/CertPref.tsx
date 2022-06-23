@@ -1,24 +1,21 @@
-import React from 'react';
-import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
+import React, { ChangeEvent } from 'react';
+import { usePrevious } from '../common/util';
 import { DELETE, util } from '/rt';
 import { ATTENDEE_CERT_PATH } from '/rt/rtconstants';
 import { CertLevel, CertOrg, iCert } from '/types';
 
 const CERT: Record<string, iCert> = {
-  NAR1: { organization: CertOrg.NAR, level: CertLevel.L1 },
-  NAR2: { organization: CertOrg.NAR, level: CertLevel.L2 },
-  NAR3: { organization: CertOrg.NAR, level: CertLevel.L3 },
-  TRA1: { organization: CertOrg.TRA, level: CertLevel.L1 },
-  TRA2: { organization: CertOrg.TRA, level: CertLevel.L2 },
-  TRA3: { organization: CertOrg.TRA, level: CertLevel.L3 },
+  'NAR 1': { organization: CertOrg.NAR, level: CertLevel.L1 },
+  'NAR 2': { organization: CertOrg.NAR, level: CertLevel.L2 },
+  'NAR 3': { organization: CertOrg.NAR, level: CertLevel.L3 },
+  'TRA 1': { organization: CertOrg.TRA, level: CertLevel.L1 },
+  'TRA 2': { organization: CertOrg.TRA, level: CertLevel.L2 },
+  'TRA 3': { organization: CertOrg.TRA, level: CertLevel.L3 },
 };
 
 function certKey(cert?: iCert) {
-  if (!cert?.organization || !cert?.level) return '0';
-  return `${cert.organization}${cert.level ?? '0'}`;
-}
-function certName(cert?: iCert) {
-  return `${cert?.organization ?? ''} ${cert?.level ?? '0'}`;
+  if (!cert?.organization || !cert?.level) return;
+  return `${cert.organization} ${cert.level ?? '0'}`;
 }
 
 export default function CertPref({
@@ -30,62 +27,32 @@ export default function CertPref({
 }) {
   const rtPath = ATTENDEE_CERT_PATH.with({ launchId, userId });
   const [cert] = util.useValue<iCert>(rtPath);
-
-  function onCertChange(key: string) {
-    const cert = CERT[key];
-    console.log('SETTING', key, cert);
-    util.set(rtPath, cert ?? DELETE);
+  function onCertChange(e: ChangeEvent<HTMLSelectElement>) {
+    const { value } = e.target;
+    const newCert = CERT[value];
+    if (cert?.verifiedTime && cert?.level) {
+      const okay = confirm(
+        "You'll need to re-verify your NAR / TRA membership with a club officer if you do this?\nContinue?"
+      );
+      if (!okay) return;
+    }
+    util.set(rtPath, newCert ?? DELETE);
   }
 
-  const traCerts = Object.values(CERT).filter(
-    cert => cert.organization === CertOrg.TRA
-  );
-  const narCerts = Object.values(CERT).filter(
-    cert => cert.organization === CertOrg.NAR
-  );
-
   return (
-    <>
-      <ToggleButtonGroup
-        name='cert-pref'
-        type='radio'
-        value={certKey(cert)}
-        className='d-flex'
-        onChange={val => onCertChange(val)}
-      >
-        {narCerts.map(cert => (
-          <ToggleButton
-            variant='outline-primary'
-            className='flex-fill'
-            size='sm'
-            id={`cert-pref-${certKey(cert)}`}
-            key={`cert-pref-${certKey(cert)}`}
-            value={certKey(cert)}
-          >
-            {certName(cert)}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
-      <br />
-      <ToggleButtonGroup
-        name='cert-pref'
-        type='radio'
-        value={certKey(cert)}
-        className='d-flex'
-        onChange={val => onCertChange(val)}
-      >
-        {traCerts.map(cert => (
-          <ToggleButton
-            variant='outline-primary'
-            size='sm'
-            id={`cert-pref-${certKey(cert)}`}
-            key={`cert-pref-${certKey(cert)}`}
-            value={certKey(cert)}
-          >
-            {certName(cert)}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
-    </>
+    <select
+      className='form-select'
+      value={certKey(cert)}
+      onChange={onCertChange}
+    >
+      <option key='cert-none' value={''}>
+        Not Certified
+      </option>
+      {Object.entries(CERT).map(([key, cert]) => (
+        <option key={`cert-${key}`} value={key}>
+          {key}
+        </option>
+      ))}
+    </select>
   );
 }

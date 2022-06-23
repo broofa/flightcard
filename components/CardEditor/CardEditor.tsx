@@ -7,6 +7,7 @@ import { MKS } from '../../util/units';
 import { useAttendee, usePads, useUserUnits } from '../contexts/rthooks';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
+import ColorChits from './ColorChits';
 import MotorAnalysis from './MotorAnalysis';
 import { MotorDataList } from './MotorDataList';
 import { MotorDetail } from './MotorDetail';
@@ -21,6 +22,7 @@ import {
   ATTENDEE_PATH,
   CardFields,
   CARD_PATH,
+  ROCKET_PATH,
 } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard, iMotor, Recovery } from '/types';
 
@@ -60,6 +62,9 @@ export default function CardEditor() {
   const [flier] = util.useValue<iAttendee>(flierPath);
   const disabled = attendee?.id !== flier?.id;
 
+  const colorsPath = ROCKET_PATH.append('color').with(cardFields);
+  const [colors] = util.useValue<string>(colorsPath);
+  console.log('COLORS', colorsPath, colors);
   const rtui = useMemo(() => {
     return rtuiFromPath(cardPath, userUnits);
   }, [cardPath, userUnits]);
@@ -258,8 +263,8 @@ export default function CardEditor() {
       {cardStatus}
 
       <FormSection className='d-flex'>
-          <div className='flex-grow-1'>Rocket</div>
-          <UnitsPref authId={attendee.id} className='ms-3' />
+        <div className='flex-grow-1'>Rocket</div>
+        <UnitsPref authId={attendee.id} className='ms-3' />
       </FormSection>
 
       <UnitsFAQ />
@@ -304,7 +309,10 @@ export default function CardEditor() {
           }
         />
 
-        <rtui.StringInput field='rocket/color' label='Color' />
+        <div>
+          <rtui.StringInput field='rocket/color' label='Colors' />
+          {colors && <ColorChits colors={colors} className='mt-1' />}
+        </div>
       </div>
 
       <div
