@@ -7,6 +7,7 @@ import { FCLinkButton } from '../common/FCLinkButton';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendees, useCards, usePads } from '../contexts/rthooks';
 import { PadEditor } from '../LaunchEditor/PadEditor';
+import { PadGroupEditor } from './PadGroupEditor';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
 import { db, DELETE } from '/rt';
@@ -138,8 +139,10 @@ export default function LaunchEditor() {
 
       {padGroups.map(group => (
         <div key={group}>
-          {group ? <h3>{group}</h3> : null}
-          <div className='d-flex flex-wrap gap-3'>
+          {group ? (
+            <PadGroupEditor launchId={launch.id} padGroup={group} />
+          ) : null}{' '}
+          <div className='d-flex flex-wrap gap-3 mb-3'>
             {pads
               ? arraySort(
                   Object.values(pads).filter(

@@ -5,6 +5,7 @@ export type LaunchField = { launchId: string };
 export type CardField = { cardId: string };
 export type MotorField = { motorId: string };
 export type AuthField = { authId: string };
+export type PadField = { padId: string };
 export type CardFields = LaunchField & CardField;
 export type MotorFields = CardFields & MotorField;
 export type AttendeeFields = LaunchField & UserField;
@@ -20,7 +21,9 @@ export const ATTENDEE_CERT_PATH = ATTENDEE_PATH.append('cert');
 export const ATTENDEE_ROLE_PATH = ATTENDEE_PATH.append('role');
 
 export const OFFICERS_PATH = new RTPath<LaunchField>('/officers/:launchId');
+
 export const PADS_PATH = new RTPath<LaunchField>('/pads/:launchId');
+export const PAD_PATH = PADS_PATH.append<PadField>(':padId');
 
 export const LAUNCHES_PATH = new RTPath('/launches');
 export const LAUNCH_PATH = LAUNCHES_PATH.append<LaunchField>(':launchId');

@@ -10,7 +10,7 @@ import {
   ref as dbRef,
   remove as dbRemove,
   set as dbSet,
-  update as dbUpdate,
+  update as dbUpdate
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { RTPath } from './RTPath';
@@ -26,7 +26,7 @@ import {
   iPads,
   iPerm,
   iPerms,
-  iUser,
+  iUser
 } from '/types';
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
@@ -216,8 +216,8 @@ function createAPI<T>(pathTemplate: string) {
 
   const api: DataAPI = {
     async get(...args: string[]): Promise<T> {
-      const result = await dbGet(dbQuery(_ref(args)));
-      return errorTrap(result.val());
+      const result = await errorTrap(dbGet(dbQuery(_ref(args))));
+      return result.val();
     },
 
     async set(...parts: unknown[]) {
