@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../common/Icon';
 import '/components/Launch/LaunchCard.scss';
-import { AttendeeInfo } from '/components/UserList';
+import { AttendeeInfo } from './UserList';
 import { iAttendee, iCard } from '/types';
 
 const IMPULSE_CLASSES = [

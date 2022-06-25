@@ -9,9 +9,10 @@ export type DeepPartial<T> = {
 
 export type tRole = 'lco' | 'rso';
 export enum CardStatus {
-  REVIEW = 'review',
-  READY = 'ready',
-  DONE = 'done',
+  DRAFT = 0,
+  REVIEW = 1,
+  READY = 2,
+  DONE = 3,
 }
 
 export type iPerm = boolean;

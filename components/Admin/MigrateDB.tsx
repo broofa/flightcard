@@ -3,12 +3,13 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
 import Busy from './Busy';
-import { rtGet, rtSet } from '/rt';
+import { rtGet, rtSet, rtTransaction } from '/rt';
 import {
   ATTENDEES_INDEX_PATH,
   ATTENDEE_PATH,
   CARDS_INDEX_PATH,
   CARD_MOTORS_PATH,
+  CARD_PATH,
 } from '/rt/rtconstants';
 import { iAttendees, iCards } from '/types';
 
@@ -66,10 +67,29 @@ async function complete_migrateMotors() {
   }
 }
 
+async function complete_migrateCardStatus() {
+  log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
+  const allCards = await rtGet<Record<string, iCards>>(CARDS_INDEX_PATH);
+  for (const [launchId, cards] of Object.entries(allCards)) {
+    log(<h4>Launch {launchId}</h4>);
+    for (const [cardId, card] of Object.entries(cards)) {
+      if (typeof card.status != 'string') continue;
+
+      const status = { review: 1, ready: 2, done: 3 }[card.status];
+
+      const rtPath = CARD_PATH.append('status').with({ launchId, cardId });
+      const transaction = rtTransaction();
+
+      transaction.update(rtPath, status);
+      await transaction.commit();
+    }
+  }
+}
+
 async function handleClick() {
   clear();
   log(<h2>Starting...</h2>);
-  await complete_migrateMotors();
+  await migrateCardStatus();
   log(<h2>--- Fin ---</h2>);
 }
 

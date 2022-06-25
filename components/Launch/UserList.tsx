@@ -1,10 +1,10 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { arraySort } from '../util/arrayUtils';
-import { ANONYMOUS } from './App/App';
-import { useLaunch } from './contexts/LaunchContext';
-import { useRoleAPI } from './contexts/OfficersContext';
-import { useAttendees, useCurrentUser, useOfficers } from './contexts/rthooks';
+import { arraySort } from '../../util/arrayUtils';
+import { ANONYMOUS } from '../App/App';
+import { useLaunch } from '../contexts/LaunchContext';
+import { useRoleAPI } from '../contexts/OfficersContext';
+import { useAttendees, useCurrentUser, useOfficers } from '../contexts/rthooks';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';

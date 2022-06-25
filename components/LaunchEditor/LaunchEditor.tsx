@@ -166,7 +166,7 @@ export default function LaunchEditor() {
           Delete This Launch
         </Button>
         <FCLinkButton variant='secondary' to={-1}>
-          Okay
+          Close
         </FCLinkButton>
       </div>
 

@@ -7,6 +7,8 @@ export type tUnitSystemName = 'mks' | 'uscs';
 export type tUnitSystem = {
   lengthSmall: string;
   length: string;
+  speed: string;
+  speedSmall: string;
   mass: string;
   force: string;
   impulse: string;
@@ -15,6 +17,8 @@ export type tUnitSystem = {
 export const MKS: tUnitSystem = {
   lengthSmall: 'cm',
   length: 'm',
+  speed: 'km/h',
+  speedSmall: 'm/s',
   mass: 'kg',
   force: 'n',
   impulse: 'n-s',
@@ -23,6 +27,8 @@ export const MKS: tUnitSystem = {
 export const USCS: tUnitSystem = {
   lengthSmall: 'in',
   length: 'ft',
+  speed: 'mph',
+  speedSmall: 'ft/s',
   mass: 'lb',
   force: 'lbf',
   impulse: 'lbf-s',
@@ -36,14 +42,14 @@ const _FACTORS = new Map<string, Map<string, number>>();
 // This method defines the inverse conversion as well as any implied
 // conversions.  For example...
 //
-// _defineConversion('m', 'mm', 1000); _defineConversion('in', mm', 25.4);
+// define('m', 'mm', 1000); define('in', mm', 25.4);
 //
 // ... enables conversions to and from any combination of 'm', 'mm', and 'in'
 // units.
 //
 // Note: The _FACTORS data structure grows as O(N * (N-1)) for N related units.
 // Something to keep an eye on.
-function _defineConversion(from: string, to: string, factor: number) {
+function define(from: string, to: string, factor: number) {
   if (from === to) return;
 
   // Define the conversion and inverse conversion
@@ -60,7 +66,7 @@ function _defineConversion(from: string, to: string, factor: number) {
   fromFactors.set(to, factor);
 
   // Define inverse conversion
-  _defineConversion(to, from, 1 / factor);
+  define(to, from, 1 / factor);
 
   // Define conversions for all units that `to` can convert to.  This results in
   // a fully populated conversion table for all related units.
@@ -68,29 +74,35 @@ function _defineConversion(from: string, to: string, factor: number) {
   if (toFactors) {
     for (const [toto, toFactor] of toFactors) {
       // https://www.youtube.com/watch?v=FTQbiNvZqaY
-      _defineConversion(from, toto, factor * toFactor);
+      define(from, toto, factor * toFactor);
     }
   }
 }
 
 // Length
-_defineConversion('ft', 'in', 12);
-_defineConversion('m', 'cm', 100);
-_defineConversion('cm', 'mm', 10);
-_defineConversion('km', 'm', 1000);
-_defineConversion('in', 'mm', 25.4); // Connect MKS <-> USCS lengths
+define('ft', 'in', 12);
+define('m', 'cm', 100);
+define('cm', 'mm', 10);
+define('km', 'm', 1000);
+define('in', 'mm', 25.4); // Connect MKS <-> USCS lengths
+
+// Speed
+define('m/s', 'km/h', 3600 / 1000);
+define('m/s', 'km/s', 1 / 1000);
+define('ft/s', 'mph', 3600 / 5280);
+define('m/s', 'ft/s', 1000 / (25.4 * 12)); // Connect MKS <-> USCS speeds
 
 // Mass
-_defineConversion('kg', 'g', 1000);
-_defineConversion('g', 'mg', 1000);
-_defineConversion('lb', 'oz', 16);
-_defineConversion('kg', 'lb', 2.20462262); // Connect MKS <-> USCS mass
+define('kg', 'g', 1000);
+define('g', 'mg', 1000);
+define('lb', 'oz', 16);
+define('kg', 'lb', 2.20462262); // Connect MKS <-> USCS mass
 
 // Force (thrust)
-_defineConversion('lbf', 'n', 4.44822);
+define('lbf', 'n', 4.44822);
 
 // Impulse
-_defineConversion('lbf-s', 'n-s', 4.44822);
+define('lbf-s', 'n-s', 4.44822);
 
 export function unitConvert(val: number | string, from: string, to: string) {
   const factor = to === from ? 1 : _FACTORS?.get(from)?.get(to);

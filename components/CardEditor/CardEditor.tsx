@@ -1,10 +1,10 @@
 import React, { HTMLAttributes, ReactElement, useMemo, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { Motor as TCMotor } from 'thrustcurve-db';
-import { arraySort } from '../../util/arrayUtils';
 import { MKS } from '../../util/units';
 import { useAttendee, usePads, useUserUnits } from '../contexts/rthooks';
+import { AttendeeInfo } from '../Launch/UserList';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
 import ColorChits from './ColorChits';
@@ -15,7 +15,6 @@ import { MotorEditor } from './MotorEditor';
 import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
-import { AttendeeInfo } from '/components/UserList';
 import { DELETE, rtRemove, rtUpdate, useRTValue } from '/rt';
 
 import {
@@ -35,6 +34,40 @@ function FormSection({
   return (
     <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
       {children}
+    </div>
+  );
+}
+
+function CardCrumbs({
+  card,
+}: { card: iCard } & HTMLAttributes<HTMLDivElement>) {
+  const status =
+    typeof card.status == 'number'
+      ? card.status
+      : { '': 0, review: 1, ready: 2, done: 3 }[card.status ?? ''];
+
+  return (
+    <div
+      className='d-grid'
+      style={{
+        gridTemplateColumns:
+          '1fr min-content 1fr min-content 1fr min-content 1fr',
+        width: 'calc(100% - 8em)',
+        gap: '4px',
+      }}
+    >
+      {['Draft', 'Review', 'Ready', 'Done'].map((label, i) => (
+        <>
+          <Badge
+            pill
+            key={label}
+            bg={i < status ? 'dark' : i > status ? 'secondary' : 'primary'}
+          >
+            {label}
+          </Badge>
+          {i < 3 ? <div>{'\u{25B6}'}</div> : null}
+        </>
+      ))}
     </div>
   );
 }
@@ -170,7 +203,7 @@ export default function CardEditor() {
           variant='warning'
           onClick={() => cardUpdate({ padId: DELETE })}
         >
-          Clear Pad
+          Remove From Pad
         </Button>
       );
     }
@@ -182,35 +215,12 @@ export default function CardEditor() {
   }
 
   // Compose card status
-  let cardStatus;
-  switch (true) {
-    case !card.status: {
-      cardStatus = <p>This is a draft</p>;
-      break;
-    }
-
-    case card.status == CardStatus.REVIEW: {
-      cardStatus = <p>Waiting for RSO review</p>;
-      break;
-    }
-
-    case (isOwner || isLCO) && card.status == CardStatus.READY: {
-      const padOptions = arraySort(
-        Object.values(pads),
-        pad => `${pad.group ?? ''} ${pad.name}`
-      ).map(pad => (
-        <option key={pad.id} value={pad.id}>
-          {pad.group ? `${pad.group} : ` : ''}
-          {pad.name}
-        </option>
-      ));
-
-      cardStatus = (
-        <>
-          <div className='d-flex align-items-baseline gap-1 mt-2'>
-            <label className='text-nowrap'>On pad</label>
-            <strong>PAD SELECTION UI GOES HERE</strong>
-            {/* <Form.Select
+  const cardStatus = (
+    <>
+      <div className='d-flex align-items-baseline gap-1 mt-2'>
+        <label className='text-nowrap'>On pad</label>
+        <strong>PAD SELECTION UI GOES HERE</strong>
+        {/* <Form.Select
               value={card?.padId ?? ''}
               onChange={e =>
                 poke('padId', (e.target as HTMLSelectElement).value || DELETE)
@@ -219,34 +229,21 @@ export default function CardEditor() {
               <option value=''>Select Pad...</option>
               {padOptions}
             </Form.Select> */}
-          </div>
-          {!card?.padId ? (
-            <div className='mt-1 text-secondary small'>
-              (Only select pad after rocket is on the pad and ready for launch)
-            </div>
-          ) : null}
-        </>
-      );
-
-      break;
-    }
-
-    case card.status == CardStatus.READY: {
-      cardStatus = <p>Ready to fly.</p>;
-      break;
-    }
-
-    case card.status == CardStatus.DONE: {
-      cardStatus = <p>This card is complete.</p>;
-      break;
-    }
-  }
+      </div>
+      {!card?.padId ? (
+        <div className='mt-1 text-tip'>
+          (Only select pad after rocket is on the pad and ready for launch)
+        </div>
+      ) : null}
+    </>
+  );
 
   return (
     <>
-      <UnitsPref
-        authId={attendee.id}
-        className='mt-1 me-1'
+      <MotorDataList id='tc-motors' />
+
+      {/* Units Pref UI */}
+      <div
         style={{
           position: 'fixed',
           right: 0,
@@ -254,9 +251,14 @@ export default function CardEditor() {
           zIndex: 999,
           backgroundColor: '#fff',
         }}
-      />
+      >
+        <UnitsPref authId={attendee.id} className='mt-1 me-1' />
+        <div style={{ fontSize: '9pt', textAlign: 'center', color: 'gray' }}>
+          Units
+        </div>
+      </div>
 
-      <MotorDataList id='tc-motors' />
+      <CardCrumbs card={card} />
 
       {flier ? (
         <>
@@ -264,16 +266,6 @@ export default function CardEditor() {
           <AttendeeInfo className='me-3' attendee={flier} />
         </>
       ) : null}
-
-      <FormSection className='d-flex align-items-baseline'>
-        <span>Status</span>
-        <span
-          className='flex-grow-1 text-end'
-          style={{ fontSize: '8pt', color: '#ccc' }}
-        >
-          card status: {card.status ?? 'draft'}
-        </span>
-      </FormSection>
 
       {cardStatus}
 

@@ -17,29 +17,31 @@ export default function UnitsPref({
 
   return (
     <ToggleButtonGroup
+      {...props}
       name='units'
       value={units}
       type='radio'
       onChange={val => {
         setUnits(val);
       }}
-      {...props}
     >
       <ToggleButton
         variant='outline-primary'
         size='sm'
         id='unit-mks'
         value='mks'
+        style={{ fontSize: '2em', lineHeight: '0.9em', padding: 0 }}
       >
-        Metric
+        {'\u{1F1EA}\u{1F1FA}'}
       </ToggleButton>
       <ToggleButton
         variant='outline-primary'
         size='sm'
         id='unit-uscs'
         value='uscs'
+        style={{ fontSize: '2em', lineHeight: '0.9em', padding: 0 }}
       >
-        English
+        {'\u{1F1FA}\u{1F1F8}'}
       </ToggleButton>
     </ToggleButtonGroup>
   );

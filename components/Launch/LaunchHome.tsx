@@ -9,6 +9,7 @@ import { useAttendee } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
+import { auth } from '/rt';
 
 const IMAGES = {
   SPECTATOR: new URL('/art/home_spectate.webp', import.meta.url),
@@ -80,7 +81,7 @@ export default function LaunchHome() {
           />
           <div className='flex-grow-1'>
             <h5 className='mt-3'>Spectators</h5>
-            <FCLink to='lco'>Launch Control Ride Along</FCLink>
+            <FCLink to='lco'>Ride Along w/ Launch Control</FCLink>
             <FCLink to='users'>View Attendees</FCLink>
             <FCLink disabled to={launchUrl('/report')}>
               View Launch Stats
@@ -132,7 +133,9 @@ export default function LaunchHome() {
             <h5 className='mt-3'>Other</h5>
             <FCLink to='/launches'>Other Launches</FCLink>
             <FCLink to='profile'>My Profile</FCLink>
-            <FCLink to='/'>Log Out</FCLink>
+            <FCLink to='/' onClick={() => auth.signOut()}>
+              Log Out
+            </FCLink>
           </div>
         </Card>
       </div>

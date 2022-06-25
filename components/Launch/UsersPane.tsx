@@ -3,7 +3,7 @@ import { ButtonGroup } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { useLaunch } from '../contexts/LaunchContext';
 import { LinkButton, Loading } from '/components/common/util';
-import { UserList } from '/components/UserList';
+import { UserList } from './UserList';
 import { iAttendee, iPerm } from '/types';
 
 export const OFFICERS = 'officers';

@@ -18,7 +18,7 @@ import Launch from '../Launch/Launch';
 import LaunchHome from '../Launch/LaunchHome';
 import Launches from '../Launches/Launches';
 import Login from '../Login/Login';
-import { Waiver } from '../Waiver';
+import { Waiver } from './Waiver';
 import './App.scss';
 import { HomeNavBar } from './HomeNavBar';
 import { LaunchNavBar } from './LaunchNavBar';
