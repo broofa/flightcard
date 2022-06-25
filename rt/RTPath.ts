@@ -85,6 +85,7 @@ export class RTPath<Fields = FieldsBase> {
 
   toString() {
     if (this.errorString) throw Error(this.errorString);
+    if (!this.path) throw Error('Undefined path'); // This should never throw
     return this.path;
   }
 }

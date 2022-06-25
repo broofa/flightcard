@@ -75,15 +75,23 @@ export default function LaunchEditor() {
     if (response != launch.name) return;
 
     const rtFields = { launchId: launch.id };
-    try {
-      await rtRemove(LAUNCH_PATH.with(rtFields));
-      await rtRemove(OFFICERS_PATH.with(rtFields));
-      await rtRemove(PADS_PATH.with(rtFields));
-      await rtRemove(ATTENDEES_PATH.with(rtFields));
-      await rtRemove(CARDS_PATH.with(rtFields));
-    } catch (err) {
-      console.error('Failed to delete launch', err);
-    }
+
+    // TODO: This should really be done using rtTransaction, but it appears that
+    // requires giving the current user write permissions at the very top level
+    // of the RTDB, which we're not going to do.  So, instead, we delete the
+    // collections individually and just pray they don't fail.
+
+    // Delete launch first (required by RTDB rules before deleting other
+    // collections)
+    await rtRemove(LAUNCH_PATH.with(rtFields));
+
+    // Everything else can be removed in parallel
+    await Promise.all([
+      rtRemove(OFFICERS_PATH.with(rtFields)),
+      rtRemove(CARDS_PATH.with(rtFields)),
+      rtRemove(PADS_PATH.with(rtFields)),
+      rtRemove(ATTENDEES_PATH.with(rtFields)),
+    ]);
 
     navigate('/');
   }

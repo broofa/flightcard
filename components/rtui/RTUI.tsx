@@ -9,16 +9,37 @@ import React, {
 } from 'react';
 import { Form, FormCheckProps } from 'react-bootstrap';
 import { sig } from '../common/util';
-import {
-  BOOL_ADAPTER,
-  DELETE,
-  RTAdapter,
-  rtSet,
-  STRING_ADAPTER,
-  useRTValue,
-} from '/rt';
+import { DELETE, rtSet, useRTValue } from '/rt';
 import { RTPath } from '/rt/RTPath';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
+
+// Adapter for converting values between DB and control types
+type RTAdapter<RTType, ControlType> = {
+  toRT: (value: ControlType) => RTType | undefined;
+  fromRT: (value: RTType | undefined) => ControlType;
+};
+
+//
+// Useful RT adapters.  Specifying these here avoids having to memoize them.
+//
+
+export const STRING_ADAPTER: RTAdapter<string, string> = {
+  fromRT(v) {
+    return v ?? '';
+  },
+  toRT(v) {
+    return v.trim();
+  },
+};
+
+export const BOOL_ADAPTER: RTAdapter<boolean, boolean> = {
+  fromRT(v) {
+    return !!v;
+  },
+  toRT(v) {
+    return v ? true : DELETE;
+  },
+};
 
 // ALL THE HOOKZ for RTUI controls
 function useRealtimeField<RTType, ControlType>(

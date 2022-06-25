@@ -13,6 +13,7 @@ import {
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { RTPath } from './RTPath';
+import { errorTrap } from '/components/common/ErrorFlash';
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
@@ -38,52 +39,38 @@ export const DELETE = null as unknown as undefined;
 export const database = getDatabase(app);
 export const auth = getAuth(app);
 
-// Adapter for converting values between DB and control types
-export type RTAdapter<RTType, ControlType> = {
-  toRT: (value: ControlType) => RTType | undefined;
-  fromRT: (value: RTType | undefined) => ControlType;
-};
-
-//
-// Useful RT adapters.  Specifying these here avoids having to memoize them.
-//
-
-export const STRING_ADAPTER: RTAdapter<string, string> = {
-  fromRT(v) {
-    return v ?? '';
-  },
-  toRT(v) {
-    return v.trim();
-  },
-};
-
-export const BOOL_ADAPTER: RTAdapter<boolean, boolean> = {
-  fromRT(v) {
-    return !!v;
-  },
-  toRT(v) {
-    return v ? true : DELETE;
-  },
-};
-
 export type RTState<T> = [T | undefined, boolean, Error | undefined];
 
 export async function rtGet<T>(path: RTPath): Promise<T> {
   return path.isValid()
-    ? (await dbGet(dbRef(database, String(path)))).val()
+    ? (await errorTrap(dbGet(dbRef(database, String(path))))).val()
     : undefined;
 }
 
-export async function rtSet<T = never>(path: RTPath, value: T) {
-  return await dbSet(dbRef(database, String(path)), value);
+export function rtSet<T = never>(path: RTPath, value: T) {
+  return errorTrap(dbSet(dbRef(database, String(path)), value));
 }
 
-export async function rtRemove(path: RTPath) {
-  return await dbRemove(dbRef(database, String(path)));
+export function rtRemove(path: RTPath) {
+  return errorTrap(dbRemove(dbRef(database, String(path))));
 }
 
-export async function rtUpdate<T = never>(path: RTPath, state: Partial<T>) {
-  return await dbUpdate(dbRef(database, String(path)), state);
+export function rtUpdate<T = never>(path: RTPath, state: Partial<T>) {
+  return errorTrap(dbUpdate(dbRef(database, String(path)), state));
+}
+
+export function rtTransaction() {
+  const updates: { [key: string]: unknown } = {};
+  return {
+    update<T = never>(path: RTPath, state: Partial<T> | null) {
+      updates[path.toString()] = state;
+    },
+
+    async commit() {
+      console.log('UPDATING', dbRef(database), updates);
+      return errorTrap(dbUpdate(dbRef(database), updates));
+    },
+  };
 }
 
 export function useRTValue<T = never>(

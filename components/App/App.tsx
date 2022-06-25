@@ -16,7 +16,7 @@ import { OfficersProvider } from '../contexts/OfficersContext';
 import { useAttendee } from '../contexts/rthooks';
 import Launch from '../Launch/Launch';
 import LaunchHome from '../Launch/LaunchHome';
-import Launches from '../Launches';
+import Launches from '../Launches/Launches';
 import Login from '../Login/Login';
 import { Waiver } from '../Waiver';
 import './App.scss';

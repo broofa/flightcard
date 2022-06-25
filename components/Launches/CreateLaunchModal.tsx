@@ -1,45 +1,21 @@
 import { nanoid } from 'nanoid';
 import React, { MouseEventHandler, useState } from 'react';
-import {
-  Button,
-  Card,
-  CardProps,
-  FormSelect,
-  Modal,
-  ModalProps,
-} from 'react-bootstrap';
+import { Button, FormSelect, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { arraySort } from '../util/arrayUtils';
-import { APPNAME } from './App/App';
-import { useCurrentUser, useLaunches } from './contexts/rthooks';
-import { LinkButton, Loading } from '/components/common/util';
-import { rtGet, rtSet } from '/rt';
-import { LAUNCH_PATH, OFFICER_PATH, PADS_PATH } from '/rt/rtconstants';
-import { iLaunch, iPad, iPads } from '/types';
+import { arraySort } from '../../util/arrayUtils';
+import { APPNAME } from '../App/App';
+import { useCurrentUser, useLaunches } from '../contexts/rthooks';
+import { Loading } from '/components/common/util';
+import { rtGet, rtTransaction } from '/rt';
+import {
+  ATTENDEE_PATH,
+  LAUNCH_PATH,
+  OFFICER_PATH,
+  PADS_PATH,
+} from '/rt/rtconstants';
+import { iAttendee, iLaunch, iPad, iPads } from '/types';
 
-function dateString(ts: string) {
-  return new Date(`${ts}T00:00:00`).toLocaleDateString();
-}
-
-function EventCard({ launch, ...props }: { launch: iLaunch } & CardProps) {
-  return (
-    <Card key={launch.id} {...props}>
-      <Card.Body>
-        <Card.Title>{launch.name}</Card.Title>
-        <div>
-          Dates: {dateString(launch.startDate)} - {dateString(launch.endDate)}
-        </div>
-        <div>Location: {launch.location}</div>
-        <div>Host: {launch.host}</div>
-        <LinkButton className='mt-2' to={`/launches/${launch.id}`}>
-          Check into {launch.name}
-        </LinkButton>
-      </Card.Body>
-    </Card>
-  );
-}
-
-function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
+export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   const [launches] = useLaunches();
   const [currentUser] = useCurrentUser();
   const [copyId, setCopyId] = useState('');
@@ -68,23 +44,40 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       newLaunch.location = srcLaunch.location;
     }
 
+    const transaction = rtTransaction();
+
     // Save launch
-    await rtSet<iLaunch>(
+    transaction.update<iLaunch>(
       LAUNCH_PATH.with({ launchId: newLaunch.id ?? '' }),
       newLaunch as iLaunch
     );
 
     // Make current user the first officer
-    await rtSet(
+    transaction.update<boolean>(
       OFFICER_PATH.with({
         launchId: newLaunch.id ?? '',
         userId: currentUser.id,
       }),
-      newLaunch
+      true
+    );
+
+    // Add current user as attendee
+    transaction.update<iAttendee>(
+      ATTENDEE_PATH.with({
+        launchId: newLaunch.id ?? '',
+        userId: currentUser.id,
+      }),
+      {
+        id: currentUser.id,
+        name: currentUser.name,
+        photoURL: currentUser.photoURL,
+        waiverTime: Date.now(),
+      }
     );
 
     // Copy launch pads
     if (srcLaunch) {
+      console.log('GETTING PADS FROM OTHER LAUNCH');
       const pads = await rtGet<iPads>(
         PADS_PATH.with({ launchId: srcLaunch.id })
       );
@@ -94,9 +87,12 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
         pad.launchId = launchId;
         newPads[pad.id] = pad;
       }
-      await rtSet<iPads>(PADS_PATH.with({ launchId }), newPads);
+      transaction.update<iPads>(PADS_PATH.with({ launchId }), newPads);
     }
 
+    await transaction.commit();
+
+    // Go to new launch page
     navigate(`/launches/${launchId}/edit`);
   };
 
@@ -138,55 +134,5 @@ function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
         <Button onClick={createLaunch}>Create Launch</Button>
       </Modal.Footer>
     </Modal>
-  );
-}
-
-export default function Launches() {
-  const [launches] = useLaunches();
-  const [currentUser] = useCurrentUser();
-  const [showLaunchModal, setShowLaunchModal] = useState(false);
-
-  if (!currentUser) return <Loading wat='User (Launches)' />;
-  if (!launches) return <Loading wat='Launches' />;
-
-  return (
-    <>
-      {showLaunchModal ? (
-        <CreateLaunchModal
-          show={true}
-          onHide={() => setShowLaunchModal(false)}
-        />
-      ) : null}
-
-      <div className='d-flex mb-3'>
-        <h2 className='flex-grow-1 my-0'>Current and Upcoming Launches</h2>
-        <Button
-          className='flex-grow-0'
-          size='sm'
-          onClick={() => setShowLaunchModal(true)}
-        >
-          New Launch ...
-        </Button>
-      </div>
-      <div className='deck'>
-        {Object.values(launches)
-          .filter(
-            l =>
-              !l.startDate || Date.parse(`${l.endDate}T23:59:59`) >= Date.now()
-          )
-          .map(l => (
-            <EventCard key={l.id} launch={l} />
-          ))}
-      </div>
-
-      <h2>Past Launches</h2>
-      <div className='deck'>
-        {Object.values(launches)
-          .filter(l => Date.parse(`${l.endDate}T23:59:59`) < Date.now())
-          .map(l => (
-            <EventCard key={l.id} launch={l} />
-          ))}
-      </div>
-    </>
   );
 }
