@@ -5,7 +5,7 @@ import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useRoleAPI } from '../contexts/OfficersContext';
-import { useAttendee } from '../contexts/rthooks';
+import { useCurrentAttendee } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
@@ -19,7 +19,7 @@ const IMAGES = {
 };
 
 export default function LaunchHome() {
-  const [attendee] = useAttendee();
+  const [attendee] = useCurrentAttendee();
   const [launch] = useLaunch();
   const roleApi = useRoleAPI();
 
@@ -103,25 +103,23 @@ export default function LaunchHome() {
           </div>
         </Card>
 
-        <Card className='d-flex flex-row '>
-          <img
-            className='me-4'
-            src={IMAGES.OFFICER.toString()}
-            style={{ height: '12em' }}
-          />
-          <div className='flex-grow-1'>
-            <h5 className='mt-3'>Officers</h5>
-            <FCLink disabled={!isOfficer} to='lco'>
-              Launch Control Duty
-            </FCLink>
-            <FCLink disabled={!isOfficer} to='rso'>
-              Range Safety Duty
-            </FCLink>
-            <FCLink disabled to='rso'>
-              Registration Desk Duty
-            </FCLink>
-          </div>
-        </Card>
+        {isOfficer ? (
+          <Card className='d-flex flex-row '>
+            <img
+              className='me-4'
+              src={IMAGES.OFFICER.toString()}
+              style={{ height: '12em' }}
+            />
+            <div className='flex-grow-1'>
+              <h5 className='mt-3'>Officers</h5>
+              <FCLink to='lco'>Launch Control Duty</FCLink>
+              <FCLink to='rso'>Range Safety Duty</FCLink>
+              <FCLink disabled to='rso'>
+                Registration Desk Duty
+              </FCLink>
+            </div>
+          </Card>
+        ) : null}
 
         <Card className='d-flex flex-row '>
           <img

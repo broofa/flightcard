@@ -1,16 +1,13 @@
 import { sendSignInLinkToEmail } from 'firebase/auth';
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
 import { APPNAME } from '../App/App';
+import { flash } from '../common/Flash';
 import { EMAIL_KEY } from './Login';
 import { busy } from '/components/common/util';
 import { auth } from '/rt';
 
-export function EmailModal({
-  from,
-  setFlash,
-  ...props
-}: { from: string; setFlash: (el: ReactElement) => void } & ModalProps) {
+export function EmailModal({ from, ...props }: { from: string } & ModalProps) {
   const [email, setEmail] = useState(localStorage.getItem(EMAIL_KEY) ?? '');
   const [emailSent, setEmailSent] = useState(false);
   const sendRef = useRef<HTMLButtonElement>(null);
@@ -31,7 +28,7 @@ export function EmailModal({
       localStorage.setItem(EMAIL_KEY, email);
     } catch (err) {
       console.error('Email login failed', err);
-      setFlash(
+      flash(
         <Alert variant='warning'>
           Hmm... something appears to have gone wrong.
         </Alert>

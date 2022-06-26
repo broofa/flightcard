@@ -70,7 +70,7 @@ export function Waiver() {
       </p>
 
       <div className='d-flex justify-content-between mt-3'>
-        <FCLinkButton variant='danger' to='/'>
+        <FCLinkButton variant='danger' to='/launches'>
           Nope
         </FCLinkButton>
         <Button ref={agreeRef} onClick={launchAgree}>

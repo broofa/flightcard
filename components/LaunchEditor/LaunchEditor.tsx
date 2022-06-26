@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import simplur from 'simplur';
 import { arraySort } from '../../util/arrayUtils';
 import { FCLinkButton } from '../common/FCLinkButton';
+import { flash } from '../common/Flash';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendees, useCards, usePads } from '../contexts/rthooks';
 import { PadEditor } from '../LaunchEditor/PadEditor';
@@ -93,7 +94,9 @@ export default function LaunchEditor() {
       rtRemove(ATTENDEES_PATH.with(rtFields)),
     ]);
 
-    navigate('/');
+    flash('Launch deleted');
+
+    navigate('/launches');
   }
 
   return (

@@ -8,7 +8,7 @@ import { useRTValue } from '/rt';
 import {
   CardFields,
   CARD_MOTORS_PATH,
-  ROCKET_MASS_PATH,
+  ROCKET_MASS_PATH
 } from '/rt/rtconstants';
 import { iCard, iRocket } from '/types';
 
@@ -17,6 +17,9 @@ const GRAVITY_ACC = 9.807;
 
 // Minimum velocity needed for rocket to be aerodynamically stable (m/s)
 const STABLE_SPEED = 13.89;
+
+const THRUST_RATIO_MIN = 4;
+const THRUST_RATIO_GOOD = 5;
 
 export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   const [userUnits = MKS] = useUserUnits();
@@ -81,7 +84,6 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   let alertVariant = 'danger';
   let thrustResult = null;
   let railResult = null;
-
   if (thrustToWeightRatio <= 1) {
     thrustResult = (
       <>
@@ -91,8 +93,8 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
         {'\u{1F62D}'}
       </>
     );
-  } else if (thrustToWeightRatio < STABLE_SPEED * 0.8) {
-    alertVariant = thrustToWeightRatio < 5 ? 'danger' : 'success';
+  } else {
+    alertVariant = thrustToWeightRatio < THRUST_RATIO_MIN ? 'danger' : thrustToWeightRatio < THRUST_RATIO_GOOD ? 'warning' : 'success';
     thrustResult = (
       <div>
         Stage 1 thrust:weight ratio is{' '}

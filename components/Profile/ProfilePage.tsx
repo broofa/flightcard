@@ -1,17 +1,16 @@
 import React from 'react';
-import { Alert, Button } from 'react-bootstrap';
+import { Alert } from 'react-bootstrap';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useAttendee } from '../contexts/rthooks';
+import { useCurrentAttendee } from '../contexts/rthooks';
 import { OFFICERS } from '../Launch/UsersPane';
 import CertPref from './CertPref';
 import ProfileName from './ProfileName';
 import UnitsPref from './UnitsPref';
 import { AttendeesLink, LinkButton, Loading } from '/components/common/util';
-import { auth } from '/rt';
 
 export default function ProfilePage() {
   const [launch] = useLaunch();
-  const [attendee] = useAttendee();
+  const [attendee] = useCurrentAttendee();
 
   if (!attendee) return <Loading wat='Attendee' />;
   if (!launch) return <Loading wat='Launch' />;
@@ -69,7 +68,7 @@ export default function ProfilePage() {
 
       <h2>Actions</h2>
       <div className='d-flex flex-wrap gap-3 mb-3'>
-        <LinkButton to={'/'}>Other Launches&hellip;</LinkButton>
+        <LinkButton to={'/launches'}>Other Launches&hellip;</LinkButton>
         {attendee?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
           <LinkButton to={'/admin'}>Admin</LinkButton>
         ) : null}

@@ -15,7 +15,7 @@ export function HomeNavBar() {
         className='position-sticky top-0'
         style={{ zIndex: 3 }}
       >
-        <NavLink to='/' className='text-center p-1'>
+        <NavLink to='/launches' className='text-center p-1'>
           <img src={logoImage} style={{ height: '2.5em' }} />
         </NavLink>
         <div className='flex-grow-1'>{APPNAME}</div>

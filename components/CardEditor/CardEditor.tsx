@@ -1,9 +1,10 @@
 import React, { HTMLAttributes, ReactElement, useMemo, useState } from 'react';
-import { Badge, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { MKS } from '../../util/units';
-import { useAttendee, usePads, useUserUnits } from '../contexts/rthooks';
+import { flash } from '../common/Flash';
+import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
 import { AttendeeInfo } from '../Launch/UserList';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
@@ -41,40 +42,32 @@ function FormSection({
 function CardCrumbs({
   card,
 }: { card: iCard } & HTMLAttributes<HTMLDivElement>) {
-  const status =
-    typeof card.status == 'number'
-      ? card.status
-      : { '': 0, review: 1, ready: 2, done: 3 }[card.status ?? ''];
+  const status = card.status ?? CardStatus.DRAFT;
 
   return (
-    <div
-      className='d-grid'
-      style={{
-        gridTemplateColumns:
-          '1fr min-content 1fr min-content 1fr min-content 1fr',
-        width: 'calc(100% - 8em)',
-        gap: '4px',
-      }}
-    >
-      {['Draft', 'Review', 'Ready', 'Done'].map((label, i) => (
-        <>
-          <Badge
-            pill
-            key={label}
-            bg={i < status ? 'dark' : i > status ? 'secondary' : 'primary'}
-          >
-            {label}
-          </Badge>
-          {i < 3 ? <div>{'\u{25B6}'}</div> : null}
-        </>
-      ))}
+    <div style={{ fontSize: '85%' }}>
+      {['Draft', 'Review', 'Ready', 'Done'].map((label, i) => {
+        const variant =
+          i < status ? 'dark' : i > status ? 'secondary' : 'primary';
+        return (
+          <>
+            <span
+              className={`text-nowrap text=${variant} border-${variant} rounded`}
+              key={label}
+            >
+              {label}
+            </span>
+            {i < 3 ? <span key={`arrow-${label}`}>{' \u{25B6} '}</span> : null}
+          </>
+        );
+      })}
     </div>
   );
 }
 
 export default function CardEditor() {
   const [userUnits = MKS] = useUserUnits();
-  const [attendee] = useAttendee();
+  const [attendee] = useCurrentAttendee();
   const [pads] = usePads();
   const [detailMotor, setDetailMotor] = useState<TCMotor>();
   const [editMotor, setEditMotor] = useState<iMotor>();
@@ -148,6 +141,7 @@ export default function CardEditor() {
           await rtRemove(
             CARD_PATH.with({ launchId: card.launchId, cardId: card.id })
           );
+          flash('Flight card deleted');
           navigate(-1);
         }
       : null;
@@ -260,7 +254,7 @@ export default function CardEditor() {
 
       <CardCrumbs card={card} />
 
-      {flier ? (
+      {flier && !isOwner ? (
         <>
           <FormSection>Flier</FormSection>
           <AttendeeInfo className='me-3' attendee={flier} />

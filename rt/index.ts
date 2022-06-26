@@ -13,7 +13,7 @@ import {
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { RTPath } from './RTPath';
-import { errorTrap } from '/components/common/ErrorFlash';
+import { errorTrap } from '/components/common/Flash';
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
@@ -67,7 +67,6 @@ export function rtTransaction() {
     },
 
     async commit() {
-      console.log('UPDATING', dbRef(database), updates);
       return errorTrap(dbUpdate(dbRef(database), updates));
     },
   };
@@ -92,9 +91,8 @@ export function useRTValue<T = never>(
     // Reset loading and error state
     setLoading(true);
     setError(undefined);
-    // console.log('SUB', path.toString());
 
-    const unsubscribe = dbOnValue(
+    return dbOnValue(
       dbRef(database, String(path)),
       s => {
         const dbVal = s.val() as T | undefined;
@@ -107,11 +105,6 @@ export function useRTValue<T = never>(
         setLoading(false);
       }
     );
-
-    return () => {
-      // console.log('UNSUB', path.toString());
-      unsubscribe();
-    };
   }, [path, setter]);
 
   return [val, loading, error];

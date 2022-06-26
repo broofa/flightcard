@@ -54,7 +54,7 @@ export function LaunchNavBar() {
           </>
         ) : (
           <>
-            <LinkContainer className='ms-2' to={'/'}>
+            <LinkContainer className='ms-2' to={'/launches'}>
               <Navbar.Brand>{APPNAME}</Navbar.Brand>
             </LinkContainer>
             <div className='flex-grow-1' />

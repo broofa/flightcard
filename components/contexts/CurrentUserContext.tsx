@@ -17,7 +17,7 @@ export function useCurrentUser() {
 export function CurrentUserProvider({ children }: PropsWithChildren) {
   const { Provider } = currentUserContext;
   const [authUser] = useAuthUser();
-  console.log('AUTH USER', authUser);
+
   const authFields = authUser ? { authId: authUser.uid } : undefined;
   const value = useRTValue<iUser>(USER_PATH.with(authFields));
 

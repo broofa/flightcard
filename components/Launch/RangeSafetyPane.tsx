@@ -2,7 +2,11 @@ import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useRoleAPI } from '../contexts/OfficersContext';
-import { useAttendee, useAttendees, useCards } from '../contexts/rthooks';
+import {
+  useAttendees,
+  useCards,
+  useCurrentAttendee,
+} from '../contexts/rthooks';
 import RolePref from '../Profile/RolePref';
 import { CardList } from './Launch';
 import { Loading } from '/components/common/util';
@@ -10,7 +14,7 @@ import { CardStatus } from '/types';
 
 export function RangeSafetyPane() {
   const [launch] = useLaunch();
-  const [user] = useAttendee();
+  const [user] = useCurrentAttendee();
   const [cards] = useCards();
   const [attendees] = useAttendees();
   const { isOfficer } = useRoleAPI();

@@ -30,7 +30,7 @@ export default function UnitsPref({
         size='sm'
         id='unit-mks'
         value='mks'
-        style={{ fontSize: '2em', lineHeight: '0.9em', padding: 0 }}
+        style={{ fontSize: '2em', lineHeight: '0.9em', padding: '0 0.2em' }}
       >
         {'\u{1F1EA}\u{1F1FA}'}
       </ToggleButton>
@@ -39,7 +39,7 @@ export default function UnitsPref({
         size='sm'
         id='unit-uscs'
         value='uscs'
-        style={{ fontSize: '2em', lineHeight: '0.9em', padding: 0 }}
+        style={{ fontSize: '2em', lineHeight: '0.9em', padding: '0 0.2em' }}
       >
         {'\u{1F1FA}\u{1F1F8}'}
       </ToggleButton>

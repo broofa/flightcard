@@ -21,7 +21,7 @@ import {
 } from '/types';
 import { MKS, tUnitSystem, USCS } from '/util/units';
 
-export function useAttendee() {
+export function useCurrentAttendee() {
   const [currentUser] = useCurrentUser();
   const [launch] = useLaunch();
 
