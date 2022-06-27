@@ -4,7 +4,7 @@ import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
+import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
@@ -21,13 +21,12 @@ const IMAGES = {
 export default function LaunchHome() {
   const [attendee] = useCurrentAttendee();
   const [launch] = useLaunch();
-  const roleApi = useRoleAPI();
   const isOfficer = useIsOfficer();
 
   const makeNewCard = useMakeNewCard();
 
   if (!attendee) return <Loading wat='Attendee' />;
-  if (!launch) return <Loading wat='Launch' />;
+  if (!launch) return <Loading wat='Launch (home)' />;
 
   function launchUrl(suffix: string) {
     if (!launch?.id) throw Error('No launch id'); // Should never happen

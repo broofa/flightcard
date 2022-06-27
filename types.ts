@@ -35,7 +35,7 @@ export interface iLaunch {
   endDate: string;
   rangeOpen: boolean;
 }
-export type iLaunchs = Record<string, iLaunch>;
+export type iLaunches = Record<string, iLaunch>;
 
 export enum CertLevel {
   NONE = 0,
@@ -58,7 +58,7 @@ export interface iCert {
 }
 
 export interface iAttendee extends iUser {
-  waiverTime: Timestamp;
+  waiverTime?: Timestamp;
   cert?: iCert;
   role?: tRole;
 }
@@ -68,7 +68,6 @@ export type iOfficers = Record<string, boolean>;
 
 export interface iPad {
   id: string;
-  launchId: string;
   name?: string;
   group?: string;
 }

@@ -10,8 +10,10 @@ import {
   CARDS_INDEX_PATH,
   CARD_MOTORS_PATH,
   CARD_PATH,
+  PADS_INDEX_PATH,
+  PAD_PATH,
 } from '/rt/rtconstants';
-import { iAttendees, iCards } from '/types';
+import { iAttendees, iCards, iPad, iPads } from '/types';
 
 async function completed_migrateCerts() {
   log(<h3>Migrating attendee certs...</h3>);
@@ -102,10 +104,30 @@ async function migrateCardStatus() {
   }
 }
 
+async function complete_migratePadLaunchId() {
+  log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
+  const allPads = await rtGet<Record<string, iPads>>(PADS_INDEX_PATH);
+  const transaction = rtTransaction();
+  for (const [launchId, pads] of Object.entries(allPads)) {
+    log(<h4>Launch {launchId}</h4>);
+    for (const [padId, pad] of Object.entries<iPad>(pads)) {
+      if (!(pad as any).launchId) continue;
+
+      (pad as any).launchId = DELETE;
+
+      const rtPath = PAD_PATH.with({ launchId, padId });
+
+      transaction.update<iPad>(rtPath, pad);
+    }
+  }
+
+  await transaction.commit();
+}
+
 async function handleClick() {
   clear();
   log(<h2>Starting...</h2>);
-  await migrateCardStatus();
+  await migratePadLaunchId();
   log(<h2>--- Fin ---</h2>);
 }
 

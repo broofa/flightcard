@@ -13,7 +13,7 @@ import {
 import { iCard, iRocket } from '/types';
 
 // Force of gravity (m/^2)
-const GRAVITY_ACC = 9.807;
+export const GRAVITY_ACC = 9.807;
 
 // Minimum velocity needed for rocket to be aerodynamically stable (m/s)
 const STABLE_SPEED = 13.89;

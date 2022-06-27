@@ -21,17 +21,12 @@ function MiniCard({
   const [attendees] = useAttendees();
   const [pads] = usePads();
 
-  if (!attendees || !pads) {
-    return <Loading wat='Attendees or Pads' />;
-  }
-
-  const pad = pads[card.padId ?? ''];
-
-  const user = attendees[card.userId ?? ''];
+  const pad = pads?.[card.padId ?? ''];
+  const user = attendees?.[card.userId ?? ''];
 
   return (
     <div {...props} className='d-flex border border-dark rounded'>
-      <div className='flex-grow-0 text-nowrap text-white bg-dark px-2 me-2'>
+      <div className='flex-grow-0 text-nowrap border-dark px-2 me-2' style={{borderRight: 'solid 1px'}}>
         {pad?.name ?? '-'}
       </div>
       <div className='flex-grow-1'>
@@ -63,12 +58,13 @@ export function LaunchControlPane() {
   const [launch] = useLaunch();
   const [currentAttendee] = useCurrentAttendee();
   const [attendees] = useAttendees();
-  const [allCards] = useCards();
+  const [allCards = []] = useCards();
   const isOfficer = useIsOfficer();
 
   if (!pads) return <Loading wat='Pads' />;
   if (!attendees) return <Loading wat='Attendees' />;
   if (!allCards) return <Loading wat='Cards' />;
+
 
   const readyCards = Object.values(allCards).filter(
     card => card.status === CardStatus.FLY
@@ -101,7 +97,7 @@ export function LaunchControlPane() {
         </div>
       ) : null}
 
-      <h2>Ready For Launch</h2>
+      <h2>On Pads</h2>
 
       {groupNames.map(groupName => {
         const cards = cardsByRack[groupName];
@@ -117,7 +113,7 @@ export function LaunchControlPane() {
       {unrackedCards?.length ? (
         <>
           <hr />
-          <h2>Waiting To Be Racked</h2>
+          <h2>Waiting For Pad</h2>
           <MiniCardList cards={unrackedCards} />
         </>
       ) : null}

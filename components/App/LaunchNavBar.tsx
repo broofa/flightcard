@@ -23,7 +23,7 @@ export function LaunchNavBar() {
   );
 
   if (loading) {
-    return <Loading wat='Launch' />;
+    return <Loading wat='Launch (navbar)' />;
   } else if (error) {
     return <Alert variant='danger'>LaunchRoute: {error.message}</Alert>;
   } else if (!launch) {

@@ -14,7 +14,7 @@ import {
   iAttendee,
   iAttendees,
   iCards,
-  iLaunchs,
+  iLaunches,
   iOfficers,
   iPads,
   iUser,
@@ -52,8 +52,8 @@ export function useCurrentUser() {
   return userState;
 }
 
-export function useLaunches(): RTState<iLaunchs> {
-  return useRTValue<iLaunchs>(LAUNCHES_PATH);
+export function useLaunches(): RTState<iLaunches> {
+  return useRTValue<iLaunches>(LAUNCHES_PATH);
 }
 
 export function useUserUnits(): RTState<tUnitSystem> {

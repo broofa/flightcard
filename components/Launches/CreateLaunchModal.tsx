@@ -83,7 +83,6 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       const newPads: { [padId: string]: iPad } = {};
       for (const pad of Object.values(pads)) {
         pad.id = nanoid();
-        pad.launchId = launchId;
         newPads[pad.id] = pad;
       }
       transaction.update<iPads>(PADS_PATH.with({ launchId }), newPads);

@@ -62,6 +62,8 @@ export function rtUpdate<T = never>(path: RTPath, state: Partial<T>) {
 export function rtTransaction() {
   const updates: { [key: string]: unknown } = {};
   return {
+    updates,
+    
     update<T = never>(path: RTPath, state: Partial<T> | undefined) {
       updates[path.toString()] = state;
     },
@@ -83,8 +85,8 @@ export function useRTValue<T = never>(
   useEffect(() => {
     // Silently ignore attempts to use invalid paths.
     if (!path.isValid()) {
-      setError(new Error(path.errorMessage));
       setLoading(false);
+      setError(new Error(path.errorMessage));
       return;
     }
 
@@ -97,7 +99,7 @@ export function useRTValue<T = never>(
       s => {
         const dbVal = s.val() as T | undefined;
         if (setter) setter(dbVal);
-        setVal(dbVal);
+        setVal(dbVal ?? undefined);
         setLoading(false);
       },
       err => {

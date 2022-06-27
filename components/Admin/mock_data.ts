@@ -1,5 +1,8 @@
 import { nanoid } from 'nanoid';
+import MOTORS from 'thrustcurve-db';
+import { GRAVITY_ACC } from '../CardEditor/MotorAnalysis';
 import { iMotor, iRocket } from '/types';
+import { motorDisplayName } from '/util/motor-util';
 
 export const NAMES = [
   'Shirley Baker',
@@ -295,9 +298,6 @@ const ROCKET_NAMES = [
 
 const MOTOR_SIZES = [
   // min/max impulse (MKS units)
-  { name: '1/8A', min: 0.05, max: 0.3125 },
-  { name: '1/4A', min: 0.3125, max: 0.625 },
-  { name: '1/2A', min: 0.625, max: 1.25 },
   { name: 'A', min: 1.25, max: 2.5 },
   { name: 'B', min: 2.5, max: 5 },
   { name: 'C', min: 5, max: 10 },
@@ -318,6 +318,8 @@ const MOTOR_SIZES = [
   { name: 'O', min: 20480, max: 40960 },
 ];
 
+const ROCKET_VENDORS = ['Estes', 'Mad Cow', 'SBR', 'LOC', 'Dynasoar'];
+
 export function frnd(min: number, max?: number): number {
   return max == null ? Math.random() * min : min + Math.random() * (max - min);
 }
@@ -331,46 +333,40 @@ export function rndItem<Type>(arr: Type[]): Type {
 }
 
 export function createRocket(): iRocket {
-  const name = rndItem(ROCKET_NAMES);
-  const manufacturer = rndItem([
-    'Estes',
-    'Mad Cow',
-    'Binder',
-    'LOC',
-    'Dynasoar',
-  ]);
+  const tcMotor = rndItem(MOTORS);
 
-  // "Build" rocket around randomly selected motor class
-  // (Using MKS units)
-  const category = rndItem(MOTOR_SIZES);
-  const impulse = frnd(category.min, category.max);
-  const burn = frnd(Math.pow(impulse, 0.25), Math.pow(impulse, 0.25));
-  const thrust = impulse / burn;
-  const delay = Math.pow(impulse, 1 / 2.5);
+  // weight should be < thrust * 5, but we generate some underpowered rockets to
+  // test thrust:weight ratio UI
+  const mass = tcMotor.avgThrustN / frnd(2, frnd(4, 20)) / GRAVITY_ACC;
 
-  // Mass should be < thrust * 5, but we generate some underpowered rockets to
-  // test thrust:mass ratio UI
-  const mass = thrust / frnd(3, 15);
-
-  const aspectRatio = frnd(10, 0);
-  const length = Math.pow(mass, 1 / 3);
-  const diameter = (Math.pow(mass, 1 / 3) / aspectRatio) * 20;
-
-  let { name: motorName } = category;
-  motorName = `${motorName}${thrust.toFixed(thrust < 1 ? 1 : 0)}`;
-  if (delay <= 20) motorName = `${motorName}-${Math.ceil(delay)}`;
+  const aspectRatio = frnd(frnd(5, 30), frnd(10, 40));
+  const length = Math.pow(mass * 2, 1 / 3);
+  const diameter = Math.pow(mass * 5, 1 / 3) / aspectRatio;
 
   const motor: iMotor = {
     id: nanoid(),
-    name: motorName,
-    impulse: impulse,
+    name: motorDisplayName(tcMotor),
+    stage: 1,
+    impulse: tcMotor.totImpulseNs,
+    tcMotorId: tcMotor.motorId,
   };
 
-  const color = rndItem(COLORS);
+  const delays = tcMotor.delays?.split(',');
+  const delay = parseInt(rndItem(delays ?? []));
+  if (!isNaN(delay)) motor.delay = delay;
 
-  const rocket : iRocket = {
-    name,
-    manufacturer,
+  const color = [
+    rndItem(COLORS),
+    rndItem(COLORS),
+    rndItem(COLORS),
+    rndItem(COLORS),
+  ]
+    .slice(rnd(4))
+    .join();
+
+  const rocket: iRocket = {
+    name: rndItem(ROCKET_NAMES),
+    manufacturer: rndItem(ROCKET_VENDORS),
     color,
     diameter,
     length,

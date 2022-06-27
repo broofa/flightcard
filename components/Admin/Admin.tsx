@@ -1,8 +1,8 @@
 import React, { cloneElement, isValidElement } from 'react';
 import { useLog } from './AdminLogger';
 import MigrateDB from './MigrateDB';
+import MockDB from './MockDB';
 import MotorStats from './MotorStats';
-import SeedDB from './SeedDB';
 import TestDB from './TestDB';
 import TestUtil from './TestUnits';
 
@@ -21,7 +21,7 @@ export default function Admin() {
 
       <h2>Danger Zone</h2>
       <section className='deck'>
-        <SeedDB />
+        <MockDB />
         <MigrateDB />
       </section>
 
