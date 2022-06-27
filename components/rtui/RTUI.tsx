@@ -28,7 +28,7 @@ export const STRING_ADAPTER: RTAdapter<string, string> = {
     return v ?? '';
   },
   toRT(v) {
-    return v.trim();
+    return v.trim() || DELETE;
   },
 };
 
@@ -67,8 +67,9 @@ function useRealtimeField<RTType, ControlType>(
   // Calling with no args saves the current `val`, or pass an arg to explicitely
   // specify the RT value to save.
   function save(override?: ControlType) {
-    const v = adapter.toRT(override ?? val);
     if (saveAction) return;
+    const v = adapter.toRT(override ?? val);
+    setVal(adapter.fromRT(v));
     const saving = rtSet(path, v ?? DELETE);
     saving.finally(() => setSaveAction(undefined));
     setSaveAction(saving);
@@ -219,11 +220,14 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       const adapter = useMemo(() => {
         return {
           fromRT(v: number | undefined) {
+            if ((v ?? 0) === 0) return '';
             return String(
               sig(unitConvert(v as number, MKS[fromType], userUnits[unitType]))
             );
           },
           toRT(v: string) {
+            const val = unitParse(v, userUnits[unitType], MKS[fromType]);
+            if (val === 0 || isNaN(val)) return DELETE;
             return unitParse(v, userUnits[unitType], MKS[fromType]);
           },
         };

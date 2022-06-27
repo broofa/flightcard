@@ -249,7 +249,7 @@ async function seedCards(launchId: string, attendees: iAttendees, pads: iPads) {
       const status = [
         DELETE,
         CardStatus.REVIEW,
-        CardStatus.READY,
+        CardStatus.FLY,
         CardStatus.DONE,
       ][i];
 

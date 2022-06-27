@@ -32,6 +32,7 @@ export const LAUNCH_PATH = LAUNCHES_PATH.append<LaunchField>(':launchId');
 export const CARDS_INDEX_PATH = new RTPath('/cards');
 export const CARDS_PATH = CARDS_INDEX_PATH.append<LaunchField>(':launchId');
 export const CARD_PATH = CARDS_PATH.append<CardField>(':cardId');
+export const CARD_STATUS = CARD_PATH.append('status');
 export const CARD_MOTORS_PATH = CARD_PATH.append('motors');
 export const CARD_MOTOR_PATH = CARD_MOTORS_PATH.append<MotorField>(':motorId');
 export const ROCKET_PATH = CARD_PATH.append('rocket');

@@ -4,7 +4,7 @@ import { useLaunch } from '../contexts/LaunchContext';
 import { useCurrentUser } from '../contexts/rthooks';
 import { rtSet } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
-import { iCard } from '/types';
+import { CardStatus, iCard } from '/types';
 
 // This doesn't feel like the right way of doing this, but wrapping this logic
 // in a hook avoids copy/pasting code around, and the mistakes that come with
@@ -23,6 +23,7 @@ export function useMakeNewCard() {
 
     const card: iCard = {
       id: nanoid(),
+      status: CardStatus.DRAFT,
       launchId,
       userId,
     };

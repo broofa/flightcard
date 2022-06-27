@@ -70,7 +70,7 @@ export function PadCard({ padId }: { padId: string }) {
 
   const padCards = cards
     ? Object.values(cards).filter(
-        c => c.padId == padId && c.status == CardStatus.READY
+        c => c.padId == padId && c.status == CardStatus.FLY
       )
     : [];
 

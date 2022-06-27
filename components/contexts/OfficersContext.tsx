@@ -1,5 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
 import { useLaunch } from './LaunchContext';
+import { useCurrentAttendee } from './rthooks';
 import { RTState, useRTValue } from '/rt';
 import { OFFICERS_PATH } from '/rt/rtconstants';
 import { iAttendee, iOfficers } from '/types';
@@ -12,6 +13,12 @@ const officersContext = createContext<RTState<iOfficers>>([
 
 export function useOfficers() {
   return useContext(officersContext);
+}
+
+export function useIsOfficer() {
+  const [currentAttendee] = useCurrentAttendee();
+  const [officers] = useOfficers();
+  return officers?.[currentAttendee?.id ?? ''] ? true : false;
 }
 
 export function useRoleAPI() {

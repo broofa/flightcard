@@ -28,6 +28,10 @@ export default function ColorChits({
   className,
   ...props
 }: { colors: string } & HTMLAttributes<HTMLDivElement>) {
+  if (/rainbow/i.test(colors)) {
+    colors = 'red orange yellow green turquoise blue violet';
+  }
+
   const match = colors?.match(/\w+/g)?.map(v => v.toLowerCase());
   if (!match) return null;
 
@@ -40,7 +44,7 @@ export default function ColorChits({
       {match.map((color, i) =>
         COLORS.has(color) ? (
           <div
-            className='flex-grow-1 rounded border border-dark'
+            className='flex-grow-1 rounded border border-dark no-invert'
             style={{ backgroundColor: color }}
             key={`chit-${i}`}
           ></div>

@@ -152,7 +152,7 @@ export function unitParse(
     // pound - ounces;
     v = Number(RegExp.$1) + Number(RegExp.$2) / 16;
     unit = 'lb';
-  } else if (/^([\d-.]+)\s*(?:g)$/i.test(val)) {
+  } else if (/^([\d-.]+)\s*(?:gm?)$/i.test(val)) {
     // grams
     v = Number(RegExp.$1) / 1000;
     unit = 'kg';

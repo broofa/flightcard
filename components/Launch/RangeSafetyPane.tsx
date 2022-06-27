@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useRoleAPI } from '../contexts/OfficersContext';
+import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
 import {
   useAttendees,
   useCards,
@@ -17,7 +17,7 @@ export function RangeSafetyPane() {
   const [user] = useCurrentAttendee();
   const [cards] = useCards();
   const [attendees] = useAttendees();
-  const { isOfficer } = useRoleAPI();
+  const isOfficer = useIsOfficer();
 
   if (!attendees) return <Loading wat='Users' />;
 
@@ -27,7 +27,7 @@ export function RangeSafetyPane() {
 
   return (
     <>
-      {isOfficer(user) ? (
+      {isOfficer ? (
         <div className='d-flex justify-content-center align-items-baseline mb-3'>
           <div className='me-2'>My Status: </div>
           <RolePref launchId={launch?.id ?? ''} userId={user?.id ?? ''} />

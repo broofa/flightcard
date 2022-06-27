@@ -12,17 +12,19 @@ const tcLogo = new URL('/art/thrustcurve.svg', import.meta.url);
 
 function MotorButton({
   motor,
+  disabled,
   setEditMotor,
   setDetailMotor,
 }: {
   motor: iMotor;
+  disabled: boolean;
   setEditMotor: (motor: iMotor | undefined) => void;
   setDetailMotor: (motor: TCMotor | undefined) => void;
 }) {
   const tcMotor = getMotor(motor.tcMotorId ?? '');
   return (
     <ButtonGroup className='d-flex' key={motor.id}>
-      <Button
+      <Button disabled={disabled}
         className='flex-grow-1'
         variant='outline-dark'
         onClick={() => setEditMotor(motor)}
@@ -49,10 +51,12 @@ function MotorButton({
 }
 
 export function MotorList({
+  disabled,
   rtFields,
   setEditMotor,
   setDetailMotor,
 }: {
+  disabled: boolean,
   rtFields: CardFields;
   setEditMotor: (motor: iMotor | undefined) => void;
   setDetailMotor: (motor: TCMotor | undefined) => void;
@@ -74,7 +78,7 @@ export function MotorList({
     motorList.push(
       <div key={`stage-${stage}`} className='deck'>
         {stageMotors.map(motor => (
-          <MotorButton
+          <MotorButton disabled={disabled}
             key={motor.id}
             motor={motor}
             setEditMotor={setEditMotor}

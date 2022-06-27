@@ -47,7 +47,7 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   if (mass == null) {
     return (
       <Alert className='mt-3 p-2' variant='warning'>
-        Enter rocket mass for analysis information to be displayed.
+        Enter rocket mass to enable thrust analysis
       </Alert>
     );
   }

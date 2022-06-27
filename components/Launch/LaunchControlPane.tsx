@@ -1,7 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useRoleAPI } from '../contexts/OfficersContext';
+import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
 import {
   useAttendees,
   useCards,
@@ -62,16 +62,16 @@ export function LaunchControlPane() {
   const [pads] = usePads();
   const [launch] = useLaunch();
   const [currentAttendee] = useCurrentAttendee();
-  const { isOfficer } = useRoleAPI();
   const [attendees] = useAttendees();
   const [allCards] = useCards();
+  const isOfficer = useIsOfficer();
 
   if (!pads) return <Loading wat='Pads' />;
   if (!attendees) return <Loading wat='Attendees' />;
   if (!allCards) return <Loading wat='Cards' />;
 
   const readyCards = Object.values(allCards).filter(
-    card => card.status === CardStatus.READY
+    card => card.status === CardStatus.FLY
   );
 
   const cardsByRack = arrayGroup(readyCards, card => {
@@ -82,7 +82,7 @@ export function LaunchControlPane() {
   delete cardsByRack[''];
 
   Object.values(allCards).filter(
-    card => card.status == CardStatus.READY && !card.padId
+    card => card.status == CardStatus.FLY && !card.padId
   );
 
   const groupNames = Object.keys(cardsByRack)
@@ -91,7 +91,7 @@ export function LaunchControlPane() {
 
   return (
     <>
-      {isOfficer(currentAttendee) ? (
+      {isOfficer ? (
         <div className='d-flex justify-content-center align-items-baseline mb-3'>
           <div className='me-2'>My Status: </div>
           <RolePref

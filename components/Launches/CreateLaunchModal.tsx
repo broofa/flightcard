@@ -77,7 +77,6 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
 
     // Copy launch pads
     if (srcLaunch) {
-      console.log('GETTING PADS FROM OTHER LAUNCH');
       const pads = await rtGet<iPads>(
         PADS_PATH.with({ launchId: srcLaunch.id })
       );

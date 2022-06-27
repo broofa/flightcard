@@ -32,7 +32,7 @@ export default function UnitsPref({
         value='mks'
         style={{ fontSize: '2em', lineHeight: '0.9em', padding: '0 0.2em' }}
       >
-        {'\u{1F1EA}\u{1F1FA}'}
+        <span className='no-invert'>{'\u{1F1EA}\u{1F1FA}'}</span>
       </ToggleButton>
       <ToggleButton
         variant='outline-primary'
@@ -41,7 +41,7 @@ export default function UnitsPref({
         value='uscs'
         style={{ fontSize: '2em', lineHeight: '0.9em', padding: '0 0.2em' }}
       >
-        {'\u{1F1FA}\u{1F1F8}'}
+        <span className='no-invert'>{'\u{1F1FA}\u{1F1F8}'}</span>
       </ToggleButton>
     </ToggleButtonGroup>
   );

@@ -28,7 +28,6 @@ function removeFlash(node: ReactNode) {
 
 export function flash(node: ReactNode | Error | string) {
   if (node instanceof Error) {
-    console.log(node);
     node = <Alert variant='danger'>{node.message}</Alert>;
   } else if (typeof node === 'string') {
     node = <Alert variant='success'>{node}</Alert>;

@@ -62,7 +62,7 @@ export function rtUpdate<T = never>(path: RTPath, state: Partial<T>) {
 export function rtTransaction() {
   const updates: { [key: string]: unknown } = {};
   return {
-    update<T = never>(path: RTPath, state: Partial<T> | null) {
+    update<T = never>(path: RTPath, state: Partial<T> | undefined) {
       updates[path.toString()] = state;
     },
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
 import Busy from './Busy';
-import { rtGet, rtSet, rtTransaction } from '/rt';
+import { DELETE, rtGet, rtSet, rtTransaction } from '/rt';
 import {
   ATTENDEES_INDEX_PATH,
   ATTENDEE_PATH,
@@ -67,22 +67,38 @@ async function complete_migrateMotors() {
   }
 }
 
-async function complete_migrateCardStatus() {
+async function migrateCardStatus() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
   const allCards = await rtGet<Record<string, iCards>>(CARDS_INDEX_PATH);
+  const transaction = rtTransaction();
   for (const [launchId, cards] of Object.entries(allCards)) {
     log(<h4>Launch {launchId}</h4>);
     for (const [cardId, card] of Object.entries(cards)) {
-      if (typeof card.status != 'string') continue;
+      const status =
+        {
+          undefined: 'draft',
+          draft: 'draft',
+          0: 'draft',
 
-      const status = { review: 1, ready: 2, done: 3 }[card.status];
+          1: 'review',
+          review: 'review',
+
+          ready: 'fly',
+          2: 'fly',
+          fly: 'fly',
+
+          3: 'done',
+          done: 'done',
+        }[card.status as string] ?? DELETE;
+
+      if (status === card.status) continue;
 
       const rtPath = CARD_PATH.append('status').with({ launchId, cardId });
-      const transaction = rtTransaction();
+      log('Updating', rtPath.toString(), card.status, '=>', status);
 
-      transaction.update(rtPath, status);
-      await transaction.commit();
+      // transaction.update<string>(rtPath, status);
     }
+    await transaction.commit();
   }
 }
 

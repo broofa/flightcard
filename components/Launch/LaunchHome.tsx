@@ -4,7 +4,7 @@ import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useRoleAPI } from '../contexts/OfficersContext';
+import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
 import { useCurrentAttendee } from '../contexts/rthooks';
 import ProfileName from '../Profile/ProfileName';
 import Icon from '/components/common/Icon';
@@ -22,6 +22,7 @@ export default function LaunchHome() {
   const [attendee] = useCurrentAttendee();
   const [launch] = useLaunch();
   const roleApi = useRoleAPI();
+  const isOfficer = useIsOfficer();
 
   const makeNewCard = useMakeNewCard();
 
@@ -32,8 +33,6 @@ export default function LaunchHome() {
     if (!launch?.id) throw Error('No launch id'); // Should never happen
     return `/launches/${launch.id}/${suffix}`;
   }
-
-  const isOfficer = roleApi.isOfficer(attendee);
 
   if (!attendee.name) {
     return (

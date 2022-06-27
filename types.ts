@@ -9,10 +9,10 @@ export type DeepPartial<T> = {
 
 export type tRole = 'lco' | 'rso';
 export enum CardStatus {
-  DRAFT = 0,
-  REVIEW = 1,
-  READY = 2,
-  DONE = 3,
+  DRAFT = 'draft',
+  REVIEW = 'review',
+  FLY = 'fly',
+  DONE = 'done',
 }
 
 export type iPerm = boolean;
@@ -101,15 +101,15 @@ export interface iRocket {
 }
 
 export interface iCard {
-  id: string;
-
   launchId: string;
   userId: string;
+  id: string;
+
+  status: CardStatus;
+
   lcoId?: string;
   rsoId?: string;
   padId?: string;
-
-  status?: CardStatus;
 
   firstFlight?: boolean;
   headsUp?: boolean;
