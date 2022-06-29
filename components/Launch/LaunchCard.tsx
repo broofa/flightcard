@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Icon from '../common/Icon';
-import '/components/Launch/LaunchCard.scss';
+import ColorChits from '../CardEditor/ColorChits';
 import { AttendeeInfo } from './UserList';
+import '/components/Launch/LaunchCard.scss';
 import { iAttendee, iCard } from '/types';
 
 const IMPULSE_CLASSES = [
@@ -77,8 +77,9 @@ export function LaunchCard({
   attendee?: iAttendee;
 }) {
   const motors = Object.values(card?.motors ?? {});
+  console.log(card.rocket?.color);
   return (
-    <div className='d-flex rounded border border-dark '>
+    <div className='d-flex rounded border border-dark'>
       <Link
         to={`/launches/${card.launchId}/cards/${card.id}`}
         className='launch-card text-center flex-grow-1 d-flex flex-column p-1 cursor-pointer'
@@ -90,24 +91,31 @@ export function LaunchCard({
             attendee={attendee}
           />
         ) : null}
-        <div>
-          {card.rocket?.name ? (
-            `"${card.rocket.name}"`
-          ) : (
-            <em>Unnamed rocket</em>
-          )}
+        <div className='flex-grow-1'>
+          <div>
+            {card.rocket?.name ? (
+              `"${card.rocket.name}"`
+            ) : (
+              <em>Unnamed rocket</em>
+            )}
+          </div>
+          {motors?.length ? (
+            <div className=''>
+              <span className='text-muted'>
+                {motors.map(m => m.name ?? '(?)').join(', ')}
+              </span>
+            </div>
+          ) : null}
         </div>
-        {motors?.length ? (
-          <div className=''>
-            <span className='text-muted'>
-              {motors.map(m => m.name ?? '(?)').join(', ')}
-            </span>
+      </Link>
+      {card.rocket?.color ? (
+          <div className='d-flex flex-column flex-grow-0 flex-shrink-0' style={{ flexBasis: '10px' }}>
+            <ColorChits className='flex-grow-1' colors={card.rocket?.color} />
           </div>
         ) : null}
-      </Link>
 
       {motors ? (
-        <div className='flex-grow-0 fs-1 px-3 bg-light rounded'>
+        <div className='flex-grow-0 text-center fs-1 px-3 bg-light rounded' style={{width: '2em'}}>
           {totalImpulseClass(motors)}
         </div>
       ) : (

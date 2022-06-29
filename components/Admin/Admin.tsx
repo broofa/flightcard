@@ -1,4 +1,4 @@
-import React, { cloneElement, isValidElement } from 'react';
+import React, { cloneElement, isValidElement, useEffect, useRef } from 'react';
 import { useLog } from './AdminLogger';
 import MigrateDB from './MigrateDB';
 import MockDB from './MockDB';
@@ -8,8 +8,15 @@ import TestUtil from './TestUnits';
 
 export default function Admin() {
   const log = useLog();
+  const logList = useRef<HTMLDivElement>(null);
 
-  // Trigger re-render when log changes
+  useEffect(() => {
+    const logEl = logList.current;
+    if (!logEl) return;
+    // @ts-ignore - typescript doesn't know about scrollTo
+    (logEl.lastChild as HTMLElement)?.scrollIntoView({ behavior: 'smooth' });
+  }, [log]);
+
   return (
     <>
       <h2>Probably-Safe Zone</h2>
@@ -26,6 +33,7 @@ export default function Admin() {
       </section>
 
       <div
+        ref={logList}
         className='mt-4 text-dark font-monospace'
         style={{ fontSize: '9pt' }}
       >
@@ -43,6 +51,7 @@ export default function Admin() {
             }
             return v;
           });
+
           return (
             <div key={i} className={err ? 'text-danger' : ''}>
               {args.join(' ')}

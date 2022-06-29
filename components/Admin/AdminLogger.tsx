@@ -3,26 +3,23 @@
 import { useState } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const queue: any[] = [];
+let queue: any[] = [];
 
 let onLog = () => {};
 
 export function useLog() {
   const [log, setLog] = useState(queue);
-  const [, setLength] = useState(queue.length);
-  onLog = () => {
-    setLog(queue);
-    setLength(queue.length);
-  };
+  onLog = () => setLog(queue);
+
   return log;
 }
 
 export function log(...args: any[]) {
-  queue.push(args);
+  queue = [...queue, args];
   onLog();
 }
 
 export function clear() {
-  queue.length = 0;
+  queue = [];
   onLog();
 }

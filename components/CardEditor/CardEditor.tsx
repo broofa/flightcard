@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useMatch } from 'react-router-dom';
 import { Motor as TCMotor } from 'thrustcurve-db';
 import { MKS } from '../../util/units';
 import { useIsOfficer } from '../contexts/OfficersContext';
@@ -17,7 +17,7 @@ import { MotorEditor } from './MotorEditor';
 import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
-import { rtUpdate, useRTValue } from '/rt';
+import { useRTValue } from '/rt';
 
 import {
   AttendeeFields,
@@ -56,8 +56,6 @@ export default function CardEditor() {
   const [card] = useRTValue<iCard>(CARD_PATH.with(cardFields));
   const cardPath = CARD_PATH.with(cardFields);
 
-  const navigate = useNavigate();
-
   const flierFields: AttendeeFields = {
     launchId: match?.params.launchId ?? '',
     userId: card?.userId ?? '',
@@ -72,10 +70,6 @@ export default function CardEditor() {
   const rtui = useMemo(() => {
     return rtuiFromPath(cardPath, userUnits);
   }, [cardPath, userUnits]);
-
-  function cardUpdate(update: Partial<iCard>) {
-    return rtUpdate(cardPath, update);
-  }
 
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
@@ -167,13 +161,18 @@ export default function CardEditor() {
           }
         />
 
-        <div>
+        <div className='d-flex flex-grow-1'>
           <rtui.StringInput
             disabled={isReadOnly}
             field='rocket/color'
             label='Colors'
+            className='flex-grow-1'
           />
-          {colors && <ColorChits colors={colors} className='mt-1' />}
+          {colors && (
+            <div className='d-flex flex-column ms-1' style={{ width: '15px' }}>
+              <ColorChits colors={colors} className='flex-grow-1' />
+            </div>
+          )}
         </div>
       </div>
 

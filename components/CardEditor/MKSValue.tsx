@@ -1,7 +1,7 @@
 import React from 'react';
 import { MKS, tUnitSystem, unitConvert } from '../../util/units';
+import { sig } from '../common/util';
 import { useUserUnits } from '../contexts/rthooks';
-import { sig } from '/components/common/util';
 
 // Playing around with a component that knows about unit types
 
@@ -17,11 +17,13 @@ export function MKSValue({
   const [userUnits = MKS] = useUserUnits();
   const fromUnit = MKS[type];
   const toUnit = userUnits[type];
+  const converted = unitConvert(value, fromUnit, toUnit);
 
   return (
     <>
-      {sig(unitConvert(value, fromUnit, toUnit))}
-      {long ? ' ' + userUnits[type] : null}
+      {isNaN(converted)
+        ? '?'
+        : `${sig(converted)} ${long ? ' ' + userUnits[type] : null}`}
     </>
   );
 }

@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import MOTORS from 'thrustcurve-db';
+import { COLORS } from '../CardEditor/ColorChits';
 import { GRAVITY_ACC } from '../CardEditor/MotorAnalysis';
 import { iMotor, iRocket } from '/types';
 import { motorDisplayName } from '/util/motor-util';
@@ -103,33 +104,6 @@ export const NAMES = [
   'Ron French',
   'Yvonne Wilkins',
   'Jodi Brock',
-];
-
-export const COLORS = [
-  'Red',
-  'Orange',
-  'Yellow',
-  'Green',
-  'Blue',
-  'Cyan',
-  'Purple',
-  'White',
-  'Black',
-  'Brown',
-  'Magenta',
-  'Tan',
-  'Olive',
-  'Maroon',
-  'Navy',
-  'Aquamarine',
-  'Turquoise',
-  'Silver',
-  'Lime',
-  'Teal',
-  'Indigo',
-  'Violet',
-  'Pink',
-  'Gray',
 ];
 
 const ROCKET_NAMES = [
@@ -328,7 +302,10 @@ export function rnd(min: number, max?: number): number {
   return Math.floor(frnd(min, max));
 }
 
-export function rndItem<Type>(arr: Type[]): Type {
+export function rndItem<Type>(arr: Type[] | Set<Type>): Type {
+  if (arr instanceof Set) {
+    arr = Array.from(arr);
+  }
   return arr[rnd(arr.length)];
 }
 

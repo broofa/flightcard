@@ -3,8 +3,8 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { arraySort } from '../../util/arrayUtils';
 import { ANONYMOUS } from '../App/App';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useRoleAPI } from '../contexts/OfficersContext';
-import { useAttendees, useCurrentUser, useOfficers } from '../contexts/rthooks';
+import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
+import { useAttendees, useCurrentUser } from '../contexts/rthooks';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';
@@ -17,16 +17,16 @@ import { iAttendee, iCert, iPerm } from '/types';
 
 export function AttendeeInfo({
   attendee,
-  isOfficer,
   className,
   hidePhoto,
   ...props
 }: {
   attendee: iAttendee;
-  isOfficer?: boolean;
   hidePhoto?: boolean;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
+  const roleApi = useRoleAPI();
+
   return (
     <div className={`d-flex align-items-center ${className ?? ''}`} {...props}>
       {attendee.photoURL && !hidePhoto && (
@@ -36,7 +36,7 @@ export function AttendeeInfo({
         {attendee?.name ?? ANONYMOUS}
       </span>
 
-      {!isOfficer ? null : attendee.role ? (
+      {!roleApi.isOfficer(attendee) ? null : attendee.role ? (
         <span className='ms-2 ms-1 px-1 bg-info text-white'>
           {attendee.role?.toUpperCase()}
         </span>
@@ -135,7 +135,8 @@ export function UserList({
   const [editUserId, setEditUserId] = useState<string>();
   const [launch] = useLaunch();
   const [attendees] = useAttendees();
-  const [officers] = useOfficers();
+  const isOfficer = useIsOfficer();
+  const roleApi = useRoleAPI();
 
   if (!launch) {
     return <Loading wat='User launch' />;
@@ -158,28 +159,30 @@ export function UserList({
 
       <div className='deck' {...props}>
         {arraySort(Object.values(attendees), 'name').map(attendee => {
-          const isOfficer = !!officers?.[attendee.id];
-          if (filter && !filter(attendee, isOfficer)) {
+          if (filter && !filter(attendee, roleApi.isOfficer(attendee))) {
             return null;
           }
 
           const { id } = attendee;
+          const attendeeInfo = (
+            <AttendeeInfo attendee={attendee} className='flex-grow-1' />
+          );
 
-          return (
+          return isOfficer ? (
             <Button
               key={id}
-              variant='outline-dark text-start'
-              className={`d-flex flex-grow-1 align-items-center ${
+              variant='outline-dark'
+              className={`d-flex flex-grow-1 align-items-center text-start ${
                 attendee.photoURL ? 'ps-0 py-0' : ''
               }`}
               onClick={() => setEditUserId(attendee.id)}
             >
-              <AttendeeInfo
-                attendee={attendee}
-                isOfficer={isOfficer}
-                className='flex-grow-1'
-              />
+              {attendeeInfo}
             </Button>
+          ) : (
+            <div className={`p-2 bg-light rounded border border-light d-flex flex-grow-1 align-items-center text-start ${
+              attendee.photoURL ? 'ps-0 py-0' : ''
+            }`}>{attendeeInfo}</div>
           );
         })}
       </div>
