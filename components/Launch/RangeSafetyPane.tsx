@@ -1,16 +1,17 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { useLaunch } from '../contexts/LaunchContext';
-import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
+import { useIsOfficer } from '../contexts/OfficersContext';
 import {
   useAttendees,
   useCards,
   useCurrentAttendee,
 } from '../contexts/rthooks';
 import RolePref from '../Profile/RolePref';
-import { CardList } from './Launch';
+import { LaunchCard } from './LaunchCard';
 import { Loading } from '/components/common/util';
 import { CardStatus } from '/types';
+import { arraySort } from '/util/arrayUtils';
 
 export function RangeSafetyPane() {
   const [launch] = useLaunch();
@@ -24,6 +25,7 @@ export function RangeSafetyPane() {
   const rsoCards = Object.values(cards || {}).filter(
     c => c.status == CardStatus.REVIEW
   );
+  arraySort(rsoCards, card => attendees[card.userId].name ?? '');
 
   return (
     <>
@@ -35,11 +37,20 @@ export function RangeSafetyPane() {
       ) : null}
 
       <h2>RSO Requests</h2>
-      {rsoCards?.length ? (
-        <CardList cards={rsoCards} attendees={attendees} />
-      ) : (
-        <Alert variant='secondary'>No RSO requests at this time.</Alert>
-      )}
+      <div>
+        {rsoCards.length ? (
+          rsoCards.map(card => (
+            <LaunchCard
+              className='mt-2'
+              key={card.id}
+              card={card}
+              attendee={attendees?.[card.userId]}
+            />
+          ))
+        ) : (
+          <Alert variant='secondary'>No RSO requests at this time.</Alert>
+        )}
+      </div>
     </>
   );
 }
