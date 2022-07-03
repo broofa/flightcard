@@ -305,6 +305,8 @@ export function rnd(min: number, max?: number): number {
 export function rndItem<Type>(arr: Type[] | Set<Type>): Type {
   if (arr instanceof Set) {
     arr = Array.from(arr);
+  } else if (arr.constructor === Object) {
+    arr = Object.values(arr);
   }
   return arr[rnd(arr.length)];
 }
