@@ -38,7 +38,7 @@ export function LaunchNavBar() {
             {[
               ['', 'house-fill'],
               ['cards', 'card-fill'],
-              ['rso', 'officer'],
+              ['rso', 'ui-checks'],
               ['lco', 'rocket'],
               // ['users', 'people-fill'],
               // ['profile', 'gear-fill'],
