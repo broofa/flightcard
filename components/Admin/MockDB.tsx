@@ -35,8 +35,8 @@ const LAUNCH_NAMES = [
   'Summer Skies',
   'Sod Blaster (TCR)',
   "Fillible's Folly",
-  '2021-09-17',
-  '2021-09-19',
+  'The Arbuckle Classic',
+  'Independence Day',
   'Rocketober',
 ];
 
@@ -282,6 +282,8 @@ async function mockCards(root: DBRoot, launchId?: string) {
     return;
   }
 
+  const padIds = Object.keys(root.pads[launchId]);
+
   root.cards[launchId] = {};
 
   // Seed cards
@@ -303,9 +305,7 @@ async function mockCards(root: DBRoot, launchId?: string) {
       ][i];
 
       const id = genId('card');
-      const padId = /ready|done/.test(status)
-        ? rndItem(Object.keys(root.pads[launchId]))
-        : DELETE;
+      const padId = status === CardStatus.FLY ? rndItem(padIds) : DELETE;
 
       root.cards[launchId][id] = {
         id,
