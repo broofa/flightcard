@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { HTMLAttributes } from 'react';
 import { Link } from 'react-router-dom';
 import ColorChits from '../CardEditor/ColorChits';
 import { AttendeeInfo } from './UserList';
@@ -72,14 +72,15 @@ function totalImpulseClass(
 export function LaunchCard({
   card,
   attendee,
+  className,
 }: {
   card: iCard;
   attendee?: iAttendee;
-}) {
+} & HTMLAttributes<HTMLDivElement>) {
   const motors = Object.values(card?.motors ?? {});
-  console.log(card.rocket?.color);
+
   return (
-    <div className='d-flex rounded border border-dark'>
+    <div className={`d-flex rounded border border-dark ${className}`}>
       <Link
         to={`/launches/${card.launchId}/cards/${card.id}`}
         className='launch-card text-center flex-grow-1 d-flex flex-column p-1 cursor-pointer'
@@ -109,13 +110,19 @@ export function LaunchCard({
         </div>
       </Link>
       {card.rocket?.color ? (
-          <div className='d-flex flex-column flex-grow-0 flex-shrink-0' style={{ flexBasis: '10px' }}>
-            <ColorChits className='flex-grow-1' colors={card.rocket?.color} />
-          </div>
-        ) : null}
+        <div
+          className='d-flex flex-column flex-grow-0 flex-shrink-0'
+          style={{ flexBasis: '10px' }}
+        >
+          <ColorChits className='flex-grow-1' colors={card.rocket?.color} />
+        </div>
+      ) : null}
 
       {motors ? (
-        <div className='flex-grow-0 text-center fs-1 px-3 bg-light rounded' style={{width: '2em'}}>
+        <div
+          className='flex-grow-0 text-center fs-1 px-3 bg-light rounded'
+          style={{ width: '2em' }}
+        >
           {totalImpulseClass(motors)}
         </div>
       ) : (
