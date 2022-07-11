@@ -13,7 +13,7 @@ import { Loading } from '/components/common/util';
 import { CardStatus } from '/types';
 import { arraySort } from '/util/arrayUtils';
 
-export function RangeSafetyPane() {
+export function RSOPane() {
   const [launch] = useLaunch();
   const [user] = useCurrentAttendee();
   const [cards] = useCards();

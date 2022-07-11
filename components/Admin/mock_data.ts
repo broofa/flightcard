@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import MOTORS from 'thrustcurve-db';
-import { COLORS } from '../CardEditor/ColorChits';
-import { GRAVITY_ACC } from '../CardEditor/MotorAnalysis';
+import { COLORS } from '../Cards/ColorChits';
+import { GRAVITY_ACC } from '../Cards/MotorAnalysis';
 import { iMotor, iRocket } from '/types';
 import { motorDisplayName } from '/util/motor-util';
 
@@ -110,17 +110,14 @@ const ROCKET_NAMES = [
   '220 Swift',
   '3 Bandits',
   'AGM-57X Heatseeker',
-  'Alpha',
   'Alpha III',
   'Altimeter',
   'Apollo Little Joe II',
   'Apollo 11 Saturn V',
   'Argent',
-  'Ascender',
   'Asteroid Hunter',
   'Astron Skydart II',
   'Astron Sprint XL',
-  'Athena',
   'Atomic Aqua',
   'Baby Bertha',
   'Bandito',
@@ -160,11 +157,12 @@ const ROCKET_NAMES = [
   'Estes Shuttle',
   'Extreme 12',
   'Fat Jax',
+  'Fig Plucker',
+  'Finky Starts',
   'Firehawk',
   'Firebolt',
   'Firestreak SST',
   'Firestorm',
-  'Fletcher',
   'Flip Flyer',
   'Flutter-By',
   'Flying Colors',
@@ -214,11 +212,12 @@ const ROCKET_NAMES = [
   'Outer-space Orange',
   'Partizon',
   'Phantom Blue',
+  'Pheasant Plucker',
   'Phoenix Bird',
   'Photon Probe',
+  'Plaster Man',
   'Power Patrol',
   'Prospector',
-  'Puma',
   'QCC Explorer',
   'Quinstar',
   'Red Flare',
@@ -230,9 +229,10 @@ const ROCKET_NAMES = [
   'Scorpion',
   'Sequoia',
   'Shattered',
-  'Shooting Star',
+  'Tooting Shtar',
   'Show Stopper',
   'Shuttle Xpress',
+  'Shining Wit',
   'Sizzler',
   'Sky Cruiser',
   'Sky Duster',

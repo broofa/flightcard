@@ -305,7 +305,7 @@ async function mockCards(root: DBRoot, launchId?: string) {
       ][i];
 
       const id = genId('card');
-      const padId = status === CardStatus.FLY ? rndItem(padIds) : DELETE;
+      const padId = (status === CardStatus.FLY) && rnd(2)? rndItem(padIds) : DELETE;
 
       root.cards[launchId][id] = {
         id,

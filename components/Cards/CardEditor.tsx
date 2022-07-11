@@ -265,7 +265,7 @@ export default function CardEditor() {
         </div>
       </div>
 
-      <rtui.TextArea disabled={isReadOnly} field='flight/notes' label='Notes' />
+      <rtui.TextArea disabled={isReadOnly} field='notes' label='Notes' />
 
       <FormSection>Card Status</FormSection>
       <CardActions card={card} />

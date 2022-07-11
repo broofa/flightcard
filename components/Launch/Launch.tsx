@@ -3,13 +3,13 @@ import { Alert } from 'react-bootstrap';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { arraySort } from '../../util/arrayUtils';
 import { ANONYMOUS } from '../App/App';
-import CardEditor from '../CardEditor/CardEditor';
+import CardEditor from '../Cards/CardEditor';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useAttendees, useCards, useCurrentUser } from '../contexts/rthooks';
 import ProfilePage from '../Profile/ProfilePage';
 import { CardsPane } from './CardsPane';
-import { LaunchControlPane } from './LaunchControlPane';
-import { RangeSafetyPane } from './RangeSafetyPane';
+import { LCOPane } from './LCOPane';
+import { RSOPane } from './RSOPane';
 import { UsersPane } from './UsersPane';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
@@ -174,8 +174,8 @@ function Launch() {
         <Route path='cards/:cardId' element={<CardEditor />} />
         <Route path='edit' element={<LaunchEditor />} />
         <Route path='profile' element={<ProfilePage />} />
-        <Route path='rso' element={<RangeSafetyPane />} />
-        <Route path='lco' element={<LaunchControlPane />} />
+        <Route path='rso' element={<RSOPane />} />
+        <Route path='lco' element={<LCOPane />} />
         <Route path='users' element={<UsersPane />} />
         <Route
           path='*'

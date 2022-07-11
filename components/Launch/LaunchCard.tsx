@@ -1,7 +1,8 @@
 import React, { HTMLAttributes } from 'react';
-import { Link } from 'react-router-dom';
-import ColorChits from '../CardEditor/ColorChits';
-import { AttendeeInfo } from './UserList';
+import { useNavigate } from 'react-router-dom';
+import ColorChits from '../Cards/ColorChits';
+import { Loading } from '../common/util';
+import { useAttendees } from '../contexts/rthooks';
 import '/components/Launch/LaunchCard.scss';
 import { iAttendee, iCard } from '/types';
 
@@ -79,36 +80,47 @@ export function LaunchCard({
 } & HTMLAttributes<HTMLDivElement>) {
   const motors = Object.values(card?.motors ?? {});
 
+  const navigate = useNavigate();
+  const [attendees] = useAttendees();
+
+  if (!attendees) return <Loading wat='Attendees' />;
+
+  const user = attendees[card.userId ?? ''];
+
+  const impulseClass = totalImpulseClass(motors);
+  const warnings = [];
+  const isVerified = user?.cert?.verifiedTime ? true : false;
+  const certLevel = user.cert?.level ?? 0;
+
+  if (!impulseClass) {
+    warnings.push(
+      'Unknown rocket impulse (Is flier certified for this flight?)'
+    );
+  } else if (impulseClass > 'L' && certLevel < 3) {
+    warnings.push(`Flier is not L3 certified`);
+  } else if (impulseClass > 'I' && certLevel < 2) {
+    warnings.push(`Flier is not L2 certified`);
+  } else if (impulseClass > 'H' && certLevel < 1) {
+    warnings.push(`Flier is not L1 certified`);
+  }
+  if (!impulseClass || (impulseClass > 'H' && !isVerified)) {
+    warnings.push('Certification needs to be verified');
+  }
+
   return (
-    <div className={`d-flex rounded border border-dark ${className}`}>
-      <Link
-        to={`/launches/${card.launchId}/cards/${card.id}`}
-        className='launch-card text-center flex-grow-1 d-flex flex-column p-1 cursor-pointer'
-      >
-        {attendee ? (
-          <AttendeeInfo
-            className='flex-grow-0 text-left me-1 fw-bold border-bottom pb-1 mb-1'
-            hidePhoto
-            attendee={attendee}
-          />
-        ) : null}
-        <div className='flex-grow-1'>
-          <div>
-            {card.rocket?.name ? (
-              `"${card.rocket.name}"`
-            ) : (
-              <em>Unnamed rocket</em>
-            )}
+    <div
+      className='d-flex flex-grow-1 launch-card rounded border border-dark m-2 ps-2 cursor-pointer'
+      onClick={() => navigate(`/launches/${card.launchId}/cards/${card.id}`)}
+    >
+      <div className='flex-grow-1  align-self-center'>
+        {user.name} &mdash; "{card?.rocket?.name ?? '(unnamed)'}"
+        {warnings.length > 0 ? (
+          <div className='text-danger'>
+            {'\u{26A0}'} {warnings.join(', ')}
           </div>
-          {motors?.length ? (
-            <div className=''>
-              <span className='text-muted'>
-                {motors.map(m => m.name ?? '(?)').join(', ')}
-              </span>
-            </div>
-          ) : null}
-        </div>
-      </Link>
+        ) : null}
+      </div>
+
       {card.rocket?.color ? (
         <div
           className='d-flex flex-column flex-grow-0 flex-shrink-0'
@@ -116,18 +128,16 @@ export function LaunchCard({
         >
           <ColorChits className='flex-grow-1' colors={card.rocket?.color} />
         </div>
-      ) : null}
-
-      {motors ? (
-        <div
-          className='flex-grow-0 text-center fs-1 px-3 bg-light rounded'
-          style={{ width: '2em' }}
-        >
-          {totalImpulseClass(motors)}
-        </div>
       ) : (
-        <div />
+        <div className='flex-grow-0 flex-shrink-0' />
       )}
+
+      <div
+        className='flex-grow-0 text-center fs-3 align-self-stretch'
+        style={{ width: '2em', backgroundColor: 'rgba(0, 0, 0, .15)' }}
+      >
+        {impulseClass}
+      </div>
     </div>
   );
 }
