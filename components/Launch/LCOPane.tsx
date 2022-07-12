@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, ReactElement } from 'react';
+import React, { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
 import { Button } from 'react-bootstrap';
 import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { useLaunch } from '../contexts/LaunchContext';
@@ -11,25 +11,10 @@ import {
 } from '../contexts/rthooks';
 import RolePref from '../Profile/RolePref';
 import { LaunchCard } from './LaunchCard';
-import { Loading } from '/components/common/util';
+import { busy, Loading } from '/components/common/util';
+import { rtRemove } from '/rt';
+import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iCard, iPad } from '/types';
-
-function CardTitle({
-  card,
-  ...props
-}: {
-  card: iCard;
-} & HTMLAttributes<HTMLSpanElement>) {
-  const [attendees] = useAttendees();
-  const user = attendees?.[card.userId ?? ''];
-
-  return (
-    <span {...props}>
-      "{card.rocket?.name ?? '(Unnamed Rocket)'}", by{' '}
-      {user?.name ?? '(unknown)'}
-    </span>
-  );
-}
 
 function PadCard({
   pad,
@@ -47,10 +32,25 @@ function PadCard({
         <strong className='text-warning me-2'>{'\u{26A0}'} Pad Conflict</strong>
         <div className='deck'>
           {cards.map(card => {
+            const rtFields = {
+              launchId: card.launchId,
+              cardId: card.id,
+            };
+            const unrack: MouseEventHandler = async function (e) {
+              const path = CARD_PATH.append('padId').with(rtFields);
+              busy(e.currentTarget, rtRemove(path));
+            };
+
             return (
               <div key={card.id} className='d-flex'>
                 <LaunchCard className='mt-2' card={card} />
-                <Button className='flex-grow-0 align-self-center'>Keep</Button>
+                <Button
+                  variant='warning'
+                  className='flex-grow-0 align-self-center'
+                  onClick={unrack}
+                >
+                  Unrack
+                </Button>
               </div>
             );
           })}
