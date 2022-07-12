@@ -86,6 +86,9 @@ export enum Recovery {
   CHUTE = 'chute',
   STREAMER = 'streamer',
   DUAL_DEPLOY = 'dual-deploy',
+  TUMBLE = 'tumble',
+  GLIDE = 'glide',
+  HELICOPTER = 'helicopter',
 }
 
 export interface iRocket {

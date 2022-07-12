@@ -52,12 +52,9 @@ export function getCardPermissions(
 
     case REVIEW:
     case FLY:
-      notes.push(
-        'Remember, cards submitted to the LCO or RSO cannot be changed.  Click "Unsubmit" to make changes.'
-      );
       if (!card.rsoId) {
         warnings.push(
-          'Next Step: Go get your rocket approved by the Range Safety Officer.'
+          'Next Step: Present rocket to the Range Safety Officer.'
         );
         if (isOfficer && user.id === card.userId) {
           notes.push(
@@ -73,6 +70,12 @@ export function getCardPermissions(
           notes.push("Looks like you're ready to go!");
         }
       }
+      notes.push(
+        <span className='text-tip'>
+          'Remember, cards submitted to the LCO or RSO cannot be changed. Click
+          "Unsubmit" to make changes.'
+        </span>
+      );
       break;
 
     case DONE:

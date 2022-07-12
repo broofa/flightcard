@@ -1,6 +1,7 @@
 // RTUI = RealTime UI for Controls that connect to the realtime DB
 import { nanoid } from 'nanoid';
 import React, {
+  HTMLProps,
   InputHTMLAttributes,
   ReactElement,
   useCallback,
@@ -199,6 +200,38 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
           {...props}
           onChange={() => save(value)}
         />
+      );
+    },
+
+    Select({
+      field,
+      label,
+      children,
+      ...props
+    }: HTMLProps<HTMLSelectElement> & {
+      field: string;
+      label: string;
+    }) {
+      const { val, save, isSaving, id } = useRealtimeField<string, string>(
+        rtpath.append(field, {}),
+        '',
+        STRING_ADAPTER
+      );
+
+      return (
+        <div className='form-floating'>
+          <select
+            id={id}
+            value={val}
+            className={`form-select ${isSaving ? 'busy' : ''}`}
+            {...props}
+            onChange={e => save(e.target.value)}
+          >
+            {children}
+          </select>
+
+          <label htmlFor={id}>{label}</label>
+        </div>
       );
     },
 

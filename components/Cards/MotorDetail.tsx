@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert, Modal, ModalProps } from 'react-bootstrap';
-import { Motor as TCMotor } from 'thrustcurve-db';
+import { TCMotor } from 'thrustcurve-db';
 import { motorDisplayName } from '../../util/motor-util';
 import { Sparky } from '../common/Sparky';
 import { MKSValue } from './MKSValue';

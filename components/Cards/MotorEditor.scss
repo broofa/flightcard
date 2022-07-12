@@ -1,0 +1,20 @@
+.motor-suggestions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8em, 1fr));
+  gap: .5em 1em;
+  margin-top: .5em;
+}
+
+.badge.suggestion {
+  flex: 0 0 10em;
+  font-weight: normal;
+  font-size: 0.9em;
+  cursor: pointer;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: .4em;
+}
+.suggestion:hover {
+  background-color: #000 !important;
+}

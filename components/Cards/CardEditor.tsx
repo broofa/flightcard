@@ -1,7 +1,7 @@
 import React, { HTMLAttributes, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
-import { Motor as TCMotor } from 'thrustcurve-db';
+import { TCMotor } from 'thrustcurve-db';
 import { MKS } from '../../util/units';
 import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
@@ -11,7 +11,6 @@ import { rtuiFromPath } from '../rtui/RTUI';
 import { CardActions } from './CardActions';
 import ColorChits from './ColorChits';
 import MotorAnalysis from './MotorAnalysis';
-import { MotorDataList } from './MotorDataList';
 import { MotorDetail } from './MotorDetail';
 import { MotorEditor } from './MotorEditor';
 import { MotorList } from './MotorList';
@@ -81,8 +80,6 @@ export default function CardEditor() {
 
   return (
     <>
-      <MotorDataList id='tc-motors' />
-
       {/* Units Pref UI */}
       <div
         style={{
@@ -174,42 +171,16 @@ export default function CardEditor() {
             </div>
           )}
         </div>
-      </div>
 
-      <div
-        className='d-flex rounded border my-3 py-2 px-3'
-        style={{
-          borderColor: '#ced4da',
-          backgroundColor: disabled ? '#e9ecef' : 'inherit',
-        }}
-      >
-        <span className='me-3 flex-grow-0'>Recovery</span>
-        <div
-          className='flex-grow-1 d-grid'
-          style={{
-            gap: '.5em 1em',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(8em, 1fr)',
-          }}
-        >
-          <rtui.Radio
-            disabled={isReadOnly}
-            field='flight/recovery'
-            label='Chute'
-            value={Recovery.CHUTE}
-          />
-          <rtui.Radio
-            disabled={isReadOnly}
-            field='flight/recovery'
-            label='Streamer'
-            value={Recovery.STREAMER}
-          />
-          <rtui.Radio
-            disabled={isReadOnly}
-            field='flight/recovery'
-            label='Dual-deploy'
-            value={Recovery.DUAL_DEPLOY}
-          />
-        </div>
+        <rtui.Select label='Recovery' field='flight/recovery'>
+          <option value={''} label='(unspecified)' />
+          <option value={Recovery.CHUTE} label='Chute' />
+          <option value={Recovery.STREAMER} label='Streamer' />
+          <option value={Recovery.DUAL_DEPLOY} label='Dual-Deploy' />
+          <option value={Recovery.TUMBLE} label='Tumble' />
+          <option value={Recovery.GLIDE} label='Glide' />
+          <option value={Recovery.HELICOPTER} label='Helicopter' />
+        </rtui.Select>
       </div>
 
       <FormSection className='d-flex justify-content-between'>

@@ -1,4 +1,5 @@
 import React, { HTMLAttributes, ReactElement } from 'react';
+import { Button } from 'react-bootstrap';
 import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useIsOfficer } from '../contexts/OfficersContext';
@@ -41,13 +42,17 @@ function PadCard({
   let content: ReactElement;
 
   if (cards.length > 1) {
-    console.log(cards);
     content = (
-      <div>
+      <div className='flex-grow-1'>
         <strong className='text-warning me-2'>{'\u{26A0}'} Pad Conflict</strong>
-        <div>
+        <div className='deck'>
           {cards.map(card => {
-            return <LaunchCard key={card.id} className='mt-2' card={card} />;
+            return (
+              <div key={card.id} className='d-flex'>
+                <LaunchCard className='mt-2' card={card} />
+                <Button className='flex-grow-0 align-self-center'>Keep</Button>
+              </div>
+            );
           })}
         </div>
       </div>
@@ -101,14 +106,12 @@ export function LCOPane() {
         </div>
       ) : null}
 
-      <h2>On Pads</h2>
-
       {groupNames.map(groupName => {
         const pads = padsBygroup[groupName];
         arraySort(pads, pad => pad.name ?? '');
         return (
           <div key={groupName}>
-            <h3 className='mt-3'>{groupName}</h3>
+            <h2 className='mt-3'>{groupName}</h2>
             {pads.map(pad => {
               if (!cardsByPad[pad.id]) return null;
 
@@ -123,7 +126,7 @@ export function LCOPane() {
       {unrackedCards?.length ? (
         <>
           <hr />
-          <h2>Waiting For Pad</h2>
+          <h2>RSO Approved (waiting for pad)</h2>
           {unrackedCards.map(card => (
             <LaunchCard key={card.id} card={card} />
           ))}

@@ -1,8 +1,9 @@
 import { nanoid } from 'nanoid';
 import React, { MouseEventHandler, useRef } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
+import { useLaunch } from '../contexts/LaunchContext';
 import FloatingInput from '/components/common/FloatingInput';
-import { busy } from '/components/common/util';
+import { busy, Loading } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate } from '/rt';
 import { PAD_PATH } from '/rt/rtconstants';
 import { iPad } from '/types';
@@ -14,8 +15,14 @@ export function PadEditor({
 }: { pad: iPad; groups?: string[] } & ModalProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const groupRef = useRef<HTMLInputElement>(null);
+  const [launch] = useLaunch();
 
-  const { launchId } = pad;
+  if (!launch) {
+    return <Loading wat='Launch' />;
+  }
+
+  const {id: launchId} = launch;
+
   const { onHide } = props;
 
   const handleSave: MouseEventHandler = function (e) {
@@ -39,7 +46,6 @@ export function PadEditor({
           const id = nanoid();
           return rtSet<iPad>(PAD_PATH.with({ launchId, padId: id }), {
             id,
-            launchId,
             name: padName.trim(),
             group,
           });

@@ -97,3 +97,7 @@ nav a.active {color: white}
   color: #6c757d; // text-secondary
   font-size: .875em;
 }
+
+.form-floating .form-select {
+  width: 100% !important;
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ButtonGroup, Image } from 'react-bootstrap';
-import { Motor as TCMotor } from 'thrustcurve-db';
+import { TCMotor } from 'thrustcurve-db';
 import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { Sparky } from '../common/Sparky';
 import { useRTValue } from '/rt';
@@ -24,7 +24,8 @@ function MotorButton({
   const tcMotor = getMotor(motor.tcMotorId ?? '');
   return (
     <ButtonGroup className='d-flex' key={motor.id}>
-      <Button disabled={disabled}
+      <Button
+        disabled={disabled}
         className='flex-grow-1'
         variant='outline-dark'
         onClick={() => setEditMotor(motor)}
@@ -56,7 +57,7 @@ export function MotorList({
   setEditMotor,
   setDetailMotor,
 }: {
-  disabled: boolean,
+  disabled: boolean;
   rtFields: CardFields;
   setEditMotor: (motor: iMotor | undefined) => void;
   setDetailMotor: (motor: TCMotor | undefined) => void;
@@ -78,7 +79,8 @@ export function MotorList({
     motorList.push(
       <div key={`stage-${stage}`} className='deck'>
         {stageMotors.map(motor => (
-          <MotorButton disabled={disabled}
+          <MotorButton
+            disabled={disabled}
             key={motor.id}
             motor={motor}
             setEditMotor={setEditMotor}

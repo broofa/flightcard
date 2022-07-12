@@ -6,14 +6,22 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Button, Form, FormSelect, Modal } from 'react-bootstrap';
+import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
+import { TCMotor } from 'thrustcurve-db';
 import { busy, sig } from '../common/util';
 import { useUserUnits } from '../contexts/rthooks';
+import './MotorEditor.scss';
 import { DELETE, rtRemove, rtSet } from '/rt';
 import { CardFields, CARD_MOTOR_PATH } from '/rt/rtconstants';
 import { iMotor } from '/types';
-import { getMotorByDisplayName } from '/util/motor-util';
+import {
+  getMotorByDisplayName,
+  motorDisplayName,
+  motorSearch,
+} from '/util/motor-util';
 import { MKS, unitConvert, unitParse } from '/util/units';
+
+const MAX_SUGGESTIONS = 12;
 
 export function MotorEditor({
   motor,
@@ -27,6 +35,7 @@ export function MotorEditor({
 } & HTMLAttributes<HTMLDivElement>) {
   const [delayListId] = useState(nanoid()); // 'Just need a unique ID of some sort here
   const [userUnits = MKS] = useUserUnits();
+  const [suggestions, setSuggestions] = useState<TCMotor[]>([]);
   const saveButton = useRef<HTMLButtonElement>(null);
   const deleteButton = useRef<HTMLButtonElement>(null);
 
@@ -55,7 +64,9 @@ export function MotorEditor({
   }, [tcMotor, userUnits.impulse]);
 
   function onNameChange(e: ChangeEvent<HTMLInputElement>) {
-    setName(e.target.value);
+    const newName = e.target.value;
+    setSuggestions(motorSearch(newName));
+    setName(newName);
   }
 
   function onDelayChange(e: ChangeEvent<HTMLInputElement>) {
@@ -124,10 +135,34 @@ export function MotorEditor({
           autoFocus
           className='flex-grow-1'
           onChange={onNameChange}
-          list='tc-motors'
           value={name}
           placeholder='Motor name'
         />
+
+        {suggestions.length ? (
+          <>
+            <div className='motor-suggestions'>
+              {suggestions.slice(0, MAX_SUGGESTIONS).map(motor => (
+                <Badge
+                  bg='secondary'
+                  className='suggestion'
+                  key={motor.motorId}
+                  onClick={() => {
+                    setName(motorDisplayName(motor));
+                    setSuggestions([]);
+                  }}
+                >
+                  {motorDisplayName(motor)}
+                </Badge>
+              ))}
+            </div>
+            {suggestions.length > MAX_SUGGESTIONS ? (
+              <span style={{ fontSize: '0.8em' }}>
+                ({suggestions.length - MAX_SUGGESTIONS} more not shown)
+              </span>
+            ) : null}
+          </>
+        ) : null}
 
         <div
           className='d-grid mt-3'

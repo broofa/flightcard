@@ -123,12 +123,20 @@ export default function LaunchHome() {
           <img
             className='me-4'
             src={IMAGES.OTHER.toString()}
-            style={{ height: '12em' }}
+            style={{ height: '13em' }}
           />
           <div className='flex-grow-1'>
             <h5 className='mt-3'>Other</h5>
             <FCLink to='/launches'>Other Launches</FCLink>
-            <FCLink to='profile'>My Profile</FCLink>
+            <FCLink to='profile'>My Profile</FCLink>{' '}
+            <a
+              className='nav-link'
+              rel='noreferrer'
+              target='_blank'
+              href='https://github.com/broofa/flightcard/discussions'
+            >
+              Support (Github)
+            </a>
             <FCLink to='/' onClick={() => auth.signOut()}>
               Log Out
             </FCLink>

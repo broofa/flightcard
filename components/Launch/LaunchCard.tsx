@@ -104,7 +104,7 @@ export function LaunchCard({
     warnings.push(`Flier is not L1 certified`);
   }
   if (!impulseClass || (impulseClass > 'H' && !isVerified)) {
-    warnings.push('Certification needs to be verified');
+    warnings.push('Verify flier certification');
   }
 
   return (
@@ -134,7 +134,7 @@ export function LaunchCard({
 
       <div
         className='flex-grow-0 text-center fs-3 align-self-stretch'
-        style={{ width: '2em', backgroundColor: 'rgba(0, 0, 0, .15)' }}
+        style={{ flexBasis: '2em', backgroundColor: 'rgba(0, 0, 0, .15)' }}
       >
         {impulseClass}
       </div>

@@ -27,7 +27,7 @@ export function CardActions({
 
   const perms = getCardPermissions(card, attendee, isOfficer);
 
-  // Uncomment to see buttons a user *might* be able to click
+  // Comment out to see buttons a user *might* be able to click
   perms.userCanApprove &&= perms.canApprove;
   perms.userCanAssignPad &&= perms.canAssignPad;
   perms.userCanMarkDone &&= perms.canMarkDone;
