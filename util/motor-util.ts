@@ -1,5 +1,47 @@
 import MOTORS, { TCMotor } from 'thrustcurve-db';
-import { iCard } from '/types';
+import { iCard, iMotor } from '/types';
+
+export const IMPULSE_CLASSES = [
+  '\u{215b}A',  // 1/8A
+  '\u{00bc}A',  // 1/4A
+  '\u{00bd}A',  // 1/2A
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+  'AA',
+  'AB',
+  'AC',
+  'AD',
+  'AE',
+  'AF',
+  'AG',
+  'AH',
+  'AI',
+  'AJ',
+];
 
 const motorIndex = new Map<string, TCMotor>();
 const motorNameIndex = new Map<string, TCMotor>();
@@ -133,4 +175,19 @@ export function stage1Thrust(cardMotors: iCard['motors']) {
 
     return acc + thrust;
   }, 0);
+}
+
+export function motorClassForImpulse(impulse: number) {
+  if (isNaN(impulse)) return undefined;
+  return IMPULSE_CLASSES.find((v, i) => impulse < 0.3125 * 2 ** i);
+}
+
+export function totalImpulseClass(motors?: iMotor[]) {
+  if (!motors) return undefined;
+  const impulse = Object.entries(motors).reduce(
+    (acc: number, [, m]) => acc + (m.impulse ?? NaN),
+    0
+  );
+
+  return motorClassForImpulse(impulse);
 }

@@ -81,9 +81,7 @@ export default function LaunchHome() {
             <h5 className='mt-3'>Spectators</h5>
             <FCLink to='lco'>Ride Along w/ Launch Control</FCLink>
             <FCLink to='users'>View Attendees</FCLink>
-            <FCLink disabled to={launchUrl('/report')}>
-              View Launch Stats
-            </FCLink>
+            <FCLink to={launchUrl('report')}>View Launch Report & Stats</FCLink>
           </div>
         </Card>
 
@@ -110,10 +108,10 @@ export default function LaunchHome() {
             />
             <div className='flex-grow-1'>
               <h5 className='mt-3'>Officers</h5>
-              <FCLink to='lco'>Launch Control Duty</FCLink>
-              <FCLink to='rso'>Range Safety Duty</FCLink>
+              <FCLink to='lco'>Launch Control</FCLink>
+              <FCLink to='rso'>Range Safety</FCLink>
               <FCLink disabled to='rso'>
-                Registration Desk Duty
+                Registration Desk
               </FCLink>
             </div>
           </Card>

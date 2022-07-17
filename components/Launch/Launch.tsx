@@ -6,6 +6,7 @@ import CardEditor from '../Cards/CardEditor';
 import CardSummary from '../Cards/CardSummary';
 import { useCurrentUser } from '../contexts/rthooks';
 import ProfilePage from '../Profile/ProfilePage';
+import Stats from '../Stats/Stats';
 import { CardsPane } from './CardsPane';
 import { LCOPane } from './LCOPane';
 import { RSOPane } from './RSOPane';
@@ -68,6 +69,7 @@ function Launch() {
         <Route path='cards/:cardId/summary' element={<CardSummary />} />
         <Route path='edit' element={<LaunchEditor />} />
         <Route path='profile' element={<ProfilePage />} />
+        <Route path='report' element={<Stats />} />
         <Route path='rso' element={<RSOPane />} />
         <Route path='lco' element={<LCOPane />} />
         <Route path='users' element={<UsersPane />} />

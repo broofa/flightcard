@@ -16,6 +16,7 @@ import {
   CardStatus,
   CertOrg,
   iAttendees,
+  iCard,
   iCards,
   iCert,
   iLaunches,
@@ -274,6 +275,37 @@ function mockPads(root: DBRoot, launchId?: string) {
   }
 }
 
+function _mockCard(
+  props: {
+    launchId: string;
+    userId: string;
+    status: CardStatus;
+  } & Partial<iCard>
+): iCard {
+  const id = genId('card');
+  const rocket = createRocket();
+
+  const { _motor: motor } = rocket as iRocket & { _motor?: iMotor };
+  delete rocket._motor;
+  if (motor) {
+    motor.id = genId('motor');
+  }
+
+  return {
+    id,
+
+    firstFlight: Math.random() < 0.2 || DELETE,
+    headsUp: Math.random() < 0.2 || DELETE,
+    complex: Math.random() < 0.2 || DELETE,
+    notes: 'Randomly generated flight card',
+
+    rocket,
+    motors: motor ? { [motor.id]: motor } : DELETE,
+
+    ...props,
+  };
+}
+
 async function mockCards(root: DBRoot, launchId?: string) {
   if (!launchId) {
     for (const launchId of Object.keys(root.launches)) {
@@ -283,47 +315,52 @@ async function mockCards(root: DBRoot, launchId?: string) {
   }
 
   const padIds = Object.keys(root.pads[launchId]);
+  const officers = Object.keys(root.officers[launchId]);
 
   root.cards[launchId] = {};
 
-  // Seed cards
+  // Number of cards to create for this user
+  const cardDistributions: [CardStatus, number][] = [
+    [CardStatus.DRAFT, rnd(0, 3)],
+    [CardStatus.REVIEW, rnd(0, 3)],
+    [CardStatus.FLY, rnd(0, 3)],
+    [CardStatus.DONE, rnd(0, 20)],
+  ];
+
+  // Seed cards for each user
   for (const userId of Object.keys(root.attendees[launchId])) {
-    for (let i = 0; i < 4; i++) {
-      const rocket = createRocket();
+    for (const [status, n] of cardDistributions) {
+      for (let i = 0; i < n; i++) {
+        // Randomly pick a pad - this tends to create pad conflicts, but we want
+        // to test that case
+        let rsoId: string | undefined = DELETE;
+        let padId: string | undefined = DELETE;
+        let lcoId: string | undefined = DELETE;
 
-      const { _motor: motor } = rocket as iRocket & { _motor?: iMotor };
-      delete rocket._motor;
-      if (motor) {
-        motor.id = genId('motor');
+        if (status === CardStatus.DRAFT) {
+          // Cards that have been reviewed but returned to the user for whatever reason
+          if (!rnd(8)) rsoId = rndItem(officers);
+        } else if (status === CardStatus.FLY) {
+          rsoId = rndItem(officers);
+          // Cards that are on a pad have a pad id
+          if (!rnd(2)) padId = rndItem(padIds);
+        } else if (status === CardStatus.DONE) {
+          lcoId = rndItem(officers);
+          rsoId = rndItem(officers);
+          padId = rndItem(padIds);
+        }
+
+        const card = _mockCard({
+          launchId,
+          userId,
+          rsoId,
+          lcoId,
+          status,
+          padId,
+        });
+
+        root.cards[launchId][card.id] = card;
       }
-
-      const status = [
-        CardStatus.DRAFT,
-        CardStatus.REVIEW,
-        CardStatus.FLY,
-        CardStatus.DONE,
-      ][i];
-
-      const id = genId('card');
-      const padId = (status === CardStatus.FLY) && rnd(2)? rndItem(padIds) : DELETE;
-
-      root.cards[launchId][id] = {
-        id,
-
-        status,
-
-        launchId,
-        userId,
-        padId,
-
-        firstFlight: Math.random() < 0.2 || DELETE,
-        headsUp: Math.random() < 0.2 || DELETE,
-        complex: Math.random() < 0.2 || DELETE,
-        notes: 'Randomly generated flight card',
-
-        rocket,
-        motors: motor ? { [motor.id]: motor } : DELETE,
-      };
     }
   }
 

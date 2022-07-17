@@ -26,6 +26,8 @@ function PadCard({
 } & HTMLAttributes<HTMLDivElement>) {
   let content: ReactElement;
 
+  const isOfficer = useIsOfficer();
+
   if (cards.length > 1) {
     content = (
       <div className='flex-grow-1'>
@@ -44,13 +46,15 @@ function PadCard({
             return (
               <div key={card.id} className='d-flex'>
                 <LaunchCard className='mt-2' card={card} />
-                <Button
-                  variant='warning'
-                  className='flex-grow-0 align-self-center'
-                  onClick={unrack}
-                >
-                  Unrack
-                </Button>
+                {isOfficer ? (
+                  <Button
+                    variant='warning'
+                    className='flex-grow-0 align-self-center'
+                    onClick={unrack}
+                  >
+                    Unrack
+                  </Button>
+                ) : null}
               </div>
             );
           })}

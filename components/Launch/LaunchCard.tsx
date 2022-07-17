@@ -5,75 +5,10 @@ import { Loading } from '../common/util';
 import { useAttendees } from '../contexts/rthooks';
 import '/components/Launch/LaunchCard.scss';
 import { iAttendee, iCard } from '/types';
-
-const IMPULSE_CLASSES = [
-  'Micro',
-  '1/4A',
-  '1/2A',
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-  'AA',
-  'AB',
-  'AC',
-  'AD',
-  'AE',
-  'AF',
-  'AG',
-  'AH',
-  'AI',
-  'AJ',
-];
-
-function totalImpulseClass(
-  motors: Array<{ impulse?: number; totImpulseNs?: number }>
-) {
-  if (!motors) return undefined;
-  const impulse = Object.entries(motors).reduce(
-    (acc: number, [, m]) => acc + (m.impulse ?? m.totImpulseNs ?? NaN),
-    0
-  );
-
-  if (isNaN(impulse)) {
-    return undefined;
-  }
-
-  if (impulse === 0) {
-    return '-';
-  }
-
-  return isNaN(impulse)
-    ? undefined
-    : IMPULSE_CLASSES.find((v, i) => impulse < 0.3125 * 2 ** i);
-}
+import { totalImpulseClass } from '/util/motor-util';
 
 export function LaunchCard({
   card,
-  attendee,
-  className,
 }: {
   card: iCard;
   attendee?: iAttendee;
@@ -103,6 +38,7 @@ export function LaunchCard({
   } else if (impulseClass > 'H' && certLevel < 1) {
     warnings.push(`Flier is not L1 certified`);
   }
+
   if (!impulseClass || (impulseClass > 'H' && !isVerified)) {
     warnings.push('Verify flier certification');
   }
@@ -136,7 +72,7 @@ export function LaunchCard({
         className='flex-grow-0 text-center fs-3 align-self-stretch'
         style={{ flexBasis: '2em', backgroundColor: 'rgba(0, 0, 0, .15)' }}
       >
-        {impulseClass}
+        {impulseClass ?? '-'}
       </div>
     </div>
   );
