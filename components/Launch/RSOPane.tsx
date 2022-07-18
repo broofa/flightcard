@@ -23,7 +23,7 @@ export function RSOPane() {
   if (!attendees) return <Loading wat='Users' />;
 
   const rsoCards = Object.values(cards || {}).filter(
-    c => c.status == CardStatus.REVIEW
+    c => c.status === CardStatus.REVIEW
   );
   arraySort(rsoCards, card => attendees[card.userId].name ?? '');
 
