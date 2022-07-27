@@ -77,7 +77,7 @@ export default function LaunchHome() {
             src={IMAGES.SPECTATOR.toString()}
             style={{ height: '12em' }}
           />
-          <div className='flex-grow-1'>
+          <div className='flex-grow-1 nav flex-column'>
             <h5 className='mt-3'>Spectators</h5>
             <FCLink to='lco'>Ride Along w/ Launch Control</FCLink>
             <FCLink to='users'>View Attendees</FCLink>
@@ -91,7 +91,7 @@ export default function LaunchHome() {
             src={IMAGES.FLIER.toString()}
             style={{ height: '12em' }}
           />
-          <div className='flex-grow-1'>
+          <div className='flex-grow-1 nav flex-column'>
             <h5 className='mt-3'>Fliers</h5>
             <FCLink to='cards'>My Flight Cards</FCLink>
             <Nav.Link onClick={makeNewCard}>Create a Flight Card</Nav.Link>
@@ -104,9 +104,9 @@ export default function LaunchHome() {
             <img
               className='me-4'
               src={IMAGES.OFFICER.toString()}
-              style={{ height: '12em' }}
+              style={{ maxHeight: '12em' }}
             />
-            <div className='flex-grow-1'>
+            <div className='flex-grow-1 nav flex-column'>
               <h5 className='mt-3'>Officers</h5>
               <FCLink to='lco'>Launch Control</FCLink>
               <FCLink to='rso'>Range Safety</FCLink>
@@ -123,7 +123,7 @@ export default function LaunchHome() {
             src={IMAGES.OTHER.toString()}
             style={{ height: '13em' }}
           />
-          <div className='flex-grow-1'>
+          <div className='flex-grow-1 nav flex-column'>
             <h5 className='mt-3'>Other</h5>
             <FCLink to='/launches'>Other Launches</FCLink>
             <FCLink to='profile'>My Profile</FCLink>{' '}
