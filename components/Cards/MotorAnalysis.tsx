@@ -67,9 +67,9 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   if (isNaN(stage1Thrust)) {
     return (
       <Alert className='mt-3 p-2' variant='warning'>
-        Unable to compute total thrust. Make sure thrust is mentioned in each
-        stage 1 motor name using standard <code>letter-thrust</code> notation.
-        (E.g. "Estes D12" or "Experimental J-350"){' '}
+        Unable to compute total thrust. Make sur the average thrust is mentioned
+        in each motor name using <code>letter-thrust</code> notation. (E.g.
+        "D12" or "J-350")
       </Alert>
     );
   }
@@ -94,7 +94,12 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
       </>
     );
   } else {
-    alertVariant = thrustToWeightRatio < THRUST_RATIO_MIN ? 'danger' : thrustToWeightRatio < THRUST_RATIO_GOOD ? 'warning' : 'success';
+    alertVariant =
+      thrustToWeightRatio < THRUST_RATIO_MIN
+        ? 'danger'
+        : thrustToWeightRatio < THRUST_RATIO_GOOD
+        ? 'warning'
+        : 'success';
     thrustResult = (
       <div>
         Stage 1 thrust:weight ratio is{' '}

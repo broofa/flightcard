@@ -1,11 +1,5 @@
 import { nanoid } from 'nanoid';
-import React, {
-  ChangeEvent,
-  HTMLAttributes,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ChangeEvent, HTMLAttributes, useRef, useState } from 'react';
 import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
 import { busy, sig } from '../common/util';
@@ -42,26 +36,15 @@ export function MotorEditor({
   const [name, setName] = useState(motor.name);
   const [stage, setStage] = useState(String(motor?.stage ?? '1'));
   const [delay, setDelay] = useState(String(motor?.delay ?? ''));
-  const [impulse, setImpulse] = useState(
-    motor?.impulse
-      ? String(unitConvert(motor.impulse, MKS.impulse, userUnits.impulse))
-      : ''
-  );
 
   const tcMotor = getMotorByDisplayName(name);
+  const initialImpulse = tcMotor?.totImpulseNs ?? motor?.impulse;
 
-  useEffect(() => {
-    if (tcMotor == null) {
-      setImpulse('');
-    } else {
-      setImpulse(
-        sig(
-          unitConvert(tcMotor?.totImpulseNs, MKS.impulse, userUnits.impulse),
-          3
-        )
-      );
-    }
-  }, [tcMotor, userUnits.impulse]);
+  const [impulse, setImpulse] = useState(
+    initialImpulse
+      ? String(unitConvert(initialImpulse, MKS.impulse, userUnits.impulse))
+      : ''
+  );
 
   function onNameChange(e: ChangeEvent<HTMLInputElement>) {
     const newName = e.target.value;
@@ -81,18 +64,13 @@ export function MotorEditor({
     setImpulse(e.target.value);
   }
 
-  function onImpulseBlur() {
-    const _impulse = unitParse(impulse, userUnits.impulse);
-    if (!isNaN(_impulse)) {
-      setImpulse(sig(_impulse, 3));
-    }
-  }
-
   function onSave() {
     const _stage = parseInt(stage ?? '');
     const _delay = parseInt(delay ?? '');
-    const _impulse = unitConvert(impulse, userUnits.impulse, MKS.impulse);
-    const _newMotor: iMotor = {
+    const _impulse =
+      tcMotor?.totImpulseNs ?? unitParse(impulse, userUnits.impulse);
+
+      const _newMotor: iMotor = {
       ...motor,
       id: motor.id || nanoid(),
       name,
@@ -117,6 +95,10 @@ export function MotorEditor({
       rtRemove(CARD_MOTOR_PATH.with({ ...rtFields, motorId: motor.id }))
     ).then(onHide);
   }
+
+  const displayImpulse = tcMotor
+    ? sig(unitConvert(tcMotor?.totImpulseNs, MKS.impulse, userUnits.impulse), 3)
+    : impulse;
 
   return (
     <Modal size='lg' show={true} onHide={onHide}>
@@ -174,9 +156,8 @@ export function MotorEditor({
           <Form.Control
             className='ms-sm-2'
             disabled={!!tcMotor}
-            value={impulse ?? ''}
+            value={displayImpulse}
             onChange={onImpulseChange}
-            onBlur={onImpulseBlur}
           />
 
           <label className='mx-2'>Delay:</label>

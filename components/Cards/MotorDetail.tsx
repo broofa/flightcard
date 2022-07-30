@@ -55,7 +55,9 @@ export function MotorDetail({
 
   return (
     <Modal show={true} {...props}>
-      <Modal.Header closeButton>{motorDisplayName(motor)}</Modal.Header>
+      <Modal.Header closeButton className='fw-bold'>
+        {motorDisplayName(motor)}
+      </Modal.Header>
       <Modal.Body>
         {graph}
         <div className='d-flex'>
