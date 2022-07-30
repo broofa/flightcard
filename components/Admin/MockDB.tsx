@@ -29,16 +29,18 @@ import {
 
 const MOCK_PREFIX = 'FC_';
 
+const MOCK_CHAR = '\u0307';
+
 const LAUNCH_NAMES = [
   'AP Showers',
   'Spring Thunder',
   'NXRS',
   'Summer Skies',
   'Sod Blaster (TCR)',
+  'Rocketober',
   "Fillible's Folly",
   'The Arbuckle Classic',
   'Independence Day',
-  'Rocketober',
 ];
 
 const PADS = [
@@ -135,7 +137,7 @@ async function mockUsers(root: DBRoot) {
   const names = new Set<string>();
   while (names.size < 20) names.add(rndItem(NAMES));
   for (let name of names) {
-    name += ' \u0307'; // Mock users get a little dot appended to their name
+    name = `${name} ${MOCK_CHAR}`; // Mock users get a little dot appended to their name
 
     const n = Math.random();
     let photoURL: string | undefined = DELETE;
@@ -156,22 +158,20 @@ async function mockUsers(root: DBRoot) {
 }
 
 function mockLaunches(root: DBRoot) {
-  for (const name of LAUNCH_NAMES) {
+  for (const [i, name] of LAUNCH_NAMES.entries()) {
     const host = rndItem([
       { host: 'OROC', location: 'Brothers, OR' },
       { host: 'TCR', location: 'Pasco, WA' },
     ]);
 
-    const startDate = new Date(
-      Date.now() + (Math.random() - 0.5) * 365 * 24 * 3600e3
-    );
+    const startDate = new Date(Date.now() + (i - 2) * 30 * 24 * 3600e3);
     const endDate = new Date(startDate.getTime() + 3 * 24 * 3600e3);
 
     const id = genId('launch');
     root.launches[id] = {
       rangeOpen: false,
       id,
-      name: `(mock) ${name}`,
+      name: `${name} ${MOCK_CHAR}`,
       ...host,
       startDate: startDate.toISOString().replace(/T.*/, ''),
       endDate: endDate.toISOString().replace(/T.*/, ''),
@@ -321,30 +321,31 @@ async function mockCards(root: DBRoot, launchId?: string) {
 
   // Number of cards to create for this user
   const cardDistributions: [CardStatus, number][] = [
-    [CardStatus.DRAFT, rnd(0, 3)],
-    [CardStatus.REVIEW, rnd(0, 3)],
-    [CardStatus.FLY, rnd(0, 3)],
-    [CardStatus.DONE, rnd(0, 20)],
+    [CardStatus.DRAFT, 2],
+    [CardStatus.REVIEW, 3],
+    [CardStatus.FLY, 3],
+    [CardStatus.DONE, 5],
   ];
 
   // Seed cards for each user
+  let nCards = 0;
   for (const userId of Object.keys(root.attendees[launchId])) {
     for (const [status, n] of cardDistributions) {
       for (let i = 0; i < n; i++) {
-        // Randomly pick a pad - this tends to create pad conflicts, but we want
-        // to test that case
         let rsoId: string | undefined = DELETE;
         let padId: string | undefined = DELETE;
         let lcoId: string | undefined = DELETE;
 
         if (status === CardStatus.DRAFT) {
-          // Cards that have been reviewed but returned to the user for whatever reason
-          if (!rnd(8)) rsoId = rndItem(officers);
+          // Mark some cards as ready for RSO review
+          if (nCards % 2) rsoId = rndItem(officers);
         } else if (status === CardStatus.FLY) {
+          // FLY requires RSO sign-off
           rsoId = rndItem(officers);
-          // Cards that are on a pad have a pad id
-          if (!rnd(2)) padId = rndItem(padIds);
+          // Assign some cards to pads
+          if (nCards % 3) padId = rndItem(padIds);
         } else if (status === CardStatus.DONE) {
+          // Completed flights
           lcoId = rndItem(officers);
           rsoId = rndItem(officers);
           padId = rndItem(padIds);
@@ -360,6 +361,8 @@ async function mockCards(root: DBRoot, launchId?: string) {
         });
 
         root.cards[launchId][card.id] = card;
+
+        nCards++;
       }
     }
   }
