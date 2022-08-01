@@ -38,13 +38,8 @@ export function MotorEditor({
   const [delay, setDelay] = useState(String(motor?.delay ?? ''));
 
   const tcMotor = getMotorByDisplayName(name);
-  const initialImpulse = tcMotor?.totImpulseNs ?? motor?.impulse;
 
-  const [impulse, setImpulse] = useState(
-    initialImpulse
-      ? String(unitConvert(initialImpulse, MKS.impulse, userUnits.impulse))
-      : ''
-  );
+  const [impulse, setImpulse] = useState('');
 
   function onNameChange(e: ChangeEvent<HTMLInputElement>) {
     const newName = e.target.value;
@@ -70,7 +65,7 @@ export function MotorEditor({
     const _impulse =
       tcMotor?.totImpulseNs ?? unitParse(impulse, userUnits.impulse);
 
-      const _newMotor: iMotor = {
+    const _newMotor: iMotor = {
       ...motor,
       id: motor.id || nanoid(),
       name,
@@ -148,10 +143,11 @@ export function MotorEditor({
 
         <div
           className='d-grid mt-3'
-          style={{ gap: '.5em 1em', gridTemplateColumns: 'min-content 1fr' }}
+          style={{ gap: '.5em 1em', gridTemplateColumns: 'max-content 1fr' }}
         >
           <label className='mx-2'>
-            I<sub>t</sub>:
+            Impulse<sub> total</sub>
+            <span className='text-info ms-2'>({userUnits.impulse})</span>
           </label>
           <Form.Control
             className='ms-sm-2'
@@ -160,7 +156,10 @@ export function MotorEditor({
             onChange={onImpulseChange}
           />
 
-          <label className='mx-2'>Delay:</label>
+          <label className='mx-2'>
+            Delay
+            <span className='text-info ms-2'>(secs)</span>
+          </label>
           <Form.Control
             className='flex-grow-1 ms-sm-2'
             list={delayListId}
@@ -168,7 +167,7 @@ export function MotorEditor({
             onChange={onDelayChange}
           />
 
-          <label className='mx-2'>Stage:</label>
+          <label className='mx-2'>Stage</label>
           <FormSelect
             className='flex-grow-1 ms-sm-2'
             value={stage}
