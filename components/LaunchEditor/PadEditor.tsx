@@ -108,7 +108,7 @@ export function PadEditor({
         </div>
         {pad.id ? null : (
           <small className='text-secondary text-center mt-3 font-small display-block'>
-            To create more than one pad, separate names with a comma (",")
+            To create multiple pads at once, separate names with a comma (",")
           </small>
         )}
       </Modal.Body>

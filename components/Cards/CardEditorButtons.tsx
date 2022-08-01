@@ -145,10 +145,6 @@ export function getCardPermissions(
   };
 }
 
-function padTitle(pad) {
-  return pad.group ? `${pad.group} ${pad.name}` : pad.name;
-}
-
 export function PadSelect({
   card,
   ...props

@@ -27,9 +27,9 @@ import {
   iUsers,
 } from '/types';
 
-const MOCK_PREFIX = 'FC_';
+const MOCK_ID_PREFIX = 'FC_';
 
-const MOCK_CHAR = '\u0307';
+const MOCK_NAME_SUFFIX = '(Test)';
 
 const LAUNCH_NAMES = [
   'AP Showers',
@@ -71,7 +71,7 @@ const PADS = [
 let seedIds: Record<string, number> = {};
 function genId(idType = 'id') {
   const id = (seedIds[idType] = (seedIds[idType] ?? 0) + 1);
-  return `${MOCK_PREFIX}${idType}_${String(id).padStart(2, '0')}`;
+  return `${MOCK_ID_PREFIX}${idType}_${String(id).padStart(2, '0')}`;
 }
 function genReset() {
   seedIds = {};
@@ -137,7 +137,7 @@ async function mockUsers(root: DBRoot) {
   const names = new Set<string>();
   while (names.size < 20) names.add(rndItem(NAMES));
   for (let name of names) {
-    name = `${name} ${MOCK_CHAR}`; // Mock users get a little dot appended to their name
+    name = `${name} ${MOCK_NAME_SUFFIX}`; // Mock users get a little dot appended to their name
 
     const n = Math.random();
     let photoURL: string | undefined = DELETE;
@@ -171,7 +171,7 @@ function mockLaunches(root: DBRoot) {
     root.launches[id] = {
       rangeOpen: false,
       id,
-      name: `${name} ${MOCK_CHAR}`,
+      name: `${name} ${MOCK_NAME_SUFFIX}`,
       ...host,
       startDate: startDate.toISOString().replace(/T.*/, ''),
       endDate: endDate.toISOString().replace(/T.*/, ''),
@@ -387,7 +387,7 @@ async function unseedDB() {
 
     await Promise.all(
       Object.keys(obj)
-        .filter(key => key.startsWith(MOCK_PREFIX))
+        .filter(key => key.startsWith(MOCK_ID_PREFIX))
         .map(key => {
           const itemPath = collectionPath.append(':key', { key });
           log('Removing', itemPath);

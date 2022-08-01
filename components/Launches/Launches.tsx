@@ -32,6 +32,9 @@ export default function Launches() {
           New Launch ...
         </Button>
       </div>
+      <div className='text-tip mb-2'>
+        NOTE: "(test)" launches are periodically reset. If you're here to just play with the app, feel free to check into one of these and muck about. You won't hurt anything.
+      </div>
       <div className='deck'>
         {Object.values(launches)
           .filter(

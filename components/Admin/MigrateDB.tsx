@@ -127,7 +127,7 @@ async function complete_migratePadLaunchId() {
 async function handleClick() {
   clear();
   log(<h2>Starting...</h2>);
-  await migratePadLaunchId();
+  // await migratePadLaunchId();
   log(<h2>--- Fin ---</h2>);
 }
 

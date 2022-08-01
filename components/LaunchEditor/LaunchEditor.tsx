@@ -133,7 +133,7 @@ export default function LaunchEditor() {
             setEditPad({
               id: undefined as unknown as string,
               launchId: launch.id,
-            })
+            } as iPad)
           }
         >
           New Pad...
