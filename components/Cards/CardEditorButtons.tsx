@@ -1,11 +1,18 @@
-import React from 'react';
-import { Button, ButtonProps } from 'react-bootstrap';
+import React, { ChangeEvent } from 'react';
+import {
+  Button,
+  ButtonProps,
+  FormSelect,
+  FormSelectProps,
+} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { flash } from '../common/Flash';
-import { useCurrentAttendee } from '../contexts/rthooks';
+import { busy, Loading } from '../common/util';
+import { useCurrentAttendee, usePads } from '../contexts/rthooks';
 import { DELETE, rtRemove, rtUpdate } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard } from '/types';
+import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 const { DRAFT, REVIEW, FLY, DONE } = CardStatus;
 
@@ -42,7 +49,7 @@ export function getCardPermissions(
         );
       }
       if (!card.rsoId) {
-        notes.push('When ready for safety review, click "Submit to RSO"');
+        // notes.push('When ready for safety review, click "Submit to RSO"');
       } else if (!card.padId) {
         notes.push(
           'Talk to Launch Control about how pads are assigned.  Once you have a pad assignment and are ready to launch, click "Submit to LCO".'
@@ -53,11 +60,9 @@ export function getCardPermissions(
     case REVIEW:
     case FLY:
       if (!card.rsoId) {
-        warnings.push('Next Step: Present rocket to the Range Safety Officer.');
+        warnings.unshift('Present rocket to the Range Safety Officer.');
         if (isOfficer && user.id === card.userId) {
-          notes.push(
-            '(FYI, officers are not allowed to RSO their own rockets)'
-          );
+          notes.push('Note: Officers may not RSO their own rockets');
         }
       } else {
         if (!card.padId) {
@@ -69,10 +74,7 @@ export function getCardPermissions(
         }
       }
       notes.push(
-        <span className='text-tip'>
-          'Remember, cards submitted to the LCO or RSO cannot be changed. Click
-          "Unsubmit" to make changes.'
-        </span>
+        'Note: Cards waiting for safety review or launch may not be edited. Click "Withdraw" to make changes.'
       );
       break;
 
@@ -80,6 +82,38 @@ export function getCardPermissions(
       notes.push('This card has been flown and is no longer editable.');
       break;
   }
+
+  // // Uncomment to show all buttons
+  // if (window as unknown) {
+  //   return {
+  //     notes,
+  //     warnings,
+
+  //     canWithdraw: true,
+  //     userCanWithdraw: true,
+
+  //     canSubmitToRSO: true,
+  //     userCanSubmitToRSO: true,
+
+  //     canApprove: true,
+  //     userCanApprove: true,
+
+  //     canReject: true,
+  //     userCanReject: true,
+
+  //     canAssignPad: true,
+  //     userCanAssignPad: true,
+
+  //     canSubmitToLCO: true,
+  //     userCanSubmitToLCO: true,
+
+  //     canMarkDone: true,
+  //     userCanMarkDone: true,
+
+  //     canDelete: true,
+  //     userCanDelete: true,
+  //   };
+  // }
 
   return {
     notes,
@@ -111,7 +145,57 @@ export function getCardPermissions(
   };
 }
 
-export function RSOWithdrawButton({
+function padTitle(pad) {
+  return pad.group ? `${pad.group} ${pad.name}` : pad.name;
+}
+
+export function PadSelect({
+  card,
+  ...props
+}: { card: iCard } & FormSelectProps) {
+  const [pads] = usePads();
+
+  if (!pads) return <Loading wat='pads' />;
+
+  // Group pads by group
+  const padGroups = Object.entries(
+    arrayGroup(Object.values(pads), pad => pad.group ?? '')
+  );
+  // Sort by group name
+  arraySort(padGroups, ([group]) => group);
+
+  // Sort w/in each group
+  for (const [, pads] of padGroups) {
+    arraySort(pads, 'name');
+  }
+
+  function setPad(e: ChangeEvent<HTMLSelectElement>) {
+    const padId = e.currentTarget.value;
+    console.log('PADID', padId);
+    busy(e.currentTarget, updateCard(card, { padId }));
+  }
+
+  return (
+    <div className='d-flex flex-column text-center'>
+      <FormSelect {...props} value={card.padId ?? ''} onChange={setPad}>
+        <option value=''>No Pad Selected</option>
+
+        {padGroups.map(([group, pads]) => (
+          <optgroup key={group} label={group}>
+            {pads.map(pad => (
+              <option key={pad.id} value={pad.id}>
+                {pad.name}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </FormSelect>
+      <div className='text-tip'>Select Launch Pad</div>
+    </div>
+  );
+}
+
+export function WithdrawButton({
   card,
   children,
   ...props
@@ -122,7 +206,7 @@ export function RSOWithdrawButton({
         {children}
       </Button>{' '}
       <div className='text-tip'>
-        Withdraw RSO request so flyer can make changes
+        Temporarily withdraw from safety review and/or launch
       </div>
     </div>
   );
@@ -158,7 +242,7 @@ export function RSOApproveButton({
       >
         {children}
       </Button>
-      <div className='text-tip'>Approve card for flight</div>
+      <div className='text-tip'>Approve for launch</div>
     </div>
   );
 }
@@ -178,7 +262,7 @@ export function RSORejectButton({
       >
         {children}
       </Button>
-      <div className='text-tip'>Rescind RSO approval</div>
+      <div className='text-tip'>Revoke RSO approval</div>
     </div>
   );
 }
@@ -194,12 +278,12 @@ export function LCORequestButton({
         {children}
       </Button>
 
-      <div className='text-tip'>Ask LCO to launch this puppy!</div>
+      <div className='text-tip'>Ready for launch!</div>
     </div>
   );
 }
 
-export function LCOCompleteButton({
+export function LCOFinishButton({
   card,
   children,
   ...props
@@ -215,7 +299,7 @@ export function LCOCompleteButton({
         {children}
       </Button>
 
-      <div className='text-tip'>Archives card (cannot be undone!)</div>
+      <div className='text-tip'>Flight complete (locks card!)</div>
     </div>
   );
 }

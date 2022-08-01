@@ -5,12 +5,13 @@ import { useCurrentAttendee } from '../contexts/rthooks';
 import {
   DeleteButton,
   getCardPermissions,
-  LCOCompleteButton,
+  LCOFinishButton,
   LCORequestButton,
+  PadSelect,
   RSOApproveButton,
   RSORejectButton,
   RSORequestButton,
-  RSOWithdrawButton,
+  WithdrawButton,
 } from './CardEditorButtons';
 import { iCard } from '/types';
 
@@ -46,11 +47,21 @@ export function CardActions({
           ))}
         </ul>
       }{' '}
-      <div className='deck'>
+      <div
+        className='d-grid'
+        style={{
+          gap: '.5em 1em',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(12em, 1fr)',
+        }}
+      >
         {perms.userCanWithdraw ? (
-          <RSOWithdrawButton disabled={!perms.canWithdraw} card={card}>
+          <WithdrawButton disabled={!perms.canWithdraw} card={card}>
             Withdraw
-          </RSOWithdrawButton>
+          </WithdrawButton>
+        ) : null}
+
+        {perms.userCanAssignPad ? (
+          <PadSelect disabled={!perms.canWithdraw} card={card} />
         ) : null}
 
         {perms.userCanSubmitToRSO ? (
@@ -66,7 +77,11 @@ export function CardActions({
         ) : null}
 
         {perms.userCanReject ? (
-          <RSORejectButton disabled={!perms.canReject} card={card}>
+          <RSORejectButton
+            variant='warning'
+            disabled={!perms.canReject}
+            card={card}
+          >
             Reject
           </RSORejectButton>
         ) : null}
@@ -78,21 +93,21 @@ export function CardActions({
         ) : null}
 
         {perms.userCanMarkDone ? (
-          <LCOCompleteButton disabled={!perms.canMarkDone} card={card}>
-            Archive
-          </LCOCompleteButton>
+          <LCOFinishButton disabled={!perms.canMarkDone} card={card}>
+            All Done
+          </LCOFinishButton>
+        ) : null}
+        {perms.userCanDelete ? (
+          <DeleteButton
+            className='mx-5'
+            disabled={!perms.canDelete}
+            variant='danger'
+            card={card}
+          >
+            Delete
+          </DeleteButton>
         ) : null}
       </div>
-      {perms.userCanDelete ? (
-        <DeleteButton
-          className='mt-5'
-          disabled={!perms.canDelete}
-          variant='danger'
-          card={card}
-        >
-          Delete Card
-        </DeleteButton>
-      ) : null}
     </>
   );
 }
