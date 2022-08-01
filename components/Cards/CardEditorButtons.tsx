@@ -53,9 +53,7 @@ export function getCardPermissions(
     case REVIEW:
     case FLY:
       if (!card.rsoId) {
-        warnings.push(
-          'Next Step: Present rocket to the Range Safety Officer.'
-        );
+        warnings.push('Next Step: Present rocket to the Range Safety Officer.');
         if (isOfficer && user.id === card.userId) {
           notes.push(
             '(FYI, officers are not allowed to RSO their own rockets)'
@@ -113,7 +111,7 @@ export function getCardPermissions(
   };
 }
 
-export function WithdrawButton({
+export function RSOWithdrawButton({
   card,
   children,
   ...props
@@ -124,13 +122,13 @@ export function WithdrawButton({
         {children}
       </Button>{' '}
       <div className='text-tip'>
-        Get your card back so you can make changes.
+        Withdraw RSO request so flyer can make changes
       </div>
     </div>
   );
 }
 
-export function SubmitToRSOButton({
+export function RSORequestButton({
   card,
   children,
   ...props
@@ -140,7 +138,7 @@ export function SubmitToRSOButton({
       <Button onClick={() => updateCard(card, { status: REVIEW })} {...props}>
         {children}
       </Button>
-      <div className='text-tip'>Hand card to RSO for safety review</div>
+      <div className='text-tip'>Request safety review</div>
     </div>
   );
 }
@@ -180,14 +178,12 @@ export function RSORejectButton({
       >
         {children}
       </Button>
-      <div className='text-tip'>
-        Mark card as needing changes and re-review by RSO
-      </div>
+      <div className='text-tip'>Rescind RSO approval</div>
     </div>
   );
 }
 
-export function SubmitToLCO({
+export function LCORequestButton({
   card,
   children,
   ...props
@@ -198,12 +194,12 @@ export function SubmitToLCO({
         {children}
       </Button>
 
-      <div className='text-tip'>Hand card to LCO. Next step... Launch!</div>
+      <div className='text-tip'>Ask LCO to launch this puppy!</div>
     </div>
   );
 }
 
-export function DoneButton({
+export function LCOCompleteButton({
   card,
   children,
   ...props

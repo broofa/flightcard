@@ -8,7 +8,7 @@ import { useRTValue } from '/rt';
 import {
   CardFields,
   CARD_MOTORS_PATH,
-  ROCKET_MASS_PATH
+  ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
 import { iCard, iRocket } from '/types';
 
@@ -89,7 +89,7 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
       <>
         Hmm... Check your mass and motor. A stage-1 thrust:weight ratio of{' '}
         <strong>{sig(thrustToWeightRatio, 2)} : 1</strong> means this rocket
-        probably isn't leaving the pad, let alone achieving safe flight.{' '}
+        probably isn't leaving the pad, let alone achieving stable flight.{' '}
         {'\u{1F62D}'}
       </>
     );
@@ -122,34 +122,24 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   }
 
   return (
-    <Alert className='mt-3 p-2' variant={alertVariant}>
-      {thrustResult}
-      {railResult}
-      <details
-        className='mt-2 ps-2 align-middle border border-dark rounded'
-        style={{ backgroundColor: 'rgba(255, 255, 255, .5)' }}
-      >
-        <summary className='text-center'>
-          <span className='mx-1' style={{ fontSize: '1.5em' }}>
-            {'\u{26a0} '}
-          </span>
-          Don't trust this!
-          <span className='text-tip ms-2'>(click for details)</span>
-          <span className='mx-1' style={{ fontSize: '1.5em' }}>
-            {'\u{26a0} '}
-          </span>
+    <Alert className='mt-3 p-0' variant={alertVariant}>
+      <div className='p-2'>
+        {thrustResult}
+        {railResult}
+      </div>
+
+      <details className='m-1 p-1 rounded bg-light'>
+        <summary
+          className='p-1 small fst-italic'
+          style={{ listStyleType: '"\\26a0"' }}
+        >
+          {''} Experimental feature (click for disclaimer &hellip;)
         </summary>
+
         <p>
-          This analysis feature is experimental. It is based on data that may be
-          incorrect. Furthermore, it uses simplistic calculations that only
-          crudely approximate real-world behavior. Recommendations provided here
-          are, at best, based on "rule of thumb" principles. They should in no
-          way be seen as authoritative.
-        </p>
-        <p>
-          I.e. Treat this as advice from a stranger you've never met, because
-          unless you've met the author of this software... well... that's
-          exactly what you're getting.
+          <strong>This analysis may be incorrect.</strong> It uses simplistic
+          calculations that only crudely approximate real-world behavior. Always
+          verify any information or recommendations provided by this app.
         </p>
       </details>
     </Alert>

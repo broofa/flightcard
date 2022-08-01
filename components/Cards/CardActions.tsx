@@ -4,13 +4,13 @@ import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee } from '../contexts/rthooks';
 import {
   DeleteButton,
-  DoneButton,
   getCardPermissions,
+  LCOCompleteButton,
+  LCORequestButton,
   RSOApproveButton,
   RSORejectButton,
-  SubmitToLCO,
-  SubmitToRSOButton,
-  WithdrawButton,
+  RSORequestButton,
+  RSOWithdrawButton,
 } from './CardEditorButtons';
 import { iCard } from '/types';
 
@@ -48,15 +48,15 @@ export function CardActions({
       }{' '}
       <div className='deck'>
         {perms.userCanWithdraw ? (
-          <WithdrawButton disabled={!perms.canWithdraw} card={card}>
-            Unsubmit (To Make Changes)
-          </WithdrawButton>
+          <RSOWithdrawButton disabled={!perms.canWithdraw} card={card}>
+            Withdraw
+          </RSOWithdrawButton>
         ) : null}
 
         {perms.userCanSubmitToRSO ? (
-          <SubmitToRSOButton disabled={!perms.canSubmitToRSO} card={card}>
+          <RSORequestButton disabled={!perms.canSubmitToRSO} card={card}>
             Submit to RSO
-          </SubmitToRSOButton>
+          </RSORequestButton>
         ) : null}
 
         {perms.userCanApprove ? (
@@ -72,15 +72,15 @@ export function CardActions({
         ) : null}
 
         {perms.userCanSubmitToLCO ? (
-          <SubmitToLCO disabled={!perms.canSubmitToLCO} card={card}>
+          <LCORequestButton disabled={!perms.canSubmitToLCO} card={card}>
             Submit to LCO
-          </SubmitToLCO>
+          </LCORequestButton>
         ) : null}
 
         {perms.userCanMarkDone ? (
-          <DoneButton disabled={!perms.canMarkDone} card={card}>
+          <LCOCompleteButton disabled={!perms.canMarkDone} card={card}>
             Archive
-          </DoneButton>
+          </LCOCompleteButton>
         ) : null}
       </div>
       {perms.userCanDelete ? (
