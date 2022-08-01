@@ -72,7 +72,7 @@ export function MotorList({
   const motorList = [];
   const stages = arraySort(Object.entries(motorsByStage), '0'); // Sort by stage
   for (const [stage, stageMotors] of stages) {
-    if (stages.length > 1) {
+    if (stages.length > 1 || !stages['1']) {
       motorList.push(<h3 key={`stage-${stage}-label`}>Stage {stage}</h3>);
     }
 
