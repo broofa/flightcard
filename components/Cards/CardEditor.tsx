@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, useMemo, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import { TCMotor } from 'thrustcurve-db';
 import { MKS } from '../../util/units';
@@ -77,6 +77,8 @@ export default function CardEditor() {
   const isOwner = attendee?.id == card?.userId;
   const isDraft = card?.status === CardStatus.DRAFT;
   const isReadOnly = !isDraft && !isOfficer;
+
+  const nMotors = Object.keys(card?.motors ?? {}).length;
 
   return (
     <>
@@ -172,8 +174,12 @@ export default function CardEditor() {
           )}
         </div>
 
-        <rtui.Select label='Recovery' field='flight/recovery'>
-          <option value={''}>(unspecified)</option>
+        <rtui.Select
+          disabled={isReadOnly}
+          label='Recovery'
+          field='flight/recovery'
+        >
+          <option value={''}>Unspecified</option>
           <option value={Recovery.CHUTE}>Chute</option>
           <option value={Recovery.STREAMER}>Streamer</option>
           <option value={Recovery.DUAL_DEPLOY}>Dual-Deploy</option>
@@ -228,9 +234,12 @@ export default function CardEditor() {
             field='flight/headsUp'
             label='Heads Up'
           />
-          <rtui.Check
-            disabled={isReadOnly}
-            field='flight/complex'
+
+          {/* Complex status is derived from # of motors */}
+          <Form.Check
+            type='switch'
+            disabled
+            checked={nMotors > 1}
             label='Complex'
           />
         </div>
