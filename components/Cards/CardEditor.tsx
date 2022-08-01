@@ -173,13 +173,13 @@ export default function CardEditor() {
         </div>
 
         <rtui.Select label='Recovery' field='flight/recovery'>
-          <option value={''} label='(unspecified)' />
-          <option value={Recovery.CHUTE} label='Chute' />
-          <option value={Recovery.STREAMER} label='Streamer' />
-          <option value={Recovery.DUAL_DEPLOY} label='Dual-Deploy' />
-          <option value={Recovery.TUMBLE} label='Tumble' />
-          <option value={Recovery.GLIDE} label='Glide' />
-          <option value={Recovery.HELICOPTER} label='Helicopter' />
+          <option value={''}>(unspecified)</option>
+          <option value={Recovery.CHUTE}>Chute</option>
+          <option value={Recovery.STREAMER}>Streamer</option>
+          <option value={Recovery.DUAL_DEPLOY}>Dual-Deploy</option>
+          <option value={Recovery.TUMBLE}>Tumble</option>
+          <option value={Recovery.GLIDE}>Glide</option>
+          <option value={Recovery.HELICOPTER}>Helicopter</option>
         </rtui.Select>
       </div>
 
@@ -238,7 +238,7 @@ export default function CardEditor() {
 
       <rtui.TextArea disabled={isReadOnly} field='notes' label='Notes' />
 
-      <FormSection>Card Status</FormSection>
+      <FormSection>Next Steps &hellip;</FormSection>
       <CardActions card={card} />
 
       {editMotor && cardFields ? (
