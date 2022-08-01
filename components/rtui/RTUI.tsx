@@ -96,7 +96,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       >(rtpath.append(field, {}), '', STRING_ADAPTER);
 
       return (
-        <div className={`form-floating ${className}`}>
+        <div className={`form-floating ${className ?? ''}`}>
           <input
             id={id}
             placeholder={id}
