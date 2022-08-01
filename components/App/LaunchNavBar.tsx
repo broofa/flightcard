@@ -5,22 +5,13 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useCurrentUser } from '../contexts/rthooks';
 import { APPNAME } from './App';
-import { RangeStatus } from './RangeStatus';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import { auth, useRTValue } from '/rt';
-import { ATTENDEE_PATH } from '/rt/rtconstants';
-import { iAttendee } from '/types';
+import { auth } from '/rt';
 
 export function LaunchNavBar() {
   const [launch, loading, error] = useLaunch();
   const [currentUser] = useCurrentUser();
-  const [attendee] = useRTValue<iAttendee>(
-    ATTENDEE_PATH.with({
-      launchId: launch?.id ?? '',
-      userId: currentUser?.id ?? '',
-    })
-  );
 
   if (loading) {
     return <Loading wat='Launch (navbar)' />;
@@ -68,14 +59,6 @@ export function LaunchNavBar() {
       <div className='p-3' style={{ minHeight: 'calc(100vh - 38px - 65px)' }}>
         <Outlet />
       </div>
-
-      {launch ? (
-        <RangeStatus
-          className='position-sticky bottom-0 w-100 bg-light'
-          launch={launch}
-          isLCO={attendee?.role == 'lco'}
-        />
-      ) : null}
     </div>
   );
 }
