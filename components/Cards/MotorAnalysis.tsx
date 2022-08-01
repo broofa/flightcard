@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert } from 'react-bootstrap';
 import { getMotor } from '../../util/motor-util';
 import { MKS, unitConvert } from '../../util/units';
+import Interesting from '../common/Interesting';
 import { useUserUnits } from '../contexts/rthooks';
 import { sig } from '/components/common/util';
 import { useRTValue } from '/rt';
@@ -11,6 +12,11 @@ import {
   ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
 import { iCard, iRocket } from '/types';
+
+const INTERESTING = [
+  new URL('/media/interesting.webm', import.meta.url).toString(),
+  new URL('/media/interesting.mp4', import.meta.url).toString(),
+];
 
 // Force of gravity (m/^2)
 export const GRAVITY_ACC = 9.807;
@@ -37,8 +43,8 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   // There should be at least one stage 1 motor
   if (!stage1Motors.length) {
     return (
-      <Alert className='mt-3 p-2' variant='warning'>
-        No stage 1? Now you're just being silly.
+      <Alert className='mt-3 p-2 text-center' variant='warning'>
+        <Interesting className='d-inline-block' caption='No Stage 1 motors?' />
       </Alert>
     );
   }
@@ -102,21 +108,20 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
         : 'success';
     thrustResult = (
       <div>
-        Stage 1 thrust:weight ratio is{' '}
+        Thrust:weight ratio (stage 1 motors only):{' '}
         <strong>{sig(thrustToWeightRatio, 2)} : 1</strong>
       </div>
     );
 
     railResult = (
       <div className='mt-2'>
-        Provide at least{' '}
+        Distance needed to reach stable flight speed (
+        {sig(unitConvert(STABLE_SPEED, MKS.speedSmall, userUnits.speed), 2)}{' '}
+        {userUnits.speed}):{' '}
         <strong>
           {sig(unitConvert(railTravel, MKS.length, userUnits.length), 2)}{' '}
           {userUnits.length}
         </strong>{' '}
-        of rail travel to reach a safe-flight speed of{' '}
-        {sig(unitConvert(STABLE_SPEED, MKS.speedSmall, userUnits.speed), 2)}{' '}
-        {userUnits.speed}
       </div>
     );
   }
@@ -137,9 +142,11 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
         </summary>
 
         <p>
-          <strong>This analysis may be incorrect.</strong> It uses simplistic
-          calculations that only crudely approximate real-world behavior. Always
-          verify any information or recommendations provided by this app.
+          <strong>This analysis may be wrong</strong>. It is based on crude
+          approximations of real-world behavior. Data may have been entered
+          incorrectly, or incorrectly processed. Fliers should <em>always</em>{' '}
+          double-check and verify any information or recommendations provided by
+          this app.
         </p>
       </details>
     </Alert>
