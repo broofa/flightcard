@@ -23,7 +23,7 @@ export function LaunchNavBar() {
 
   return (
     <div>
-      <Navbar bg='dark' className='position-sticky top-0' style={{ zIndex: 3 }}>
+      <Navbar bg='dark' variant='dark' className='position-sticky top-0' style={{ zIndex: 3 }}>
         {currentUser && launch ? (
           <>
             {[
