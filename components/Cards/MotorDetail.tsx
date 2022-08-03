@@ -1,10 +1,10 @@
 import React from 'react';
 import { Alert, Modal, ModalProps } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
-import { motorDisplayName } from '../../util/motor-util';
 import { Sparky } from '../common/Sparky';
 import { MKSValue } from './MKSValue';
 import { sig } from '/components/common/util';
+import { motorDisplayName } from '/util/motor-util';
 
 export const fire = new URL('/art/fire.gif', import.meta.url).toString();
 

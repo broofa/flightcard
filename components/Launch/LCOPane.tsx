@@ -1,6 +1,5 @@
 import React, { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
 import { Button } from 'react-bootstrap';
-import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useIsOfficer } from '../contexts/OfficersContext';
 import {
@@ -15,6 +14,7 @@ import { busy, Loading } from '/components/common/util';
 import { rtRemove } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iCard, iPad } from '/types';
+import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 function PadCard({
   pad,

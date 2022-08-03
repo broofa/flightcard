@@ -1,12 +1,12 @@
 import React, { HTMLAttributes, useMemo } from 'react';
 import { useMatch } from 'react-router-dom';
-import { MKS, unitConvert } from '../../util/units';
 import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
 import { Loading, sig } from '/components/common/util';
 import { useRTValue } from '/rt';
+import { MKS, unitConvert } from '/util/units';
 
 import simplur from 'simplur';
 import {

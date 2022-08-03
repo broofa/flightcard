@@ -1,7 +1,7 @@
 import React, { HTMLAttributes } from 'react';
 import { Alert } from 'react-bootstrap';
 import { Route, Routes } from 'react-router-dom';
-import { arraySort } from '../../util/arrayUtils';
+import { arraySort } from '/util/arrayUtils';
 import CardEditor from '../Cards/CardEditor';
 import CardSummary from '../Cards/CardSummary';
 import { useCurrentUser } from '../contexts/rthooks';

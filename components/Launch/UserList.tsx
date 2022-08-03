@@ -1,6 +1,5 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { arraySort } from '../../util/arrayUtils';
 import { ANONYMOUS } from '../App/App';
 import { useLaunch } from '../contexts/LaunchContext';
 import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
@@ -14,6 +13,7 @@ import {
   OFFICER_PATH,
 } from '/rt/rtconstants';
 import { iAttendee, iCert, iPerm } from '/types';
+import { arraySort } from '/util/arrayUtils';
 
 export function AttendeeInfo({
   attendee,
@@ -180,9 +180,13 @@ export function UserList({
               {attendeeInfo}
             </Button>
           ) : (
-            <div className={`p-2 bg-light rounded border border-light d-flex flex-grow-1 align-items-center text-start ${
-              attendee.photoURL ? 'ps-0 py-0' : ''
-            }`}>{attendeeInfo}</div>
+            <div
+              className={`p-2 bg-light rounded border border-light d-flex flex-grow-1 align-items-center text-start ${
+                attendee.photoURL ? 'ps-0 py-0' : ''
+              }`}
+            >
+              {attendeeInfo}
+            </div>
           );
         })}
       </div>

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
-import { arrayGroup, arraySort } from '../../util/arrayUtils';
 import { Sparky } from '../common/Sparky';
 import { useRTValue } from '/rt';
 import { CardFields, CARD_MOTORS_PATH } from '/rt/rtconstants';
 import { iMotor } from '/types';
+import { arrayGroup, arraySort } from '/util/arrayUtils';
 import { getMotor } from '/util/motor-util';
 
 const tcLogo = new URL('/art/thrustcurve.svg', import.meta.url);

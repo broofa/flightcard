@@ -1,7 +1,5 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
-import { getMotor } from '../../util/motor-util';
-import { MKS, unitConvert } from '../../util/units';
 import Interesting from '../common/Interesting';
 import { useUserUnits } from '../contexts/rthooks';
 import { sig } from '/components/common/util';
@@ -12,6 +10,8 @@ import {
   ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
 import { iCard, iRocket } from '/types';
+import { getMotor } from '/util/motor-util';
+import { MKS, unitConvert } from '/util/units';
 
 const INTERESTING = [
   new URL('/media/interesting.webm', import.meta.url).toString(),

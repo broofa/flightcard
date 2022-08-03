@@ -2,7 +2,6 @@ import React, { HTMLAttributes, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import { TCMotor } from 'thrustcurve-db';
-import { MKS } from '../../util/units';
 import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
 import { AttendeeInfo } from '../Launch/UserList';
@@ -17,6 +16,7 @@ import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
 import { Loading } from '/components/common/util';
 import { useRTValue } from '/rt';
+import { MKS } from '/util/units';
 
 import {
   AttendeeFields,

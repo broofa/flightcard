@@ -1,7 +1,7 @@
 import React from 'react';
-import { MKS, tUnitSystem, unitConvert } from '../../util/units';
 import { sig } from '../common/util';
 import { useUserUnits } from '../contexts/rthooks';
+import { MKS, tUnitSystem, unitConvert } from '/util/units';
 
 // Playing around with a component that knows about unit types
 

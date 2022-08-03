@@ -2,7 +2,6 @@ import { nanoid } from 'nanoid';
 import React, { MouseEventHandler, useState } from 'react';
 import { Button, FormSelect, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { arraySort } from '../../util/arrayUtils';
 import { APPNAME } from '../App/App';
 import { useCurrentUser, useLaunches } from '../contexts/rthooks';
 import { Loading } from '/components/common/util';
@@ -14,6 +13,7 @@ import {
   PADS_PATH,
 } from '/rt/rtconstants';
 import { iAttendee, iLaunch, iPad, iPads } from '/types';
+import { arraySort } from '/util/arrayUtils';
 
 export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   const [launches] = useLaunches();
