@@ -1,9 +1,8 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { ANONYMOUS } from '../App/App';
-import { useLaunch } from '../contexts/LaunchContext';
 import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
-import { useAttendees, useCurrentUser } from '../contexts/rthooks';
+import { useAttendees, useCurrentUser, useLaunch } from '../contexts/rthooks';
 import { CertDot } from '/components/common/CertDot';
 import { Loading } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';

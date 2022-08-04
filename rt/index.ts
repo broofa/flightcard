@@ -63,7 +63,7 @@ export function rtTransaction() {
   const updates: { [key: string]: unknown } = {};
   return {
     updates,
-    
+
     update<T = never>(path: RTPath, state: Partial<T> | undefined) {
       updates[path.toString()] = state;
     },
@@ -82,6 +82,13 @@ export function useRTValue<T = never>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
 
+  try {
+    const pathString = path.toString();
+    if (/\/launches/.test(pathString)) {
+      console.log('PATH', path.id, pathString, setter);
+    }
+  } catch (err) {}
+
   useEffect(() => {
     // Silently ignore attempts to use invalid paths.
     if (!path.isValid()) {
@@ -94,7 +101,7 @@ export function useRTValue<T = never>(
     setLoading(true);
     setError(undefined);
 
-    return dbOnValue(
+    const unsubscribe = dbOnValue(
       dbRef(database, String(path)),
       s => {
         const dbVal = s.val() as T | undefined;
@@ -107,6 +114,11 @@ export function useRTValue<T = never>(
         setLoading(false);
       }
     );
+
+    return () => {
+      console.log('Unsubscribing', String(path));
+      unsubscribe();
+    };
   }, [path, setter]);
 
   return [val, loading, error];

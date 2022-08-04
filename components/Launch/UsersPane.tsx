@@ -1,9 +1,9 @@
 import React from 'react';
 import { ButtonGroup } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { useLaunch } from '../contexts/LaunchContext';
-import { LinkButton, Loading } from '/components/common/util';
+import { useLaunch } from '../contexts/rthooks';
 import { UserList } from './UserList';
+import { LinkButton, Loading } from '/components/common/util';
 import { iAttendee, iPerm } from '/types';
 
 export const OFFICERS = 'officers';

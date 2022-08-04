@@ -1,7 +1,6 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
-import { useLaunch } from '../contexts/LaunchContext';
-import { useCurrentAttendee } from '../contexts/rthooks';
+import { useCurrentAttendee, useLaunch } from '../contexts/rthooks';
 import { OFFICERS } from '../Launch/UsersPane';
 import CertPref from './CertPref';
 import ProfileName from './ProfileName';

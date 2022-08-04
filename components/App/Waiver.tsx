@@ -1,9 +1,8 @@
 import React, { useRef } from 'react';
 import { Button } from 'react-bootstrap';
-import { APPNAME } from './App';
 import { FCLinkButton } from '../common/FCLinkButton';
-import { useLaunch } from '../contexts/LaunchContext';
-import { useCurrentUser } from '../contexts/rthooks';
+import { useCurrentUser, useLaunch } from '../contexts/rthooks';
+import { APPNAME } from './App';
 import { busy, Loading } from '/components/common/util';
 import { rtSet } from '/rt';
 import { ATTENDEE_PATH } from '/rt/rtconstants';

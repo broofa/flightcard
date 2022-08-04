@@ -1,19 +1,5 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { useLaunch } from './LaunchContext';
-import { useCurrentAttendee } from './rthooks';
-import { RTState, useRTValue } from '/rt';
-import { OFFICERS_PATH } from '/rt/rtconstants';
-import { iAttendee, iOfficers } from '/types';
-
-const officersContext = createContext<RTState<iOfficers>>([
-  undefined,
-  true,
-  undefined,
-]);
-
-export function useOfficers() {
-  return useContext(officersContext);
-}
+import { useCurrentAttendee, useOfficers } from './rthooks';
+import { iAttendee } from '/types';
 
 export function useIsOfficer() {
   const [currentAttendee] = useCurrentAttendee();
@@ -41,14 +27,4 @@ export function useRoleAPI() {
       return (officers?.[attendee?.id ?? ''] && attendee?.role) || undefined;
     },
   };
-}
-
-export function OfficersProvider({ children }: PropsWithChildren) {
-  const { Provider } = officersContext;
-  const [launch] = useLaunch();
-
-  const rtpath = OFFICERS_PATH.with({ launchId: launch?.id ?? '' });
-  const value = useRTValue<iOfficers>(rtpath);
-
-  return <Provider value={value}>{children}</Provider>;
 }

@@ -9,10 +9,9 @@ import {
   useMatch,
 } from 'react-router-dom';
 import Admin from '../Admin/Admin';
-import { flash, FlashList } from '../common/Flash';
+import { FlashList } from '../common/Flash';
 import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
-import { LaunchProvider } from '../contexts/LaunchContext';
-import { OfficersProvider } from '../contexts/OfficersContext';
+import { LaunchStateProvider } from '../contexts/LaunchStateContext';
 import { useCurrentAttendee } from '../contexts/rthooks';
 import Launch from '../Launch/Launch';
 import LaunchHome from '../Launch/LaunchHome';
@@ -59,29 +58,27 @@ export default function App() {
   return (
     <>
       <AuthUserProvider>
-        <LaunchProvider launchId={launchId}>
-          <OfficersProvider>
-            <Routes>
-              <Route path='/login' element={<Login />} />
+        <LaunchStateProvider launchId={launchId}>
+          <Routes>
+            <Route path='/login' element={<Login />} />
 
-              <Route element={<RequireAuth />}>
-                <Route element={<HomeNavBar />}>
-                  <Route path='/' element={<Navigate to='/welcome' />} />
-                  <Route path='/welcome' element={<Welcome />} />
-                  <Route path='/admin' element={<Admin />} />
-                  <Route path='/launches' element={<Launches />} />
-                </Route>
+            <Route element={<RequireAuth />}>
+              <Route element={<HomeNavBar />}>
+                <Route path='/' element={<Navigate to='/welcome' />} />
+                <Route path='/welcome' element={<Welcome />} />
+                <Route path='/admin' element={<Admin />} />
+                <Route path='/launches' element={<Launches />} />
+              </Route>
 
-                <Route element={<RequireWaiver />}>
-                  <Route path='/launches/:launchid' element={<LaunchNavBar />}>
-                    <Route index element={<LaunchHome />} />
-                    <Route path='*' element={<Launch />} />
-                  </Route>
+              <Route element={<RequireWaiver />}>
+                <Route path='/launches/:launchid' element={<LaunchNavBar />}>
+                  <Route index element={<LaunchHome />} />
+                  <Route path='*' element={<Launch />} />
                 </Route>
               </Route>
-            </Routes>
-          </OfficersProvider>
-        </LaunchProvider>
+            </Route>
+          </Routes>
+        </LaunchStateProvider>
       </AuthUserProvider>
 
       <FlashList

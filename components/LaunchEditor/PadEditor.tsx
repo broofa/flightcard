@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import React, { MouseEventHandler, useRef } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
-import { useLaunch } from '../contexts/LaunchContext';
+import { useLaunch } from '../contexts/rthooks';
 import FloatingInput from '/components/common/FloatingInput';
 import { busy, Loading } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate } from '/rt';
@@ -21,7 +21,7 @@ export function PadEditor({
     return <Loading wat='Launch' />;
   }
 
-  const {id: launchId} = launch;
+  const { id: launchId } = launch;
 
   const { onHide } = props;
 

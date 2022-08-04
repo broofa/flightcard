@@ -1,11 +1,11 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
-import { useLaunch } from '../contexts/LaunchContext';
 import { useIsOfficer } from '../contexts/OfficersContext';
 import {
   useAttendees,
   useCards,
   useCurrentAttendee,
+  useLaunch,
 } from '../contexts/rthooks';
 import RolePref from '../Profile/RolePref';
 import { LaunchCard } from './LaunchCard';

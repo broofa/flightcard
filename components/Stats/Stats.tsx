@@ -1,11 +1,11 @@
 import React from 'react';
-import { useLaunch } from '../contexts/LaunchContext';
+import { useLaunch } from '../contexts/rthooks';
+import './Stats.scss';
 import { AttendeesByCert } from './widgets/AttendeesByCert';
 import LCOActivity from './widgets/LCOActivity';
 import { MotorsByClass } from './widgets/MotorsByClass';
 import { MotorsByManufacturer } from './widgets/MotorsByManufacturer';
 import RSOActivity from './widgets/RSOActivity';
-import './Stats.scss';
 
 export default function Stats() {
   const [launch] = useLaunch();

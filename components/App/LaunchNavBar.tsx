@@ -2,8 +2,7 @@ import React from 'react';
 import { Alert, Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
-import { useLaunch } from '../contexts/LaunchContext';
-import { useCurrentUser } from '../contexts/rthooks';
+import { useCurrentUser, useLaunch } from '../contexts/rthooks';
 import { APPNAME } from './App';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
@@ -23,7 +22,12 @@ export function LaunchNavBar() {
 
   return (
     <div>
-      <Navbar bg='dark' variant='dark' className='position-sticky top-0' style={{ zIndex: 3 }}>
+      <Navbar
+        bg='dark'
+        variant='dark'
+        className='position-sticky top-0'
+        style={{ zIndex: 3 }}
+      >
         {currentUser && launch ? (
           <>
             {[
