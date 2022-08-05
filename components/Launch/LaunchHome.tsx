@@ -78,9 +78,9 @@ export default function LaunchHome() {
           />
           <div className='flex-grow-1 nav flex-column'>
             <h5 className='mt-3'>Spectators</h5>
-            <FCLink to='lco'>Ride Along w/ Launch Control</FCLink>
             <FCLink to='users'>View Attendees</FCLink>
-            <FCLink to={launchUrl('report')}>View Launch Report & Stats</FCLink>
+            <FCLink to='lco'>Launch Control Ride-Along</FCLink>
+            <FCLink to={launchUrl('report')}>See Launch Stats</FCLink>
           </div>
         </Card>
 
@@ -93,7 +93,7 @@ export default function LaunchHome() {
           <div className='flex-grow-1 nav flex-column'>
             <h5 className='mt-3'>Fliers</h5>
             <FCLink to='cards'>My Flight Cards</FCLink>
-            <Nav.Link onClick={makeNewCard}>Create a Flight Card</Nav.Link>
+            <Nav.Link onClick={makeNewCard}>New Flight Card</Nav.Link>
             <FCLink to='users?filter=officers'>View Club Officers</FCLink>
           </div>
         </Card>
@@ -107,11 +107,11 @@ export default function LaunchHome() {
             />
             <div className='flex-grow-1 nav flex-column'>
               <h5 className='mt-3'>Officers</h5>
-              <FCLink to='lco'>Launch Control</FCLink>
-              <FCLink to='rso'>Range Safety</FCLink>
               <FCLink disabled to='rso'>
                 Registration Desk
               </FCLink>
+              <FCLink to='rso'>Range Safety</FCLink>
+              <FCLink to='lco'>Launch Control</FCLink>
             </div>
           </Card>
         ) : null}
