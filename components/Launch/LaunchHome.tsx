@@ -35,13 +35,12 @@ export default function LaunchHome() {
   if (!attendee.name) {
     return (
       <>
-        <p>
-          Please start by telling us your name:
-          <div className='text-tip'>
-            Knowing who's here helps keep the launchsafe and fun! You can always
-            change this letter in <code>Settings</code>
-          </div>
-        </p>
+        <h2>"Hi, My Name Is..."</h2>
+        <div className='text-tip'>
+          Knowing who's here helps keep the launch safe and fun! You can always
+          change this later in             <FCLink to='profile'>Your Profile</FCLink>
+        </div>
+
         <ProfileName
           attendeeFields={{ launchId: launch.id, userId: attendee.id }}
         />

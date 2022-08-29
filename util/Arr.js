@@ -6,7 +6,7 @@
  *
  * @return {Array}
  */
-exports.sift = function(arr, iterator) {
+exports.sift = function (arr, iterator) {
   return arr.map(iterator).filter(x => x);
 };
 
@@ -23,17 +23,17 @@ exports.sift = function(arr, iterator) {
  *
  * @return {Array}
  */
-exports.sortOn = function(arr, extractor) {
+exports.sortOn = function (arr, extractor) {
   if (!Array.isArray(arr)) return arr;
 
-  if (typeof(extractor) != 'function') {
+  if (typeof extractor != 'function') {
     const key = extractor;
-    extractor = function(o) {
+    extractor = function (o) {
       return o != null && o[key];
     };
   }
 
-  return arr.sort(function(a, b) {
+  return arr.sort(function (a, b) {
     a = extractor(a);
     b = extractor(b);
     return a < b ? -1 : b < a ? 1 : 0;
@@ -58,12 +58,12 @@ exports.sortOn = function(arr, extractor) {
  * @return {Object} object[category] = [item];
  *
  */
-exports.classify = function(arr, extractor) {
+exports.classify = function (arr, extractor) {
   const obj = {};
 
-  if (typeof(extractor) != 'function') {
+  if (typeof extractor != 'function') {
     const key = extractor;
-    extractor = function(o) {
+    extractor = function (o) {
       return o != null && o[key];
     };
   }
