@@ -134,7 +134,11 @@ export default function ProfileName({
       {certOrg === 'tripoli' ? (
         <>
           <div className='d-flex align-items-top mt-2' style={{ gap: '1em' }}>
-            <FloatingLabel label='Tripoli ID #' style={{ flexasis: '10em' }}>
+            <FloatingLabel
+              label='Tripoli ID #'
+              style={{ flexBasis: '10em' }}
+              className='flex-shrink-0'
+            >
               <Form.Control
                 ref={inputField}
                 type='number'
