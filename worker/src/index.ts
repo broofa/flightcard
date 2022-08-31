@@ -67,9 +67,8 @@ export default {
     // Invoke handler.  We wrap this in some basic boilerplate to insure we
     // _always_ return a JSON response, and to make error handling simple and
     // robust.
-    let returnErr;
     try {
-      const body = await handleRequest(request, env, ctx);
+      const body = await handleRequest(request, env);
       return new Response(JSON.stringify(body, null, 2), { headers });
     } catch (err) {
       const { message, statusCode, stack } = err as HTTPError;
