@@ -14,7 +14,7 @@ const LOGO_TRIPOLI = new URL('/art/tripoli.svg', import.meta.url).toString();
 const LOGO_NAR = new URL('/art/nar.svg', import.meta.url).toString();
 
 const TRIPOLI_MEMBER_URL =
-  'https://tripoli-memberships.robert4852.workers.dev?id=ID';
+  'https://tripoli-members.robert4852.workers.dev?id=ID';
 
 type TripoliInfo = {
   id: number;
@@ -47,6 +47,11 @@ export default function ProfileName({
 
     (async function () {
       try {
+        if (!debouncedTripoliId) {
+          setTripoliInfo(undefined);
+          return;
+        }
+
         const req = fetch(
           TRIPOLI_MEMBER_URL.replace('ID', debouncedTripoliId),
           {
@@ -129,7 +134,7 @@ export default function ProfileName({
       {certOrg === 'tripoli' ? (
         <>
           <div className='d-flex align-items-top mt-2' style={{ gap: '1em' }}>
-            <FloatingLabel label='Tripoli ID #' style={{ flexBasis: '10em' }}>
+            <FloatingLabel label='Tripoli ID #' style={{ flexasis: '10em' }}>
               <Form.Control
                 ref={inputField}
                 type='number'

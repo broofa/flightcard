@@ -1,0 +1,15 @@
+name = "tripoli-members"
+main = "./src/index.ts"
+
+compatibility_date = "2022-08-31"
+
+[triggers]
+crons = ["0 1 * * *"]
+
+[[kv_namespaces]]
+binding = "TripoliMembers"
+preview_id = "c24af3d64ebe421e85e921871b3d6544"
+id = "7f48c717ce7a497d82fc6bf0f603249a"
+
+[dev]
+port = 6543
