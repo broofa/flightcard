@@ -3,9 +3,10 @@ import { Alert } from 'react-bootstrap';
 import { useCurrentAttendee, useLaunch } from '../contexts/rthooks';
 import { OFFICERS } from '../Launch/UsersPane';
 import CertPref from './CertPref';
-import ProfileName from './ProfileName';
+import ProfileName from './NamePref';
 import UnitsPref from './UnitsPref';
 import { AttendeesLink, LinkButton, Loading } from '/components/common/util';
+import { CertOrg } from '/types';
 
 export default function ProfilePage() {
   const [launch] = useLaunch();
@@ -48,18 +49,23 @@ export default function ProfilePage() {
     <>
       <h1>Settings for {attendee?.name ?? <i>(unnamed user)</i>}</h1>
 
-      <h2>Profile</h2>
-
       <ProfileName
+        style={{ width: '15em' }}
         attendeeFields={{ launchId: launch.id, userId: attendee.id }}
       />
 
-      <h2>
-        High-Power Certification{' '}
-        {cert?.verifiedTime ? <span>({'\u2705'} Verified)</span> : null}
-      </h2>
+      <h2>Certifications</h2>
+      <CertPref
+        attendeeFields={{ launchId: launch.id, userId: attendee.id }}
+        org={CertOrg.TRA}
+        className='mt-2'
+        />
 
-      <CertPref launchId={launch.id} userId={attendee.id} />
+      <CertPref
+        attendeeFields={{ launchId: launch.id, userId: attendee.id }}
+        org={CertOrg.NAR}
+        className='mt-2'
+      />
 
       <h2>Units of Measure</h2>
 

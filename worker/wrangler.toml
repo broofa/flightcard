@@ -1,4 +1,4 @@
-name = "tripoli-members"
+name = "club-members"
 main = "./src/index.ts"
 
 compatibility_date = "2022-08-31"

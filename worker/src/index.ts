@@ -15,9 +15,26 @@
  * members available at MEMBERS_URL (below).
  */
 
-const MEMBERS_URL = 'https://tripoli.org/docs.ashx?id=916333';
+const TRA_MEMBERS_LIST = 'https://tripoli.org/docs.ashx?id=916333';
+const NAR_MEMBERS_FORM =
+  'https://www.nar.org/high-power-rocketry-info/hpr-cert-search/';
 const BUCKET_SIZE = 1000;
 const DOMAIN_WHITELIST = /\.flightcard\.org$|^localhost$/;
+
+// Tripoli uses some special codes for their cert levels, which we need to map
+// to the expected 0-3 values.
+const TRIPOLI_CERT_MAP: Record<string, string> = {
+  // "Exam required" - Member's dues are paid, but they need to retake L2 exam
+  // to reinstate their L2/L3 cert
+  '3ER': '1',
+  '2ER': '1',
+
+  // Mentor L1
+  M1: '1',
+
+  // Same thing as M1???
+  M: '1',
+};
 
 export interface Env {
   TripoliMembers: KVNamespace;
@@ -29,18 +46,34 @@ class HTTPError extends Error {
   }
 }
 
-type Member = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  level: number;
-  expires: number;
-};
+// Cert types from types.ts#iCert
+export type Timestamp = number;
+export enum CertLevel {
+  NONE = 0,
+  L1 = 1,
+  L2 = 2,
+  L3 = 3,
+}
+export enum CertOrg {
+  NAR = 'NAR',
+  TRA = 'TRA',
+}
+export interface iCert {
+  level: CertLevel;
+  firstName?: string;
+  lastName?: string;
+  organization?: CertOrg;
+  memberId?: number;
+  expires?: Timestamp;
 
-type MemberMap = Record<string, Member>;
+  verifiedId?: string; // Id of attendee that verified the ID
+  verifiedTime?: Timestamp;
+}
 
-function isMember(member?: Member): member is Member {
-  return !!member?.id;
+type CertGroup = Record<string, iCert>;
+
+function isCertInfo(cert?: iCert): cert is iCert {
+  return !!cert?.memberId;
 }
 
 export default {
@@ -94,18 +127,19 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(updateMembersKV(env));
+    console.log('SCSDUILFSDUFSLDS');
+    ctx.waitUntil(updateTripoliKV(env));
   },
 };
 
 // fetch the members list from the source and parse it
-async function fetchMembers() {
-  const resp = await fetch(MEMBERS_URL);
+async function fetchTripoliCerts() {
+  const resp = await fetch(TRA_MEMBERS_LIST);
   const csv = await resp.text();
 
   // Map lines => member structs
   const lines = csv.split('\n');
-  const members = lines.map((line): Member | undefined => {
+  const certs = lines.map((line): iCert | undefined => {
     // Parse CSV line, removing trailing quotes
     // TODO: This'll break if there are commas in the field values
     const fields = line.match(/"[^"]+"/g)?.map(v => v.replaceAll('"', ''));
@@ -118,62 +152,136 @@ async function fetchMembers() {
     const [lastName, firstName] = fields[1].split(/,\s*/g);
 
     return {
-      id: parseInt(fields[0]),
+      memberId: parseInt(fields[0]),
       firstName,
       lastName,
-      level: parseInt(fields[2]),
-      expires: Date.parse(fields[3]),
+      level: parseInt(TRIPOLI_CERT_MAP[fields[2]] ?? fields[2]),
+      expires: Date.parse(fields[3] + ' PST'),
+      organization: CertOrg.TRA,
     };
   });
 
-  return members.filter(isMember);
+  return certs.filter(isCertInfo);
 }
 
-async function updateMembersKV(env: Env) {
-  const members = await fetchMembers();
-  const groups: Record<string, MemberMap> = {};
+async function updateTripoliKV(env: Env) {
+  const certs = await fetchTripoliCerts();
+  const groups: Record<string, CertGroup> = {};
 
   // Record the last update time (attempt)
-  console.log('PUT', 'lastUpdate');
-
   await env.TripoliMembers.put('lastUpdate', JSON.stringify(Date.now()));
 
-  // Group members into buckets
-  for (const member of members) {
-    const { id } = member;
-    const key = Math.floor(id / BUCKET_SIZE);
+  // Group certs into buckets
+  for (const cert of certs) {
+    const { memberId } = cert;
+
+    if (memberId == null) continue;
+    const key = Math.floor(memberId / BUCKET_SIZE);
     if (!groups[key]) groups[key] = {};
-    groups[key][id] = member;
+    groups[key][memberId] = cert;
   }
 
   // Save each bucket into KV
   //
   //  NOTE: CF limits free plan to 1,000 writes per day, which is why we do this in buckets
-  const results = await Promise.allSettled(
+  await Promise.allSettled(
     Object.entries(groups).map(([k, v]) => {
-      console.log('PUT', k);
       return env.TripoliMembers.put(String(k), JSON.stringify(v));
     })
   );
-  console.log('RESULTS', results);
 }
 
-async function handleRequest(request: Request, env: Env) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-  const bucketId = id ? String(Math.floor(parseInt(id) / BUCKET_SIZE)) : null;
+async function fetchNAR(
+  memberId: number,
+  env: Env
+): Promise<iCert | undefined> {
+  const fd = new FormData();
+  fd.set('nar_number', String(memberId));
+  const resp = await fetch(NAR_MEMBERS_FORM, { method: 'POST', body: fd });
 
-  const memberBucket = bucketId
-    ? await env.TripoliMembers.get<MemberMap>(bucketId, {
+  if (!resp.ok) {
+    throw new HTTPError('Error querying NAR DB', 502);
+  }
+
+  const text = await resp.text();
+  if (text.includes('NAR # Not Found')) {
+    return;
+  }
+
+  // Really, really crude HTML scraping here.  We could use Cheerio, but that's
+  // a pretty heavy dependency to add, and this is working for now.
+  //
+  // P.S.  If you're from NAR, trying to figure out how to deliberately break
+  // this code just... really?!?  I've emailed you guys to see about doing this
+  // is in a way that works better for you, me, your members... but have *never*
+  // gotten any response from you.  So here we are, writing shitty HTML scraping
+  // code, just to make your member's lives a little better.
+  const table = text.match(/<table>(.*)<\/table>/i)?.[1];
+  if (!table) {
+    throw new HTTPError('No TABLE in NAR response', 500);
+  }
+
+  const rows = table.split(/<\/?tr>/g);
+  const fields: Record<string, string> = {};
+  for (const row of rows) {
+    const [, k, , v] = row.split(/<\/?td>/g);
+    fields[(k ?? '').replace(/:/g, '').trim()] = v;
+  }
+
+  const level = parseInt(fields['HPR Cert. Level']);
+  // HACK
+  const expires = Date.parse(fields['Exp Date'] + ' PST');
+  const [, firstName, lastName] =
+    fields['Name'].replace(/&nbsp;/g, ' ').match(/(\S+)\s+(.*)/) ?? [];
+
+  return {
+    memberId,
+    firstName,
+    lastName,
+    level: isNaN(level) ? 0 : level,
+    expires,
+    organization: CertOrg.NAR,
+  };
+}
+
+async function fetchTRA(memberId: number, env: Env) {
+  const bucketId = memberId ? String(Math.floor(memberId / BUCKET_SIZE)) : null;
+
+  const certBucket = bucketId
+    ? await env.TripoliMembers.get<CertGroup>(bucketId, {
         type: 'json',
       })
     : null;
 
-  const member = memberBucket?.[id ?? ''];
+  const cert = certBucket?.[memberId ?? ''];
 
-  if (!member) {
+  return cert;
+}
+
+async function handleRequest(request: Request, env: Env) {
+  const { searchParams } = new URL(request.url);
+  const memberId = parseInt(searchParams.get('id') ?? '');
+  const org = searchParams.get('org') ?? CertOrg.TRA;
+
+  if (isNaN(memberId)) {
+    throw new HTTPError('Invalid ID', 400);
+  }
+
+  let cert;
+  switch (org) {
+    case CertOrg.TRA: {
+      cert = await fetchTRA(memberId, env);
+      break;
+    }
+    case CertOrg.NAR: {
+      cert = await fetchNAR(memberId, env);
+      break;
+    }
+  }
+
+  if (!cert) {
     throw new HTTPError('Member not found', 404);
   }
 
-  return member;
+  return cert;
 }

@@ -37,6 +37,10 @@ export interface iLaunch {
 }
 export type iLaunches = Record<string, iLaunch>;
 
+//
+// Cert types
+//
+
 export enum CertLevel {
   NONE = 0,
   L1 = 1,
@@ -49,6 +53,8 @@ export enum CertOrg {
 }
 export interface iCert {
   level: CertLevel;
+  firstName?: string;
+  lastName?: string;
   organization?: CertOrg;
   memberId?: number;
   expires?: Timestamp;
@@ -57,11 +63,15 @@ export interface iCert {
   verifiedTime?: Timestamp;
 }
 
+export type iCerts = Partial<Record<CertOrg, iCert>>;
+
+// ---
 export interface iAttendee extends iUser {
   waiverTime?: Timestamp;
-  cert?: iCert;
+  certs?: iCerts;
   role?: tRole;
 }
+
 export type iAttendees = Record<string, iAttendee>;
 
 export type iOfficers = Record<string, boolean>;

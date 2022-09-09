@@ -72,14 +72,23 @@ export function LinkButton({
 /**
  * Style a DOMElement as "busy" during an async operation
  */
-export function busy<T extends Promise<unknown>>(target: Element | null | undefined, p: T): T {
+export function busy<T extends Promise<unknown>>(
+  target: (Element & { _busyId?: number }) | null | undefined,
+  p: T
+): T {
   // Allow null targets because refs can be undefined and it's annoying having to check for that case
   if (target) {
+    const busyId = Math.random();
+    target._busyId = busyId;
+
     // Start busy animation
     target.classList.toggle('busy', true);
 
     // Stop busy animation when promise settles
-    p.finally(() => target.classList.toggle('busy', false));
+    p.finally(() => {
+      if (target?._busyId !== busyId) return;
+      target.classList.toggle('busy', false);
+    });
   }
 
   return p;

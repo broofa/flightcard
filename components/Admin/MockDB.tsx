@@ -18,7 +18,7 @@ import {
   iAttendees,
   iCard,
   iCards,
-  iCert,
+  iCerts,
   iLaunches,
   iMotor,
   iOfficers,
@@ -179,6 +179,23 @@ function mockLaunches(root: DBRoot) {
   }
 }
 
+function mockCerts() {
+  const certs: iCerts = {};
+
+  for (const organization of [CertOrg.NAR, CertOrg.TRA]) {
+    if (!rnd(2)) continue;
+
+    certs[organization] = {
+      level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3]),
+      organization,
+      memberId: 3000 + rnd(15000),
+      expires: Date.now() + rnd(365 * 24 * 3600e3),
+    };
+  }
+
+  return Object.keys(certs).length ? certs : DELETE;
+}
+
 function mockAttendees(root: DBRoot, launchId?: string) {
   if (!launchId) {
     for (const launchId of Object.keys(root.launches)) {
@@ -201,19 +218,9 @@ function mockAttendees(root: DBRoot, launchId?: string) {
   }
 
   for (const user of Object.values(root.users).slice(0, 20)) {
-    const cert = {
-      level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3]),
-    } as iCert;
-
-    if (cert.level) {
-      cert.organization = rndItem([CertOrg.NAR, CertOrg.TRA]);
-      cert.memberId = 3000 + rnd(15000);
-      cert.expires = Date.now() + rnd(365 * 24 * 3600e3);
-    }
-
     const attendee = {
       ...user,
-      cert,
+      certs: mockCerts(),
       waiverTime:
         Math.random() < 0.95
           ? Date.now() - Math.random() * 365 * 24 * 3600e3
@@ -223,6 +230,7 @@ function mockAttendees(root: DBRoot, launchId?: string) {
       // lat: 43.7954 + Math.random() * 0.0072,
       // lon: -120.6535 + Math.random() * 0.0109
     };
+
     root.attendees[launchId][attendee.id] = attendee;
   }
 
@@ -250,10 +258,12 @@ function mockOfficers(root: DBRoot, launchId?: string) {
     root.officers[launchId][auth.currentUser.uid] = true;
   }
   for (const attendee of attendees) {
-    if (attendee.cert?.level && Math.random() < 0.5) {
-      attendee.cert.verifiedId = rndItem(Object.keys(root.officers[launchId]));
-      attendee.cert.verifiedTime =
-        Date.now() - Math.random() * 365 * 24 * 3600e3;
+    if (!attendee.certs) continue;
+    for (const cert of Object.values(attendee.certs)) {
+      if (cert.level <= 0 || Math.random() < 0.5) continue;
+
+      cert.verifiedId = rndItem(Object.keys(root.officers[launchId]));
+      cert.verifiedTime = Date.now() - Math.random() * 365 * 24 * 3600e3;
     }
   }
 }

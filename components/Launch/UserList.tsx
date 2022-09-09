@@ -43,7 +43,7 @@ export function AttendeeInfo({
         <span className={'ms-2  ms-1 px-1'}>{'\u2605'}</span>
       )}
 
-      <CertDot className='ms-2 flex-grow-0' cert={attendee.cert} />
+      <CertDot className='ms-2 flex-grow-0' attendee={attendee} />
     </div>
   );
 }
@@ -95,7 +95,7 @@ function UserEditor({
       <Modal.Header closeButton>
         <Modal.Title>
           {user.name || ANONYMOUS}{' '}
-          <CertDot className='ms-4 flex-grow-1' cert={user.cert} showType />
+          <CertDot className='ms-4 flex-grow-1' attendee={user} showType />
         </Modal.Title>
       </Modal.Header>
 

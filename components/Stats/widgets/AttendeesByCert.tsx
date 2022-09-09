@@ -4,7 +4,7 @@ import { Bar, VictoryBar, VictoryChart } from 'victory';
 import { Loading } from '../../common/util';
 import { useAttendees } from '../../contexts/rthooks';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
-import certString from '/util/certString';
+import {certString} from '../../../util/cert-util';
 
 export function AttendeesByCert() {
   const [attendees] = useAttendees();

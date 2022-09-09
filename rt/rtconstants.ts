@@ -17,7 +17,9 @@ export const ATTENDEES_INDEX_PATH = new RTPath('/attendees');
 export const ATTENDEES_PATH =
   ATTENDEES_INDEX_PATH.append<LaunchIdField>(':launchId');
 export const ATTENDEE_PATH = ATTENDEES_PATH.append<AttendeeFields>(':userId');
-export const ATTENDEE_CERT_PATH = ATTENDEE_PATH.append('cert');
+export const ATTENDEE_CERTS_PATH = ATTENDEE_PATH.append('certs');
+export const ATTENDEE_TRA_CERT_PATH = ATTENDEE_PATH.append('certs/TRA');
+export const ATTENDEE_NAR_CERT_PATH = ATTENDEE_PATH.append('certs/NAR');
 export const ATTENDEE_ROLE_PATH = ATTENDEE_PATH.append('role');
 
 export const OFFICERS_PATH = new RTPath<LaunchIdField>('/officers/:launchId');

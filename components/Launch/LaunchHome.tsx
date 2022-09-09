@@ -5,7 +5,7 @@ import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee, useLaunch } from '../contexts/rthooks';
-import ProfileName from '../Profile/ProfileName';
+import ProfileName from '../Profile/NamePref';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
 import { auth } from '/rt';

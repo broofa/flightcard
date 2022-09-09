@@ -1,19 +1,21 @@
 import React, { HTMLAttributes } from 'react';
 import './CertDot.scss';
-import { iCert } from '/types';
+import { iAttendee } from '/types';
+import { certLevel, getCert } from '/util/cert-util';
 
 export function CertDot({
-  cert,
+  attendee,
   showType = false,
   className,
   ...props
 }: {
-  cert?: Partial<iCert>;
+  attendee?: iAttendee;
   showType?: boolean;
   disabled?: boolean;
   className?: string;
 } & HTMLAttributes<HTMLSpanElement>) {
-  let text = cert?.level ?? '?';
+  const cert = getCert(attendee);
+  let text = String(certLevel(attendee));
   let cn;
 
   if (showType && cert?.organization) text = cert?.organization + ' ' + text;

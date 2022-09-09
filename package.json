@@ -51,8 +51,7 @@
     "build": "npm run clean && parcel build index.html",
 
     "worker:start": "cd worker && yarn start",
-    "worker:deploy": "cd worker && yarn deploy",
-    "worker:publish": "cd worker && wrangler publish"
+    "worker:deploy": "cd worker && yarn deploy"
   },
   "repository": {
     "type": "git",
