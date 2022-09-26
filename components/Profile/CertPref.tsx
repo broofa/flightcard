@@ -115,7 +115,9 @@ export default function CertPref({
       ) : null}
       {fetchError && !isDebouncing ? (
         <Alert variant='warning'>
-          Failed to find info for member #{memberId}
+          Couldn't find certification info for member #{memberId}
+          <p className='text-tip'>Make sure your membership is current.</p>
+
         </Alert>
       ) : null}
 
