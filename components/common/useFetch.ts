@@ -1,3 +1,9 @@
+export class HTTPResponseError extends Error {
+  constructor(readonly message: string, readonly response: Response) {
+    super()
+  }
+}
+
 /**
  * Hook for issuing a fetch request.  (Candidate for `utils`?)
  *
@@ -29,7 +35,7 @@ export function fetchHelper<ResponseType>(
     fetch(url, { ...options, signal: controller.signal })
       .then(res => {
         if (!res.ok) {
-          throw new Error(`HTTP error ${res.status}`);
+          throw new HTTPResponseError(res.statusText, res);
         }
         return res.json();
       })

@@ -18,7 +18,11 @@
 const TRA_MEMBERS_LIST = 'https://tripoli.org/docs.ashx?id=916333';
 const NAR_MEMBERS_FORM =
   'https://www.nar.org/high-power-rocketry-info/hpr-cert-search/';
+
+const NAR_TIMEOUT = 30e3;
+
 const BUCKET_SIZE = 1000;
+
 const DOMAIN_WHITELIST = /\.flightcard\.org$|^localhost$/;
 
 // Tripoli uses some special codes for their cert levels, which we need to map
@@ -192,14 +196,24 @@ async function updateTripoliKV(env: Env) {
 
 async function fetchNAR(
   memberId: number,
-  env: Env
+  env?: Env
 ): Promise<iCert | undefined> {
   const fd = new FormData();
   fd.set('nar_number', String(memberId));
-  const resp = await fetch(NAR_MEMBERS_FORM, { method: 'POST', body: fd });
+
+  const resp: Response | undefined = await Promise.race([
+    new Promise<undefined>(resolve =>
+      setTimeout(() => resolve(undefined), NAR_TIMEOUT)
+    ),
+    fetch(NAR_MEMBERS_FORM, { method: 'POST', body: fd }),
+  ]);
+
+  if (!resp) {
+    throw new HTTPError('NAR form timed out', 408);
+  }
 
   if (!resp.ok) {
-    throw new HTTPError('Error querying NAR DB', 502);
+    throw new HTTPError('NAR form error', 502);
   }
 
   const text = await resp.text();

@@ -15,7 +15,6 @@ export default function ProfilePage() {
   if (!launch) return <Loading wat='Launch' />;
 
   const isVerified = getCertVerified(attendee);
-  console.log('IS VERIFIED', isVerified);
 
   return (
     <>

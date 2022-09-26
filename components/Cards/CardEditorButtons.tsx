@@ -167,7 +167,6 @@ export function PadSelect({
 
   function setPad(e: ChangeEvent<HTMLSelectElement>) {
     const padId = e.currentTarget.value;
-    console.log('PADID', padId);
     busy(e.currentTarget, updateCard(card, { padId }));
   }
 

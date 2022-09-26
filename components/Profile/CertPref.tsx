@@ -1,5 +1,6 @@
 import React, {
   ChangeEvent,
+  HTMLAttributes,
   InputHTMLAttributes,
   useCallback,
   useEffect,
@@ -7,7 +8,7 @@ import React, {
 } from 'react';
 import { Alert, FloatingLabel, Form } from 'react-bootstrap';
 import { errorTrap } from '../common/Flash';
-import { fetchHelper } from '../common/useFetch';
+import { fetchHelper, HTTPResponseError } from '../common/useFetch';
 import { cn, Loading } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import {
@@ -18,9 +19,34 @@ import {
 import { CertOrg, iCert } from '/types';
 import useDebounce from '/util/useDebounce';
 
-const MEMBER_URL = 'https://club-members.robert4852.workers.dev';
-// const MEMBER_URL = 'http://localhost:6543';
+function Emoji({
+  code,
+  ...props
+}: { code: number } & HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span
+      {...props}
+      style={{
+        fontSize: '2em',
+        top: '.1em',
+        left: '.1em',
+        width: 0,
+        display: 'inline-block',
+        position: 'relative',
+        lineHeight: '0em',
+      }}
+    >
+      {String.fromCodePoint(code)}
+    </span>
+  );
+}
 
+const isDev = process.env.NODE_ENV === 'development';
+
+const MEMBER_URL = isDev
+  ? 'http://localhost:6543'
+  : 'https://club-members.robert4852.workers.dev';
+console.log('isDev', isDev, 'MEMBER_URL', MEMBER_URL);
 export default function CertPref({
   attendeeFields,
   org,
@@ -55,7 +81,7 @@ export default function CertPref({
 
   const memberNum = parseInt(debouncedMemberId ?? '');
   const memberInfoUrl =
-    !isDebouncing && !isNaN(memberNum)
+    isChanged && !isDebouncing && !isNaN(memberNum)
       ? `${MEMBER_URL}?org=${org}&id=${memberNum}`
       : undefined;
 
@@ -74,7 +100,7 @@ export default function CertPref({
 
   // Effect to fetch member info once user has stopped typing
   useEffect(() => {
-    if (!isChanged || !memberInfoUrl) return;
+    if (!memberInfoUrl) return;
 
     const fetchAbort = fetchHelper<iCert>(memberInfoUrl, {
       setData(cert) {
@@ -91,7 +117,6 @@ export default function CertPref({
   }, [memberInfoUrl, rtPath]);
 
   if (dbCertLoading) return <Loading wat='certification' />;
-
   return (
     <div className={cn(className, `d-flex flex-column flex-sm-row`)} {...props}>
       <FloatingLabel
@@ -110,14 +135,21 @@ export default function CertPref({
       {org === CertOrg.NAR && fetchLoading ? (
         <div className='text-tip'>
           One moment, please. NAR's site usually takes 10-20 seconds to respond.{' '}
-          {'\u{1f622}'}
+          <Emoji code={0x1f914} />
         </div>
       ) : null}
       {fetchError && !isDebouncing ? (
-        <Alert variant='warning'>
-          Couldn't find certification info for member #{memberId}
-          <p className='text-tip'>Make sure your membership is current.</p>
-        </Alert>
+        (fetchError as HTTPResponseError).response?.status === 408 ? (
+          <Alert variant='warning'>
+            {org}'s site is not responding. Try again later, perhaps?{' '}
+            <Emoji code={0x1f9a5} />
+          </Alert>
+        ) : (
+          <Alert variant='warning'>
+            Couldn't find certification info for member #{memberId}
+            <p className='text-tip'>Make sure your membership is current.</p>
+          </Alert>
+        )
       ) : null}
 
       {dbCert && !dbCertLoading && !fetchLoading ? (
@@ -132,12 +164,15 @@ export default function CertPref({
           certified thru {new Date(dbCert.expires ?? 0).toLocaleDateString()}
           {dbCert?.verifiedTime ? (
             <p className='text-tip text-success'>
-              Nice, you've been verified!  (Now don't change this, otherwise you'll have to reverify!)
+              Nice, you've been verified! (Don't change this, otherwise you'll
+              have to reverify!)
             </p>
-          ) : <p className='text-tip text-warning'>
-          Please see one of the club officers so they can verify this information.
-        </p>
-}
+          ) : (
+            <p className='text-tip text-warning'>
+              Please see one of the club officers so they can verify this
+              information.
+            </p>
+          )}
         </div>
       ) : null}
     </div>
