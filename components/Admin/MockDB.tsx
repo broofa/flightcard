@@ -179,13 +179,18 @@ function mockLaunches(root: DBRoot) {
   }
 }
 
-function mockCerts() {
-  const certs: iCerts = {};
+function mockCerts(name = '') {
+  const [firstName, lastName] = (name ?? '')
+    .replace(MOCK_NAME_SUFFIX, '')
+    .split(' ');
 
+  const certs: iCerts = {};
   for (const organization of [CertOrg.NAR, CertOrg.TRA]) {
     if (!rnd(2)) continue;
 
     certs[organization] = {
+      firstName,
+      lastName,
       level: rndItem([0, 0, 1, 1, 1, 2, 2, 2, 3]),
       organization,
       memberId: 3000 + rnd(15000),
@@ -220,7 +225,7 @@ function mockAttendees(root: DBRoot, launchId?: string) {
   for (const user of Object.values(root.users).slice(0, 20)) {
     const attendee = {
       ...user,
-      certs: mockCerts(),
+      certs: mockCerts(user.name),
       waiverTime:
         Math.random() < 0.95
           ? Date.now() - Math.random() * 365 * 24 * 3600e3
@@ -263,7 +268,7 @@ function mockOfficers(root: DBRoot, launchId?: string) {
       if (cert.level <= 0 || Math.random() < 0.5) continue;
 
       cert.verifiedId = rndItem(Object.keys(root.officers[launchId]));
-      cert.verifiedTime = Date.now() - Math.random() * 365 * 24 * 3600e3;
+      cert.verifiedTime = Date.now() - rnd( 365 * 24 * 3600e3);
     }
   }
 }

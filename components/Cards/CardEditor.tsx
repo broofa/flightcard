@@ -14,7 +14,7 @@ import { MotorDetail } from './MotorDetail';
 import { MotorEditor } from './MotorEditor';
 import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
-import { Loading } from '/components/common/util';
+import { cn, Loading } from '/components/common/util';
 import { useRTValue } from '/rt';
 import { MKS } from '/util/units';
 
@@ -33,7 +33,7 @@ function FormSection({
   ...props
 }: { className?: string } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
+    <div className={cn(className, `text-muted h2 mt-3`)} {...props}>
       {children}
     </div>
   );

@@ -2,9 +2,11 @@ import React, { HTMLAttributes } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ColorChits from '../Cards/ColorChits';
 import { Loading } from '../common/util';
+import { Warning } from '../common/Warning';
 import { useAttendees } from '../contexts/rthooks';
 import '/components/Launch/LaunchCard.scss';
 import { iAttendee, iCard } from '/types';
+import { getCertLevel, getCertVerified } from '/util/cert-util';
 import { totalImpulseClass } from '/util/motor-util';
 
 export function LaunchCard({
@@ -24,23 +26,25 @@ export function LaunchCard({
 
   const impulseClass = totalImpulseClass(motors);
   const warnings = [];
-  const isVerified = user?.cert?.verifiedTime ? true : false;
-  const certLevel = user.cert?.level ?? 0;
+  const isVerified = getCertVerified(user);
+  const certLevel = getCertLevel(user, true);
 
-  if (!impulseClass) {
-    warnings.push(
-      'Unknown rocket impulse (Is flier certified for this flight?)'
-    );
-  } else if (impulseClass > 'L' && certLevel < 3) {
-    warnings.push(`Flier is not L3 certified`);
-  } else if (impulseClass > 'I' && certLevel < 2) {
-    warnings.push(`Flier is not L2 certified`);
-  } else if (impulseClass > 'H' && certLevel < 1) {
-    warnings.push(`Flier is not L1 certified`);
-  }
-
-  if (!impulseClass || (impulseClass > 'H' && !isVerified)) {
-    warnings.push('Verify flier certification');
+  if (isVerified) {
+    if (!impulseClass) {
+      warnings.push(
+        'Unknown rocket impulse (Is flier certified for this flight?)'
+      );
+    } else if (impulseClass > 'L' && certLevel < 3) {
+      warnings.push(`Flier not L3 certified`);
+    } else if (impulseClass > 'I' && certLevel < 2) {
+      warnings.push(`Flier not L2 certified`);
+    } else if (impulseClass > 'H' && certLevel < 1) {
+      warnings.push(`Flier not L1 certified`);
+    }
+  } else {
+    if (!impulseClass || (impulseClass > 'H' && !isVerified)) {
+      warnings.push('Verify flier cert');
+    }
   }
 
   return (
@@ -50,9 +54,11 @@ export function LaunchCard({
     >
       <div className='flex-grow-1  align-self-center'>
         {user.name} &mdash; "{card?.rocket?.name ?? '(unnamed)'}"
-        {warnings.length > 0 ? (
-          <div className='text-danger'>
-            {'\u{26A0}'} {warnings.join(', ')}
+        {warnings.length ? (
+          <div>
+            {warnings.map(w => (
+              <Warning key={w}>{w}</Warning>
+            ))}
           </div>
         ) : null}
       </div>

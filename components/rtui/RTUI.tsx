@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { Form, FormCheckProps } from 'react-bootstrap';
-import { sig } from '../common/util';
+import { cn, sig } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import { RTPath } from '/rt/RTPath';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
@@ -96,7 +96,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       >(rtpath.append(field, {}), '', STRING_ADAPTER);
 
       return (
-        <div className={`form-floating ${className ?? ''}`}>
+        <div className={cn(className, `form-floating`)}>
           <input
             id={id}
             placeholder={id}

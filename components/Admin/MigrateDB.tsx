@@ -15,32 +15,6 @@ import {
 } from '/rt/rtconstants';
 import { iAttendees, iCards, iPad, iPads } from '/types';
 
-async function completed_migrateCerts() {
-  log(<h3>Migrating attendee certs...</h3>);
-  const allAttendees = await rtGet<Record<string, iAttendees>>(
-    ATTENDEES_INDEX_PATH
-  );
-  for (const [launchId, attendees] of Object.entries(allAttendees)) {
-    log(<h4>{launchId}</h4>);
-    for (const [userId, attendee] of Object.entries(attendees)) {
-      const cert = attendee.cert;
-      if (!cert) continue;
-
-      if (cert.memberId != null) {
-        // cert.memberId = cert.memberId;
-        const rtPath = ATTENDEE_PATH.with({ launchId, userId });
-        const p = rtSet(rtPath, cert);
-        const entry = (
-          <div>
-            <Busy promise={p} text={`Updating ${rtPath}`} />
-          </div>
-        );
-        log(entry);
-      }
-    }
-  }
-}
-
 async function complete_migrateMotors() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
   const allCards = await rtGet<Record<string, iCards>>(CARDS_INDEX_PATH);

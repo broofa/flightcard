@@ -82,13 +82,6 @@ export function useRTValue<T = never>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
 
-  try {
-    const pathString = path.toString();
-    if (/\/launches/.test(pathString)) {
-      console.log('PATH', path.id, pathString, setter);
-    }
-  } catch (err) {}
-
   useEffect(() => {
     // Silently ignore attempts to use invalid paths.
     if (!path.isValid()) {
@@ -115,10 +108,7 @@ export function useRTValue<T = never>(
       }
     );
 
-    return () => {
-      console.log('Unsubscribing', String(path));
-      unsubscribe();
-    };
+    return unsubscribe;
   }, [path, setter]);
 
   return [val, loading, error];

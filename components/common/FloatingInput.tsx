@@ -1,4 +1,10 @@
-import React, { cloneElement, ForwardedRef, InputHTMLAttributes, ReactElement, Ref } from 'react';
+import React, {
+  cloneElement,
+  ForwardedRef,
+  InputHTMLAttributes,
+  ReactElement,
+} from 'react';
+import { cn } from './util';
 
 function FloatingInput(
   {
@@ -18,7 +24,7 @@ function FloatingInput(
   id = id.replace(/\s+/g, '_').toLowerCase();
 
   return (
-    <div style={style} className={`form-floating ${className ?? ''}`}>
+    <div style={style} className={cn(className, `form-floating`)}>
       <input
         ref={ref}
         id={id}

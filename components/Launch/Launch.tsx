@@ -1,7 +1,6 @@
 import React, { HTMLAttributes } from 'react';
 import { Alert } from 'react-bootstrap';
 import { Route, Routes } from 'react-router-dom';
-import { arraySort } from '/util/arrayUtils';
 import CardEditor from '../Cards/CardEditor';
 import CardSummary from '../Cards/CardSummary';
 import { useCurrentUser } from '../contexts/rthooks';
@@ -11,10 +10,11 @@ import { CardsPane } from './CardsPane';
 import { LCOPane } from './LCOPane';
 import { RSOPane } from './RSOPane';
 import { UsersPane } from './UsersPane';
-import { Loading } from '/components/common/util';
+import { cn, Loading } from '/components/common/util';
 import { LaunchCard } from '/components/Launch/LaunchCard';
 import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
 import { iAttendees, iCard } from '/types';
+import { arraySort } from '/util/arrayUtils';
 
 export function CardList({
   cards,
@@ -48,7 +48,10 @@ function PadName({
 }: HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={`flex-grow-0 px-1 bg-dark text-light text-center ${className}`}
+      className={cn(
+        className,
+        `flex-grow-0 px-1 bg-dark text-light text-center`
+      )}
       style={{ minWidth: '2em' }}
     >
       {children}

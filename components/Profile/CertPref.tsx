@@ -1,40 +1,25 @@
 import React, {
   ChangeEvent,
   InputHTMLAttributes,
+  useCallback,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { Alert, FloatingLabel, Form } from 'react-bootstrap';
-import { busy } from '../common/util';
-import { rtuiFromPath } from '../rtui/RTUI';
-import { DELETE, rtSet } from '/rt';
+import { errorTrap } from '../common/Flash';
+import { fetchHelper } from '../common/useFetch';
+import { cn, Loading } from '../common/util';
+import { DELETE, rtSet, useRTValue } from '/rt';
 import {
   AttendeeFields,
   ATTENDEE_NAR_CERT_PATH,
-  ATTENDEE_PATH,
   ATTENDEE_TRA_CERT_PATH,
 } from '/rt/rtconstants';
-import { CertLevel, CertOrg, iCert } from '/types';
+import { CertOrg, iCert } from '/types';
 import useDebounce from '/util/useDebounce';
 
-const MEMBER_URL = 'https://club-members.robert4852.workers.dev?id=ID&org=ORG';
-const NONE = Symbol('none');
-const FETCHING = Symbol('fetching');
-const FAILED = Symbol('failed');
-
-type CertInfo = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  level: CertLevel;
-  expires: number;
-  org: CertOrg;
-};
-
-function isMember(obj: CertInfo | symbol): obj is CertInfo {
-  return typeof obj === 'object' && obj?.id !== undefined;
-}
+const MEMBER_URL = 'https://club-members.robert4852.workers.dev';
+// const MEMBER_URL = 'http://localhost:6543';
 
 export default function CertPref({
   attendeeFields,
@@ -45,112 +30,105 @@ export default function CertPref({
   attendeeFields: AttendeeFields;
   org: CertOrg;
 } & InputHTMLAttributes<HTMLInputElement>) {
+  const rtPath =
+    org === CertOrg.TRA
+      ? ATTENDEE_TRA_CERT_PATH.with(attendeeFields)
+      : ATTENDEE_NAR_CERT_PATH.with(attendeeFields);
+
+  const [isChanged, setIsChanged] = useState(false);
   const [memberId, setMemberId] = useState<string>('');
-  const [certInfo, setCertInfo] = useState<CertInfo | symbol>(NONE);
-  const rtui = rtuiFromPath(ATTENDEE_PATH.with(attendeeFields));
-  const inputField = useRef<HTMLInputElement>(null);
 
-  const debouncedMemberId = useDebounce(
-    memberId,
-    org == CertOrg.TRA ? 500 : 1000
+  const [dbCert, dbCertLoading] = useRTValue<iCert>(
+    rtPath,
+    useCallback(
+      (cert?: iCert) => {
+        // Set member id field if it hasn't been changed yet
+        if (!isChanged) setMemberId(String(cert?.memberId ?? ''));
+      },
+      [isChanged]
+    )
   );
-  const clubName = org == CertOrg.TRA ? 'Tripoli' : 'NAR';
 
-  useEffect(() => {
-    if (debouncedMemberId == null) return;
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error>();
+  const [debouncedMemberId, isDebouncing] = useDebounce(memberId, 500);
 
-    // (Insert grumbling here... https://github.com/whatwg/dom/issues/981)
-    const controller = new AbortController();
-    const signal = controller.signal;
+  const memberNum = parseInt(debouncedMemberId ?? '');
+  const memberInfoUrl =
+    !isDebouncing && !isNaN(memberNum)
+      ? `${MEMBER_URL}?org=${org}&id=${memberNum}`
+      : undefined;
 
-    (async function () {
-      try {
-        const rtPath =
-          org === CertOrg.TRA
-            ? ATTENDEE_TRA_CERT_PATH.with(attendeeFields)
-            : ATTENDEE_NAR_CERT_PATH.with(attendeeFields);
-
-        if (!debouncedMemberId) {
-          await rtSet(rtPath, DELETE);
-          setCertInfo(NONE);
-          return;
-        }
-
-        setCertInfo(FETCHING);
-        const req = fetch(
-          MEMBER_URL.replace('ID', debouncedMemberId).replace('ORG', org),
-          {
-            signal,
-          }
-        );
-        busy(inputField.current, req);
-        const resp = await req;
-        if (resp.ok) {
-          const cert: CertInfo = await resp.json();
-          setCertInfo(cert);
-
-          console.log('CERT', cert);
-          const newCert: iCert = {
-            memberId: cert.id,
-            organization: org,
-            level: cert.level,
-            expires: cert.expires,
-          };
-          rtSet(rtPath, newCert ?? DELETE);
-        } else {
-          setCertInfo(FAILED);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-
-    return () => controller.abort();
-  }, [org, debouncedMemberId]);
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+  function handleMemberIdChange(e: ChangeEvent<HTMLInputElement>) {
     setMemberId(e.target.value);
+    setIsChanged(true);
+    setFetchError(undefined);
   }
 
+  // Effect to clear loading/error state when user is typing
+  useEffect(() => {
+    if (!isDebouncing) return;
+    setFetchLoading(false);
+    setFetchError(undefined);
+  }, [isDebouncing]);
+
+  // Effect to fetch member info once user has stopped typing
+  useEffect(() => {
+    if (!isChanged || !memberInfoUrl) return;
+
+    const fetchAbort = fetchHelper<iCert>(memberInfoUrl, {
+      setData(cert) {
+        errorTrap(rtSet(rtPath, cert ?? DELETE));
+      },
+      setLoading: setFetchLoading,
+      setError(err) {
+        setFetchError(err);
+        if (err) errorTrap(rtSet(rtPath, DELETE));
+      },
+    });
+
+    return fetchAbort;
+  }, [memberInfoUrl, rtPath]);
+
+  if (dbCertLoading) return <Loading wat='certification' />;
+
   return (
-    <div className={`${className} d-flex flex-column flex-sm-row`} {...props}>
+    <div className={cn(className, `d-flex flex-column flex-sm-row`)} {...props}>
       <FloatingLabel
-        label={`${clubName} member #`}
+        label={`${org == CertOrg.TRA ? 'Tripoli' : 'NAR'} member #`}
         className='flex-shrink-0 me-2 mb-2'
       >
         <Form.Control
-          ref={inputField}
+          className={cn({ busy: fetchLoading })}
           type='number'
           placeholder='e.g. 12345'
           value={memberId}
-          onChange={handleChange}
+          onChange={handleMemberIdChange}
         />
       </FloatingLabel>
 
-      {org === CertOrg.NAR && certInfo === FETCHING ? (
+      {org === CertOrg.NAR && fetchLoading ? (
         <div className='text-tip'>
-          Fetching member info from NAR's website. This usually takes 10-15
-          seconds. {'\u{1f622}'}
+          One moment, please. NAR's site usually takes 10-20 seconds to respond.{' '}
+          {'\u{1f622}'}
         </div>
       ) : null}
-      {certInfo === FAILED ? (
+      {fetchError && !isDebouncing ? (
         <Alert variant='warning'>
-          {org === CertOrg.TRA
-            ? `No active certification found for member #${debouncedMemberId}`
-            : `Member #${debouncedMemberId} not found`}
+          Failed to find info for member #{memberId}
         </Alert>
       ) : null}
 
-      {isMember(certInfo) ? (
+      {dbCert && !dbCertLoading && !fetchLoading ? (
         <div className='flex-grow-1'>
           <strong>
-            {certInfo.firstName} {certInfo.lastName}
+            {dbCert.firstName} {dbCert.lastName}
           </strong>{' '}
           is{' '}
           <strong>
-            {org} L-{certInfo.level}
+            {org} L-{dbCert.level}
           </strong>{' '}
-          certified thru {new Date(certInfo.expires).toLocaleDateString()}
+          certified thru {new Date(dbCert.expires ?? 0).toLocaleDateString()}
         </div>
       ) : null}
     </div>

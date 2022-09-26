@@ -37,7 +37,7 @@ const TRIPOLI_CERT_MAP: Record<string, string> = {
 };
 
 export interface Env {
-  TripoliMembers: KVNamespace;
+  ClubMembers: KVNamespace;
 }
 
 class HTTPError extends Error {
@@ -46,7 +46,7 @@ class HTTPError extends Error {
   }
 }
 
-// Cert types from types.ts#iCert
+// Cert types (copy from types.ts#iCert)
 export type Timestamp = number;
 export enum CertLevel {
   NONE = 0,
@@ -108,7 +108,7 @@ export default {
       return new Response(
         JSON.stringify({
           error: message,
-          stack: statusCode ? undefined : stack,
+          stack: statusCode ? undefined : stack?.split(/\n/g),
         }),
         {
           status: statusCode ?? 500,
@@ -127,7 +127,6 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    console.log('SCSDUILFSDUFSLDS');
     ctx.waitUntil(updateTripoliKV(env));
   },
 };
@@ -169,7 +168,7 @@ async function updateTripoliKV(env: Env) {
   const groups: Record<string, CertGroup> = {};
 
   // Record the last update time (attempt)
-  await env.TripoliMembers.put('lastUpdate', JSON.stringify(Date.now()));
+  await env.ClubMembers.put('lastUpdate', JSON.stringify(Date.now()));
 
   // Group certs into buckets
   for (const cert of certs) {
@@ -186,7 +185,7 @@ async function updateTripoliKV(env: Env) {
   //  NOTE: CF limits free plan to 1,000 writes per day, which is why we do this in buckets
   await Promise.allSettled(
     Object.entries(groups).map(([k, v]) => {
-      return env.TripoliMembers.put(String(k), JSON.stringify(v));
+      return env.ClubMembers.put(String(k), JSON.stringify(v));
     })
   );
 }
@@ -248,7 +247,7 @@ async function fetchTRA(memberId: number, env: Env) {
   const bucketId = memberId ? String(Math.floor(memberId / BUCKET_SIZE)) : null;
 
   const certBucket = bucketId
-    ? await env.TripoliMembers.get<CertGroup>(bucketId, {
+    ? await env.ClubMembers.get<CertGroup>(bucketId, {
         type: 'json',
       })
     : null;
