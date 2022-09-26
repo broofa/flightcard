@@ -117,12 +117,11 @@ export default function CertPref({
         <Alert variant='warning'>
           Couldn't find certification info for member #{memberId}
           <p className='text-tip'>Make sure your membership is current.</p>
-
         </Alert>
       ) : null}
 
       {dbCert && !dbCertLoading && !fetchLoading ? (
-        <div className='flex-grow-1'>
+        <div className='flex-grow-1 ms-3'>
           <strong>
             {dbCert.firstName} {dbCert.lastName}
           </strong>{' '}
@@ -131,6 +130,14 @@ export default function CertPref({
             {org} L-{dbCert.level}
           </strong>{' '}
           certified thru {new Date(dbCert.expires ?? 0).toLocaleDateString()}
+          {dbCert?.verifiedTime ? (
+            <p className='text-tip text-success'>
+              Nice, you've been verified!  (Now don't change this, otherwise you'll have to reverify!)
+            </p>
+          ) : <p className='text-tip text-warning'>
+          Please see one of the club officers so they can verify this information.
+        </p>
+}
         </div>
       ) : null}
     </div>
