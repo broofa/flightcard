@@ -1,17 +1,19 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { ANONYMOUS } from '../App/App';
+import { Warning } from '../common/Warning';
 import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
 import { useAttendees, useCurrentUser, useLaunch } from '../contexts/rthooks';
 import { CertDot } from '/components/common/CertDot';
-import { Loading } from '/components/common/util';
+import { cn, Loading } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';
 import {
-  ATTENDEE_CERT_PATH,
+  ATTENDEE_NAR_CERT_PATH,
   ATTENDEE_PATH,
+  ATTENDEE_TRA_CERT_PATH,
   OFFICER_PATH,
 } from '/rt/rtconstants';
-import { iAttendee, iCert, iPerm } from '/types';
+import { CertOrg, iAttendee, iCert, iPerm } from '/types';
 import { arraySort } from '/util/arrayUtils';
 
 export function AttendeeInfo({
@@ -27,7 +29,7 @@ export function AttendeeInfo({
   const roleApi = useRoleAPI();
 
   return (
-    <div className={`d-flex align-items-center ${className ?? ''}`} {...props}>
+    <div className={cn(className, `d-flex align-items-center`)} {...props}>
       {attendee.photoURL && !hidePhoto && (
         <img src={attendee.photoURL} style={{ height: '48px' }} />
       )}
@@ -43,7 +45,7 @@ export function AttendeeInfo({
         <span className={'ms-2  ms-1 px-1'}>{'\u2605'}</span>
       )}
 
-      <CertDot className='ms-2 flex-grow-0' cert={attendee.cert} />
+      <CertDot className='ms-2 flex-grow-0' attendee={attendee} />
     </div>
   );
 }
@@ -67,19 +69,25 @@ function UserEditor({
   const isOfficer = roleApi.isOfficer(userId);
   const rtFields = { launchId, userId };
 
-  const [user] = useRTValue<iAttendee>(ATTENDEE_PATH.with(rtFields));
+  const [attendee] = useRTValue<iAttendee>(ATTENDEE_PATH.with(rtFields));
 
-  if (!user) return <Loading wat='User' />;
+  if (!attendee) return <Loading wat='User' />;
   if (!currentUser) return <Loading wat='Current user' />;
 
-  const onVerify = function (e: ChangeEvent<HTMLInputElement>) {
+  const onVerify = function (organization: CertOrg, verified: boolean) {
+    const rtPath =
+      organization === 'TRA'
+        ? ATTENDEE_TRA_CERT_PATH.with(rtFields)
+        : ATTENDEE_NAR_CERT_PATH.with(rtFields);
+
     const cert = {
-      // Properties to update
-      verifiedId: e.target.checked ? currentUser.id : DELETE,
-      verifiedTime: e.target.checked ? Date.now() : DELETE,
+      verifiedId: verified ? currentUser.id : DELETE,
+      verifiedTime: verified ? Date.now() : DELETE,
     };
 
-    return rtUpdate<iCert>(ATTENDEE_CERT_PATH.with(rtFields), cert);
+    console.log(organization, cert);
+
+    return rtUpdate<iCert>(rtPath, cert);
   };
 
   const onOfficerToggle = async function (e: ChangeEvent<HTMLInputElement>) {
@@ -93,26 +101,60 @@ function UserEditor({
   return (
     <Modal size='lg' show={true} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>
-          {user.name || ANONYMOUS}{' '}
-          <CertDot className='ms-4 flex-grow-1' cert={user.cert} showType />
-        </Modal.Title>
+        <Modal.Title>{attendee.name || ANONYMOUS} </Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
-        <Form.Switch
-          inline
-          id={'verified'}
-          className='ms-2'
-          label='Certification verified'
-          onChange={onVerify}
-          disabled={(user.cert?.level ?? 0) <= 0}
-          checked={!!user?.cert?.verifiedTime}
-        />
+        <h3>Certifications</h3>
+        {Object.values(attendee.certs ?? []).map(cert => {
+          const certLevel = cert.level;
+          const certVerified = !!cert.verifiedId;
 
+          return (
+            <div
+              key={cert.organization}
+              className='card p-2 mb-2 ms-2'
+              style={{ maxWidth: '25em' }}
+            >
+              <div className='d-flex'>
+                <div className='d-flex flex-grow-1'>
+                  {cert.organization} #{cert.memberId ?? '???'}
+                </div>
+                <div>Level {certLevel}</div>
+              </div>
+
+              <div className='d-flex'>
+                <div className='flex-grow-1'>
+                  {cert.firstName} {cert.lastName}
+                </div>
+                <div>
+                  Expires {new Date(cert.expires ?? 0).toLocaleDateString()}
+                </div>
+              </div>
+
+              <div className='d-flex'>
+                <Form.Check
+                  inline
+                  id={`verified-${cert.organization}`}
+                  className='flex-grow-1'
+                  label={`Verified`}
+                  onChange={() =>
+                    onVerify(cert.organization ?? CertOrg.TRA, !certVerified)
+                  }
+                  checked={certVerified}
+                />
+                <span>
+                  {cert.verifiedId ? '' : <Warning>Needs Verification</Warning>}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+
+        <h3>Role</h3>
         <Form.Switch
           id={'officer'}
-          className='ms-2 mt-4'
+          className='ms-2'
           label='Club officer (RSO / LCO qualified)'
           onChange={onOfficerToggle}
           checked={isOfficer ?? false}

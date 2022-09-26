@@ -1,29 +1,41 @@
 import React, { HTMLAttributes } from 'react';
 import './CertDot.scss';
-import { iCert } from '/types';
+import { Warning } from './Warning';
+import { iAttendee } from '/types';
+import { getCert, getCertLevel } from '/util/cert-util';
 
 export function CertDot({
-  cert,
+  attendee,
   showType = false,
   className,
   ...props
 }: {
-  cert?: Partial<iCert>;
+  attendee?: iAttendee;
   showType?: boolean;
   disabled?: boolean;
   className?: string;
 } & HTMLAttributes<HTMLSpanElement>) {
-  let text = cert?.level ?? '?';
+  const cert = getCert(attendee);
+  const verifiedCert = getCert(attendee, true);
+
+  let text = String(getCertLevel(attendee));
   let cn;
 
-  if (showType && cert?.organization) text = cert?.organization + ' ' + text;
+  if (!verifiedCert) {
+    if (cert) {
+      return <Warning />;
+      // text = '\u26a0';
+      // cn = 'cert-dot-unverified';
+    } else {
+      return null;
+    }
+  } else {
+    text = `L${verifiedCert.level}`;
+    cn = `cert-dot-${verifiedCert.level}`;
 
-  if (!cert?.level || cert?.verifiedTime) {
-    cn = `cert-dot-${cert?.level ?? 0}`;
-  }
-  if (cert?.level && !cert?.verifiedTime) {
-    text += '\u26a0';
-    cn = 'cert-dot-unverified';
+    if (showType) {
+      text = `${cert?.organization} ${text}`;
+    }
   }
 
   return (

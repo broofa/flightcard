@@ -30,9 +30,9 @@ export default function UnitsPref({
         size='sm'
         id='unit-mks'
         value='mks'
-        style={{ fontSize: '2em', lineHeight: '0.9em', padding: '0 0.2em' }}
+        style={{ fontSize: '1.4em', lineHeight: '1.4em', padding: '0 0.5em' }}
       >
-        <span className='no-invert'>{'\u{1F1EA}\u{1F1FA}'}</span>
+        <span className='no-invert'>{'\u{1F30E}'}</span>
       </ToggleButton>
       <ToggleButton
         variant='outline-primary'

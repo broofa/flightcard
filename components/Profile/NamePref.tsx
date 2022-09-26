@@ -10,5 +10,10 @@ export default function ProfileName({
 } & InputHTMLAttributes<HTMLInputElement>) {
   const rtui = rtuiFromPath(ATTENDEE_PATH.with(attendeeFields));
 
-  return <rtui.StringInput label='Name' field='name' {...props} />;
+  return (
+    <>
+      <h2>Name</h2>
+      <rtui.StringInput label='Name' field='name' {...props} />
+    </>
+  );
 }

@@ -4,7 +4,7 @@ import { useIsOfficer } from '../contexts/OfficersContext';
 import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
-import { Loading, sig } from '/components/common/util';
+import { cn, Loading, sig } from '/components/common/util';
 import { useRTValue } from '/rt';
 import { MKS, unitConvert } from '/util/units';
 
@@ -24,7 +24,7 @@ function FormSection({
   ...props
 }: { className?: string } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`text-muted h2 mt-3 ${className ?? ''}`} {...props}>
+    <div className={cn(className, `text-muted h2 mt-3`)} {...props}>
       {children}
     </div>
   );

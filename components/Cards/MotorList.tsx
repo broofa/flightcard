@@ -8,7 +8,7 @@ import { iMotor } from '/types';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
 import { getMotor } from '/util/motor-util';
 
-const tcLogo = new URL('/art/thrustcurve.svg', import.meta.url);
+const LOGO_THRUSTCURVE = new URL('/art/thrustcurve.svg', import.meta.url);
 
 function MotorButton({
   motor,
@@ -44,7 +44,7 @@ function MotorButton({
         {tcMotor?.sparky ? (
           <Sparky style={{ width: '40px' }} />
         ) : (
-          <Image src={String(tcLogo)} style={{ height: '2.5em' }} />
+          <Image src={String(LOGO_THRUSTCURVE)} style={{ height: '2.5em' }} />
         )}
       </Button>
     </ButtonGroup>

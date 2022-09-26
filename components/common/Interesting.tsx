@@ -1,4 +1,5 @@
 import React, { HTMLAttributes } from 'react';
+import { cn } from './util';
 
 const INTERESTING = [
   new URL('/media/interesting.webm', import.meta.url).toString(),
@@ -14,9 +15,10 @@ export default function Interesting({
     <div
       style={{ position: 'relative', width: '200px' }}
       {...props}
-      className={`${className} no-invert`}
+      className={cn(className, `no-invert`)}
     >
-      <video className='bg-dark'
+      <video
+        className='bg-dark'
         autoPlay={true}
         height='150'
         loop={true}

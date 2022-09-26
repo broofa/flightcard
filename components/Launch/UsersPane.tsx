@@ -5,6 +5,7 @@ import { useLaunch } from '../contexts/rthooks';
 import { UserList } from './UserList';
 import { LinkButton, Loading } from '/components/common/util';
 import { iAttendee, iPerm } from '/types';
+import { getCertLevel } from '/util/cert-util';
 
 export const OFFICERS = 'officers';
 export const LOW_POWER = 'low';
@@ -15,11 +16,11 @@ function officerUsers(user?: iAttendee, isOfficer?: iPerm) {
 }
 
 function lowPowerUsers(user: iAttendee) {
-  return (user.cert?.level ?? 0) == 0;
+  return getCertLevel(user) == 0;
 }
 
 function highPowerUsers(user: iAttendee) {
-  return (user.cert?.level ?? 0) > 0;
+  return getCertLevel(user) > 0;
 }
 
 export function UsersPane() {

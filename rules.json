@@ -6,8 +6,9 @@
 
     "users": {
       "$userId": {
-        // User info is visible to the user
+        // Readable only by user
         ".read": "$userId === auth.uid",
+        // Editable only by user
         ".write": "$userId === auth.uid"
       }
     },
@@ -15,29 +16,33 @@
     "attendees":  {
       "$launchId": {
       	".read" : true,
-          
-        // Deletable when launch no longer exists
-        ".write": "!newData.exists() && !root.child('launches').child($launchId).exists()",
+
+        // Only deletable when launch no longer exists
+        ".write": "newData.exists() || !root.child('launches').child($launchId).exists()",
 
         "$userId": {
          	"role": {
-     	     	".write": "$userId === auth.uid" 
+     	     	".write": "$userId === auth.uid"
           },
 
           "name": {
-     	     	".write": "$userId === auth.uid" 
+     	     	".write": "$userId === auth.uid"
           },
 
-					// User may not verify themselves
-          // Officers may only change (verify) other users' certs
-          ".write": "(
-            $userId === auth.uid 
-            && !newData.child('cert').child('verifiedTime').exists()
-          )
-          || (
-            $userId !== auth.uid 
-            && root.child('officers').child($launchId).child(auth.uid).val() === true
-          )",
+          "certs": {
+            "$certId": {
+              // Writable by user for non-verification changes
+              // Writable by officers (for verifying other users)
+              ".write": "(
+                $userId === auth.uid
+                && !newData.child('verifiedTime').exists()
+              )
+              || (
+                $userId !== auth.uid
+                && root.child('officers').child($launchId).child(auth.uid).val() === true
+              )"
+            }
+          }
         }
       }
     },
@@ -66,7 +71,8 @@
         ".write": "!newData.exists() && !root.child('launches').child($launchId).exists()",
 
         "$cardId": {
-          // Only card owners or officers may edit
+          // Creatable by all
+          // Editable by card owners or officers
           ".write": "!data.exists()
             || data.child('userId').val() === auth.uid
             || root.child('officers').child($launchId).child(auth.uid).val() === true"
@@ -77,21 +83,22 @@
     "launches": {
       ".read" : true,
       "$launchId": {
-        // Any user can create, only officers may edit
+        // Creatable by all
+        // Editable by officers
         ".write": "!data.exists() ||
         	root.child('officers').child($launchId).child(auth.uid).val() === true"
       }
     },
-      
+
     "pads": {
       ".read" : true,
       "$launchId": {
-        // Creatable
+        // Creatable by all,
         // Deletable when launch no longer exists
         ".write": "!data.exists() || !newData.exists() && !root.child('launches').child($launchId).exists()",
 
         "$padId": {
-	        // Officers may edit this
+	        // Officers can edit
   	      ".write": "root.child('officers').child($launchId).child(auth.uid).val() === true"
         }
       }

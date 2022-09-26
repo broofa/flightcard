@@ -11,6 +11,32 @@ export function usePrevious<T>(value: T) {
   return ref.current as T;
 }
 
+/**
+ * Compose css class string.
+ */
+export function cn(...args: (string | object | undefined)[]) {
+  const classes = new Set();
+  for (const arg of args) {
+    if (!arg) {
+      continue;
+    } else if (typeof arg === 'string') {
+      for (const cn of arg.split(/\s+/g)) {
+        classes.add(cn);
+      }
+    } else if (typeof arg === 'object') {
+      for (const [k, v] of Object.entries(arg)) {
+        if (v) {
+          classes.add(k);
+        } else {
+          classes.delete(k);
+        }
+      }
+    }
+  }
+
+  return Array.from(classes).join(' ');
+}
+
 export function Loading({
   wat,
   ...props
@@ -72,14 +98,23 @@ export function LinkButton({
 /**
  * Style a DOMElement as "busy" during an async operation
  */
-export function busy<T extends Promise<unknown>>(target: Element | null | undefined, p: T): T {
+export function busy<T extends Promise<unknown>>(
+  target: (Element & { _busyId?: number }) | null | undefined,
+  p: T
+): T {
   // Allow null targets because refs can be undefined and it's annoying having to check for that case
   if (target) {
+    const busyId = Math.random();
+    target._busyId = busyId;
+
     // Start busy animation
     target.classList.toggle('busy', true);
 
     // Stop busy animation when promise settles
-    p.finally(() => target.classList.toggle('busy', false));
+    p.finally(() => {
+      if (target?._busyId !== busyId) return;
+      target.classList.toggle('busy', false);
+    });
   }
 
   return p;

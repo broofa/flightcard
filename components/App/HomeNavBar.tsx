@@ -4,7 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { APPNAME } from './App';
 import { auth } from '/rt';
 
-const logoImage = new URL('/art/logo.svg', import.meta.url).toString();
+const LOGO_FC = new URL('/art/logo.svg', import.meta.url).toString();
 
 export function HomeNavBar() {
   return (
@@ -16,7 +16,7 @@ export function HomeNavBar() {
         style={{ zIndex: 3 }}
       >
         <NavLink to='/launches' className='text-center p-1'>
-          <img src={logoImage} style={{ height: '2.5em' }} />
+          <img src={LOGO_FC} style={{ height: '2.5em' }} />
         </NavLink>
         <div className='flex-grow-1'>{APPNAME}</div>
         <NavLink to='' className='p-2' onClick={() => auth.signOut()}>

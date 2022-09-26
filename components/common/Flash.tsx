@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { Alert } from 'react-bootstrap';
 import './Flash.scss';
+import { cn } from './util';
 
 let _flashes: ReactNode[] = [];
 
@@ -61,7 +62,7 @@ export function FlashItem({
   }, [ref]);
 
   return (
-    <div className={`flash-item ${className}`} ref={ref} {...props}>
+    <div className={cn(className, `flash-item`)} ref={ref} {...props}>
       {children}
     </div>
   );

@@ -1,57 +1,138 @@
-import React, { ChangeEvent } from 'react';
+import React, {
+  ChangeEvent,
+  InputHTMLAttributes,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
+import { Alert, FloatingLabel, Form } from 'react-bootstrap';
+import { errorTrap } from '../common/Flash';
+import { fetchHelper } from '../common/useFetch';
+import { cn, Loading } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
-import { ATTENDEE_CERT_PATH } from '/rt/rtconstants';
-import { CertLevel, CertOrg, iCert } from '/types';
+import {
+  AttendeeFields,
+  ATTENDEE_NAR_CERT_PATH,
+  ATTENDEE_TRA_CERT_PATH,
+} from '/rt/rtconstants';
+import { CertOrg, iCert } from '/types';
+import useDebounce from '/util/useDebounce';
 
-const CERT: Record<string, iCert> = {
-  'NAR 1': { organization: CertOrg.NAR, level: CertLevel.L1 },
-  'NAR 2': { organization: CertOrg.NAR, level: CertLevel.L2 },
-  'NAR 3': { organization: CertOrg.NAR, level: CertLevel.L3 },
-  'TRA 1': { organization: CertOrg.TRA, level: CertLevel.L1 },
-  'TRA 2': { organization: CertOrg.TRA, level: CertLevel.L2 },
-  'TRA 3': { organization: CertOrg.TRA, level: CertLevel.L3 },
-};
-
-function certKey(cert?: iCert) {
-  if (!cert?.organization || !cert?.level) return;
-  return `${cert.organization} ${cert.level ?? '0'}`;
-}
+const MEMBER_URL = 'https://club-members.robert4852.workers.dev';
+// const MEMBER_URL = 'http://localhost:6543';
 
 export default function CertPref({
-  launchId,
-  userId,
+  attendeeFields,
+  org,
+  className,
+  ...props
 }: {
-  launchId: string;
-  userId: string;
-}) {
-  const rtPath = ATTENDEE_CERT_PATH.with({ launchId, userId });
-  const [cert] = useRTValue<iCert>(rtPath);
-  function onCertChange(e: ChangeEvent<HTMLSelectElement>) {
-    const { value } = e.target;
-    const newCert = CERT[value];
-    if (cert?.verifiedTime && cert?.level) {
-      const okay = confirm(
-        "You'll need to re-verify your NAR / TRA membership with a club officer if you do this?\nContinue?"
-      );
-      if (!okay) return;
-    }
-    rtSet(rtPath, newCert ?? DELETE);
+  attendeeFields: AttendeeFields;
+  org: CertOrg;
+} & InputHTMLAttributes<HTMLInputElement>) {
+  const rtPath =
+    org === CertOrg.TRA
+      ? ATTENDEE_TRA_CERT_PATH.with(attendeeFields)
+      : ATTENDEE_NAR_CERT_PATH.with(attendeeFields);
+
+  const [isChanged, setIsChanged] = useState(false);
+  const [memberId, setMemberId] = useState<string>('');
+
+  const [dbCert, dbCertLoading] = useRTValue<iCert>(
+    rtPath,
+    useCallback(
+      (cert?: iCert) => {
+        // Set member id field if it hasn't been changed yet
+        if (!isChanged) setMemberId(String(cert?.memberId ?? ''));
+      },
+      [isChanged]
+    )
+  );
+
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<Error>();
+  const [debouncedMemberId, isDebouncing] = useDebounce(memberId, 500);
+
+  const memberNum = parseInt(debouncedMemberId ?? '');
+  const memberInfoUrl =
+    !isDebouncing && !isNaN(memberNum)
+      ? `${MEMBER_URL}?org=${org}&id=${memberNum}`
+      : undefined;
+
+  function handleMemberIdChange(e: ChangeEvent<HTMLInputElement>) {
+    setMemberId(e.target.value);
+    setIsChanged(true);
+    setFetchError(undefined);
   }
 
+  // Effect to clear loading/error state when user is typing
+  useEffect(() => {
+    if (!isDebouncing) return;
+    setFetchLoading(false);
+    setFetchError(undefined);
+  }, [isDebouncing]);
+
+  // Effect to fetch member info once user has stopped typing
+  useEffect(() => {
+    if (!isChanged || !memberInfoUrl) return;
+
+    const fetchAbort = fetchHelper<iCert>(memberInfoUrl, {
+      setData(cert) {
+        errorTrap(rtSet(rtPath, cert ?? DELETE));
+      },
+      setLoading: setFetchLoading,
+      setError(err) {
+        setFetchError(err);
+        if (err) errorTrap(rtSet(rtPath, DELETE));
+      },
+    });
+
+    return fetchAbort;
+  }, [memberInfoUrl, rtPath]);
+
+  if (dbCertLoading) return <Loading wat='certification' />;
+
   return (
-    <select
-      className='form-select'
-      value={certKey(cert)}
-      onChange={onCertChange}
-    >
-      <option key='cert-none' value={''}>
-        Not Certified
-      </option>
-      {Object.entries(CERT).map(([key, cert]) => (
-        <option key={`cert-${key}`} value={key}>
-          {key}
-        </option>
-      ))}
-    </select>
+    <div className={cn(className, `d-flex flex-column flex-sm-row`)} {...props}>
+      <FloatingLabel
+        label={`${org == CertOrg.TRA ? 'Tripoli' : 'NAR'} member #`}
+        className='flex-shrink-0 me-2 mb-2'
+      >
+        <Form.Control
+          className={cn({ busy: fetchLoading })}
+          type='number'
+          placeholder='e.g. 12345'
+          value={memberId}
+          onChange={handleMemberIdChange}
+        />
+      </FloatingLabel>
+
+      {org === CertOrg.NAR && fetchLoading ? (
+        <div className='text-tip'>
+          One moment, please. NAR's site usually takes 10-20 seconds to respond.{' '}
+          {'\u{1f622}'}
+        </div>
+      ) : null}
+      {fetchError && !isDebouncing ? (
+        <Alert variant='warning'>
+          Couldn't find certification info for member #{memberId}
+          <p className='text-tip'>Make sure your membership is current.</p>
+
+        </Alert>
+      ) : null}
+
+      {dbCert && !dbCertLoading && !fetchLoading ? (
+        <div className='flex-grow-1'>
+          <strong>
+            {dbCert.firstName} {dbCert.lastName}
+          </strong>{' '}
+          is{' '}
+          <strong>
+            {org} L-{dbCert.level}
+          </strong>{' '}
+          certified thru {new Date(dbCert.expires ?? 0).toLocaleDateString()}
+        </div>
+      ) : null}
+    </div>
   );
 }

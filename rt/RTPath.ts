@@ -18,13 +18,15 @@ type FieldsBase = Record<string, string>;
 const memos = new Map<string, RTPath>();
 
 export class RTPath<Fields = FieldsBase> {
-  private path: string | undefined;
-  private errorString: string | undefined;
+  #path: string | undefined;
+  #errorString: string | undefined;
   id: string = nanoid();
 
   constructor(readonly template: string, private readonly fields?: Fields) {
-    if (template.endsWith('/'))
+    if (template.endsWith('/')) {
       throw Error('Path template must not end with /');
+    }
+
     // Ad-hoc memoization here avoids the need for useMemo() in components. Yes,
     // this is a memory leak, but it's not expected to be an issue in practice.
     const fieldKey = fields
@@ -54,10 +56,10 @@ export class RTPath<Fields = FieldsBase> {
       return val || '<missing>';
     });
     if (path) {
-      this.path = path;
+      this.#path = path;
     }
     if (missing.length) {
-      this.errorString = `Missing fields: ${missing.join(', ')} in ${
+      this.#errorString = `Missing fields: ${missing.join(', ')} in ${
         this.template
       }`;
     }
@@ -76,16 +78,16 @@ export class RTPath<Fields = FieldsBase> {
   }
 
   isValid() {
-    return !this.errorString;
+    return !this.#errorString;
   }
 
   get errorMessage() {
-    return this.errorString;
+    return this.#errorString;
   }
 
   toString() {
-    if (this.errorString) throw Error(this.errorString);
-    if (!this.path) throw Error('Undefined path'); // This should never throw
-    return this.path;
+    if (this.#errorString) throw Error(this.#errorString);
+    if (!this.#path) throw Error('Undefined path'); // This should never throw
+    return this.#path;
   }
 }
