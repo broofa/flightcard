@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { APPNAME } from '../App/App';
 import { useCurrentUser, useLaunches } from '../contexts/rthooks';
 import { Loading } from '/components/common/util';
-import { rtGet, rtTransaction } from '/rt';
+import { DELETE, rtGet, rtTransaction } from '/rt';
 import {
   ATTENDEE_PATH,
   LAUNCH_PATH,
@@ -45,7 +45,7 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
     }
 
     const transaction = rtTransaction();
-
+    console.log('FJSAFDJSLAFDS', newLaunch);
     // Save launch
     transaction.update<iLaunch>(
       LAUNCH_PATH.with({ launchId: newLaunch.id ?? '' }),
@@ -60,6 +60,12 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       }),
       true
     );
+    console.log('TUREJKLFADS', {
+      id: currentUser.id,
+      name: currentUser.name,
+      photoURL: currentUser.photoURL,
+      waiverTime: Date.now(),
+    });
 
     // Add current user as attendee
     transaction.update<iAttendee>(
@@ -69,8 +75,8 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       }),
       {
         id: currentUser.id,
-        name: currentUser.name,
-        photoURL: currentUser.photoURL,
+        name: currentUser.name ?? DELETE,
+        photoURL: currentUser.photoURL ?? DELETE,
         waiverTime: Date.now(),
       }
     );

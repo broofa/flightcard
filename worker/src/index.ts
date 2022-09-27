@@ -23,7 +23,7 @@ const NAR_TIMEOUT = 30e3;
 
 const BUCKET_SIZE = 1000;
 
-const DOMAIN_WHITELIST = /\.flightcard\.org$|^localhost$/;
+const DOMAIN_WHITELIST = /^(?:flightcard\.org|localhost)$/;
 
 // Tripoli uses some special codes for their cert levels, which we need to map
 // to the expected 0-3 values.
