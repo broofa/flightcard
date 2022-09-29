@@ -29,18 +29,16 @@ import {
 
 const MOCK_ID_PREFIX = 'FC_';
 
-const MOCK_NAME_SUFFIX = '(Test)';
-
 const LAUNCH_NAMES = [
-  'AP Showers',
-  'Spring Thunder',
-  'NXRS',
-  'Summer Skies',
-  'Sod Blaster (TCR)',
-  'Rocketober',
-  "Fillible's Folly",
-  'The Arbuckle Classic',
-  'Independence Day',
+  // 'AP Showers',
+  // 'Spring Thunder',
+  // 'NXRS',
+  // 'Summer Skies',
+  // 'Sod Blaster (TCR)',
+  // 'Rocketober',
+  // "Fillible's Folly",
+  'Arbuckle Classic',
+  'Tsiolkovsky Jamboree',
 ];
 
 const PADS = [
@@ -69,12 +67,19 @@ const PADS = [
 ];
 
 let seedIds: Record<string, number> = {};
+
 function genId(idType = 'id') {
   const id = (seedIds[idType] = (seedIds[idType] ?? 0) + 1);
   return `${MOCK_ID_PREFIX}${idType}_${String(id).padStart(2, '0')}`;
 }
+
 function genReset() {
   seedIds = {};
+}
+
+export function isMock(id: string | { id: string }) {
+  id = typeof id === 'string' ? id : id.id;
+  return id.startsWith(MOCK_ID_PREFIX);
 }
 
 type DBRoot = {
@@ -136,9 +141,7 @@ function mockRoot(): DBRoot {
 async function mockUsers(root: DBRoot) {
   const names = new Set<string>();
   while (names.size < 20) names.add(rndItem(NAMES));
-  for (let name of names) {
-    name = `${name} ${MOCK_NAME_SUFFIX}`; // Mock users get a little dot appended to their name
-
+  for (const name of names) {
     const n = Math.random();
     let photoURL: string | undefined = DELETE;
 
@@ -171,7 +174,7 @@ function mockLaunches(root: DBRoot) {
     root.launches[id] = {
       rangeOpen: false,
       id,
-      name: `${name} ${MOCK_NAME_SUFFIX}`,
+      name,
       ...host,
       startDate: startDate.toISOString().replace(/T.*/, ''),
       endDate: endDate.toISOString().replace(/T.*/, ''),
@@ -180,9 +183,7 @@ function mockLaunches(root: DBRoot) {
 }
 
 function mockCerts(name = '') {
-  const [firstName, lastName] = (name ?? '')
-    .replace(MOCK_NAME_SUFFIX, '')
-    .split(' ');
+  const [firstName, lastName] = (name ?? '').split(' ');
 
   const certs: iCerts = {};
   for (const organization of [CertOrg.NAR, CertOrg.TRA]) {
@@ -268,7 +269,7 @@ function mockOfficers(root: DBRoot, launchId?: string) {
       if (cert.level <= 0 || Math.random() < 0.5) continue;
 
       cert.verifiedId = rndItem(Object.keys(root.officers[launchId]));
-      cert.verifiedTime = Date.now() - rnd( 365 * 24 * 3600e3);
+      cert.verifiedTime = Date.now() - rnd(365 * 24 * 3600e3);
     }
   }
 }

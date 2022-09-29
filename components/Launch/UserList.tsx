@@ -1,5 +1,6 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
+import { isMock } from '../Admin/MockDB';
 import { ANONYMOUS } from '../App/App';
 import { Warning } from '../common/Warning';
 import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
@@ -213,9 +214,13 @@ export function UserList({
             <Button
               key={id}
               variant='outline-dark'
-              className={`d-flex flex-grow-1 align-items-center text-start ${
-                attendee.photoURL ? 'ps-0 py-0' : ''
-              }`}
+              className={cn(
+                `d-flex flex-grow-1 align-items-center text-start `,
+                {
+                  'ps-0 py-0': attendee.photoURL,
+                  'mock-badge': isMock(attendee),
+                }
+              )}
               onClick={() => setEditUserId(attendee.id)}
             >
               {attendeeInfo}

@@ -1,5 +1,5 @@
 // Import bootstrap
-@import "./node_modules/bootstrap/scss/bootstrap";
+@import './node_modules/bootstrap/scss/bootstrap';
 
 // Simple hack to support dark mode
 // REF: https://stackoverflow.com/a/40725251/109538
@@ -7,10 +7,12 @@
   html {
     filter: invert(100%) hue-rotate(180deg);
   }
-  body  {
+  body {
     background-color: #eee;
   }
-  img, .modal-backdrop, .no-invert {
+  img,
+  .modal-backdrop,
+  .no-invert {
     filter: invert(100%) hue-rotate(180deg) !important;
   }
 
@@ -30,22 +32,26 @@ p {
   margin-block: 0.5em;
 }
 
-h1, .h1 {
+h1,
+.h1 {
   font-size: 1.8rem;
   margin-top: 1rem;
 }
-h2, .h2 {
+h2,
+.h2 {
   font-size: 1.5rem;
   margin-top: 0.755rem;
 }
-h3, .h3 {
+h3,
+.h3 {
   font-size: 1.25rem;
   margin-top: 0.5rem;
 }
-h4, .h4 {
-  font-size: 1.0rem;
+h4,
+.h4 {
+  font-size: 1rem;
   margin-top: 0.25rem;
-  color:gray;
+  color: gray;
 }
 
 .cursor-pointer {
@@ -58,30 +64,35 @@ h4, .h4 {
   grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
 }
 
-.privileged { /*  For admin-only features */
-  background: repeating-linear-gradient(-45deg,
-    rgba(128, 128, 0, .8),
-    rgba(128, 128, 0, .8) 10px,
-    rgba(0, 0, 0, .1) 10px,
-    rgba(0, 0, 0, .1) 20px
+.privileged {
+  /*  For admin-only features */
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(128, 128, 0, 0.8),
+    rgba(128, 128, 0, 0.8) 10px,
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.1) 20px
   );
 }
 
 @keyframes BUSY-BG {
-  0% {background-position-x: 0px}
-  100% {background-position-x: 57.57px} // Same as background-size width
+  0% {
+    background-position-x: 0px;
+  }
+  100% {
+    background-position-x: 57.57px;
+  } // Same as background-size width
 }
 
 .busy {
-  background-image:
-    repeating-linear-gradient(
-      135deg,
-      rgba(0, 0, 0, .2) 0,
-      rgba(0, 0, 0, .2) 20px,
-      rgba(255, 255, 255, .2) 20px,
-      rgba(255, 255, 255, .2) 40px,
-      rgba(0, 0, 0, .2) 40px
-    );
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.2) 0,
+    rgba(0, 0, 0, 0.2) 20px,
+    rgba(255, 255, 255, 0.2) 20px,
+    rgba(255, 255, 255, 0.2) 40px,
+    rgba(0, 0, 0, 0.2) 40px
+  );
   background-size: 56.57px 56.57px; // gradient size * sqrt(2)
   animation-name: BUSY-BG;
   animation-duration: 1s;
@@ -89,9 +100,35 @@ h4, .h4 {
   animation-iteration-count: infinite;
 }
 
-nav a {color: #aaa;}
-nav a:hover {color: #eee; background-color: #666;}
-nav a.active {color: white}
+.mock,
+.mock-badge:before {
+  display:inline-block;
+  color: #c60;
+  text-transform: capitalize;
+  transform: rotate(-20deg);
+}
+.mock-badge {
+  position: relative;
+}
+.mock-badge::before {
+  content: 'Test';
+  position: absolute;
+  font-size: 24pt;
+  top: 10%;
+  left: 60%;
+  opacity: 0.4;
+}
+
+nav a {
+  color: #aaa;
+}
+nav a:hover {
+  color: #eee;
+  background-color: #666;
+}
+nav a.active {
+  color: white;
+}
 
 .form-select {
   width: auto !important;
@@ -99,7 +136,7 @@ nav a.active {color: white}
 
 .text-tip {
   color: #6c757d; // text-secondary
-  font-size: .875em;
+  font-size: 0.875em;
 }
 
 .form-floating .form-select {

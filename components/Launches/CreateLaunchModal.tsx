@@ -16,13 +16,13 @@ import { iAttendee, iLaunch, iPad, iPads } from '/types';
 import { arraySort } from '/util/arrayUtils';
 
 export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
-  const [launches] = useLaunches();
+  const [launches, launchesLoading] = useLaunches();
   const [currentUser] = useCurrentUser();
   const [copyId, setCopyId] = useState('');
   const navigate = useNavigate();
 
   if (!currentUser) return <Loading wat='User' />;
-  if (!launches) return <Loading wat='Launches' />;
+  if (launchesLoading) return <Loading wat='Launches' />;
 
   const createLaunch: MouseEventHandler = async e => {
     const target = e.target as HTMLButtonElement;
@@ -38,7 +38,7 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
     };
 
     // Copy properties if needed
-    const srcLaunch = launches[copyId];
+    const srcLaunch = launches?.[copyId];
     if (srcLaunch) {
       newLaunch.host = srcLaunch.host;
       newLaunch.location = srcLaunch.location;
@@ -60,12 +60,6 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       }),
       true
     );
-    console.log('TUREJKLFADS', {
-      id: currentUser.id,
-      name: currentUser.name,
-      photoURL: currentUser.photoURL,
-      waiverTime: Date.now(),
-    });
 
     // Add current user as attendee
     transaction.update<iAttendee>(
@@ -123,7 +117,7 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
           onChange={e => setCopyId(e.target.value)}
         >
           <option>(Optional) Launch to copy...</option>
-          {arraySort(Object.values(launches), 'name').map(launch => (
+          {arraySort(Object.values(launches ?? []), 'name').map(launch => (
             <option key={launch.id} value={launch.id}>
               {launch.name}
             </option>

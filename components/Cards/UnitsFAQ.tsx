@@ -7,14 +7,7 @@ export default function UnitsFAQ() {
         FAQ: How do I enter values with different units?
       </summary>
 
-      <p className='mt-3'>
-        Values may be entered using any of the notations shown below:
-      </p>
-
-      <p>
-        Note: Use the singular form. (E.g. "m", not "ms"). Plural forms are not
-        recognized.
-      </p>
+      <p className='mt-3'>Units may be specified as follows:</p>
 
       <dl
         style={{

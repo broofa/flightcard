@@ -46,8 +46,8 @@ const isDev = process.env.NODE_ENV === 'development';
 const MEMBER_URL = isDev
   ? 'http://localhost:6543'
   : 'https://club-members.robert4852.workers.dev';
-console.log('isDev', isDev, 'MEMBER_URL', MEMBER_URL);
-export default function CertPref({
+
+  export default function CertPref({
   attendeeFields,
   org,
   className,
