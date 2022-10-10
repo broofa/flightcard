@@ -7,9 +7,9 @@ compatibility_date = "2022-08-31"
 crons = ["0 1 * * *"]
 
 [[kv_namespaces]]
-binding = "ClubMembers"
-preview_id = "0507a4b796e64b529694356aefc61228"
-id = "4b5d516e066a4fbfbd05423985b1b87c"
+binding = "HPRCerts"
+preview_id = "802b03c9c5f24de5977dfe99d54d776a"
+id = "40038779c20c43c1bb8ef94e257ca5a5"
 
 [dev]
 port = 6543

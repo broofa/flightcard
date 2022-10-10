@@ -53,11 +53,11 @@ export enum CertOrg {
 }
 export interface iCert {
   level: CertLevel;
-  firstName?: string;
-  lastName?: string;
-  organization?: CertOrg;
-  memberId?: number;
-  expires?: Timestamp;
+  firstName: string;
+  lastName: string;
+  organization: CertOrg;
+  memberId: number;
+  expires: Timestamp;
 
   verifiedId?: string; // Id of attendee that verified the ID
   verifiedTime?: Timestamp;

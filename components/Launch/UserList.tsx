@@ -119,7 +119,7 @@ function UserEditor({
             >
               <div className='d-flex'>
                 <div className='d-flex flex-grow-1'>
-                  {cert.organization} #{cert.memberId ?? '???'}
+                  {cert.organization} #{cert.memberId}
                 </div>
                 <div>Level {certLevel}</div>
               </div>

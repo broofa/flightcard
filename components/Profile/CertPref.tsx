@@ -41,13 +41,9 @@ function Emoji({
   );
 }
 
-const isDev = process.env.NODE_ENV === 'development';
+const { MEMBER_API_ENDPOINT } = process.env;
 
-const MEMBER_URL = isDev
-  ? 'http://localhost:6543'
-  : 'https://club-members.robert4852.workers.dev';
-
-  export default function CertPref({
+export default function CertPref({
   attendeeFields,
   org,
   className,
@@ -69,7 +65,7 @@ const MEMBER_URL = isDev
     useCallback(
       (cert?: iCert) => {
         // Set member id field if it hasn't been changed yet
-        if (!isChanged) setMemberId(String(cert?.memberId ?? ''));
+        if (!isChanged) setMemberId(String(cert?.memberId));
       },
       [isChanged]
     )
@@ -82,7 +78,7 @@ const MEMBER_URL = isDev
   const memberNum = parseInt(debouncedMemberId ?? '');
   const memberInfoUrl =
     isChanged && !isDebouncing && !isNaN(memberNum)
-      ? `${MEMBER_URL}?org=${org}&id=${memberNum}`
+      ? `${MEMBER_API_ENDPOINT}?org=${org}&id=${memberNum}`
       : undefined;
 
   function handleMemberIdChange(e: ChangeEvent<HTMLInputElement>) {
