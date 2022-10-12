@@ -32,8 +32,15 @@ There's not a whole lot to say about this.  It's a data store with an API that a
 
  Contributors will need to set up their own Firebase account and update the auth and db settings for the app accordingly... however we haven't yet worked through the process for doing this.  This will require copying the [security rules](https://github.com/broofa/flightcard/blob/main/rules.json) for the db, by the way.
 
+**TODO**: Document how to stand up a `dev` database with configured security rules.
+
+
  ### Cloudflare Worker
 
  Information about TRA and NAR member certifications (set in the user's profile page) is fetched from a small API implemented in a CloudFlare worker.  The code for this is in the `worker` directory.
 
 Member cert information is actually cached in [CloudFlare's KV Store](https://developers.cloudflare.com/workers/runtime-apis/kv/).  The scripts used to initially seed the store are in `worker/src/publish_*`.  There is also a scheduled event in the worker itself (`worker/src/index.ts#schedule`) that keeps the KV store updated with any new changes to member information.  This runs once per day.  (I.e. It may take up to 24 hours for a member's information to be updated when it changes.)
+
+Much like Firebase, contributors will need to set up their own Cloudflare account and configure a worker.
+
+**TODO**: Document how to stand up a `dev` worker + KV namespace seeded with sample member cert info.
