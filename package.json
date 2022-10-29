@@ -2,6 +2,10 @@
   "name": "flightcard",
   "version": "1.0.0",
   "description": "Flight Card Management for Model Rocket Launches",
+  "files": [],
+  "funding": [
+    "https://github.com/sponsors/broofa"
+  ],
   "browserslist": [
     "last 2 Chrome versions"
   ],
