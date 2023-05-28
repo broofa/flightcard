@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from 'react';
 import { Alert } from 'react-bootstrap';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import CardEditor from '../Cards/CardEditor';
 import CardSummary from '../Cards/CardSummary';
 import { useCurrentUser } from '../contexts/rthooks';
@@ -75,7 +75,8 @@ function Launch() {
         <Route path='report' element={<Stats />} />
         <Route path='rso' element={<RSOPane />} />
         <Route path='lco' element={<LCOPane />} />
-        <Route path='users' element={<UsersPane />} />
+        <Route path='users' element={<Navigate replace to='./all' />} />
+        <Route path='users/:filter' element={<UsersPane />} />
         <Route
           path='*'
           element={<Alert variant='warning'>Page not found</Alert>}

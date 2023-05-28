@@ -1,15 +1,16 @@
 import React from 'react';
 import { ButtonGroup } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useLaunch } from '../contexts/rthooks';
 import { UserList } from './UserList';
 import { LinkButton, Loading } from '/components/common/util';
 import { iAttendee, iPerm } from '/types';
 import { getCertLevel } from '/util/cert-util';
 
-export const OFFICERS = 'officers';
-export const LOW_POWER = 'low';
-export const HIGH_POWER = 'high';
+const OFFICERS = 'officers';
+const LOW_POWER = 'low';
+const HIGH_POWER = 'high';
+const ALL = 'all';
 
 function officerUsers(user?: iAttendee, isOfficer?: iPerm) {
   return isOfficer ?? false;
@@ -24,9 +25,8 @@ function highPowerUsers(user: iAttendee) {
 }
 
 export function UsersPane() {
-  const location = useLocation();
+  let { filter } = useParams();
   const [launch] = useLaunch();
-  const filter = new URLSearchParams(location.search).get('filter');
 
   if (!launch) return <Loading wat='Launch' />;
 
@@ -45,6 +45,7 @@ export function UsersPane() {
       userFilter = highPowerUsers;
       break;
     default:
+      filter = ALL;
       title = 'All Attendees';
       break;
   }
@@ -53,26 +54,26 @@ export function UsersPane() {
     <>
       <ButtonGroup className='mt-2'>
         <LinkButton
-          isActive={() => !filter}
-          to={`/launches/${launch.id}/users`}
+          isActive={() => filter === ALL}
+          to={`/launches/${launch.id}/users/all`}
         >
           All
         </LinkButton>
         <LinkButton
-          isActive={() => filter == OFFICERS}
-          to={`/launches/${launch.id}/users?filter=${OFFICERS}`}
+          isActive={() => filter === OFFICERS}
+          to={`/launches/${launch.id}/users/${OFFICERS}`}
         >
           {'\u2605'}
         </LinkButton>
         <LinkButton
-          isActive={() => filter == LOW_POWER}
-          to={`/launches/${launch.id}/users?filter=${LOW_POWER}`}
+          isActive={() => filter === LOW_POWER}
+          to={`/launches/${launch.id}/users/${LOW_POWER}`}
         >
           LP
         </LinkButton>
         <LinkButton
-          isActive={() => filter == HIGH_POWER}
-          to={`/launches/${launch.id}/users?filter=${HIGH_POWER}`}
+          isActive={() => filter === HIGH_POWER}
+          to={`/launches/${launch.id}/users/${HIGH_POWER}`}
         >
           HP
         </LinkButton>

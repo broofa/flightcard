@@ -227,6 +227,7 @@ export function UserList({
             </Button>
           ) : (
             <div
+              key={id}
               className={`p-2 bg-light rounded border border-light d-flex flex-grow-1 align-items-center text-start ${
                 attendee.photoURL ? 'ps-0 py-0' : ''
               }`}
