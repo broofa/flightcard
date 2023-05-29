@@ -1,8 +1,8 @@
-import { Env, iCert } from './cert_types.js';
+import { CertOrg, Env, iCert } from './cert_types.js';
 
 export async function certsFetch(
   env: Env,
-  organization: 'TRA' | 'NAR',
+  organization: CertOrg,
   memberId: number
 ) {
   return await env.Certs.prepare(
@@ -12,7 +12,7 @@ export async function certsFetch(
     .first();
 }
 
-export async function certsFetchAll(env: Env, organization: 'TRA' | 'NAR') {
+export async function certsFetchAll(env: Env, organization: CertOrg) {
   return await env.Certs.prepare('SELECT * FROM certs WHERE organization=?')
     .bind(organization)
     .all();

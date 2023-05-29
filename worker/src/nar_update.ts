@@ -1,6 +1,6 @@
 import { CertOrg, iCert, NARCacheInfo } from './cert_types';
-import { getCacheInfo, putCacheInfo, putCerts } from './cli_utils';
-import NarAPI from './narapi';
+import { getCacheInfo, putCacheInfo, putCerts } from './kv_utils';
+import NarAPI from './NarAPI';
 
 declare const process: {
   env: {

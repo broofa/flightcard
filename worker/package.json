@@ -9,6 +9,7 @@
   "private": true,
   "scripts": {
     "start": "wrangler dev -r --test-scheduled src/index.ts",
-    "deploy": "wrangler publish src/index.ts"
+    "deploy": "wrangler publish src/index.ts",
+    "nar:fetch": "npx tsx src/publish_nar_certs.ts"
   }
 }
