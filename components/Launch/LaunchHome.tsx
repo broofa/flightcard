@@ -93,7 +93,7 @@ export default function LaunchHome() {
             <h5 className='mt-3'>Fliers</h5>
             <FCLink to='cards'>My Flight Cards</FCLink>
             <Nav.Link onClick={makeNewCard}>New Flight Card</Nav.Link>
-            <FCLink to='users?filter=officers'>View Club Officers</FCLink>
+            <FCLink to='users/officers'>View Club Officers</FCLink>
           </div>
         </Card>
 
