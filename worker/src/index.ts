@@ -10,8 +10,9 @@
  * Learn more at https://developers.cloudflare.com/workers/runtime-apis/scheduled-event/
  */
 
-import { CertOrg, Env, iCert } from './cert_types';
-import { updateTRACerts } from './cert_utils_tra';
+import { CertOrg, Env } from './cert_types';
+import { certsFetch } from './db_utils.js';
+import { updateTRACerts } from './tra_certs';
 
 /**
  * Coudflare worker for fetching, parsing, and caching the list of Tripoli
@@ -56,8 +57,8 @@ async function handleRequest(request: Request, env: Env) {
   if (org !== CertOrg.NAR && org !== CertOrg.TRA) {
     throw new HTTPError('Invalid org', 400);
   }
-  const key = `${org}:${memberId}`;
-  const cert = await env.HPRCerts.get<iCert>(key, { type: 'json' });
+
+  const cert = await certsFetch(env, org, memberId);
 
   if (!cert) {
     throw new HTTPError('Member not found', 404);

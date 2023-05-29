@@ -1,5 +1,5 @@
 export interface Env {
-  HPRCerts: KVNamespace;
+  Certs: D1Database;
 }
 // Cert types (copy from types.ts#iCert)
 

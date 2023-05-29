@@ -8,4 +8,6 @@ yarn.lock
 yarn-error.lock
 vscode.code-workspace
 .envrc
+
+# Template wrangler project.  This dir should get deleted
 worker_certs
