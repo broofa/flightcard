@@ -63,22 +63,6 @@ export function ProfileLink({
   return <Link to={`/launches/${launchId}/profile`}>Profile Page</Link>;
 }
 
-export function AttendeesLink({
-  launchId,
-  filter,
-  children,
-  ...props
-}: Omit<LinkProps, 'to'> & { launchId: string; filter?: string }) {
-  return (
-    <Link
-      to={`/launches/${launchId}/users${filter ? `?filter=${filter}` : ''}`}
-      {...props}
-    >
-      {children ?? 'Attendee Page'}
-    </Link>
-  );
-}
-
 export function LinkButton({
   to,
   isActive,
