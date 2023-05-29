@@ -2,6 +2,7 @@ import { CertOrg, Env, iCert, TRACacheInfo } from './cert_types';
 import { TRIPOLI_CERT_MAP } from './index';
 
 const TRA_MEMBERS_LIST = 'https://tripoli.org/docs.ashx?id=916333';
+const MAX_CERTS_UPDATE = 200;
 const CACHE_INFO_KEY = `${CertOrg.TRA}:cache_info`;
 
 export function isCert(cert?: iCert): cert is iCert {
@@ -12,8 +13,7 @@ export function isCert(cert?: iCert): cert is iCert {
 // the cert changes.  We need this because Tripoli doesn't provide an
 // `updatedAt` field to indicate when a cert value has changed
 export function updateHash(cert: iCert) {
-  const { level, expires } = cert;
-  return `${Math.floor(expires / (24 * 3600e3))}L${level}`;
+  return `L${cert.level}@${Math.floor(cert.expires / (24 * 3600e3))}`;
 }
 
 // fetch the members list from the source and parse it
@@ -25,10 +25,10 @@ export async function fetchTripoliCerts(
 
   // Map lines => member structs;
   const lines = csv.split('\n');
-  let certs = lines
+  const certs = lines
     .map((line): iCert | undefined => {
       // Parse CSV line, removing trailing quotes
-      // TODO: This'll break if there are commas in the field values
+      // TODO: This will break if there are commas in the field values
       const fields = line
         .match(/"(?:[^"]|"")*"/g)
         ?.map(v => v.replaceAll(/^"|"$/g, '').replace(/""/g, '"'));
@@ -54,48 +54,54 @@ export async function fetchTripoliCerts(
     })
     .filter(isCert);
 
-  const total = certs.length;
-
   // Remove certs that haven't changed
-  certs = certs.filter(isCert).filter(cert => {
+  const changedCerts = certs.filter(isCert).filter(cert => {
     return updateHashById[String(cert.memberId)] !== updateHash(cert);
   });
 
-  return { certs, total };
+  return { changedCerts, total: certs.length };
 }
 
-export async function updateTripoliCerts(env: Env) {
-  const cacheInfo = await env.HPRCerts.get<TRACacheInfo>(CACHE_INFO_KEY, {
+export async function updateTRACerts(env: Env) {
+  let cacheInfo = await env.HPRCerts.get<TRACacheInfo>(CACHE_INFO_KEY, {
     type: 'json',
   });
+
   if (!cacheInfo) {
-    throw new Error('No cache info found');
+    cacheInfo = {
+      updatedAt: 0,
+      updateHashById: {},
+    };
   }
 
   const { updateHashById } = cacheInfo;
-  const { certs, total } = await fetchTripoliCerts(updateHashById);
+  const { changedCerts } = await fetchTripoliCerts(updateHashById);
+  const certsToUpdate = changedCerts.slice(0, MAX_CERTS_UPDATE);
 
-  if (certs.length > 200) {
-    throw new Error(`${certs.length} changed certs (too many to update here)`);
-  }
-
-  console.log(`Updating ${certs.length} of ${total} certs`);
+  console.log(
+    `Updating ${certsToUpdate.length} of ${changedCerts.length} changed certs`
+  );
 
   await Promise.allSettled(
-    certs.map(async cert => {
-      await env.HPRCerts.put(
-        `${CertOrg.TRA}:${cert.memberId}`,
-        JSON.stringify(cert)
-      );
-
-      // Update  cache info
+    certsToUpdate.map(async cert => {
+      try {
+        await env.HPRCerts.put(
+          `${CertOrg.TRA}:${cert.memberId}`,
+          JSON.stringify(cert)
+        );
+        console.log(`TRA:${cert.memberId} updated`);
+      } catch (err) {
+        console.log(`TRA:${cert.memberId} Error: ${(err as Error).message}`);
+      }
+      // Update cache info
       updateHashById[cert.memberId] = updateHash(cert);
     })
   );
 
   cacheInfo.updatedAt = Date.now();
-
-  env.HPRCerts.put(CACHE_INFO_KEY, JSON.stringify(cacheInfo), {
-    metadata: { updatedAt: Date.now() },
+  console.log(`Updating ${CACHE_INFO_KEY}`);
+  await env.HPRCerts.put(CACHE_INFO_KEY, JSON.stringify(cacheInfo), {
+    metadata: { updatedAt: new Date().toISOString() },
   });
+  console.log(`Update complete`);
 }

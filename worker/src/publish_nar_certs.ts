@@ -9,6 +9,8 @@ declare const process: {
   };
 };
 
+const MAX_FETCHERS = 5;
+
 const { NAR_API_KEY, NAR_API_ORG } = process.env;
 
 const NAR = new NarAPI(NAR_API_ORG, NAR_API_KEY);
@@ -130,7 +132,16 @@ async function fetcher(lastModified: number, previousPage?: NARPage) {
   if (page.searchResults.length === 0) return;
   if (currentPage >= page.pagination.totalPages) return;
 
-  await fetcher(lastModified, page);
+  if (currentPage < Math.min(page.pagination.totalPages - 1, MAX_FETCHERS)) {
+    // If there's more pages, spin up an extra fetcher (up to MAX_FETCHERS)
+    console.log('(adding fetcher)');
+    await Promise.allSettled([
+      fetcher(lastModified, page),
+      fetcher(lastModified, page),
+    ]);
+  } else {
+    await fetcher(lastModified, page);
+  }
 }
 
 async function main() {
@@ -141,14 +152,8 @@ async function main() {
   const lastModified = mostRecentModifiedAt;
 
   // Fetch results in parallel
-  await Promise.allSettled([
-    fetcher(lastModified),
-    fetcher(lastModified),
-    fetcher(lastModified),
-    fetcher(lastModified),
-    fetcher(lastModified),
-  ]);
-
+  await Promise.allSettled([fetcher(lastModified)]);
+  console.log('CERTS', certs);
   await putCerts(CertOrg.NAR, certs);
 
   await putCacheInfo<NARCacheInfo>(CertOrg.NAR, {

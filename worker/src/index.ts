@@ -11,7 +11,7 @@
  */
 
 import { CertOrg, Env, iCert } from './cert_types';
-import { updateTripoliCerts } from './cert_utils_tra';
+import { updateTRACerts } from './cert_utils_tra';
 
 /**
  * Coudflare worker for fetching, parsing, and caching the list of Tripoli
@@ -57,7 +57,6 @@ async function handleRequest(request: Request, env: Env) {
     throw new HTTPError('Invalid org', 400);
   }
   const key = `${org}:${memberId}`;
-  console.log('KEY', key);
   const cert = await env.HPRCerts.get<iCert>(key, { type: 'json' });
 
   if (!cert) {
@@ -111,13 +110,13 @@ export default {
 
   // Handle scheduled invocations
   //
-  // NOTE: This can be triggered in dev by hitting  http://localhost:8787/cdn-cgi/mf/scheduled
+  // NOTE: This can be triggered in dev by hitting http://127.0.0.1:6543/__scheduled
 
   async scheduled(
     controller: ScheduledController,
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(Promise.all([updateTripoliCerts(env)]));
+    ctx.waitUntil(Promise.all([updateTRACerts(env)]));
   },
 };

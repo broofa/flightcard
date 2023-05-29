@@ -1,15 +1,20 @@
 name = "club-members"
-main = "./src/index.ts"
+main = "src/index.ts"
 
-compatibility_date = "2022-08-31"
+compatibility_date = "2023-05-29"
 
 [triggers]
 crons = ["0 1 * * *"]
 
 [[kv_namespaces]]
 binding = "HPRCerts"
-preview_id = "802b03c9c5f24de5977dfe99d54d776a"
+preview_id = "67b46490fec34e9abd98594f1a68f5a7"
 id = "40038779c20c43c1bb8ef94e257ca5a5"
+
+# [[d1_databases]]
+# binding = "Certs"
+# database_name = "certs"
+# database_id = "06f88949-46bc-4e6e-aa3b-c817fc75efb2"
 
 [dev]
 port = 6543
