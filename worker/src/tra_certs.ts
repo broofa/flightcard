@@ -1,18 +1,30 @@
 import { CertOrg, Env, iCert } from './cert_types';
 import { certsBulkUpdate } from './db_utils.js';
 import { TRIPOLI_CERT_MAP } from './index';
+import KVStore from './KVStore.js';
 
+// See "Member Certification List(csv)" at
+// https://www.tripoli.org/content.aspx?page_id=22&club_id=795696&module_id=468541
 const TRA_MEMBERS_LIST = 'https://tripoli.org/docs.ashx?id=916333';
+
+const FETCH_INFO_KEY = 'TRA.fetchInfo';
+
+const UPDATE_INTERVAL = 6 * 60 * 60 * 1000;
+
+type FetchInfo = {
+  updatedAt: Date;
+  certsFetched: number;
+};
 
 // fetch the members list from the source and parse it
 async function fetchTripoliCerts() {
   const certs: iCert[] = [];
   const resp = await fetch(TRA_MEMBERS_LIST);
 
-  // Response is ASCII text, but tripoli sets the content-type to
+  // Response is ASCII text but server sets the content-type to
   // `application/octet-stream` which causes wrangler to complain if we try to
   // read the response as `text()`.  So we jump through a few hoops here to
-  // "officially" convert the bytes to an actual string.
+  // "officially" convert raw bytes to an actual string.
   const csvRaw = await resp.arrayBuffer();
   const td = new TextDecoder('ascii');
   const csv = td.decode(csvRaw);
@@ -54,7 +66,40 @@ async function fetchTripoliCerts() {
 }
 
 export async function updateTRACerts(env: Env) {
+  const kv = new KVStore(env);
+  let fetchInfo = await kv.get<FetchInfo>(FETCH_INFO_KEY);
+
+  // Add a 1-hour fudge factor to account for clock skew between systems
+  const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + 3600e3;
+  if (since < UPDATE_INTERVAL) {
+    console.warn(
+      `TRA: Skipping (${Math.floor(
+        (UPDATE_INTERVAL - since) / 60000
+      )} minutes to next update)`
+    );
+    return;
+  }
+
+  // Fetch members list (CSV file)
+  const resp = await fetch(TRA_MEMBERS_LIST);
+
+  //  Stop here if it hasn't been modified since we last checked
+  const lastModified = resp.headers.get('last-modified');
+  if (fetchInfo?.updatedAt && lastModified) {
+    if (Date.parse(lastModified) < Number(fetchInfo.updatedAt ?? 0)) {
+      console.warn('TRA: Skipping (not modified)');
+      return;
+    }
+  }
+
   const certs = await fetchTripoliCerts();
 
   await certsBulkUpdate(env, certs);
+
+  fetchInfo = {
+    updatedAt: new Date(),
+    certsFetched: certs.length,
+  };
+
+  await kv.put(FETCH_INFO_KEY, fetchInfo);
 }

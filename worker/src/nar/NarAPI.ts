@@ -28,6 +28,7 @@ import { NARItem, NARPage, NeonPagination } from './nar_types.js';
  *
  * REF: https://developer.neoncrm.com/api-v2/#/
  */
+
 const API_BASE = `https://api.neoncrm.com/v2`;
 
 // NeonCRM limits the page size to 200
@@ -54,6 +55,7 @@ type SearchFields = {
 
 // Ad-hoc type for tracking the state we use to scanning the NAR database.
 export type ScanState = {
+  updatedAt?: Date;
   queryAccountId: number;
   queryTimestamp: number;
   pagination?: NeonPagination;
@@ -97,7 +99,6 @@ export function updateScanState(scanState: ScanState, page: NARPage<NARItem>) {
     scanState.queryTimestamp = scanState.trackingTimestamp;
     scanState.trackingAccountId = 0;
     scanState.trackingTimestamp = 0;
-    delete scanState.pagination;
 
     return;
   }
@@ -205,18 +206,21 @@ export default class NarAPI {
    * 2. Incremental updates:  Similar to the first scan, but limited to records
    *    that have been modified since the 'last modified date' recorded in stage
    */
-  async fetchMembers(scanState?: ScanState) {
-    if (!scanState) {
-      scanState = {
-        queryAccountId: 0,
-        queryTimestamp: 0,
-        trackingAccountId: 0,
-        trackingTimestamp: 0,
-      };
+  async fetchMembers({
+    pagination: previousPagination,
+    queryAccountId,
+    queryTimestamp,
+  }: ScanState) {
+    queryAccountId ??= 0;
+    queryTimestamp ??= 0;
+
+    let currentPage = 0;
+    if (previousPagination && !scanComplete(previousPagination)) {
+      currentPage = previousPagination.currentPage + 1;
     }
 
     const pagination = {
-      currentPage: scanState.pagination ? scanState.pagination.currentPage + 1 : 0,
+      currentPage,
       pageSize: MAX_PAGE_SIZE,
 
       // Sort by account ID, so we can resume the scan if it gets interrupted
@@ -240,18 +244,20 @@ export default class NarAPI {
       {
         field: 'Account ID',
         operator: 'GREATER_AND_EQUAL',
-        value: scanState.queryAccountId,
+        value: queryAccountId,
       },
       {
         field: 'Account Last Modified Date',
         operator: 'GREATER_AND_EQUAL',
-        value: timestampToNeon(scanState.queryTimestamp, true),
+        value: timestampToNeon(queryTimestamp, true),
       },
     ];
 
     const options = {
       body: JSON.stringify({ searchFields, outputFields, pagination }),
     };
+
+    console.log(`NAR: Fetching page ${currentPage}...`);
 
     return await this.accountQuery(options);
   }

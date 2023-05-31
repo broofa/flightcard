@@ -7,42 +7,31 @@ import NarAPI, {
 import { CertOrg, Env, iCert } from './cert_types';
 import { NARItem, NARPage } from './nar/nar_types.js';
 import { certsBulkUpdate } from './db_utils.js';
+import KVStore from './KVStore.js';
 
 const SCAN_STATE_KEY = 'NAR.scanState';
 
-export async function updateNARCerts(env: Env) {
-  const { NAR_API_ORG = '', NAR_API_KEY = '' } = env;
-  const narAPI = new NarAPI(NAR_API_ORG, NAR_API_KEY);
-
-  // Pull previous scan state from KV (if available)
-  // let scanState = await kvRead<ScanState>(env, SCAN_STATE_KEY);
-  const scanStateJSON = await env.CertsKV.get(SCAN_STATE_KEY);
-
-  // Initialize scan state if necessary
-  const scanState = scanStateJSON
-    ? JSON.parse(scanStateJSON)
-    : createScanState();
-
-  // eslint-disable-next-line no-constant-condition
-  console.log('scanState(pre)', scanState);
-  const page = await narAPI.fetchMembers(scanState);
-
-  // Process page of members
-  await processCerts(env, page);
-
-  // Persist scan state
-  updateScanState(scanState, page);
-
-  await env.CertsKV.put(SCAN_STATE_KEY, JSON.stringify(scanState));
-  console.log('scanState(post)', scanState);
-  console.log(
-    `${scanState.pagination.currentPage + 1} of ${scanState.pagination.totalPages} pages processed`
-  );
-}
+// Interval to wait after completing a scan before starting a new one.
+const IDLE_INTERVAL = 1 * 60 * 60 * 1000;
 
 async function processCerts(env: Env, page: NARPage<NARItem>) {
   const certs: iCert[] = [];
   for (const result of page.searchResults) {
+    // Skip if missing required fields.  There's a surprising number of these in the DB.  A couple of examples:
+    //
+    // * Item #204948 missing fields: NAR#
+    // * Item #204954 missing fields: NAR#, First Name, Last Name
+    const invalids = [];
+    for (const field of ['NAR#', 'First Name', 'Last Name']) {
+      if (!(result as Record<string, unknown>)[field]) invalids.push(field);
+    }
+    if (invalids.length > 0) {
+      console.warn(
+        `Item #${result['Account ID']} missing fields: ${invalids.join(', ')}`
+      );
+      continue;
+    }
+
     const {
       'NAR#': memberIdString,
       // "EXPIRATION": expires,
@@ -60,7 +49,10 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
     const expires = Date.parse(expiresString);
 
     if (!memberId || memberId > 1e6) {
-      console.log('Invalid memberId', memberId);
+      console.warn(
+        `Invalid memberId (${memberId}) in result:`,
+        JSON.stringify(result, null, 2)
+      );
       continue;
     }
 
@@ -78,5 +70,50 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
 
   if (certs.length) {
     await certsBulkUpdate(env, certs);
+  }
+}
+
+export async function updateNARCerts(env: Env) {
+  const { NAR_API_ORG = '', NAR_API_KEY = '' } = env;
+
+  const kv = new KVStore(env);
+
+  let scanState = await kv.get<ScanState>(SCAN_STATE_KEY);
+  if (!scanState) {
+    scanState = createScanState();
+  }
+
+  // If we've finished a scan recently, wait a while before starting the next
+  if (scanComplete(scanState.pagination)) {
+    const since = Date.now() - Number(scanState.updatedAt ?? 0);
+    if (since < IDLE_INTERVAL) {
+      console.warn(
+        `NAR: Skipping (${Math.floor(
+          (IDLE_INTERVAL - since) / 60000
+        )} minutes to next update)`
+      );
+      return;
+    }
+  }
+
+  const narAPI = new NarAPI(NAR_API_ORG, NAR_API_KEY);
+  // eslint-disable-next-line no-constant-condition
+  const page = await narAPI.fetchMembers(scanState);
+
+  // Process page of members
+  await processCerts(env, page);
+
+  // Persist scan state
+  updateScanState(scanState, page);
+
+  scanState.updatedAt = new Date();
+  await kv.put(SCAN_STATE_KEY, scanState);
+
+  if (scanState.pagination) {
+    console.log(
+      `${scanState.pagination.currentPage ?? 0 + 1} / ${
+        scanState.pagination.totalPages
+      } pages`
+    );
   }
 }

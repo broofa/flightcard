@@ -34,12 +34,3 @@ export interface iCert {
 }
 
 export type CertGroup = Record<string, iCert>;
-
-export type TRACacheInfo = {
-  updatedAt: number;
-  updateHashById: Record<string, string>;
-};
-export type NARCacheInfo = {
-  updatedAt: number;
-  mostRecentModifiedAt: number;
-};
