@@ -120,7 +120,7 @@ export default {
   ): Promise<void> {
     ctx.waitUntil(
       Promise.all([
-        // updateTRACerts(env),
+        updateTRACerts(env),
         updateNARCerts(env),
       ])
     );

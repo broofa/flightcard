@@ -10,7 +10,7 @@
   "private": true,
   "scripts": {
     "start": "wrangler dev -r --test-scheduled src/index.ts",
-    "deploy": "wrangler publish src/index.ts",
+    "deploy": "wrangler deploy src/index.ts",
     "db:init": "wrangler d1 execute certs --local --file=schema.sql",
     "db:deploy": "wrangler d1 execute certs --file=schema.sql",
     "nar:update": "npx tsx src/nar_update.ts"

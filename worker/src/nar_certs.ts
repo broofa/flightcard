@@ -36,7 +36,7 @@ export async function updateNARCerts(env: Env) {
   await env.CertsKV.put(SCAN_STATE_KEY, JSON.stringify(scanState));
   console.log('scanState(post)', scanState);
   console.log(
-    `${scanState.pagination.currentPage} of ${scanState.pagination.totalPages} pages processed`
+    `${scanState.pagination.currentPage + 1} of ${scanState.pagination.totalPages} pages processed`
   );
 }
 
@@ -59,7 +59,10 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
     const level = parseInt(levelString, 10);
     const expires = Date.parse(expiresString);
 
-    if (!memberId || memberId > 1e6) continue;
+    if (!memberId || memberId > 1e6) {
+      console.log('Invalid memberId', memberId);
+      continue;
+    }
 
     const cert: iCert = {
       memberId,
@@ -70,7 +73,6 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
       organization: CertOrg.NAR,
     };
 
-    console.log('Updating', cert.memberId, cert.firstName, cert.lastName);
     certs.push(cert);
   }
 

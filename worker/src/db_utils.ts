@@ -18,22 +18,19 @@ export async function certsFetchAll(env: Env, organization: CertOrg) {
     .all();
 }
 
-export async function certsLastUpdate(env: Env, organization: CertOrg) {
-  return await env.CertsDB.prepare(
-    'SELECT updated_at FROM certs WHERE organization=? ORDER BY updated_at DESC LIMIT 1'
-  )
-    .bind(organization)
-    .first();
-}
-
 export async function certsBulkUpdate(env: Env, certs: iCert[]) {
-  certs = certs.slice(0, 1);
+  if (!certs.length) return;
+
   const insert = env.CertsDB.prepare(`
   INSERT OR REPLACE INTO certs
     (memberId, firstName, lastName, level, expires, organization)
   VALUES
     (?, ?, ?, ?, ?, ?)
   `);
+
+  const org = certs[0].organization;
+
+  const start = Date.now();
 
   const statements = certs.map(cert =>
     insert.bind(
@@ -46,5 +43,9 @@ export async function certsBulkUpdate(env: Env, certs: iCert[]) {
     )
   );
 
-  return await env.CertsDB.batch(statements);
+  const results = await env.CertsDB.batch(statements);
+  console.log(
+    `Updated ${certs.length} ${org} certs in ${Date.now() - start} ms`
+  );
+  return results;
 }

@@ -56,7 +56,5 @@ async function fetchTripoliCerts() {
 export async function updateTRACerts(env: Env) {
   const certs = await fetchTripoliCerts();
 
-  const start = Date.now();
   await certsBulkUpdate(env, certs);
-  console.log(`Updated ${certs.length} TRA certs in ${Date.now() - start} ms`);
 }
