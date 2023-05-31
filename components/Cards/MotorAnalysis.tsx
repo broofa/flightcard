@@ -24,7 +24,7 @@ export const GRAVITY_ACC = 9.807;
 // Minimum velocity needed for rocket to be aerodynamically stable (m/s)
 const STABLE_SPEED = 13.89;
 
-const THRUST_RATIO_MIN = 4;
+const THRUST_RATIO_MIN = 3;
 const THRUST_RATIO_GOOD = 5;
 
 export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
@@ -108,7 +108,8 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
         : 'success';
     thrustResult = (
       <div>
-        Thrust:weight ratio (stage 1 motors only):{' '}
+        Thrust<span style={{ fontSize: '80%', verticalAlign: 'sub' }}>avg</span>{' '}
+        : Weight ratio (stage 1 motors only):{' '}
         <strong>{sig(thrustToWeightRatio, 2)} : 1</strong>
       </div>
     );
@@ -142,11 +143,13 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
         </summary>
 
         <p>
-          <strong>This analysis may be wrong</strong>. It is based on crude
-          approximations of real-world behavior. Data may have been entered
-          incorrectly, or incorrectly processed. Fliers should <em>always</em>{' '}
-          double-check and verify any information or recommendations provided by
-          this app.
+          <strong>
+            DO NOT ASSUME THIS ANALYSIS MEANS YOUR ROCKET CAN BE FLOWN SAFELY.
+          </strong>{' '}
+          This is an experimental feature based on crude approximations,
+          potentially flawed assumptions, and limited data. It is not a
+          substitute for a proper flight simulation. At most, it should be used
+          as a sanity check of your own, independent analysis.
         </p>
       </details>
     </Alert>

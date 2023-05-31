@@ -86,8 +86,6 @@ function UserEditor({
       verifiedTime: verified ? Date.now() : DELETE,
     };
 
-    console.log(organization, cert);
-
     return rtUpdate<iCert>(rtPath, cert);
   };
 

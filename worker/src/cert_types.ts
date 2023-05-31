@@ -1,5 +1,12 @@
 export interface Env {
-  HPRCerts: KVNamespace;
+  CertsKV: KVNamespace;
+  CertsDB: D1Database;
+
+  NAR_API_KEY: string;
+  NAR_API_ORG: string;
+  CLOUDFLARE_API_TOKEN: string;
+  CLOUDFLARE_ACCOUNT_ID: string;
+  CLOUDFLARE_KV_NAMESPACE: string;
 }
 // Cert types (copy from types.ts#iCert)
 
