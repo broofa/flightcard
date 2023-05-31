@@ -5,7 +5,7 @@ export async function certsFetch(
   organization: CertOrg,
   memberId: number
 ) {
-  return await env.Certs.prepare(
+  return await env.CertsDB.prepare(
     'SELECT * FROM certs WHERE memberId=? AND organization=?'
   )
     .bind(memberId, organization)
@@ -13,15 +13,28 @@ export async function certsFetch(
 }
 
 export async function certsFetchAll(env: Env, organization: CertOrg) {
-  return await env.Certs.prepare('SELECT * FROM certs WHERE organization=?')
+  return await env.CertsDB.prepare('SELECT * FROM certs WHERE organization=?')
     .bind(organization)
     .all();
 }
 
+export async function certsLastUpdate(env: Env, organization: CertOrg) {
+  return await env.CertsDB.prepare(
+    'SELECT updated_at FROM certs WHERE organization=? ORDER BY updated_at DESC LIMIT 1'
+  )
+    .bind(organization)
+    .first();
+}
+
 export async function certsBulkUpdate(env: Env, certs: iCert[]) {
-  const insert = env.Certs.prepare(
-    'INSERT OR REPLACE INTO certs VALUES (?, ?, ?, ?, ?, ?)'
-  );
+  certs = certs.slice(0, 1);
+  const insert = env.CertsDB.prepare(`
+  INSERT OR REPLACE INTO certs
+    (memberId, firstName, lastName, level, expires, organization)
+  VALUES
+    (?, ?, ?, ?, ?, ?)
+  `);
+
   const statements = certs.map(cert =>
     insert.bind(
       cert.memberId,
@@ -33,5 +46,5 @@ export async function certsBulkUpdate(env: Env, certs: iCert[]) {
     )
   );
 
-  return await env.Certs.batch(statements);
+  return await env.CertsDB.batch(statements);
 }

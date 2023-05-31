@@ -12,6 +12,7 @@
 
 import { CertOrg, Env } from './cert_types';
 import { certsFetch } from './db_utils.js';
+import { updateNARCerts } from './nar_certs.js';
 import { updateTRACerts } from './tra_certs';
 
 /**
@@ -72,7 +73,6 @@ export default {
   // here to ensure we always return a JSON response with proper CORS headers
   async fetch(
     request: Request,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     env: Env,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ctx: ExecutionContext
@@ -118,6 +118,11 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(Promise.all([updateTRACerts(env)]));
+    ctx.waitUntil(
+      Promise.all([
+        // updateTRACerts(env),
+        updateNARCerts(env),
+      ])
+    );
   },
 };

@@ -7,9 +7,14 @@ compatibility_date = "2023-05-29"
 crons = ["0 1 * * *"]
 
 [[d1_databases]]
-binding = "Certs"
+binding = "CertsDB"
 database_name = "certs"
 database_id = "06f88949-46bc-4e6e-aa3b-c817fc75efb2"
+
+[[kv_namespaces]]
+binding = "CertsKV"
+preview_id = "f8f717868ff844ee9baaeab376a8db64"
+id = "8efe9d6e4bea4254812ee315232d41ca"
 
 [dev]
 port = 6543
