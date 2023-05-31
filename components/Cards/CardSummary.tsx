@@ -145,10 +145,9 @@ export default function CardSummary() {
 
           <div>{simplur`${[card?.motors?.length ?? 0]}Motor[s|]`}</div>
           {card.motors
-            ? Object.entries(card.motors).map(([motorId, motor]) => {
-                console.log(motorId, motor);
-                return <div key={motorId}>{motor.name}</div>;
-              })
+            ? Object.entries(card.motors).map(([motorId, motor]) => (
+                <div key={motorId}>{motor.name}</div>
+              ))
             : null}
         </div>
       </div>

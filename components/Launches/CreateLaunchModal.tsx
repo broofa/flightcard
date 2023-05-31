@@ -45,7 +45,7 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
     }
 
     const transaction = rtTransaction();
-    console.log('FJSAFDJSLAFDS', newLaunch);
+
     // Save launch
     transaction.update<iLaunch>(
       LAUNCH_PATH.with({ launchId: newLaunch.id ?? '' }),
