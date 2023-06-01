@@ -17,36 +17,66 @@ import {
 import { CertOrg, iAttendee, iCert, iPerm } from '/types';
 import { arraySort } from '/util/arrayUtils';
 
+const DEFAULT_PROFILE_IMAGE = new URL(
+  '/art/astronaut.svg',
+  import.meta.url
+).toString();
+
 export function AttendeeInfo({
   attendee,
   className,
-  hidePhoto,
   ...props
 }: {
   attendee: iAttendee;
-  hidePhoto?: boolean;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
   const roleApi = useRoleAPI();
 
+  const photoUrl = attendee.photoURL ?? DEFAULT_PROFILE_IMAGE;
   return (
-    <div className={cn(className, `d-flex align-items-center`)} {...props}>
-      {attendee.photoURL && !hidePhoto && (
-        <img src={attendee.photoURL} style={{ height: '48px' }} />
-      )}
-      <span className='flex-grow-1 ms-2 my-0 h3'>
-        {attendee?.name ?? ANONYMOUS}
-      </span>
-
-      {!roleApi.isOfficer(attendee) ? null : attendee.role ? (
-        <span className='ms-2 ms-1 px-1 bg-info text-white'>
-          {attendee.role?.toUpperCase()}
-        </span>
-      ) : (
-        <span className={'ms-2  ms-1 px-1'}>{'\u2605'}</span>
-      )}
-
-      <CertDot className='ms-2 flex-grow-0' attendee={attendee} />
+    <div
+      className={cn(className, `d-flex align-items-center`)}
+      style={{ position: 'relative' }}
+      {...props}
+    >
+      <img
+        className='flex-grow-0 me-2'
+        src={photoUrl}
+        style={{
+          height: '48px',
+          width: '48px',
+          backgroundColor: 'white',
+          borderRadius: '50%',
+        }}
+      />
+      <div className='flex-grow-1 flex-column'>
+        <div>{attendee?.name ?? ANONYMOUS}</div>
+        <div>
+          {roleApi.isOfficer(attendee) ? (
+            <span
+              style={{
+                position: 'absolute',
+                fontSize: '25px',
+                color: '#eb0',
+                top: -20,
+                left: -10,
+              }}
+            >
+              {'\u2605'}
+            </span>
+          ) : null}
+          {attendee.role ? (
+            <span className='me-2 px-1 bg-info text-white'>
+              {attendee.role?.toUpperCase()}
+            </span>
+          ) : null}
+          <CertDot
+            showType={true}
+            className='flex-grow-0'
+            attendee={attendee}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -187,7 +217,7 @@ export function UserList({
 
   return (
     <>
-      <h2 className='d-flex'>{children}</h2>
+      <h2 className='my-3 d-flex'>{children}</h2>
 
       {editUserId ? (
         <UserEditor
@@ -197,7 +227,11 @@ export function UserList({
         />
       ) : null}
 
-      <div className='deck' {...props}>
+      <div
+        className='deck'
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(12em, 1fr))' }}
+        {...props}
+      >
         {arraySort(Object.values(attendees), 'name').map(attendee => {
           if (filter && !filter(attendee, roleApi.isOfficer(attendee))) {
             return null;
@@ -211,11 +245,10 @@ export function UserList({
           return isOfficer ? (
             <Button
               key={id}
-              variant='outline-dark'
+              variant='light'
               className={cn(
-                `d-flex flex-grow-1 align-items-center text-start `,
+                `d-flex flex-grow-1 p-1 align-items-center text-start`,
                 {
-                  'ps-0 py-0': attendee.photoURL,
                   'mock-badge': isMock(attendee),
                 }
               )}

@@ -33,7 +33,7 @@ export function UsersPane() {
   let title, userFilter;
   switch (filter) {
     case OFFICERS:
-      title = '\u2605 Officers';
+      title = 'Officers';
       userFilter = officerUsers;
       break;
     case LOW_POWER:
