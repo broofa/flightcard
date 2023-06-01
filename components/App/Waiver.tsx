@@ -33,47 +33,59 @@ export function Waiver() {
   return (
     <div className='m-4'>
       <h1 style={{ textTransform: 'uppercase', textAlign: 'center' }}>
-        {'\u2620'} Rocket launches are dangerous {'\u2620'}
+        Rocket launches are dangerous
+        <br />
+        {'\u2620'} {'\u2620'} {'\u2620'}{' '}
       </h1>
 
       <p>
-        It is your responsibility to be informed and aware of the risks involved
-        in attending this event. Specifically ...
+        It is your responsibility to be informed and aware of the risks
+        involved.{' '}
+        <strong>By clicking "I agree", you agree to the following: </strong>
       </p>
 
-      <p>
-        <strong>You must meet the requirements set by the event host.</strong>
-        <br />
-        This may include, but is not limited to, attending safety briefings,
-        following established safety practices, and signing release forms.
-        <br />
-        <em className='text-danger'>
-          If you do not know what's required of you, contact the event host
-          before proceeding
-        </em>
-        .
-      </p>
+      <ul>
+        <li>
+          You have completed and signed all waiver and release forms required by
+          the event hosts.
+        </li>
+
+        <li>
+          You have been informed of the safety practices put in place by the
+          event hosts and agree to abide by them.
+        </li>
+
+        <li>
+          You agree that {APPNAME} is an experimental application and, as such,
+          comes with no warranty as to it's correctness or reliability.
+        </li>
+      </ul>
 
       <p>
-        <strong>{APPNAME} is an experimental application.</strong>
-        <br />
-        By using {APPNAME} you are assuming all of the risks, bugs, and other
-        "hiccups" that come with experimental software. {APPNAME} may fail or be
-        unavailable. Information {APPNAME} provides may be delayed, incomplete,
-        or incorrect.
-        <br />
-        <em className='text-danger'>
-          No warrantee or guarantees are provided for {APPNAME}, either express
-          or implied.
-        </em>
+        On that last point, this app is under active development. It may or may
+        not work properly, features may break, information may be missing or
+        incorrect, and it may change at a moment's notice.{' '}
+        <strong style={{ textDecoration: 'underline' }}>
+          Use of {APPNAME} must never replace common sense and the established
+          safety practices necessary for the safe operation of a rocket launch.
+        </strong>{' '}
       </p>
+      <p>
+        It is up to you to understand the risks of these events, pay attention,
+        and be safe!
+      </p>
+
+      <em className='text-danger'>
+        If you have questions or are unsure about any of the above, contact the
+        event host before proceeding!
+      </em>
 
       <div className='d-flex justify-content-between mt-3'>
         <FCLinkButton variant='danger' to='/launches'>
           Nope
         </FCLinkButton>
         <Button ref={agreeRef} onClick={launchAgree}>
-          I Understand and Agree
+          I Agree
         </Button>
       </div>
     </div>
