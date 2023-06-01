@@ -1,8 +1,9 @@
 import React, { HTMLAttributes } from 'react';
 import './CertDot.scss';
 import { Warning } from './Warning';
-import { iAttendee } from '/types';
+import { CertLevel, CertOrg, iAttendee } from '/types';
 import { getCert, getCertLevel } from '/util/cert-util';
+import { cn } from './util.js';
 
 export function CertDot({
   attendee,
@@ -18,34 +19,29 @@ export function CertDot({
   const cert = getCert(attendee);
   const verifiedCert = getCert(attendee, true);
 
-  let text = String(getCertLevel(attendee));
-  let cn;
+  if (!cert || (cert?.level ?? 0) <= 0) return null;
 
-  if (!verifiedCert) {
-    if (cert) {
-      return <Warning />;
-      // text = '\u26a0';
-      // cn = 'cert-dot-unverified';
-    } else {
-      return null;
-    }
-  } else {
-    text = `L${verifiedCert.level}`;
-    cn = `cert-dot-${verifiedCert.level}`;
+  let org: CertOrg = cert?.organization;
+  let level: CertLevel = cert?.level;
 
-    if (showType) {
-      text = `${cert?.organization} ${text}`;
-    }
+  if (verifiedCert) {
+    org = verifiedCert.organization;
+    level = verifiedCert.level;
   }
 
   return (
     <span
-      className={`cert-dot text-uppercase text-nowrap my-auto px-1 ${cn} ${
-        className ?? ''
-      }`}
+      className={cn(
+        className,
+        'cert-dot text-uppercase text-nowrap my-auto',
+        `org-${org}`,
+        `level-${level}`
+      )}
       {...props}
     >
-      {text}
+      <span className='level'>L{level}</span>
+      {showType ? <span className='org ps-1'>({org})</span> : null}
+      {cert && !verifiedCert && level > 0 ? <Warning className='ps-1' /> : null}
     </span>
   );
 }

@@ -46,7 +46,7 @@ export function UsersPane() {
       break;
     default:
       filter = ALL;
-      title = 'All Attendees';
+      title = 'Everyone';
       break;
   }
 

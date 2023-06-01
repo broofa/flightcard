@@ -1,5 +1,4 @@
 .cert-dot {
-  $certUnverified: rgb(196, 0, 0);
   $cert0: rgba(0, 0, 0, 0.2);
   $cert1: rgb(122, 114, 0);
   $cert2: rgb(170, 20, 0);
@@ -10,9 +9,29 @@
   // border-radius: .5em/.35em;
   // background-color: rgba(255, 255, 255, .5);
 
-  &.cert-dot-unverified {color: $certUnverified}
-  &.cert-dot-0 {color: $cert0}
-  &.cert-dot-1 {color: $cert1}
-  &.cert-dot-2 {color: $cert2}
-  &.cert-dot-3 {color: $cert3}
+  .warning {
+    color: red;
+  }
+
+  .l1 {
+    color: $cert1;
+  }
+  .l2 {
+    color: $cert2;
+  }
+  .l3 {
+    color: $cert3;
+  }
+
+  .org {
+    font-size: .7em;
+    vertical-align: top;
+    font-weight: 600;
+  }
+  &.org-NAR .org {
+    color: darken(blue, 20%);
+  }
+  &.org-TRA .org {
+    color: darken(red, 20%);
+  }
 }

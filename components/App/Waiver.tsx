@@ -32,57 +32,39 @@ export function Waiver() {
 
   return (
     <div className='m-4'>
-      <h1 style={{ textTransform: 'uppercase', textAlign: 'center' }}>
-        Rocket launches are dangerous
+      <h1 style={{ textAlign: 'center' }}>
+        This is a Dangerous Activity
         <br />
         {'\u2620'} {'\u2620'} {'\u2620'}{' '}
       </h1>
 
       <p>
-        It is your responsibility to be informed and aware of the risks
-        involved.{' '}
-        <strong>By clicking "I agree", you agree to the following: </strong>
+        <strong>Before proceeding, you must agree to the following:</strong>
       </p>
 
-      <ul>
+      <ol>
         <li>
-          You have completed and signed all waiver and release forms required by
-          the event hosts.
+          You meet all attendance requirements set by the event hosts.
+          <br />
+          <em className='text-danger'>
+            Unsure what these are? Contact the event host.
+          </em>
         </li>
 
         <li>
-          You have been informed of the safety practices put in place by the
-          event hosts and agree to abide by them.
+          You hold harmless the authors of {APPNAME} (this application).
+          <br />
+          <em className='text-danger'>
+            This app is experimental and under active development. Do not expect
+            it to be reliable or correct. Always verify any information it
+            provides with an independent source.
+          </em>
         </li>
-
-        <li>
-          You agree that {APPNAME} is an experimental application and, as such,
-          comes with no warranty as to it's correctness or reliability.
-        </li>
-      </ul>
-
-      <p>
-        On that last point, this app is under active development. It may or may
-        not work properly, features may break, information may be missing or
-        incorrect, and it may change at a moment's notice.{' '}
-        <strong style={{ textDecoration: 'underline' }}>
-          Use of {APPNAME} must never replace common sense and the established
-          safety practices necessary for the safe operation of a rocket launch.
-        </strong>{' '}
-      </p>
-      <p>
-        It is up to you to understand the risks of these events, pay attention,
-        and be safe!
-      </p>
-
-      <em className='text-danger'>
-        If you have questions or are unsure about any of the above, contact the
-        event host before proceeding!
-      </em>
+      </ol>
 
       <div className='d-flex justify-content-between mt-3'>
         <FCLinkButton variant='danger' to='/launches'>
-          Nope
+          No Thanks
         </FCLinkButton>
         <Button ref={agreeRef} onClick={launchAgree}>
           I Agree

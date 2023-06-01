@@ -60,14 +60,10 @@ export function AttendeeInfo({
                 color: '#eb0',
                 top: -20,
                 left: -10,
+                textShadow: '1px 1px 1px rgba(0,0,0,1)',
               }}
             >
               {'\u2605'}
-            </span>
-          ) : null}
-          {attendee.role ? (
-            <span className='me-2 px-1 bg-info text-white'>
-              {attendee.role?.toUpperCase()}
             </span>
           ) : null}
           <CertDot
@@ -75,6 +71,11 @@ export function AttendeeInfo({
             className='flex-grow-0'
             attendee={attendee}
           />
+          {attendee.role ? (
+            <span className='ms-2 me-2 px-1 bg-info text-white'>
+              {attendee.role?.toUpperCase()}
+            </span>
+          ) : null}
         </div>
       </div>
     </div>
