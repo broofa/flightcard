@@ -31,6 +31,7 @@ export const PAD_PATH = PADS_PATH.append<PadIdField>(':padId');
 
 export const LAUNCHES_PATH = new RTPath('/launches');
 export const LAUNCH_PATH = LAUNCHES_PATH.append<LaunchIdField>(':launchId');
+export const LAUNCH_RIDEALONG_PATH = LAUNCH_PATH.append('ridealong');
 
 export const CARDS_INDEX_PATH = new RTPath('/cards');
 export const CARDS_PATH = CARDS_INDEX_PATH.append<LaunchIdField>(':launchId');

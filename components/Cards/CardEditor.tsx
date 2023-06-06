@@ -2,8 +2,12 @@ import React, { HTMLAttributes, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import { TCMotor } from 'thrustcurve-db';
-import { useIsOfficer } from '../contexts/OfficersContext';
-import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
+import { useIsOfficer } from '../contexts/officer_hooks';
+import {
+  useCurrentAttendee,
+  usePads,
+  useUserUnits,
+} from '../contexts/rt_hooks';
 import { AttendeeInfo } from '../Launch/UserList';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
@@ -107,7 +111,7 @@ export default function CardEditor() {
 
       <FormSection className='d-flex'>Rocket</FormSection>
 
-      <UnitsFAQ />
+      {isReadOnly ? null : <UnitsFAQ />}
 
       <div className='d-grid deck'>
         <rtui.StringInput

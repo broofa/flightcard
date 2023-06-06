@@ -1,7 +1,11 @@
 import React, { HTMLAttributes, useMemo } from 'react';
 import { useMatch } from 'react-router-dom';
-import { useIsOfficer } from '../contexts/OfficersContext';
-import { useCurrentAttendee, usePads, useUserUnits } from '../contexts/rthooks';
+import { useIsOfficer } from '../contexts/officer_hooks';
+import {
+  useCurrentAttendee,
+  usePads,
+  useUserUnits,
+} from '../contexts/rt_hooks';
 import UnitsPref from '../Profile/UnitsPref';
 import { rtuiFromPath } from '../rtui/RTUI';
 import { cn, Loading, sig } from '/components/common/util';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLaunch } from '../contexts/rthooks';
+import { useLaunch } from '../contexts/rt_hooks';
 import './Stats.scss';
 import { AttendeesByCert } from './widgets/AttendeesByCert';
 import LCOActivity from './widgets/LCOActivity';

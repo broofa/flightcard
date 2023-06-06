@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ColorChits from '../Cards/ColorChits';
 import { Loading } from '../common/util';
 import { Warning } from '../common/Warning';
-import { useAttendees } from '../contexts/rthooks';
+import { useAttendees } from '../contexts/rt_hooks';
 import '/components/Launch/LaunchCard.scss';
 import { iAttendee, iCard } from '/types';
 import { getCertLevel, getCertVerified } from '/util/cert-util';

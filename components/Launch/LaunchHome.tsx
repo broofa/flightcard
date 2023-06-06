@@ -3,8 +3,8 @@ import { Card, Nav } from 'react-bootstrap';
 import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
-import { useIsOfficer } from '../contexts/OfficersContext';
-import { useCurrentAttendee, useLaunch } from '../contexts/rthooks';
+import { useIsOfficer } from '../contexts/officer_hooks';
+import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
 import ProfileName from '../Profile/NamePref';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
@@ -38,7 +38,7 @@ export default function LaunchHome() {
         <h2>"Hi, My Name Is..."</h2>
         <div className='text-tip'>
           Knowing who's here helps keep the launch safe and fun! You can always
-          change this later in             <FCLink to='profile'>Your Profile</FCLink>
+          change this later in <FCLink to='profile'>Your Profile</FCLink>
         </div>
 
         <ProfileName
@@ -77,8 +77,8 @@ export default function LaunchHome() {
           />
           <div className='flex-grow-1 nav flex-column'>
             <h5 className='mt-3'>Spectators</h5>
-            <FCLink to='users'>View Attendees</FCLink>
-            <FCLink to='lco'>Launch Control Ride-Along</FCLink>
+            <FCLink to='users/all'>View Attendees</FCLink>
+            <FCLink to='ridealong'>Ride Along With Launch Control</FCLink>
             <FCLink to={launchUrl('report')}>See Launch Stats</FCLink>
           </div>
         </Card>

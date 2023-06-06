@@ -33,7 +33,7 @@ export interface iLaunch {
   host: string;
   startDate: string;
   endDate: string;
-  rangeOpen: boolean;
+  ridealong?: string;
 }
 export type iLaunches = Record<string, iLaunch>;
 

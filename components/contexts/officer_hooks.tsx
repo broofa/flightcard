@@ -1,4 +1,4 @@
-import { useCurrentAttendee, useOfficers } from './rthooks';
+import { useCurrentAttendee, useOfficers } from './rt_hooks';
 import { iAttendee } from '/types';
 
 export function useIsOfficer() {

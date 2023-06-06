@@ -1,4 +1,5 @@
 import React, { HTMLAttributes } from 'react';
+import { cn } from '../common/util.js';
 
 // X11 colors, minus really unlikely stuff
 export const COLORS = new Set([
@@ -56,6 +57,7 @@ export const COLORS = new Set([
 
 export default function ColorChits({
   colors,
+  className,
   ...props
 }: { colors: string } & HTMLAttributes<HTMLDivElement>) {
   if (/rainbow/i.test(colors)) {
@@ -71,6 +73,7 @@ export default function ColorChits({
       {match.map((color, i) =>
         COLORS.has(color) ? (
           <div
+            className={cn(className, 'no-invert')}
             style={{ backgroundColor: color }}
             key={`chit-${i}`}
             {...props}

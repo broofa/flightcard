@@ -1,7 +1,7 @@
 import React from 'react';
 import { ModalProps } from 'react-bootstrap';
-import { useIsOfficer } from '../contexts/OfficersContext';
-import { useCurrentAttendee } from '../contexts/rthooks';
+import { useIsOfficer } from '../contexts/officer_hooks';
+import { useCurrentAttendee } from '../contexts/rt_hooks';
 import {
   DeleteButton,
   getCardPermissions,

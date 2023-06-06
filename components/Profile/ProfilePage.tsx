@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentAttendee, useLaunch } from '../contexts/rthooks';
+import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
 import CertPref from './CertPref';
 import ProfileName from './NamePref';
 import UnitsPref from './UnitsPref';

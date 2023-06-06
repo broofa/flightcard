@@ -1,7 +1,7 @@
 import React from 'react';
 import { ButtonGroup } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
-import { useLaunch } from '../contexts/rthooks';
+import { useLaunch } from '../contexts/rt_hooks';
 import { UserList } from './UserList';
 import { LinkButton, Loading } from '/components/common/util';
 import { iAttendee, iPerm } from '/types';

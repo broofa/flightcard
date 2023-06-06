@@ -8,7 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { flash } from '../common/Flash';
 import { busy, Loading } from '../common/util';
-import { useCurrentAttendee, usePads } from '../contexts/rthooks';
+import { useCurrentAttendee, usePads } from '../contexts/rt_hooks';
 import { DELETE, rtRemove, rtUpdate } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard } from '/types';

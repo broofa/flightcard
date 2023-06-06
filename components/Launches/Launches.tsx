@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { isMock } from '../Admin/MockDB';
-import { useCurrentUser, useLaunches } from '../contexts/rthooks';
+import { useCurrentUser, useLaunches } from '../contexts/rt_hooks';
 import { CreateLaunchModal } from './CreateLaunchModal';
 import EventCard from './EventCard';
 import { cn, Loading } from '/components/common/util';
@@ -38,8 +38,9 @@ export default function Launches() {
       {launches ? (
         <>
           <p className=''>
-            <span className='fw-bold'>'Just here to explore the app?</span> Check into one of the "
-            <span className='mock'>Test</span>" launches to see what a launch with plenty of people and flights looks like.
+            <span className='fw-bold'>'Just here to explore the app?</span>{' '}
+            Check into one of the "<span className='mock'>Test</span>" launches
+            to see what a launch with plenty of people and flights looks like.
           </p>
           <div className='deck'>
             {Object.values(launches)
@@ -71,8 +72,8 @@ export default function Launches() {
         </>
       ) : (
         <p>
-          This is rather unexpected. Try clicking the "New Launch" button and let's
-          see what happens...?
+          This is rather unexpected. Try clicking the "New Launch" button and
+          let's see what happens...?
         </p>
       )}
     </>

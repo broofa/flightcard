@@ -1,12 +1,12 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
-import { useIsOfficer } from '../contexts/OfficersContext';
+import { useIsOfficer } from '../contexts/officer_hooks';
 import {
   useAttendees,
   useCards,
   useCurrentAttendee,
   useLaunch,
-} from '../contexts/rthooks';
+} from '../contexts/rt_hooks';
 import RolePref from '../Profile/RolePref';
 import { LaunchCard } from './LaunchCard';
 import { Loading } from '/components/common/util';

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
 import { Loading } from '../../common/util';
-import { useAttendees, useCards } from '../../contexts/rthooks';
+import { useAttendees, useCards } from '../../contexts/rt_hooks';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 export default function RSOActivity() {

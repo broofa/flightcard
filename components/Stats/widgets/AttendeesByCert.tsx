@@ -3,7 +3,7 @@ import { Card } from 'react-bootstrap';
 import { Bar, VictoryBar, VictoryChart } from 'victory';
 import { certString } from '../../../util/cert-util';
 import { Loading } from '../../common/util';
-import { useAttendees } from '../../contexts/rthooks';
+import { useAttendees } from '../../contexts/rt_hooks';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 export function AttendeesByCert() {

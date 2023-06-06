@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, Nav, Navbar } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
-import { useCurrentUser, useLaunch } from '../contexts/rthooks';
+import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import { APPNAME } from './App';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';

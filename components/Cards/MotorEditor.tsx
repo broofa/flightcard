@@ -3,7 +3,7 @@ import React, { ChangeEvent, HTMLAttributes, useRef, useState } from 'react';
 import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
 import { busy, sig } from '../common/util';
-import { useUserUnits } from '../contexts/rthooks';
+import { useUserUnits } from '../contexts/rt_hooks';
 import './MotorEditor.scss';
 import { DELETE, rtRemove, rtSet } from '/rt';
 import { CardFields, CARD_MOTOR_PATH } from '/rt/rtconstants';

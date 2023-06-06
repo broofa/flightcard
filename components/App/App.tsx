@@ -12,7 +12,7 @@ import Admin from '../Admin/Admin';
 import { FlashList } from '../common/Flash';
 import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
 import { LaunchStateProvider } from '../contexts/LaunchStateContext';
-import { useCurrentAttendee } from '../contexts/rthooks';
+import { useCurrentAttendee } from '../contexts/rt_hooks';
 import Launch from '../Launch/Launch';
 import LaunchHome from '../Launch/LaunchHome';
 import Launches from '../Launches/Launches';

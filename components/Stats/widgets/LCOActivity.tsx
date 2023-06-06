@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
 import { Loading } from '../../common/util';
-import { useAttendees } from '../../contexts/rthooks';
+import { useAttendees } from '../../contexts/rt_hooks';
 import { useFlownCards } from '../stat_hooks';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
 

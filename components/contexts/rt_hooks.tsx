@@ -49,6 +49,11 @@ export function useAttendees() {
   return useContext(launchStateContext).attendees;
 }
 
+export function useAttendee(attendeeId: string) {
+  const [attendees, loading, error] = useContext(launchStateContext).attendees;
+  return [attendees?.[attendeeId], loading, error] as RTState<iAttendee>;
+}
+
 export function useOfficers() {
   return useContext(launchStateContext).officers;
 }

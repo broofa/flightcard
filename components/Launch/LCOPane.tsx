@@ -1,13 +1,13 @@
 import React, { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
 import { Button } from 'react-bootstrap';
-import { useIsOfficer } from '../contexts/OfficersContext';
+import { useIsOfficer } from '../contexts/officer_hooks';
 import {
   useAttendees,
   useCards,
   useCurrentAttendee,
   useLaunch,
   usePads,
-} from '../contexts/rthooks';
+} from '../contexts/rt_hooks';
 import RolePref from '../Profile/RolePref';
 import { LaunchCard } from './LaunchCard';
 import { busy, Loading } from '/components/common/util';

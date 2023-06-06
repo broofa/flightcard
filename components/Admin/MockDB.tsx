@@ -172,7 +172,6 @@ function mockLaunches(root: DBRoot) {
 
     const id = genId('launch');
     root.launches[id] = {
-      rangeOpen: false,
       id,
       name,
       ...host,
