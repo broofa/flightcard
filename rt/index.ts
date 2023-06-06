@@ -14,6 +14,11 @@ import {
 import { useEffect, useState } from 'react';
 import { RTPath } from './RTPath';
 import { errorTrap } from '/components/common/Flash';
+import {
+  addOfflineDataListener,
+  getOfflineData,
+  setOfflineData,
+} from './offline';
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
@@ -41,35 +46,72 @@ export const auth = getAuth(app);
 
 export type RTState<T> = [T | undefined, boolean, Error | undefined];
 
-export async function rtGet<T>(path: RTPath): Promise<T> {
-  return path.isValid()
-    ? (await errorTrap(dbGet(dbRef(database, String(path))))).val()
-    : undefined;
+export function rtGet<T>(path: RTPath): Promise<T | undefined> {
+  if (process.env.OFFLINE) {
+    return new Promise((resolve, reject) => {
+      try {
+        resolve(getOfflineData(path));
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  if (!path.isValid()) return Promise.resolve(undefined);
+
+  return errorTrap(
+    dbGet(dbRef(database, path.toString())).catch(snapshot => snapshot.val())
+  );
 }
 
 export function rtSet<T = never>(path: RTPath, value: T) {
+  if (process.env.OFFLINE) {
+    console.log('HERE', path);
+    return errorTrap(setOfflineData(path, value));
+  }
+
   return errorTrap(dbSet(dbRef(database, String(path)), value));
 }
 
 export function rtRemove(path: RTPath) {
-  return errorTrap(dbRemove(dbRef(database, String(path))));
+  if (process.env.OFFLINE) {
+    return errorTrap(setOfflineData(path, undefined));
+  }
+
+  return errorTrap(dbRemove(dbRef(database, path.toString())));
 }
 
 export function rtUpdate<T = never>(path: RTPath, state: Partial<T>) {
-  return errorTrap(dbUpdate(dbRef(database, String(path)), state));
+  if (process.env.OFFLINE) {
+    return errorTrap(setOfflineData(path, state));
+  }
+
+  return errorTrap(dbUpdate(dbRef(database, path.toString()), state));
 }
 
 export function rtTransaction() {
-  const updates: { [key: string]: unknown } = {};
+  const updates = new Map<RTPath, unknown>();
   return {
     updates,
 
     update<T = never>(path: RTPath, state: Partial<T> | undefined) {
-      updates[path.toString()] = state;
+      updates.set(path, state);
     },
 
     async commit() {
-      return errorTrap(dbUpdate(dbRef(database), updates));
+      if (process.env.OFFLINE) {
+        for (const [path, state] of updates) {
+          setOfflineData(path, state);
+        }
+        return;
+      }
+
+      const updateList = [...updates.entries()].map(([path, state]) => [
+        path.toString(),
+        state,
+      ]);
+
+      return errorTrap(dbUpdate(dbRef(database), updateList));
     },
   };
 }
@@ -94,8 +136,19 @@ export function useRTValue<T = never>(
     setLoading(true);
     setError(undefined);
 
+    if (process.env.OFFLINE) {
+      setVal(getOfflineData(path) as T);
+      setLoading(false);
+
+      if (setter) {
+        return addOfflineDataListener(path, setter);
+      }
+
+      return;
+    }
+
     const unsubscribe = dbOnValue(
-      dbRef(database, String(path)),
+      dbRef(database, path.toString()),
       s => {
         const dbVal = s.val() as T | undefined;
         if (setter) setter(dbVal);

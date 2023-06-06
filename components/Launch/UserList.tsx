@@ -1,6 +1,5 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { isMock } from '../Admin/MockDB';
 import { ANONYMOUS } from '../App/App';
 import { Warning } from '../common/Warning';
 import { useIsOfficer, useRoleAPI } from '../contexts/OfficersContext';
@@ -15,6 +14,7 @@ import {
   OFFICER_PATH,
 } from '/rt/rtconstants';
 import { CertOrg, iAttendee, iCert, iPerm } from '/types';
+import isMock from '/mock/isMock';
 import { arraySort } from '/util/arrayUtils';
 
 const DEFAULT_PROFILE_IMAGE = new URL(

@@ -26,7 +26,7 @@ export const OFFICERS_PATH = new RTPath<LaunchIdField>('/officers/:launchId');
 export const OFFICER_PATH = OFFICERS_PATH.append<UserIdField>(':userId');
 
 export const PADS_INDEX_PATH = new RTPath('/pads');
-export const PADS_PATH = PADS_INDEX_PATH.append<LaunchIdField>('/:launchId');
+export const PADS_PATH = PADS_INDEX_PATH.append<LaunchIdField>(':launchId');
 export const PAD_PATH = PADS_PATH.append<PadIdField>(':padId');
 
 export const LAUNCHES_PATH = new RTPath('/launches');

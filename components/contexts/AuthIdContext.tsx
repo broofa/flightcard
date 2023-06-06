@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { flash } from '../common/Flash';
 import { checkForEmailLinkLogin } from '../Login/checkForEmailLinkLogin';
 import { auth, rtGet, RTState, rtUpdate } from '/rt';
+import { getOfflineData } from '../../rt/offline';
 import { USER_PATH } from '/rt/rtconstants';
 import { iUser } from '/types';
 
@@ -45,7 +46,8 @@ export async function loginUpdateUser(user: User) {
 export function AuthUserProvider({ children }: PropsWithChildren) {
   const { Provider } = authUserContext;
 
-  const [authUser, setAuthUser] = useState<User>();
+  // eslint-disable-next-line prefer-const
+  let [authUser, setAuthUser] = useState<User>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error>();
   const navigate = useNavigate();
@@ -65,6 +67,16 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
   // Check href to see if this is a login via email-link
   useEffect(() => {
     (async function () {
+      if (process.env.OFFLINE) {
+        const offlineUser = { uid: 'demoid' } as User;
+        setAuthUser(offlineUser);
+        setLoading(false);
+        setError(undefined);
+        await loginUpdateUser(offlineUser);
+
+        return;
+      }
+
       let userCredential;
       try {
         userCredential = await checkForEmailLinkLogin();
@@ -101,7 +113,7 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
       // Sign up for auth changes
       auth.onAuthStateChanged(onAuth, onError);
     })();
-  }, []);
+  }, [navigate]);
 
   return <Provider value={[authUser, loading, error]}>{children}</Provider>;
 }

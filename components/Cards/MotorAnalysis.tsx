@@ -12,14 +12,12 @@ import {
 import { iCard, iRocket } from '/types';
 import { getMotor } from '/util/motor-util';
 import { MKS, unitConvert } from '/util/units';
+import { GRAVITY_ACC } from '../../constants.js';
 
 const INTERESTING = [
   new URL('/media/interesting.webm', import.meta.url).toString(),
   new URL('/media/interesting.mp4', import.meta.url).toString(),
 ];
-
-// Force of gravity (m/^2)
-export const GRAVITY_ACC = 9.807;
 
 // Minimum velocity needed for rocket to be aerodynamically stable (m/s)
 const STABLE_SPEED = 13.89;

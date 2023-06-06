@@ -28,7 +28,6 @@ export function LaunchStateProvider({
   children,
 }: PropsWithChildren<{ launchId?: string }>) {
   const { Provider } = launchStateContext;
-
   const launchFields = launchId ? { launchId } : undefined;
 
   const launch = useRTValue<iLaunch>(LAUNCH_PATH.with(launchFields));
