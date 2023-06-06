@@ -52,6 +52,7 @@
     "lint": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run clean && parcel index.html",
+    "start:offline": "OFFLINE=1 npm run clean && parcel index.html",
     "build": "npm run clean && parcel build index.html",
     "worker:start": "cd worker && yarn start",
     "worker:deploy": "cd worker && yarn deploy"

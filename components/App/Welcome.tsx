@@ -8,8 +8,11 @@ export default function Welcome() {
       <h1 className='m-4'>Welcome to {APPNAME}</h1>
 
       <p>
-        Pretend there's useful content here, and then head over to ...
-        <FCLinkButton className='d-block my-3' to='/launches'>Launches</FCLinkButton>
+        We'll eventually have an introduction and documentation here. For now
+        you should just head over to ...
+        <FCLinkButton className='d-block my-3' to='/launches'>
+          Launches
+        </FCLinkButton>
       </p>
     </>
   );
