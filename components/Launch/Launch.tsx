@@ -1,7 +1,6 @@
-import React, { HTMLAttributes, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Alert } from 'react-bootstrap';
 import {
-  Navigate,
   Location as RouterLocation,
   Route,
   Routes,
@@ -9,14 +8,14 @@ import {
 } from 'react-router-dom';
 import CardEditor from '../Cards/CardEditor';
 import CardSummary from '../Cards/CardSummary';
-import { useAttendee, useCurrentUser, useLaunch } from '../contexts/rt_hooks';
+import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
 import ProfilePage from '../Profile/ProfilePage';
 import Stats from '../Stats/Stats';
 import { CardsPane } from './CardsPane';
 import { LCOPane } from './LCOPane';
 import { RSOPane } from './RSOPane';
 import { UsersPane } from './UsersPane';
-import { cn, Loading } from '/components/common/util';
+import { Loading } from '/components/common/util';
 import { LaunchCard } from '/components/Launch/LaunchCard';
 import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
 import { iAttendees, iCard } from '/types';
@@ -52,13 +51,12 @@ export function CardList({
 }
 
 function Launch() {
-  const [currentUser, userLoading] = useCurrentUser();
   const location = useLocation();
   const roleApi = useRoleAPI();
   const [launch] = useLaunch();
   const rtPath = LAUNCH_RIDEALONG_PATH.with({ launchId: launch?.id ?? '' });
   const [ridealongPath] = useRTValue<string>(rtPath);
-  const [currentAttendee] = useAttendee(currentUser?.id ?? '');
+  const [currentAttendee, currentAttendeeLoading] = useCurrentAttendee();
 
   // Capture and publish navigation events for the "LCO ride along" feature
   useEffect(() => {
@@ -71,11 +69,15 @@ function Launch() {
     }
   }, [location, launch, currentAttendee, roleApi, rtPath]);
 
-  if (!currentUser && userLoading) return <Loading wat='User (Launch)' />;
+  if (!currentAttendee && currentAttendeeLoading)
+    return <Loading wat='User (Launch)' />;
 
   // Override location for LCO ride along
   let path: RouterLocation | string | undefined = location;
-  if (/\/ridealong$/.test(location.pathname)) {
+  if (
+    !roleApi.isLCO(currentAttendee) &&
+    /\/ridealong$/.test(location.pathname)
+  ) {
     path = ridealongPath;
   }
 

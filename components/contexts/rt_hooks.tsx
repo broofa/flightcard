@@ -6,18 +6,6 @@ import { ATTENDEE_PATH, LAUNCHES_PATH, USER_PATH } from '/rt/rtconstants';
 import { iAttendee, iLaunches, iUser } from '/types';
 import { MKS, tUnitSystem, USCS } from '/util/units';
 
-export function useCurrentAttendee() {
-  const [currentUser] = useCurrentUser();
-  const [launch] = useLaunch();
-
-  return useRTValue<iAttendee>(
-    ATTENDEE_PATH.with({
-      launchId: launch?.id ?? '',
-      userId: currentUser?.id ?? '',
-    })
-  );
-}
-
 export function useCurrentUser() {
   const [authUser, authLoading, authError] = useAuthUser();
   const authFields = authUser ? { authId: authUser.uid } : undefined;
@@ -47,6 +35,11 @@ export function useLaunch() {
 
 export function useAttendees() {
   return useContext(launchStateContext).attendees;
+}
+
+export function useCurrentAttendee() {
+  const userState = useCurrentUser();
+  return useAttendee(userState[0]?.id ?? '');
 }
 
 export function useAttendee(attendeeId: string) {
