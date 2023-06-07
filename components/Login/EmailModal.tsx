@@ -2,7 +2,7 @@ import { sendSignInLinkToEmail } from 'firebase/auth';
 import React, { useRef, useState } from 'react';
 import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
 import { APPNAME } from '../App/App';
-import { flash } from '../common/Flash';
+import { flash } from '../Flash/flash';
 import { EMAIL_KEY } from './Login';
 import { busy } from '/components/common/util';
 import { auth } from '/rt';

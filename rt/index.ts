@@ -13,7 +13,7 @@ import {
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { RTPath } from './RTPath';
-import { errorTrap } from '/components/common/Flash';
+import { errorTrap } from '/components/common/errorTrap';
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 

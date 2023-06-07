@@ -1,22 +1,17 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
-import Interesting from '../common/Interesting';
+import { MEME_INTERESTING, Meme } from '../Launch/Meme';
 import { useUserUnits } from '../contexts/rt_hooks';
 import { sig } from '/components/common/util';
 import { useRTValue } from '/rt';
 import {
-  CardFields,
   CARD_MOTORS_PATH,
+  CardFields,
   ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
 import { iCard, iRocket } from '/types';
 import { getMotor } from '/util/motor-util';
 import { MKS, unitConvert } from '/util/units';
-
-const INTERESTING = [
-  new URL('/media/interesting.webm', import.meta.url).toString(),
-  new URL('/media/interesting.mp4', import.meta.url).toString(),
-];
 
 // Force of gravity (m/^2)
 export const GRAVITY_ACC = 9.807;
@@ -43,9 +38,13 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   // There should be at least one stage 1 motor
   if (!stage1Motors.length) {
     return (
-      <Alert className='mt-3 p-2 text-center' variant='warning'>
-        <Interesting className='d-inline-block' caption='No Stage 1 motors?' />
-      </Alert>
+      <Meme
+        className='mt-3 p-2'
+        meme={MEME_INTERESTING}
+        style={{ height: '50cqmin', width: '20em'}}
+        topText='No Stage 1 motors?'
+        bottomText='... very interesting'
+      />
     );
   }
 

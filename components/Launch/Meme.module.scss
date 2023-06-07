@@ -1,0 +1,31 @@
+.root {
+  container-type: normal;
+  position: relative;
+  width: 100%;
+}
+
+.root img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain
+}
+
+.textTop,
+.textBottom {
+  color: white;
+  font-weight: 900;
+  font-size: 3cqh;
+  text-shadow: black 0 0 0.1em;
+  text-transform: uppercase;
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.textTop {
+  top: 1cqh;
+}
+.textBottom {
+  bottom: 1cqh;
+}

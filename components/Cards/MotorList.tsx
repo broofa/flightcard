@@ -3,12 +3,12 @@ import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
 import { Sparky } from '../common/Sparky';
 import { useRTValue } from '/rt';
-import { CardFields, CARD_MOTORS_PATH } from '/rt/rtconstants';
+import { CARD_MOTORS_PATH, CardFields } from '/rt/rtconstants';
 import { iMotor } from '/types';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
 import { getMotor } from '/util/motor-util';
 
-const LOGO_THRUSTCURVE = new URL('/art/thrustcurve.svg', import.meta.url);
+import LOGO_THRUSTCURVE from '/media/logos/logo-thrustcurve.svg';
 
 function MotorButton({
   motor,

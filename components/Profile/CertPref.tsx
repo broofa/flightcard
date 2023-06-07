@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { Alert, FloatingLabel, Form } from 'react-bootstrap';
-import { errorTrap } from '../common/Flash';
+import { errorTrap } from '../common/errorTrap';
 import { fetchHelper, HTTPResponseError } from '../common/useFetch';
 import { cn, Loading } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';

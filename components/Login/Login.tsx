@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router';
 import { APPNAME } from '../App/App';
-import { flash } from '../common/Flash';
+import { flash } from '../Flash/flash';
 import { loginUpdateUser } from '../contexts/AuthIdContext';
 import { EmailModal } from './EmailModal';
 import './Login.scss';

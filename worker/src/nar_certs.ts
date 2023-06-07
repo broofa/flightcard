@@ -3,11 +3,11 @@ import NarAPI, {
   createScanState,
   scanComplete,
   updateScanState,
-} from './nar/NarAPI.js';
+} from './nar/NarAPI';
 import { CertOrg, Env, iCert } from './cert_types';
-import { NARItem, NARPage } from './nar/nar_types.js';
-import { certsBulkUpdate } from './db_utils.js';
-import KVStore from './KVStore.js';
+import { NARItem, NARPage } from './nar/nar_types';
+import { certsBulkUpdate } from './db_utils';
+import KVStore from './KVStore';
 
 const SCAN_STATE_KEY = 'NAR.scanState';
 

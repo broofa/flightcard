@@ -3,7 +3,7 @@ import './CertDot.scss';
 import { Warning } from './Warning';
 import { CertLevel, CertOrg, iAttendee } from '/types';
 import { getCert, getCertLevel } from '/util/cert-util';
-import { cn } from './util.js';
+import { cn } from './util';
 
 export function CertDot({
   attendee,

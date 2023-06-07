@@ -6,13 +6,13 @@ import {
   FormSelectProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { flash } from '../common/Flash';
 import { busy, Loading } from '../common/util';
 import { useCurrentAttendee, usePads } from '../contexts/rt_hooks';
 import { DELETE, rtRemove, rtUpdate } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard } from '/types';
 import { arrayGroup, arraySort } from '/util/arrayUtils';
+import { flash } from '../Flash/flash';
 
 const { DRAFT, REVIEW, FLY, DONE } = CardStatus;
 

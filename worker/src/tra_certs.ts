@@ -1,7 +1,7 @@
 import { CertOrg, Env, iCert } from './cert_types';
-import { certsBulkUpdate } from './db_utils.js';
+import { certsBulkUpdate } from './db_utils';
 import { TRIPOLI_CERT_MAP } from './index';
-import KVStore from './KVStore.js';
+import KVStore from './KVStore';
 
 // See "Member Certification List(csv)" at
 // https://www.tripoli.org/content.aspx?page_id=22&club_id=795696&module_id=468541

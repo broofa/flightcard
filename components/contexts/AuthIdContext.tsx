@@ -7,11 +7,11 @@ import React, {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { flash } from '../common/Flash';
 import { checkForEmailLinkLogin } from '../Login/checkForEmailLinkLogin';
 import { auth, rtGet, RTState, rtUpdate } from '/rt';
 import { USER_PATH } from '/rt/rtconstants';
 import { iUser } from '/types';
+import { flash } from '../Flash/flash';
 
 const authUserContext = createContext<RTState<User>>([
   undefined,

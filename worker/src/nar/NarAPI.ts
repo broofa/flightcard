@@ -1,4 +1,4 @@
-import { NARItem, NARPage, NeonPagination } from './nar_types.js';
+import { NARItem, NARPage, NeonPagination } from './nar_types';
 
 /**
  * API for I/O with NAR database on Neon CRM.

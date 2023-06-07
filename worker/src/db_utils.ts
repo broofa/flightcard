@@ -1,4 +1,4 @@
-import { CertOrg, Env, iCert } from './cert_types.js';
+import { CertOrg, Env, iCert } from './cert_types';
 
 export async function certsFetch(
   env: Env,

@@ -2,15 +2,15 @@ import React, { FocusEventHandler, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
+import { flash } from '../Flash/flash';
+import { PadEditor } from '../LaunchEditor/PadEditor';
 import { FCLinkButton } from '../common/FCLinkButton';
-import { flash } from '../common/Flash';
 import {
   useAttendees,
   useCards,
   useLaunch,
   usePads,
 } from '../contexts/rt_hooks';
-import { PadEditor } from '../LaunchEditor/PadEditor';
 import { PadGroupEditor } from './PadGroupEditor';
 import FloatingInput from '/components/common/FloatingInput';
 import { Loading } from '/components/common/util';

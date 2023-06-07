@@ -9,7 +9,6 @@ import {
   useMatch,
 } from 'react-router-dom';
 import Admin from '../Admin/Admin';
-import { FlashList } from '../common/Flash';
 import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
 import { LaunchStateProvider } from '../contexts/LaunchStateContext';
 import { useCurrentAttendee } from '../contexts/rt_hooks';
@@ -23,6 +22,7 @@ import { LaunchNavBar } from './LaunchNavBar';
 import { Waiver } from './Waiver';
 import Welcome from './Welcome';
 import { Loading } from '/components/common/util';
+import { FlashList } from '../Flash/FlashList';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';

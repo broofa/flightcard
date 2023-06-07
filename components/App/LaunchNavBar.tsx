@@ -1,12 +1,31 @@
 import React from 'react';
-import { Alert, Nav, Navbar } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { Alert, Navbar } from 'react-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
-import { APPNAME } from './App';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import { auth } from '/rt';
+
+function NavBarLink({
+  launchId,
+  path,
+  icon,
+  label,
+}: {
+  launchId: string;
+  path: string;
+  icon?: string;
+  label?: string;
+}) {
+  return (
+    <NavLink
+      to={`/launches/${launchId}/${path}`}
+      key={path}
+      className='flex-grow-1 text-center py-2'
+    >
+      {label ? label : <Icon size='2em' name={icon ?? ''} />}
+    </NavLink>
+  );
+}
 
 export function LaunchNavBar() {
   const [launch, loading, error] = useLaunch();
@@ -30,34 +49,22 @@ export function LaunchNavBar() {
       >
         {currentUser && launch ? (
           <>
-            {[
-              ['', 'house-fill'],
-              ['cards', 'card-fill'],
-              ['rso', 'ui-checks'],
-              ['lco', 'rocket'],
-              // ['users', 'people-fill'],
-              // ['profile', 'gear-fill'],
-            ].map(([path, icon]) => (
-              <NavLink
-                to={`/launches/${launch.id}/${path}`}
-                key={path}
-                className='flex-grow-1 text-center py-2'
-              >
-                {<Icon size='2em' name={icon} />}
-              </NavLink>
-            ))}
+            <NavBarLink launchId={launch.id} path='' icon='house-fill' />
+            <NavBarLink launchId={launch.id} path='cards' icon='card-fill' />
+            <NavBarLink
+              launchId={launch.id}
+              path='lco'
+              label='LCO'
+              // icon='ui-checks'
+            />
+            <NavBarLink
+              launchId={launch.id}
+              path='rso'
+              label='RSO'
+              // icon='rocket'
+            />
           </>
-        ) : (
-          <>
-            <LinkContainer className='ms-2' to={'/launches'}>
-              <Navbar.Brand>{APPNAME}</Navbar.Brand>
-            </LinkContainer>
-            <div className='flex-grow-1' />
-            {currentUser ? (
-              <Nav.Link onClick={() => auth.signOut()}>Logout</Nav.Link>
-            ) : null}
-          </>
-        )}
+        ) : null}
       </Navbar>
 
       <div className='p-3' style={{ minHeight: 'calc(100vh - 38px - 65px)' }}>

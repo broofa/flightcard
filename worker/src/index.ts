@@ -11,8 +11,8 @@
  */
 
 import { CertOrg, Env } from './cert_types';
-import { certsFetch } from './db_utils.js';
-import { updateNARCerts } from './nar_certs.js';
+import { certsFetch } from './db_utils';
+import { updateNARCerts } from './nar_certs';
 import { updateTRACerts } from './tra_certs';
 
 /**
@@ -118,11 +118,6 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(
-      Promise.all([
-        updateTRACerts(env),
-        updateNARCerts(env),
-      ])
-    );
+    ctx.waitUntil(Promise.all([updateTRACerts(env), updateNARCerts(env)]));
   },
 };
