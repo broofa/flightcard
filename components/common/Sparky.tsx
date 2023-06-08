@@ -1,7 +1,8 @@
 import React, { HTMLAttributes } from 'react';
 import { Image } from 'react-bootstrap';
-import { fire } from '../Cards/MotorDetail';
+
+import FIRE_IMG from '/art/fire.gif';
 
 export function Sparky(props: HTMLAttributes<HTMLImageElement>) {
-  return <Image src={fire} {...props} />;
+  return <Image src={FIRE_IMG} {...props} />;
 }

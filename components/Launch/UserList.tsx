@@ -6,7 +6,7 @@ import { Warning } from '../common/Warning';
 import { useIsOfficer, useRoleAPI } from '../contexts/officer_hooks';
 import { useAttendees, useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import { CertDot } from '/components/common/CertDot';
-import { cn, Loading } from '/components/common/util';
+import { Loading, cn } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';
 import {
   ATTENDEE_NAR_CERT_PATH,
@@ -17,10 +17,7 @@ import {
 import { CertOrg, iAttendee, iCert, iPerm } from '/types';
 import { arraySort } from '/util/arrayUtils';
 
-const DEFAULT_PROFILE_IMAGE = new URL(
-  '/art/astronaut.svg',
-  import.meta.url
-).toString();
+import DEFAULT_PROFILE_IMAGE from '/art/astronaut.svg';
 
 export function AttendeeInfo({
   attendee,

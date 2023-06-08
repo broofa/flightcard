@@ -6,8 +6,6 @@ import { MKSValue } from './MKSValue';
 import { sig } from '/components/common/util';
 import { motorDisplayName } from '/util/motor-util';
 
-export const fire = new URL('/art/fire.gif', import.meta.url).toString();
-
 export function MotorDetail({
   motor,
   ...props

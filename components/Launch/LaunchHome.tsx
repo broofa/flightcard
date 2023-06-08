@@ -1,21 +1,19 @@
 import React from 'react';
 import { Card, Nav } from 'react-bootstrap';
+import ProfileName from '../Profile/NamePref';
 import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
-import ProfileName from '../Profile/NamePref';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
 import { auth } from '/rt';
 
-const IMAGES = {
-  SPECTATOR: new URL('/art/home_spectate.webp', import.meta.url),
-  FLIER: new URL('/art/home_fly.webp', import.meta.url),
-  OFFICER: new URL('/art/home_officiate.webp', import.meta.url),
-  OTHER: new URL('/art/home_other.webp', import.meta.url),
-};
+import SIDE_FLIER from '/art/home_fly.webp';
+import SIDE_OFFICER from '/art/home_officiate.webp';
+import SIDE_OTHER from '/art/home_other.webp';
+import SIDE_SPECTATOR from '/art/home_spectate.webp';
 
 export default function LaunchHome() {
   const [attendee] = useCurrentAttendee();
@@ -72,7 +70,7 @@ export default function LaunchHome() {
         <Card className='d-flex flex-row'>
           <img
             className='me-4'
-            src={IMAGES.SPECTATOR.toString()}
+            src={SIDE_SPECTATOR.toString()}
             style={{ height: '12em' }}
           />
           <div className='flex-grow-1 nav flex-column'>
@@ -86,7 +84,7 @@ export default function LaunchHome() {
         <Card className='d-flex flex-row'>
           <img
             className='me-4'
-            src={IMAGES.FLIER.toString()}
+            src={SIDE_FLIER.toString()}
             style={{ height: '12em' }}
           />
           <div className='flex-grow-1 nav flex-column'>
@@ -101,7 +99,7 @@ export default function LaunchHome() {
           <Card className='d-flex flex-row '>
             <img
               className='me-4'
-              src={IMAGES.OFFICER.toString()}
+              src={SIDE_OFFICER.toString()}
               style={{ maxHeight: '12em' }}
             />
             <div className='flex-grow-1 nav flex-column'>
@@ -118,7 +116,7 @@ export default function LaunchHome() {
         <Card className='d-flex flex-row '>
           <img
             className='me-4'
-            src={IMAGES.OTHER.toString()}
+            src={SIDE_OTHER.toString()}
             style={{ height: '13em' }}
           />
           <div className='flex-grow-1 nav flex-column'>

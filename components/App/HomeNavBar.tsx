@@ -4,7 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { APPNAME } from './App';
 import { auth } from '/rt';
 
-const LOGO_FC = new URL('/art/logo.svg', import.meta.url).toString();
+import LOGO_FC from '/art/logo.svg';
 
 export function HomeNavBar() {
   return (
