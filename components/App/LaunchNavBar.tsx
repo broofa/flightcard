@@ -20,7 +20,7 @@ function NavBarLink({
     <NavLink
       to={`/launches/${launchId}/${path}`}
       key={path}
-      className='flex-grow-1 text-center py-2'
+      className='flex-grow-1 text-center py-2 text-decoration-none'
     >
       {label ? label : <Icon size='2em' name={icon ?? ''} />}
     </NavLink>
@@ -53,15 +53,15 @@ export function LaunchNavBar() {
             <NavBarLink launchId={launch.id} path='cards' icon='card-fill' />
             <NavBarLink
               launchId={launch.id}
-              path='lco'
-              label='LCO'
-              // icon='ui-checks'
-            />
-            <NavBarLink
-              launchId={launch.id}
               path='rso'
               label='RSO'
               // icon='rocket'
+            />
+            <NavBarLink
+              launchId={launch.id}
+              path='lco'
+              label='LCO'
+              // icon='ui-checks'
             />
           </>
         ) : null}

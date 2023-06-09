@@ -1,8 +1,8 @@
 import NarAPI, {
   ScanState,
-  createScanState,
-  scanComplete,
-  updateScanState,
+  initScanState,
+  isScanComplete,
+  updateScanFields,
 } from './nar/NarAPI';
 import { CertOrg, Env, iCert } from './cert_types';
 import { NARItem, NARPage } from './nar/nar_types';
@@ -12,7 +12,7 @@ import KVStore from './KVStore';
 const SCAN_STATE_KEY = 'NAR.scanState';
 
 // Interval to wait after completing a scan before starting a new one.
-const IDLE_INTERVAL = 1 * 60 * 60 * 1000;
+const IDLE_INTERVAL = 6 * 60 * 60 * 1000;
 
 async function processCerts(env: Env, page: NARPage<NARItem>) {
   const certs: iCert[] = [];
@@ -75,39 +75,41 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
 
 export async function updateNARCerts(env: Env) {
   const { NAR_API_ORG = '', NAR_API_KEY = '' } = env;
+  const narAPI = new NarAPI(NAR_API_ORG, NAR_API_KEY);
 
   const kv = new KVStore(env);
 
+  // Recover scan state
   let scanState = await kv.get<ScanState>(SCAN_STATE_KEY);
   if (!scanState) {
-    scanState = createScanState();
+    scanState = initScanState();
   }
 
-  // If we've finished a scan recently, wait a while before starting the next
-  if (scanComplete(scanState.pagination)) {
+  // If previous scan completed ...
+  if (isScanComplete(scanState)) {
+    // Impose some idle time before starting a new scan (so we're not constantly
+    // hammering the Neon DB)
     const since = Date.now() - Number(scanState.updatedAt ?? 0);
     if (since < IDLE_INTERVAL) {
       console.warn(
-        `NAR: Skipping (${Math.floor(
+        `NAR: Idling for ${Math.floor(
           (IDLE_INTERVAL - since) / 60000
-        )} minutes to next update)`
+        )} minutes`
       );
       return;
     }
+
+    // Update query fields with the results of the previous scan
+    updateScanFields(scanState);
   }
 
-  const narAPI = new NarAPI(NAR_API_ORG, NAR_API_KEY);
-  // eslint-disable-next-line no-constant-condition
   const page = await narAPI.fetchMembers(scanState);
 
-  // Process page of members
+  // Persist scan state (sideband)
+  const kvTask = kv.put(SCAN_STATE_KEY, scanState);
+
+  // Process page
   await processCerts(env, page);
-
-  // Persist scan state
-  updateScanState(scanState, page);
-
-  scanState.updatedAt = new Date();
-  await kv.put(SCAN_STATE_KEY, scanState);
 
   if (scanState.pagination) {
     console.log(
@@ -116,4 +118,7 @@ export async function updateNARCerts(env: Env) {
       } pages`
     );
   }
+
+  // Make sure kv save completes before returning
+  await kvTask;
 }

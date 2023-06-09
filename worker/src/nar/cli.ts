@@ -1,10 +1,11 @@
 #!/usr/bin/env npx tsx
 
 import NarAPI, {
-  createScanState,
-  scanComplete,
-  updateScanState,
+  initScanState,
+  isScanComplete,
+  updateScanFields,
 } from './NarAPI';
+import { NeonPagination } from './nar_types';
 
 const [command] = process.argv.slice(2);
 
@@ -34,18 +35,22 @@ async function main() {
     // anything here would just have to be copy/pasted into the scheduled()
     // event handler).
     case 'fetch': {
-      const scanState = createScanState();
+      const scanState = initScanState();
+      scanState.pagination = {
+        currentPage: 351,
+      } as NeonPagination;
+
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        console.log('SCANSTATE', scanState);
         const page = await narAPI.fetchMembers(scanState);
-        updateScanState(scanState, page);
-        if (scanComplete(page.pagination)) {
-          break;
+        console.log('Results:', page.searchResults.length);
+        console.log('Scan state:', scanState);
+        console.log('Scan complete:', isScanComplete(scanState));
+
+        if (isScanComplete(scanState)) {
+          updateScanFields(scanState);
         }
       }
-
-      break;
     }
 
     default:

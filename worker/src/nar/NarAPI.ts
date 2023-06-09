@@ -74,7 +74,7 @@ function timestampToNeon(ts: number, dateOnly = false) {
   return dateOnly ? date : `${date} ${time.substring(0, -1)}`;
 }
 
-export function createScanState() {
+export function initScanState(): ScanState {
   return {
     queryAccountId: 0,
     queryTimestamp: 0,
@@ -83,25 +83,29 @@ export function createScanState() {
   };
 }
 
-export function scanComplete(pagination?: NeonPagination) {
-  return pagination && pagination.currentPage >= pagination.totalPages - 1;
+export function isScanComplete(scanState: ScanState) {
+  const { pagination } = scanState;
+  if (!pagination) return false;
+
+  return pagination.currentPage >= pagination.totalPages - 1;
 }
 
-export function updateScanState(scanState: ScanState, page: NARPage<NARItem>) {
+export function updateScanFields(scanState: ScanState) {
+  if (scanState.trackingAccountId <= 0 || scanState.trackingTimestamp <= 0) {
+    return;
+  }
+
+  scanState.queryAccountId = scanState.trackingAccountId;
+  scanState.queryTimestamp = scanState.trackingTimestamp;
+  scanState.trackingAccountId = 0;
+  scanState.trackingTimestamp = 0;
+}
+
+function updateScanState(scanState: ScanState, page: NARPage<NARItem>) {
   const { pagination } = page;
 
   scanState.pagination = pagination;
-
-  // If this is the last page of a scan, update the query fields and reset the
-  // tracking fields
-  if (scanComplete(pagination)) {
-    scanState.queryAccountId = scanState.trackingAccountId;
-    scanState.queryTimestamp = scanState.trackingTimestamp;
-    scanState.trackingAccountId = 0;
-    scanState.trackingTimestamp = 0;
-
-    return;
-  }
+  scanState.updatedAt = new Date();
 
   // Update tracking fields
   for (const item of page.searchResults) {
@@ -206,16 +210,15 @@ export default class NarAPI {
    * 2. Incremental updates:  Similar to the first scan, but limited to records
    *    that have been modified since the 'last modified date' recorded in stage
    */
-  async fetchMembers({
-    pagination: previousPagination,
-    queryAccountId,
-    queryTimestamp,
-  }: ScanState) {
-    queryAccountId ??= 0;
-    queryTimestamp ??= 0;
+  async fetchMembers(scanState: ScanState) {
+    const {
+      pagination: previousPagination,
+      queryAccountId,
+      queryTimestamp,
+    } = scanState;
 
     let currentPage = 0;
-    if (previousPagination && !scanComplete(previousPagination)) {
+    if (previousPagination && !isScanComplete(scanState)) {
       currentPage = previousPagination.currentPage + 1;
     }
 
@@ -259,6 +262,10 @@ export default class NarAPI {
 
     console.log(`NAR: Fetching page ${currentPage}...`);
 
-    return await this.accountQuery(options);
+    const page = await this.accountQuery(options);
+
+    updateScanState(scanState, page);
+
+    return page;
   }
 }

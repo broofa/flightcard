@@ -9,11 +9,13 @@ const TRA_MEMBERS_LIST = 'https://tripoli.org/docs.ashx?id=916333';
 
 const FETCH_INFO_KEY = 'TRA.fetchInfo';
 
-const UPDATE_INTERVAL = 6 * 60 * 60 * 1000;
+// Interval to wait before fetching again
+const IDLE_INTERVAL = 6 * 60 * 60 * 1000;
 
 type FetchInfo = {
   updatedAt: Date;
   certsFetched: number;
+  lastModified: string;
 };
 
 // fetch the members list from the source and parse it
@@ -71,11 +73,9 @@ export async function updateTRACerts(env: Env) {
 
   // Add a 1-hour fudge factor to account for clock skew between systems
   const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + 3600e3;
-  if (since < UPDATE_INTERVAL) {
+  if (since < IDLE_INTERVAL) {
     console.warn(
-      `TRA: Skipping (${Math.floor(
-        (UPDATE_INTERVAL - since) / 60000
-      )} minutes to next update)`
+      `TRA: Idling for ${Math.floor((IDLE_INTERVAL - since) / 60000)} minutes`
     );
     return;
   }
@@ -84,22 +84,21 @@ export async function updateTRACerts(env: Env) {
   const resp = await fetch(TRA_MEMBERS_LIST);
 
   //  Stop here if it hasn't been modified since we last checked
-  const lastModified = resp.headers.get('last-modified');
-  if (fetchInfo?.updatedAt && lastModified) {
-    if (Date.parse(lastModified) < Number(fetchInfo.updatedAt ?? 0)) {
-      console.warn('TRA: Skipping (not modified)');
-      return;
-    }
+  const lastModified = resp.headers.get('last-modified') ?? '';
+
+  if (!lastModified || lastModified !== fetchInfo?.lastModified) {
+  } else {
+    console.warn('TRA: Skipping (not modified)');
   }
 
   const certs = await fetchTripoliCerts();
 
-  await certsBulkUpdate(env, certs);
-
-  fetchInfo = {
-    updatedAt: new Date(),
-    certsFetched: certs.length,
-  };
-
-  await kv.put(FETCH_INFO_KEY, fetchInfo);
+  await Promise.all([
+    certsBulkUpdate(env, certs),
+    kv.put(FETCH_INFO_KEY, {
+      updatedAt: new Date(),
+      certsFetched: certs.length,
+      lastModified,
+    }),
+  ]);
 }
