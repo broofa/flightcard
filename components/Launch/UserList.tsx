@@ -5,7 +5,6 @@ import { ANONYMOUS } from '../App/App';
 import { Warning } from '../common/Warning';
 import { useIsOfficer, useRoleAPI } from '../contexts/officer_hooks';
 import { useAttendees, useCurrentUser, useLaunch } from '../contexts/rt_hooks';
-import { CertDot } from '/components/common/CertDot';
 import { Loading, cn } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';
 import {
@@ -17,67 +16,7 @@ import {
 import { CertOrg, iAttendee, iCert, iPerm } from '/types';
 import { arraySort } from '/util/arrayUtils';
 
-import DEFAULT_PROFILE_IMAGE from '/art/astronaut.svg';
-
-export function AttendeeInfo({
-  attendee,
-  className,
-  ...props
-}: {
-  attendee: iAttendee;
-  className?: string;
-} & HTMLAttributes<HTMLDivElement>) {
-  const roleApi = useRoleAPI();
-
-  const photoUrl = attendee.photoURL ?? DEFAULT_PROFILE_IMAGE;
-  return (
-    <div
-      className={cn(className, `d-flex align-items-center`)}
-      style={{ position: 'relative' }}
-      {...props}
-    >
-      <img
-        className='flex-grow-0 me-2'
-        src={photoUrl}
-        style={{
-          height: '48px',
-          width: '48px',
-          backgroundColor: 'white',
-          borderRadius: '50%',
-        }}
-      />
-      <div className='flex-grow-1 flex-column'>
-        <div>{attendee?.name ?? ANONYMOUS}</div>
-        <div>
-          {roleApi.isOfficer(attendee) ? (
-            <span
-              style={{
-                position: 'absolute',
-                fontSize: '25px',
-                color: '#eb0',
-                top: -20,
-                left: -10,
-                textShadow: '1px 1px 1px rgba(0,0,0,1)',
-              }}
-            >
-              {'\u2605'}
-            </span>
-          ) : null}
-          <CertDot
-            showType={true}
-            className='flex-grow-0'
-            attendee={attendee}
-          />
-          {attendee.role ? (
-            <span className='ms-2 me-2 px-1 bg-info text-white'>
-              {attendee.role?.toUpperCase()}
-            </span>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
-}
+import { AttendeeInfo } from './AttendeeInfo';
 
 export type UserFilterFunction =
   | (() => boolean)

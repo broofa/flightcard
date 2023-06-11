@@ -1,9 +1,10 @@
 import React, { HTMLAttributes } from 'react';
-import './CertDot.scss';
 import { Warning } from './Warning';
-import { CertLevel, CertOrg, iAttendee } from '/types';
-import { getCert, getCertLevel } from '/util/cert-util';
 import { cn } from './util';
+import { CertLevel, CertOrg, iAttendee } from '/types';
+import { getCert } from '/util/cert-util';
+
+import styles from './CertDot.module.scss';
 
 export function CertDot({
   attendee,
@@ -32,15 +33,15 @@ export function CertDot({
   return (
     <span
       className={cn(
+        styles.root,
         className,
-        'cert-dot text-uppercase text-nowrap my-auto',
-        `org-${org}`,
-        `level-${level}`
+        'certDot text-uppercase text-nowrap my-auto',
+        `org-${org}`
       )}
       {...props}
     >
-      <span className='level'>L{level}</span>
-      {showType ? <span className='org ps-1'>({org})</span> : null}
+      <span className={cn(styles[`l${level}`])}>L{level}</span>
+      <span className={cn('ps-1', styles[`org${org}`])}>({org})</span>
       {cert && !verifiedCert && level > 0 ? <Warning className='ps-1' /> : null}
     </span>
   );

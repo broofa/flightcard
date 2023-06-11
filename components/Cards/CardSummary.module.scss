@@ -1,0 +1,18 @@
+.manufacturer {
+  font-size: 1rem;
+  opacity: 70%;
+}
+
+.special::before {
+  content: 'Special: ';
+  font-weight: bold;
+  color: darken(red, 15%);
+}
+
+.notes:before {
+  text-indent: -4em;
+  content: 'note:';
+  font-weight: bold;
+  color: #aaa;
+  padding-right: 0.5em;
+}

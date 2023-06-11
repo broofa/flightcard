@@ -2,14 +2,10 @@ import React, { HTMLAttributes, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import { TCMotor } from 'thrustcurve-db';
-import { useIsOfficer } from '../contexts/officer_hooks';
-import {
-  useCurrentAttendee,
-  usePads,
-  useUserUnits,
-} from '../contexts/rt_hooks';
-import { AttendeeInfo } from '../Launch/UserList';
+import { AttendeeInfo } from '../Launch/AttendeeInfo';
 import UnitsPref from '../Profile/UnitsPref';
+import { useIsOfficer } from '../contexts/officer_hooks';
+import { useCurrentAttendee, useUserUnits } from '../contexts/rt_hooks';
 import { rtuiFromPath } from '../rtui/RTUI';
 import { CardActions } from './CardActions';
 import ColorChits from './ColorChits';
@@ -18,18 +14,18 @@ import { MotorDetail } from './MotorDetail';
 import { MotorEditor } from './MotorEditor';
 import { MotorList } from './MotorList';
 import UnitsFAQ from './UnitsFAQ';
-import { cn, Loading } from '/components/common/util';
+import { Loading, cn } from '/components/common/util';
 import { useRTValue } from '/rt';
 import { MKS } from '/util/units';
 
 import {
-  AttendeeFields,
   ATTENDEE_PATH,
-  CardFields,
+  AttendeeFields,
   CARD_PATH,
+  CardFields,
   ROCKET_PATH,
 } from '/rt/rtconstants';
-import { CardStatus, iAttendee, iCard, iMotor, Recovery } from '/types';
+import { CardStatus, Recovery, iAttendee, iCard, iMotor } from '/types';
 
 function FormSection({
   className,
@@ -46,7 +42,6 @@ function FormSection({
 export default function CardEditor() {
   const [userUnits = MKS] = useUserUnits();
   const [attendee] = useCurrentAttendee();
-  const [pads] = usePads();
   const [detailMotor, setDetailMotor] = useState<TCMotor>();
   const [editMotor, setEditMotor] = useState<iMotor>();
   const match = useMatch('launches/:launchId/cards/:cardId');
@@ -76,7 +71,6 @@ export default function CardEditor() {
 
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
-  if (!pads) return <Loading wat='Pads' />;
 
   const isOwner = attendee?.id == card?.userId;
   const isDraft = card?.status === CardStatus.DRAFT;
@@ -181,7 +175,7 @@ export default function CardEditor() {
         <rtui.Select
           disabled={isReadOnly}
           label='Recovery'
-          field='flight/recovery'
+          field='recovery'
         >
           <option value={''}>Unspecified</option>
           <option value={Recovery.CHUTE}>Chute</option>
@@ -211,7 +205,7 @@ export default function CardEditor() {
 
       {cardFields && <MotorAnalysis rtFields={cardFields} />}
 
-      <FormSection>Flight</FormSection>
+      <FormSection>Special</FormSection>
 
       <div
         className='d-flex rounded border my-3 py-2 px-3'
@@ -220,7 +214,6 @@ export default function CardEditor() {
           backgroundColor: disabled ? '#e9ecef' : 'inherit',
         }}
       >
-        <span className='me-3 flex-grow-0'>Special</span>
         <div
           className='flex-grow-1 d-grid'
           style={{
@@ -230,12 +223,12 @@ export default function CardEditor() {
         >
           <rtui.Check
             disabled={isReadOnly}
-            field='flight/firstFlight'
+            field='firstFlight'
             label='1st Flight'
           />
           <rtui.Check
             disabled={isReadOnly}
-            field='flight/headsUp'
+            field='headsUp'
             label='Heads Up'
           />
 

@@ -1,0 +1,14 @@
+:root {
+  cursor: default;
+  $cert1: rgb(122, 114, 0);
+  $cert2: rgb(170, 20, 0);
+  $cert3: rgb(129, 20, 139);
+
+  .warning {
+    color: red;
+  }
+
+  .orgNAR, .orgTRA {
+    opacity: 50%;
+  }
+}

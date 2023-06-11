@@ -1,52 +1,53 @@
-import React, { HTMLAttributes, useMemo } from 'react';
+import React from 'react';
 import { useMatch } from 'react-router-dom';
-import { useIsOfficer } from '../contexts/officer_hooks';
-import {
-  useCurrentAttendee,
-  usePads,
-  useUserUnits,
-} from '../contexts/rt_hooks';
 import UnitsPref from '../Profile/UnitsPref';
-import { rtuiFromPath } from '../rtui/RTUI';
-import { cn, Loading, sig } from '/components/common/util';
+import { useCurrentAttendee, useUserUnits } from '../contexts/rt_hooks';
+import { Loading, sig } from '/components/common/util';
 import { useRTValue } from '/rt';
 import { MKS, unitConvert } from '/util/units';
 
 import simplur from 'simplur';
+import { AttendeeInfo } from '../Launch/AttendeeInfo';
 import {
-  AttendeeFields,
   ATTENDEE_PATH,
-  CardFields,
+  AttendeeFields,
   CARD_PATH,
-  ROCKET_PATH,
+  CardFields,
 } from '/rt/rtconstants';
-import { CardStatus, iAttendee, iCard } from '/types';
+import { iAttendee, iCard, iRocket } from '/types';
 
-function FormSection({
-  className,
-  children,
-  ...props
-}: { className?: string } & HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn(className, `text-muted h2 mt-3`)} {...props}>
-      {children}
-    </div>
-  );
+import { Alert } from 'react-bootstrap';
+import styles from './CardSummary.module.scss';
+import ColorChits from './ColorChits';
+
+function RocketDimensions({ rocket }: { rocket?: iRocket }) {
+  const [userUnits = MKS] = useUserUnits();
+
+  if (!rocket) return null;
+
+  let { diameter, length } = rocket;
+  const text = [];
+  if (diameter != null) {
+    if (length != null) {
+      length = unitConvert(length, MKS.length, userUnits.length);
+      text.push(`${sig(length)} ${userUnits.length}`);
+    }
+    diameter = unitConvert(diameter, MKS.length, userUnits.lengthSmall);
+    text.push(`${sig(diameter)} ${userUnits.lengthSmall}`);
+  }
+  return <span>{text.join(' x ')}</span>;
 }
 
 export default function CardSummary() {
   const [userUnits = MKS] = useUserUnits();
   const [attendee] = useCurrentAttendee();
-  const [pads] = usePads();
   const match = useMatch('launches/:launchId/cards/:cardId/summary');
-  const isOfficer = useIsOfficer();
 
   const cardFields: CardFields = {
     launchId: match?.params.launchId ?? '',
     cardId: match?.params.cardId ?? '',
   };
   const [card] = useRTValue<iCard>(CARD_PATH.with(cardFields));
-  const cardPath = CARD_PATH.with(cardFields);
 
   const flierFields: AttendeeFields = {
     launchId: match?.params.launchId ?? '',
@@ -55,18 +56,36 @@ export default function CardSummary() {
   const flierPath = ATTENDEE_PATH.with(flierFields);
   const [flier] = useRTValue<iAttendee>(flierPath);
 
-  const colorsPath = ROCKET_PATH.append('color').with(cardFields);
-  const [colors] = useRTValue<string>(colorsPath);
-
-  const rtui = useMemo(() => {
-    return rtuiFromPath(cardPath, userUnits);
-  }, [cardPath, userUnits]);
-
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
-  if (!pads) return <Loading wat='Pads' />;
+  if (!flier) {
+    return <Loading wat='Flier' />;
+  }
 
-  const isDraft = card?.status === CardStatus.DRAFT;
+  const specials = [];
+  if (card.firstFlight) {
+    specials.push(
+      <div key={specials.length} className={styles.special}>
+        This is a <strong>First Flight</strong>
+      </div>
+    );
+  }
+  if (card.headsUp) {
+    specials.push(
+      <div key={specials.length} className={styles.special}>
+        This is a <strong>Heads Up</strong> flight
+      </div>
+    );
+  }
+
+  if (card.notes) {
+    specials.push(
+      <hr />,
+      <div key={specials.length} className={styles.notes}>
+        {card.notes}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -86,49 +105,31 @@ export default function CardSummary() {
         </div>
       </div>
 
+      <h2>
+        <AttendeeInfo
+          className='me-3 p-2 bg-light border border-dark rounded'
+          attendee={flier}
+        />
+      </h2>
+
       <div>
         <h3>
-          {flier?.name ?? '(mystery flier!)'}
-          &mdash; {card.rocket?.name} ({card.rocket?.manufacturer})
+          <span className={styles.name}>
+            {card.rocket?.name ? `"${card.rocket.name}"` : '(unnamed )'}
+          </span>{' '}
+          <span className={styles.manufacturer}>
+            {card.rocket?.manufacturer
+              ? `(${card.rocket?.manufacturer} kit)`
+              : null}
+          </span>
         </h3>
-        {flier?.photoURL ? (
-          <img
-            className='me-3'
-            src={flier?.photoURL}
-            style={{ maxWidth: '3em', float: 'left' }}
-          />
-        ) : null}
+
         <div
           className='d-grid'
-          style={{ gridTemplateColumns: 'max-content 1fr', gap: '0 1em' }}
+          style={{ gridTemplateColumns: 'max-content 1fr', gap: '.5em 1em' }}
         >
-          {card.rocket?.diameter ? (
-            <>
-              <div className='text-muted'>Diameter</div>
-              <div>
-                {sig(
-                  unitConvert(
-                    card.rocket.diameter,
-                    MKS.length,
-                    userUnits.lengthSmall
-                  )
-                )}{' '}
-                {userUnits.lengthSmall}
-              </div>
-            </>
-          ) : null}
-
-          {card.rocket?.length ? (
-            <>
-              <div className='text-muted'>Length</div>
-              <div>
-                {sig(
-                  unitConvert(card.rocket.length, MKS.length, userUnits.length)
-                )}{' '}
-                {userUnits.length}
-              </div>
-            </>
-          ) : null}
+          <div className='text-muted'>Length x Diam.:</div>
+          <RocketDimensions rocket={card.rocket} />
 
           {card.rocket?.mass ? (
             <>
@@ -143,11 +144,24 @@ export default function CardSummary() {
           {card.rocket?.color ? (
             <>
               <div className='text-muted'>Color(s)</div>
-              <div>{card.rocket.color}</div>
+              <div className='d-flex'>
+                <span className='flex-grow-0'>{card.rocket?.color}</span>
+                <div
+                  className='d-flex flex-row ms-2 my-1'
+                  style={{ flexBasis: '3em' }}
+                >
+                  <ColorChits
+                    className='flex-grow-1'
+                    colors={card.rocket?.color}
+                  />
+                </div>
+              </div>
             </>
           ) : null}
 
-          <div>{simplur`${[card?.motors?.length ?? 0]}Motor[s|]`}</div>
+          <div className='text-muted'>{simplur`${[
+            card?.motors?.length ?? 0,
+          ]}Motor[s|]`}</div>
           {card.motors
             ? Object.entries(card.motors).map(([motorId, motor]) => (
                 <div key={motorId}>{motor.name}</div>
@@ -155,6 +169,13 @@ export default function CardSummary() {
             : null}
         </div>
       </div>
+      {specials.length ? (
+        <>
+          <Alert className='mt-2' variant='warning'>
+            {specials}
+          </Alert>
+        </>
+      ) : null}
     </>
   );
 }
