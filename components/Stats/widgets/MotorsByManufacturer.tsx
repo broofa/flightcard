@@ -1,19 +1,19 @@
 import React, { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
+import { arrayGroup, arraySort } from '../../../util/array-util';
 import { cardMotors, useFlownCards } from '../stat_hooks';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
 import { getMotor } from '/util/motor-util';
 
 export function MotorsByManufacturer() {
   const motors = cardMotors(useFlownCards());
 
-  const entries = Object.entries(
-    arrayGroup(
+  const entries = [
+    ...arrayGroup(
       motors,
       motor =>
         getMotor(motor.tcMotorId ?? '')?.manufacturerAbbrev ?? '(unknown)'
-    )
-  );
+    ),
+  ];
 
   arraySort(entries, ([, motors]) => -motors.length);
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Bar, VictoryBar, VictoryChart } from 'victory';
+import { arrayGroup, arraySort } from '../../../util/array-util';
 import { certString } from '../../../util/cert-util';
 import { Loading } from '../../common/util';
 import { useAttendees } from '../../contexts/rt_hooks';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 export function AttendeesByCert() {
   const [attendees] = useAttendees();
@@ -12,7 +12,7 @@ export function AttendeesByCert() {
   if (!attendees) return <Loading wat='Attendees' />;
 
   const byCert = arrayGroup(Object.values(attendees), att => certString(att));
-  const data = Object.entries(byCert).map(([key, values]) => ({
+  const data = [...byCert].map(([key, values]) => ({
     x: key,
     y: values.length,
   }));

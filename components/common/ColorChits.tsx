@@ -1,5 +1,5 @@
 import React, { HTMLAttributes } from 'react';
-import { cn } from '../common/util';
+import { cn } from './util';
 
 // X11 colors, minus really unlikely stuff
 export const COLORS = new Set([

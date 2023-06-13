@@ -1,5 +1,5 @@
 import { CertOrg, Env, iCert } from './cert_types';
-import { certsBulkUpdate } from './db_utils';
+import { certsBulkUpdate } from './db-util';
 import { TRIPOLI_CERT_MAP } from './index';
 import KVStore from './KVStore';
 

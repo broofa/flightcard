@@ -4,9 +4,9 @@
 }
 
 .special::before {
-  content: 'Special: ';
+  content: 'Note: ';
   font-weight: bold;
-  color: darken(red, 15%);
+  color: darken(blue, 15%);
 }
 
 .notes:before {

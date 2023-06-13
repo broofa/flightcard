@@ -1,13 +1,13 @@
+import KVStore from './KVStore';
+import { CertOrg, Env, iCert } from './cert_types';
+import { certsBulkUpdate } from './db-util';
 import NarAPI, {
   ScanState,
   initScanState,
   isScanComplete,
   updateScanFields,
 } from './nar/NarAPI';
-import { CertOrg, Env, iCert } from './cert_types';
 import { NARItem, NARPage } from './nar/nar_types';
-import { certsBulkUpdate } from './db_utils';
-import KVStore from './KVStore';
 
 const SCAN_STATE_KEY = 'NAR.scanState';
 
@@ -92,9 +92,7 @@ export async function updateNARCerts(env: Env) {
     const since = Date.now() - Number(scanState.updatedAt ?? 0);
     if (since < IDLE_INTERVAL) {
       console.warn(
-        `NAR: Idling for ${Math.floor(
-          (IDLE_INTERVAL - since) / 60000
-        )} minutes`
+        `NAR: Idling for ${Math.floor((IDLE_INTERVAL - since) / 60000)} minutes`
       );
       return;
     }

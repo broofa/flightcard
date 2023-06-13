@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
+import { arrayGroup, arraySort } from '../../../util/array-util';
 import { Loading } from '../../common/util';
 import { useAttendees, useCards } from '../../contexts/rt_hooks';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 export default function RSOActivity() {
   const [cards] = useCards();
@@ -11,9 +11,10 @@ export default function RSOActivity() {
   if (!cards) return <Loading wat='Cards' />;
   if (!attendees) return <Loading wat='Attendees' />;
 
-  const cardsByRSO = Object.entries(
-    arrayGroup(Object.values(cards), card => card.rsoId ?? '')
-  );
+  const cardsByRSO = [
+    ...arrayGroup(Object.values(cards), card => card.rsoId ?? ''),
+  ];
+
   arraySort(cardsByRSO, ([, cards]) => -cards.length);
 
   return (

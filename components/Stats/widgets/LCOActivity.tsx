@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
-import { Loading } from '../../common/util';
-import { useAttendees } from '../../contexts/rt_hooks';
-import { useFlownCards } from '../stat_hooks';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
+import { useFlownCards } from '/components/Stats/stat_hooks';
+import { Loading } from '/components/common/util';
+import { useAttendees } from '/components/contexts/rt_hooks';
+import { arrayGroup, arraySort } from '/util/array-util';
 
 export default function LCOActivity() {
   const flownCards = useFlownCards();
@@ -11,9 +11,7 @@ export default function LCOActivity() {
 
   if (!attendees) return <Loading wat='Attendees' />;
 
-  const flightsByLCO = Object.entries(
-    arrayGroup(flownCards, card => card.lcoId ?? '')
-  );
+  const flightsByLCO = [...arrayGroup(flownCards, card => card.lcoId ?? '')];
 
   arraySort(flightsByLCO, ([, cards]) => -cards.length);
 

@@ -1,10 +1,10 @@
 import React, { HTMLAttributes } from 'react';
-import { ANONYMOUS } from '../App/App';
-import { useRoleAPI } from '../contexts/officer_hooks';
 import styles from './AttendeeInfo.module.scss';
 import DEFAULT_PROFILE_IMAGE from '/art/astronaut.svg';
+import { ANONYMOUS } from '/components/App/App';
 import { CertDot } from '/components/common/CertDot';
 import { cn } from '/components/common/util';
+import { useRoleAPI } from '/components/contexts/officer_hooks';
 import { iAttendee } from '/types';
 
 export function AttendeeInfo({

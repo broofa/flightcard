@@ -2,6 +2,7 @@ import React, { FocusEventHandler, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
+import { arraySort } from '../../util/array-util';
 import { flash } from '../Flash/flash';
 import { PadEditor } from '../LaunchEditor/PadEditor';
 import { FCLinkButton } from '../common/FCLinkButton';
@@ -23,7 +24,6 @@ import {
   PADS_PATH,
 } from '/rt/rtconstants';
 import { iLaunch, iPad } from '/types';
-import { arraySort } from '/util/arrayUtils';
 
 export default function LaunchEditor() {
   const [launch] = useLaunch();

@@ -1,19 +1,20 @@
 import React, { HTMLAttributes } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ColorChits from '../Cards/ColorChits';
-import { Loading } from '../common/util';
-import { Warning } from '../common/Warning';
-import { useAttendees } from '../contexts/rt_hooks';
 import '/components/Launch/LaunchCard.scss';
-import { iAttendee, iCard } from '/types';
+import ColorChits from '/components/common/ColorChits';
+import { Warning } from '/components/common/Warning';
+import { Loading } from '/components/common/util';
+import { useAttendees } from '/components/contexts/rt_hooks';
+import { iCard } from '/types';
 import { getCertLevel, getCertVerified } from '/util/cert-util';
 import { totalImpulseClass } from '/util/motor-util';
 
 export function LaunchCard({
   card,
+  summary,
 }: {
   card: iCard;
-  attendee?: iAttendee;
+  summary?: boolean;
 } & HTMLAttributes<HTMLDivElement>) {
   const motors = Object.values(card?.motors ?? {});
 
@@ -47,10 +48,13 @@ export function LaunchCard({
     }
   }
 
+  let launchcardUrl = `/launches/${card.launchId}/cards/${card.id}`;
+  if (summary) launchcardUrl += '/summary';
+
   return (
     <div
       className='d-flex flex-grow-1 launch-card rounded border border-dark m-2 ps-2 cursor-pointer'
-      onClick={() => navigate(`/launches/${card.launchId}/cards/${card.id}`)}
+      onClick={() => navigate(launchcardUrl)}
     >
       <div className='flex-grow-1  align-self-center'>
         {user.name} &mdash; "{card?.rocket?.name ?? '(unnamed)'}"

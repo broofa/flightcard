@@ -6,13 +6,13 @@ import {
   FormSelectProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { busy, Loading } from '../common/util';
+import { arrayGroup, arraySort } from '../../util/array-util';
+import { flash } from '../Flash/flash';
+import { Loading, busy } from '../common/util';
 import { useCurrentAttendee, usePads } from '../contexts/rt_hooks';
 import { DELETE, rtRemove, rtUpdate } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iAttendee, iCard } from '/types';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
-import { flash } from '../Flash/flash';
 
 const { DRAFT, REVIEW, FLY, DONE } = CardStatus;
 
@@ -154,14 +154,15 @@ export function PadSelect({
   if (!pads) return <Loading wat='pads' />;
 
   // Group pads by group
-  const padGroups = Object.entries(
-    arrayGroup(Object.values(pads), pad => pad.group ?? '')
-  );
+  const padGroupEntries = [
+    ...arrayGroup(Object.values(pads), pad => pad.group ?? ''),
+  ];
+
   // Sort by group name
-  arraySort(padGroups, ([group]) => group);
+  arraySort(padGroupEntries, '0');
 
   // Sort w/in each group
-  for (const [, pads] of padGroups) {
+  for (const [, pads] of padGroupEntries) {
     arraySort(pads, 'name');
   }
 
@@ -175,7 +176,7 @@ export function PadSelect({
       <FormSelect {...props} value={card.padId ?? ''} onChange={setPad}>
         <option value=''>No Pad Selected</option>
 
-        {padGroups.map(([group, pads]) => (
+        {padGroupEntries.map(([group, pads]) => (
           <optgroup key={group} label={group}>
             {pads.map(pad => (
               <option key={pad.id} value={pad.id}>

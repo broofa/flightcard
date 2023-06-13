@@ -1,11 +1,17 @@
 import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { isMock } from '../Admin/MockDB';
-import { ANONYMOUS } from '../App/App';
-import { Warning } from '../common/Warning';
-import { useIsOfficer, useRoleAPI } from '../contexts/officer_hooks';
-import { useAttendees, useCurrentUser, useLaunch } from '../contexts/rt_hooks';
+import { arraySort } from '../../util/array-util';
+import { isMock } from '/components/Admin/MockDB';
+import { ANONYMOUS } from '/components/App/App';
+import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
+import { Warning } from '/components/common/Warning';
 import { Loading, cn } from '/components/common/util';
+import { useIsOfficer, useRoleAPI } from '/components/contexts/officer_hooks';
+import {
+  useAttendees,
+  useCurrentUser,
+  useLaunch,
+} from '/components/contexts/rt_hooks';
 import { DELETE, rtRemove, rtSet, rtUpdate, useRTValue } from '/rt';
 import {
   ATTENDEE_NAR_CERT_PATH,
@@ -14,9 +20,6 @@ import {
   OFFICER_PATH,
 } from '/rt/rtconstants';
 import { CertOrg, iAttendee, iCert, iPerm } from '/types';
-import { arraySort } from '/util/arrayUtils';
-
-import { AttendeeInfo } from './AttendeeInfo';
 
 export type UserFilterFunction =
   | (() => boolean)

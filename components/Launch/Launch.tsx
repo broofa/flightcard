@@ -1,46 +1,34 @@
 import React, { useEffect } from 'react';
 import { Alert } from 'react-bootstrap';
 import { Route, Routes, RoutesProps, useLocation } from 'react-router-dom';
-import CardEditor from '../Cards/CardEditor';
-import CardSummary from '../Cards/CardSummary';
-import LaunchEditor from '../LaunchEditor/LaunchEditor';
-import ProfilePage from '../Profile/ProfilePage';
-import Stats from '../Stats/Stats';
-import { Loading } from '../common/util';
-import { useRoleAPI } from '../contexts/officer_hooks';
-import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
-import { CardsPane } from './CardsPane';
-import { LCOPane } from './LCOPane';
-import { LaunchCard } from './LaunchCard';
-import { MEME_SKEPTICAL, Meme } from './Meme';
-import { RSOPane } from './RSOPane';
-import { UsersPane } from './UsersPane';
+import CardSummary from '/components/CardSummary/CardSummary';
+import CardEditor from '/components/Cards/CardEditor';
+import { CardsPane } from '/components/Launch/CardsPane';
+import { LCOPane } from '/components/Launch/LCOPane';
+import { LaunchCard } from '/components/Launch/LaunchCard';
+import { MEME_SKEPTICAL, Meme } from '/components/Launch/Meme';
+import { RSOPane } from '/components/Launch/RSOPane';
+import { UsersPane } from '/components/Launch/UsersPane';
+import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
+import ProfilePage from '/components/Profile/ProfilePage';
+import Stats from '/components/Stats/Stats';
+import { Loading } from '/components/common/util';
+import { useRoleAPI } from '/components/contexts/officer_hooks';
+import { useCurrentAttendee, useLaunch } from '/components/contexts/rt_hooks';
 import { rtSet, useRTValue } from '/rt';
 import { LAUNCH_RIDEALONG_PATH } from '/rt/rtconstants';
-import { iAttendees, iCard } from '/types';
-import { arraySort } from '/util/arrayUtils';
+import { iCard } from '/types';
+import { arraySort } from '/util/array-util';
 
-export function CardList({
-  cards,
-  attendees,
-}: {
-  cards: iCard[];
-  attendees?: iAttendees;
-}) {
-  if (attendees) {
-    arraySort(cards, card => attendees[card.userId].name);
-  } else {
-    arraySort(cards, card => card.rocket?.name);
-  }
+export function CardList({ cards }: { cards?: iCard[] }) {
+  if (!cards) return <Loading wat='Cards' />;
+
+  arraySort(cards, card => card.rocket?.name);
 
   return (
     <div className='deck'>
       {cards.map(card => (
-        <LaunchCard
-          key={card.id}
-          card={card}
-          attendee={attendees?.[card.userId]}
-        />
+        <LaunchCard key={card.id} card={card} />
       ))}
     </div>
   );

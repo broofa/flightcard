@@ -1,14 +1,13 @@
 import React, { HTMLAttributes, useMemo, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import { TCMotor } from 'thrustcurve-db';
-import { AttendeeInfo } from '../Launch/AttendeeInfo';
 import UnitsPref from '../Profile/UnitsPref';
+import ColorChits from '../common/ColorChits';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import { useCurrentAttendee, useUserUnits } from '../contexts/rt_hooks';
 import { rtuiFromPath } from '../rtui/RTUI';
 import { CardActions } from './CardActions';
-import ColorChits from './ColorChits';
 import MotorAnalysis from './MotorAnalysis';
 import { MotorDetail } from './MotorDetail';
 import { MotorEditor } from './MotorEditor';
@@ -18,6 +17,7 @@ import { Loading, cn } from '/components/common/util';
 import { useRTValue } from '/rt';
 import { MKS } from '/util/units';
 
+import { AttendeeInfo } from '../common/AttendeeInfo/AttendeeInfo';
 import {
   ATTENDEE_PATH,
   AttendeeFields,
@@ -75,8 +75,6 @@ export default function CardEditor() {
   const isOwner = attendee?.id == card?.userId;
   const isDraft = card?.status === CardStatus.DRAFT;
   const isReadOnly = !isDraft && !isOfficer;
-
-  const nMotors = Object.keys(card?.motors ?? {}).length;
 
   return (
     <>
@@ -172,11 +170,7 @@ export default function CardEditor() {
           )}
         </div>
 
-        <rtui.Select
-          disabled={isReadOnly}
-          label='Recovery'
-          field='recovery'
-        >
+        <rtui.Select disabled={isReadOnly} label='Recovery' field='recovery'>
           <option value={''}>Unspecified</option>
           <option value={Recovery.CHUTE}>Chute</option>
           <option value={Recovery.STREAMER}>Streamer</option>
@@ -226,19 +220,7 @@ export default function CardEditor() {
             field='firstFlight'
             label='1st Flight'
           />
-          <rtui.Check
-            disabled={isReadOnly}
-            field='headsUp'
-            label='Heads Up'
-          />
-
-          {/* Complex status is derived from # of motors */}
-          <Form.Check
-            type='switch'
-            disabled
-            checked={nMotors > 1}
-            label='Complex'
-          />
+          <rtui.Check disabled={isReadOnly} field='headsUp' label='Heads Up' />
         </div>
       </div>
 

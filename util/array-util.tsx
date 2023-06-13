@@ -27,32 +27,37 @@ export function arraySort<T>(
   return arr;
 }
 
-export function arrayGroup<T>(
-  arr: T[],
-  extract: string | ((item: T) => Comparable | Comparable[])
-): { [key: string]: T[] } {
-  let extractor: (item: T) => Comparable | Comparable[];
+function _arrayGroupPush<ItemType, KeyType>(
+  groups: Map<KeyType, ItemType[]>,
+  key: KeyType,
+  item: ItemType
+) {
+  let group = groups.get(key);
+  if (group == null) groups.set(key, (group = []));
+  group.push(item);
+}
+
+export function arrayGroup<KeyType, ItemType>(
+  arr: ItemType[],
+  extract: (item: ItemType) => KeyType | KeyType[]
+) {
+  const itemsByGroup = new Map<KeyType, ItemType[]>();
 
   if (typeof extract === 'string') {
-    const prop = extract;
-    extractor = function (item: T) {
-      return (item as unknown as { [k: string]: Comparable })[prop];
-    };
-  } else {
-    extractor = extract;
+    return arrayGroup(arr, item => item[extract] as KeyType);
   }
 
-  const obj: { [key: string]: T[] } = {};
-
   for (const v of arr) {
-    let keys = extractor(v);
+    const keys = extract(v);
     if (keys == null) throw Error('Null or undefined group key');
-    if (!Array.isArray(keys)) keys = [keys];
-    for (const key of keys) {
-      if (!(key in obj)) obj[key] = [];
-      obj[key].push(v);
+    if (!Array.isArray(keys)) {
+      _arrayGroupPush(itemsByGroup, keys, v);
+    } else {
+      for (const key of keys) {
+        _arrayGroupPush<ItemType, KeyType>(itemsByGroup, key, v);
+      }
     }
   }
 
-  return obj;
+  return itemsByGroup;
 }

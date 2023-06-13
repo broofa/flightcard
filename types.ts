@@ -125,7 +125,6 @@ export interface iCard {
 
   firstFlight?: boolean;
   headsUp?: boolean;
-  complex?: boolean;
   notes?: string;
 
   rocket?: iRocket;

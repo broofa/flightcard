@@ -1,5 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
+import { arraySort } from '../../util/array-util';
+import RolePref from '../Profile/RolePref';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import {
   useAttendees,
@@ -7,11 +9,9 @@ import {
   useCurrentAttendee,
   useLaunch,
 } from '../contexts/rt_hooks';
-import RolePref from '../Profile/RolePref';
 import { LaunchCard } from './LaunchCard';
 import { Loading } from '/components/common/util';
 import { CardStatus } from '/types';
-import { arraySort } from '/util/arrayUtils';
 
 export function RSOPane() {
   const [launch] = useLaunch();
@@ -45,6 +45,7 @@ export function RSOPane() {
               key={card.id}
               card={card}
               attendee={attendees?.[card.userId]}
+              summary={true}
             />
           ))
         ) : (

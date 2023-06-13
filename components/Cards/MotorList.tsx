@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
+import { arrayGroup, arraySort } from '../../util/array-util';
 import { Sparky } from '../common/Sparky';
 import { useRTValue } from '/rt';
 import { CARD_MOTORS_PATH, CardFields } from '/rt/rtconstants';
 import { iMotor } from '/types';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
 import { getMotor } from '/util/motor-util';
 
 import LOGO_THRUSTCURVE from '/media/logos/logo-thrustcurve.svg';
@@ -68,11 +68,16 @@ export function MotorList({
 
   // We need an ordered array of motors
   const motorItems = motors ? Object.values(motors) : [];
-  const motorsByStage = arrayGroup(motorItems, motor => motor.stage ?? 1);
+  const stageGroupEntries = [
+    ...arrayGroup(motorItems, motor => motor.stage ?? 1),
+  ];
+
+  // Sort by stage
+  const stageGroups = arraySort(stageGroupEntries, '0');
+
   const motorList = [];
-  const stages = arraySort(Object.entries(motorsByStage), '0'); // Sort by stage
-  for (const [stage, stageMotors] of stages) {
-    if (stages.length > 1 || !stages['1']) {
+  for (const [stage, stageMotors] of stageGroups) {
+    if (stageGroups.length > 1 || !stageGroups['1']) {
       motorList.push(<h3 key={`stage-${stage}-label`}>Stage {stage}</h3>);
     }
 

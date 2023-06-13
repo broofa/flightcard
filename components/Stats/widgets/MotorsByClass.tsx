@@ -7,41 +7,55 @@ import {
   VictoryChart,
   VictoryLabel,
 } from 'victory';
-import {cardMotors, useFlownCards} from '../stat_hooks';
-import { CardStatus, iMotor } from '/types';
-import { arrayGroup } from '/util/arrayUtils';
+import { cardMotors, useFlownCards } from '../stat_hooks';
+import { arrayGroup } from '/util/array-util';
 import { IMPULSE_CLASSES, motorClassForImpulse } from '/util/motor-util';
 
 export function MotorsByClass() {
   const motors = cardMotors(useFlownCards());
 
-  const byCert = arrayGroup(
-    motors,
-    motor => motorClassForImpulse(motor?.impulse ?? 0) ?? 'unknown'
-  );
+  const impulses = motors
+    .map(motor => motor.impulse ?? 0)
+    .filter(impulse => impulse > 0);
 
-  const minIndex = Math.min(
-    ...Object.keys(byCert).map(v => IMPULSE_CLASSES.indexOf(v))
-  );
-  const maxIndex = Math.max(
-    ...Object.keys(byCert).map(v => IMPULSE_CLASSES.indexOf(v))
-  );
+  let body = <div>No motors found</div>;
 
-  const data = IMPULSE_CLASSES.slice(minIndex, maxIndex + 1).map(imp => ({
-    x: imp,
-    y: byCert[imp]?.length ?? 0,
-  }));
+  if (impulses.length > 0) {
+    const range = { min: impulses[0], max: impulses[0] };
+    impulses.forEach(impulse => {
+      range.min = Math.min(range.min, impulse);
+      range.max = Math.max(range.max, impulse);
+    });
+
+    // Get names of all impulse classes that are in the range of the motors flown
+    const impulsesInRange = [...IMPULSE_CLASSES.entries()].filter(
+      ([, { min, max }]) => {
+        return max > range.min && min < range.max;
+      }
+    );
+
+    const byCert = arrayGroup(
+      motors,
+      motor => motorClassForImpulse(motor.impulse) ?? 'unknown'
+    );
+
+    const data = impulsesInRange.map(([impulseClass]) => ({
+      x: impulseClass,
+      y: byCert.get(impulseClass)?.length ?? 0,
+    }));
+    body = (
+      <VictoryChart domainPadding={{ x: [50, 0] }}>
+        <VictoryAxis dependentAxis />
+        <VictoryAxis tickLabelComponent={<VictoryLabel textAnchor='end' />} />
+        <VictoryBar dataComponent={<Bar />} data={data} />
+      </VictoryChart>
+    );
+  }
 
   return (
     <Card>
       <Card.Title className='text-center'>Motors Flown by Class</Card.Title>
-      <Card.Body>
-        <VictoryChart domainPadding={{ x: [50, 0] }}>
-          <VictoryAxis dependentAxis />
-          <VictoryAxis tickLabelComponent={<VictoryLabel textAnchor='end' />} />
-          <VictoryBar dataComponent={<Bar />} data={data} />
-        </VictoryChart>
-      </Card.Body>
+      <Card.Body>{body}</Card.Body>
     </Card>
   );
 }

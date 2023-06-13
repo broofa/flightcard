@@ -1,47 +1,55 @@
 import MOTORS, { TCMotor } from 'thrustcurve-db';
 import { iCard, iMotor } from '/types';
 
-export const IMPULSE_CLASSES = [
-  '\u{215b}A',  // 1/8A
-  '\u{00bc}A',  // 1/4A
-  '\u{00bd}A',  // 1/2A
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-  'AA',
-  'AB',
-  'AC',
-  'AD',
-  'AE',
-  'AF',
-  'AG',
-  'AH',
-  'AI',
-  'AJ',
-];
+type ImpulseRange = {
+  min: number;
+  max: number;
+};
+
+let _maxi: number;
+export const IMPULSE_CLASSES = new Map<string, ImpulseRange>([
+  ['\u{215b}A', { min: (_maxi = 0), max: (_maxi = 0.3125) }], // 1/8A
+  ['\u{00bc}A', { min: _maxi, max: (_maxi *= 2) }], // 1/4A
+  ['\u{00bd}A', { min: _maxi, max: (_maxi *= 2) }], // 1/2A
+  ['A', { min: _maxi, max: (_maxi *= 2) }],
+  ['B', { min: _maxi, max: (_maxi *= 2) }],
+  ['C', { min: _maxi, max: (_maxi *= 2) }],
+  ['D', { min: _maxi, max: (_maxi *= 2) }],
+  ['E', { min: _maxi, max: (_maxi *= 2) }],
+  ['F', { min: _maxi, max: (_maxi *= 2) }],
+  ['G', { min: _maxi, max: (_maxi *= 2) }],
+  ['H', { min: _maxi, max: (_maxi *= 2) }],
+  ['I', { min: _maxi, max: (_maxi *= 2) }],
+  ['J', { min: _maxi, max: (_maxi *= 2) }],
+  ['K', { min: _maxi, max: (_maxi *= 2) }],
+  ['L', { min: _maxi, max: (_maxi *= 2) }],
+  ['M', { min: _maxi, max: (_maxi *= 2) }],
+  ['N', { min: _maxi, max: (_maxi *= 2) }],
+  ['O', { min: _maxi, max: (_maxi *= 2) }],
+  ['P', { min: _maxi, max: (_maxi *= 2) }],
+  ['Q', { min: _maxi, max: (_maxi *= 2) }],
+  ['R', { min: _maxi, max: (_maxi *= 2) }],
+  ['S', { min: _maxi, max: (_maxi *= 2) }],
+  ['T', { min: _maxi, max: (_maxi *= 2) }],
+  ['U', { min: _maxi, max: (_maxi *= 2) }],
+  ['V', { min: _maxi, max: (_maxi *= 2) }],
+  ['W', { min: _maxi, max: (_maxi *= 2) }],
+  ['X', { min: _maxi, max: (_maxi *= 2) }],
+  ['Y', { min: _maxi, max: (_maxi *= 2) }],
+  ['Z', { min: _maxi, max: (_maxi *= 2) }],
+  ['AA', { min: _maxi, max: (_maxi *= 2) }],
+  ['AB', { min: _maxi, max: (_maxi *= 2) }],
+  ['AC', { min: _maxi, max: (_maxi *= 2) }],
+  ['AD', { min: _maxi, max: (_maxi *= 2) }],
+  ['AE', { min: _maxi, max: (_maxi *= 2) }],
+  ['AF', { min: _maxi, max: (_maxi *= 2) }],
+  ['AG', { min: _maxi, max: (_maxi *= 2) }],
+  ['AH', { min: _maxi, max: (_maxi *= 2) }],
+  ['AI', { min: _maxi, max: (_maxi *= 2) }],
+  ['AJ', { min: _maxi, max: (_maxi *= 2) }],
+]);
+
+Object.freeze(IMPULSE_CLASSES);
 
 const motorIndex = new Map<string, TCMotor>();
 const motorNameIndex = new Map<string, TCMotor>();
@@ -177,9 +185,13 @@ export function stage1Thrust(cardMotors: iCard['motors']) {
   }, 0);
 }
 
-export function motorClassForImpulse(impulse: number) {
+export function motorClassForImpulse(impulse: number | undefined) {
+  if (impulse === undefined) return undefined;
+
   if (isNaN(impulse)) return undefined;
-  return IMPULSE_CLASSES.find((v, i) => impulse < 0.3125 * 2 ** i);
+  for (const [k, { min, max }] of IMPULSE_CLASSES) {
+    if (impulse >= min && impulse < max) return k;
+  }
 }
 
 export function totalImpulseClass(motors?: iMotor[]) {

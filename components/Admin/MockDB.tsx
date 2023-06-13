@@ -311,7 +311,6 @@ function _mockCard(
 
     firstFlight: Math.random() < 0.2 || DELETE,
     headsUp: Math.random() < 0.2 || DELETE,
-    complex: Math.random() < 0.2 || DELETE,
     notes: 'Randomly generated flight card',
 
     rocket,

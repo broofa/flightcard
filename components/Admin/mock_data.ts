@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import MOTORS from 'thrustcurve-db';
-import { COLORS } from '../Cards/ColorChits';
-import { GRAVITY_ACC } from '../Cards/MotorAnalysis';
+import { GRAVITY_ACC } from '/components/Cards/MotorAnalysis';
+import { COLORS } from '/components/common/ColorChits';
 import { iMotor, iRocket } from '/types';
 import { motorDisplayName } from '/util/motor-util';
 

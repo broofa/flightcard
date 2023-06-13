@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import { arrayGroup } from '../../util/array-util';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { Loading } from '../common/util';
 import { useCards, useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import { CardList } from './Launch';
 import { CardStatus } from '/types';
-import { arrayGroup } from '/util/arrayUtils';
 
 export function CardsPane() {
   const [launch] = useLaunch();
@@ -38,28 +38,28 @@ export function CardsPane() {
       </div>
 
       {draftCards.length ? (
-        <CardList cards={cardGroups[DRAFT]} />
+        <CardList cards={cardGroups.get(DRAFT)} />
       ) : (
         <p className='text-secondary'>Nothing here</p>
       )}
 
       <h2>Review</h2>
       {reviewCards.length ? (
-        <CardList cards={cardGroups[REVIEW]} />
+        <CardList cards={cardGroups.get(REVIEW)} />
       ) : (
         <p className='text-secondary'>Nothing here</p>
       )}
 
       <h2>Ready to Launch</h2>
       {readyCards.length ? (
-        <CardList cards={cardGroups[FLY]} />
+        <CardList cards={cardGroups.get(FLY)} />
       ) : (
         <p className='text-secondary'>Nothing here</p>
       )}
 
       <h2>Completed</h2>
       {doneCards.length ? (
-        <CardList cards={cardGroups[DONE]} />
+        <CardList cards={cardGroups.get(DONE)} />
       ) : (
         <p className='text-secondary'>Nothing here</p>
       )}

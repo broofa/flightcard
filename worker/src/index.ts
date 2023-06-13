@@ -11,7 +11,7 @@
  */
 
 import { CertOrg, Env } from './cert_types';
-import { certsFetch } from './db_utils';
+import { certsFetch } from './db-util';
 import { updateNARCerts } from './nar_certs';
 import { updateTRACerts } from './tra_certs';
 

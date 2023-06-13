@@ -13,7 +13,7 @@ import {
   PADS_PATH,
 } from '/rt/rtconstants';
 import { iAttendee, iLaunch, iPad, iPads } from '/types';
-import { arraySort } from '/util/arrayUtils';
+import { arraySort } from '/util/array-util';
 
 export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   const [launches, launchesLoading] = useLaunches();

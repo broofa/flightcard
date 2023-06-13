@@ -1,5 +1,7 @@
 import React, { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
 import { Button } from 'react-bootstrap';
+import { arrayGroup, arraySort } from '../../util/array-util';
+import RolePref from '../Profile/RolePref';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import {
   useAttendees,
@@ -8,13 +10,11 @@ import {
   useLaunch,
   usePads,
 } from '../contexts/rt_hooks';
-import RolePref from '../Profile/RolePref';
 import { LaunchCard } from './LaunchCard';
-import { busy, Loading } from '/components/common/util';
+import { Loading, busy } from '/components/common/util';
 import { rtRemove } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iCard, iPad } from '/types';
-import { arrayGroup, arraySort } from '/util/arrayUtils';
 
 function PadCard({
   pad,
@@ -93,10 +93,10 @@ export function LCOPane() {
 
   const cardsByPad = arrayGroup(readyCards, card => card.padId ?? '');
 
-  const unrackedCards = cardsByPad[''];
-  delete cardsByPad[''];
+  const unrackedCards = cardsByPad.get('');
+  cardsByPad.delete('');
 
-  const groupNames = Object.keys(padsBygroup).sort();
+  const groupNames = [...padsBygroup.keys()].sort();
 
   return (
     <>
@@ -111,17 +111,19 @@ export function LCOPane() {
       ) : null}
 
       {groupNames.map(groupName => {
-        const pads = padsBygroup[groupName];
+        const pads = padsBygroup.get(groupName);
+        if (!pads) return null;
+
         arraySort(pads, pad => pad.name ?? '');
+
         return (
           <div key={groupName}>
             <h2 className='mt-3'>{groupName}</h2>
             {pads.map(pad => {
-              if (!cardsByPad[pad.id]) return null;
+              const cards = cardsByPad.get(pad.id);
+              if (!cards) return null;
 
-              return (
-                <PadCard key={pad.id} pad={pad} cards={cardsByPad[pad.id]} />
-              );
+              return <PadCard key={pad.id} pad={pad} cards={cards} />;
             })}
           </div>
         );

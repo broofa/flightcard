@@ -1,24 +1,30 @@
 import React from 'react';
 import { useMatch } from 'react-router-dom';
-import UnitsPref from '../Profile/UnitsPref';
-import { useCurrentAttendee, useUserUnits } from '../contexts/rt_hooks';
 import { Loading, sig } from '/components/common/util';
+import {
+  useCurrentAttendee,
+  useUserUnits,
+} from '/components/contexts/rt_hooks';
 import { useRTValue } from '/rt';
 import { MKS, unitConvert } from '/util/units';
 
 import simplur from 'simplur';
-import { AttendeeInfo } from '../Launch/AttendeeInfo';
 import {
   ATTENDEE_PATH,
   AttendeeFields,
   CARD_PATH,
   CardFields,
 } from '/rt/rtconstants';
-import { iAttendee, iCard, iRocket } from '/types';
+import { iAttendee, iCard, iMotor, iRocket } from '/types';
 
 import { Alert } from 'react-bootstrap';
+import { arrayGroup } from '../../util/array-util';
 import styles from './CardSummary.module.scss';
-import ColorChits from './ColorChits';
+import { QuickUnits } from '/components/CardSummary/QuickUnits';
+import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
+import ColorChits from '/components/common/ColorChits';
+import { FCLinkButton } from '/components/common/FCLinkButton';
+import Icon from '/components/common/Icon';
 
 function RocketDimensions({ rocket }: { rocket?: iRocket }) {
   const [userUnits = MKS] = useUserUnits();
@@ -36,6 +42,10 @@ function RocketDimensions({ rocket }: { rocket?: iRocket }) {
     text.push(`${sig(diameter)} ${userUnits.lengthSmall}`);
   }
   return <span>{text.join(' x ')}</span>;
+}
+
+function MotorsList({ motors }: { motors: iMotor[] }) {
+  const byStage = arrayGroup(motors, motor => motor.stage ?? 0);
 }
 
 export default function CardSummary() {
@@ -79,8 +89,8 @@ export default function CardSummary() {
   }
 
   if (card.notes) {
+    if (specials.length > 0) specials.push(<hr />);
     specials.push(
-      <hr />,
       <div key={specials.length} className={styles.notes}>
         {card.notes}
       </div>
@@ -89,21 +99,11 @@ export default function CardSummary() {
 
   return (
     <>
-      {/* Units Pref UI */}
-      <div
-        style={{
-          position: 'fixed',
-          right: 0,
-          top: '4em',
-          zIndex: 999,
-          backgroundColor: '#fff',
-        }}
-      >
-        <UnitsPref authId={attendee.id} className='mt-1 me-1' />
-        <div style={{ fontSize: '9pt', textAlign: 'center', color: 'gray' }}>
-          Units
-        </div>
-      </div>
+      <FCLinkButton className='btn-sm text-nowrap my-auto ms-2' to='..'>
+        <Icon name='pencil-fill' /> Edit
+      </FCLinkButton>
+
+      <QuickUnits />
 
       <h2>
         <AttendeeInfo
