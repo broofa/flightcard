@@ -69,8 +69,8 @@ export function LaunchCard({
 
       {card.rocket?.color ? (
         <div
-          className='d-flex flex-column flex-grow-0 flex-shrink-0'
-          style={{ flexBasis: '10px' }}
+          className='d-flex flex-column flex-grow-0 flex-shrink-0  border-start border-light'
+          style={{ flexBasis: '20px' }}
         >
           <ColorChits className='flex-grow-1' colors={card.rocket?.color} />
         </div>

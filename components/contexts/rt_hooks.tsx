@@ -2,9 +2,9 @@ import { useContext } from 'react';
 import { useAuthUser } from './AuthIdContext';
 import { launchStateContext } from './LaunchStateContext';
 import { RTState, useRTValue } from '/rt';
-import { ATTENDEE_PATH, LAUNCHES_PATH, USER_PATH } from '/rt/rtconstants';
-import { iAttendee, iLaunches, iUser } from '/types';
-import { MKS, tUnitSystem, USCS } from '/util/units';
+import { LAUNCHES_PATH, USER_PATH } from '/rt/rtconstants';
+import { iAttendee, iCard, iLaunches, iUser } from '/types';
+import { MKS, USCS, tUnitSystem } from '/util/units';
 
 export function useCurrentUser() {
   const [authUser, authLoading, authError] = useAuthUser();
@@ -53,6 +53,11 @@ export function useOfficers() {
 
 export function useCards() {
   return useContext(launchStateContext).cards;
+}
+
+export function useCard(cardId: string) {
+  const [cards, loading, error] = useContext(launchStateContext).cards;
+  return [cards?.[cardId], loading, error] as RTState<iCard>;
 }
 
 export function usePads() {

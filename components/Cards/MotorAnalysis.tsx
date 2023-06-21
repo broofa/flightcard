@@ -72,7 +72,7 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   if (isNaN(stage1Thrust)) {
     return (
       <Alert className='mt-3 p-2' variant='warning'>
-        Unable to compute total thrust. Make sur the average thrust is mentioned
+        Unable to compute total thrust. Make sure the average thrust is mentioned
         in each motor name using <code>letter-thrust</code> notation. (E.g.
         "D12" or "J-350")
       </Alert>

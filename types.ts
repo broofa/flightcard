@@ -128,6 +128,6 @@ export interface iCard {
   notes?: string;
 
   rocket?: iRocket;
-  motors?: { [motorId: string]: iMotor };
+  motors?: Record<string, iMotor>;
 }
 export type iCards = Record<string, iCard>;

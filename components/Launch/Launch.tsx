@@ -70,10 +70,8 @@ function RideAlongRoutes({ children, ...props }: RoutesProps) {
   // Capture this state here because `launch` changes every time we set the
   // ridealong path, which causes a re-render loop if we have `launch` in the
   // effect dependencies.
-  const isRideAlongHost = launch && isLCO && !isRiding;
   const rideAlongPath = launch && isLCO && !isRiding ? pathname : null;
 
-  console.log('ridealongPath', pathname, isRideAlongHost, rtPath);
   // Capture and publish navigation events for the "LCO ride along" feature
   useEffect(() => {
     if (!rideAlongPath) return;

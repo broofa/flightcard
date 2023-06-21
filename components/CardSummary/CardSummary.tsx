@@ -2,25 +2,19 @@ import React from 'react';
 import { useMatch } from 'react-router-dom';
 import { Loading, sig } from '/components/common/util';
 import {
-  useCurrentAttendee,
+  useAttendee,
+  useCard,
   useUserUnits,
 } from '/components/contexts/rt_hooks';
-import { useRTValue } from '/rt';
 import { MKS, unitConvert } from '/util/units';
 
 import simplur from 'simplur';
-import {
-  ATTENDEE_PATH,
-  AttendeeFields,
-  CARD_PATH,
-  CardFields,
-} from '/rt/rtconstants';
-import { iAttendee, iCard, iMotor, iRocket } from '/types';
+import { iMotor, iRocket } from '/types';
 
 import { Alert } from 'react-bootstrap';
 import { arrayGroup } from '../../util/array-util';
 import styles from './CardSummary.module.scss';
-import { QuickUnits } from '/components/CardSummary/QuickUnits';
+import { QuickUnits } from '../common/QuickUnits';
 import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
 import ColorChits from '/components/common/ColorChits';
 import { FCLinkButton } from '/components/common/FCLinkButton';
@@ -44,33 +38,42 @@ function RocketDimensions({ rocket }: { rocket?: iRocket }) {
   return <span>{text.join(' x ')}</span>;
 }
 
-function MotorsList({ motors }: { motors: iMotor[] }) {
-  const byStage = arrayGroup(motors, motor => motor.stage ?? 0);
+function MotorsList({ motors }: { motors?: Record<string, iMotor> }) {
+  if (!motors) return '(no motors)';
+
+  const byStage = arrayGroup(Object.values(motors), motor => motor.stage ?? 0);
+  const parts = [];
+  for (const stage of [...byStage.keys()].sort()) {
+    const motors = byStage.get(stage);
+    if (!motors) continue;
+    parts.push(
+      <div key={stage}>
+        <strong className='me-2'>Stage {stage}:</strong>
+        {motors.map((motor, i) => (
+          <span key={motor.id}>
+            {i > 0 ? ', ' : ''}
+            {motor.name}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  return <div>{parts}</div>;
 }
 
 export default function CardSummary() {
   const [userUnits = MKS] = useUserUnits();
-  const [attendee] = useCurrentAttendee();
   const match = useMatch('launches/:launchId/cards/:cardId/summary');
 
-  const cardFields: CardFields = {
-    launchId: match?.params.launchId ?? '',
-    cardId: match?.params.cardId ?? '',
-  };
-  const [card] = useRTValue<iCard>(CARD_PATH.with(cardFields));
+  const launchId = match?.params.launchId ?? '';
+  const cardId = match?.params.cardId ?? '';
 
-  const flierFields: AttendeeFields = {
-    launchId: match?.params.launchId ?? '',
-    userId: card?.userId ?? '',
-  };
-  const flierPath = ATTENDEE_PATH.with(flierFields);
-  const [flier] = useRTValue<iAttendee>(flierPath);
+  const [card] = useCard(cardId);
+  const [flier] = useAttendee(card?.userId ?? '');
 
   if (!card) return <Loading wat='Card' />;
-  if (!attendee) return <Loading wat='Current user' />;
-  if (!flier) {
-    return <Loading wat='Flier' />;
-  }
+  if (!flier) return <Loading wat='Flier' />;
 
   const specials = [];
   if (card.firstFlight) {
@@ -89,7 +92,7 @@ export default function CardSummary() {
   }
 
   if (card.notes) {
-    if (specials.length > 0) specials.push(<hr />);
+    if (specials.length > 0) specials.push(<hr key='hr' />);
     specials.push(
       <div key={specials.length} className={styles.notes}>
         {card.notes}
@@ -99,35 +102,28 @@ export default function CardSummary() {
 
   return (
     <>
-      <FCLinkButton className='btn-sm text-nowrap my-auto ms-2' to='..'>
-        <Icon name='pencil-fill' /> Edit
-      </FCLinkButton>
-
-      <QuickUnits />
-
-      <h2>
-        <AttendeeInfo
-          className='me-3 p-2 bg-light border border-dark rounded'
-          attendee={flier}
-        />
-      </h2>
+      <AttendeeInfo
+        className='h2 mb-3 me-2 flex-grow-1 p-1 bg-light border border-dark rounded'
+        attendee={flier}
+      />
 
       <div>
-        <h3>
-          <span className={styles.name}>
-            {card.rocket?.name ? `"${card.rocket.name}"` : '(unnamed )'}
-          </span>{' '}
-          <span className={styles.manufacturer}>
-            {card.rocket?.manufacturer
-              ? `(${card.rocket?.manufacturer} kit)`
-              : null}
-          </span>
-        </h3>
-
         <div
           className='d-grid'
           style={{ gridTemplateColumns: 'max-content 1fr', gap: '.5em 1em' }}
         >
+          <div className='text-muted'>Name (Mfg.):</div>
+          <div>
+            <span className={styles.name}>
+              {card.rocket?.name ? `"${card.rocket.name}"` : '(unnamed )'}
+            </span>{' '}
+            <span className={styles.manufacturer}>
+              {card.rocket?.manufacturer
+                ? `(${card.rocket?.manufacturer})`
+                : null}
+            </span>
+          </div>
+
           <div className='text-muted'>Length x Diam.:</div>
           <RocketDimensions rocket={card.rocket} />
 
@@ -162,11 +158,7 @@ export default function CardSummary() {
           <div className='text-muted'>{simplur`${[
             card?.motors?.length ?? 0,
           ]}Motor[s|]`}</div>
-          {card.motors
-            ? Object.entries(card.motors).map(([motorId, motor]) => (
-                <div key={motorId}>{motor.name}</div>
-              ))
-            : null}
+          <MotorsList motors={card.motors} />
         </div>
       </div>
       {specials.length ? (
@@ -176,6 +168,15 @@ export default function CardSummary() {
           </Alert>
         </>
       ) : null}
+      <div className='d-flex justify-content-between align-items-start'>
+        <QuickUnits />
+        <FCLinkButton
+          className='text-nowrap my-auto'
+          to={`/launches/${launchId}/cards/${cardId}`}
+        >
+          <Icon name='pencil-fill' /> Edit
+        </FCLinkButton>
+      </div>
     </>
   );
 }

@@ -6,15 +6,7 @@ export function QuickUnits() {
   const [attendee] = useCurrentAttendee();
   if (!attendee) return null;
   return (
-    <div
-      style={{
-        position: 'fixed',
-        right: 0,
-        top: '4em',
-        zIndex: 999,
-        backgroundColor: '#fff',
-      }}
-    >
+    <div style={{width: '6em'}}>
       <UnitsPref authId={attendee.id} className='mt-1 me-1' />
       <div style={{ fontSize: '9pt', textAlign: 'center', color: 'gray' }}>
         Units

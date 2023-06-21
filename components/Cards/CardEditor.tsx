@@ -2,22 +2,24 @@ import React, { HTMLAttributes, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import { TCMotor } from 'thrustcurve-db';
-import UnitsPref from '../Profile/UnitsPref';
-import ColorChits from '../common/ColorChits';
-import { useIsOfficer } from '../contexts/officer_hooks';
-import { useCurrentAttendee, useUserUnits } from '../contexts/rt_hooks';
-import { rtuiFromPath } from '../rtui/RTUI';
-import { CardActions } from './CardActions';
-import MotorAnalysis from './MotorAnalysis';
-import { MotorDetail } from './MotorDetail';
-import { MotorEditor } from './MotorEditor';
-import { MotorList } from './MotorList';
-import UnitsFAQ from './UnitsFAQ';
-import { Loading, cn } from '/components/common/util';
-import { useRTValue } from '/rt';
-import { MKS } from '/util/units';
 
 import { AttendeeInfo } from '../common/AttendeeInfo/AttendeeInfo';
+import { CardActions } from '/components/Cards/CardActions';
+import MotorAnalysis from '/components/Cards/MotorAnalysis';
+import { MotorDetail } from '/components/Cards/MotorDetail';
+import { MotorEditor } from '/components/Cards/MotorEditor';
+import { MotorList } from '/components/Cards/MotorList';
+import UnitsFAQ from '/components/Cards/UnitsFAQ';
+import ColorChits from '/components/common/ColorChits';
+import { QuickUnits } from '/components/common/QuickUnits';
+import { Loading, cn } from '/components/common/util';
+import { useIsOfficer } from '/components/contexts/officer_hooks';
+import {
+  useCurrentAttendee,
+  useUserUnits,
+} from '/components/contexts/rt_hooks';
+import { rtuiFromPath } from '/components/rtui/RTUI';
+import { useRTValue } from '/rt';
 import {
   ATTENDEE_PATH,
   AttendeeFields,
@@ -26,6 +28,7 @@ import {
   ROCKET_PATH,
 } from '/rt/rtconstants';
 import { CardStatus, Recovery, iAttendee, iCard, iMotor } from '/types';
+import { MKS } from '/util/units';
 
 function FormSection({
   className,
@@ -78,26 +81,9 @@ export default function CardEditor() {
 
   return (
     <>
-      {/* Units Pref UI */}
-      <div
-        style={{
-          position: 'fixed',
-          right: 0,
-          top: '4em',
-          zIndex: 999,
-          backgroundColor: '#fff',
-        }}
-      >
-        <UnitsPref authId={attendee.id} className='mt-1 me-1' />
-        <div style={{ fontSize: '9pt', textAlign: 'center', color: 'gray' }}>
-          Units
-        </div>
-      </div>
-
       {flier && !isOwner ? (
         <>
-          <FormSection>Flier</FormSection>
-          <AttendeeInfo className='me-3' attendee={flier} />
+          <AttendeeInfo className='me-3 h2' attendee={flier} />
         </>
       ) : null}
 
@@ -164,7 +150,7 @@ export default function CardEditor() {
             className='flex-grow-1'
           />
           {colors && (
-            <div className='d-flex flex-column ms-1' style={{ width: '15px' }}>
+            <div className='d-flex flex-column ms-1 border-light border' style={{ width: '35px' }}>
               <ColorChits colors={colors} className='flex-grow-1' />
             </div>
           )}
@@ -228,6 +214,8 @@ export default function CardEditor() {
 
       <FormSection>Next Steps &hellip;</FormSection>
       <CardActions card={card} />
+
+      <QuickUnits />
 
       {editMotor && cardFields ? (
         <MotorEditor

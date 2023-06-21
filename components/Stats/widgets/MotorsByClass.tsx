@@ -28,21 +28,20 @@ export function MotorsByClass() {
     });
 
     // Get names of all impulse classes that are in the range of the motors flown
-    const impulsesInRange = [...IMPULSE_CLASSES.entries()].filter(
-      ([, { min, max }]) => {
-        return max > range.min && min < range.max;
-      }
-    );
+    const impulsesInRange = IMPULSE_CLASSES.filter(({ min, max }) => {
+      return max > range.min && min < range.max;
+    });
 
     const byCert = arrayGroup(
       motors,
       motor => motorClassForImpulse(motor.impulse) ?? 'unknown'
     );
 
-    const data = impulsesInRange.map(([impulseClass]) => ({
-      x: impulseClass,
-      y: byCert.get(impulseClass)?.length ?? 0,
+    const data = impulsesInRange.map(({ name }) => ({
+      x: name,
+      y: byCert.get(name)?.length ?? 0,
     }));
+
     body = (
       <VictoryChart domainPadding={{ x: [50, 0] }}>
         <VictoryAxis dependentAxis />
