@@ -54,8 +54,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run clean && parcel index.html",
     "build": "npm run clean && parcel build index.html",
-    "worker:start": "cd worker && yarn start",
-    "worker:deploy": "cd worker && yarn deploy"
+    "worker:start": "cd worker && npm start",
+    "worker:deploy": "cd worker && npm run deploy"
   },
   "repository": {
     "type": "git",
