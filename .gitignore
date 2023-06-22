@@ -3,7 +3,6 @@
 .wrangler
 dist
 node_modules
-package-lock.json
 yarn.lock
 yarn-error.lock
 vscode.code-workspace
