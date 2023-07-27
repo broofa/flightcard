@@ -13,8 +13,8 @@ import { iMotor, iRocket } from '/types';
 
 import { Alert } from 'react-bootstrap';
 import { arrayGroup } from '../../util/array-util';
-import styles from './CardSummary.module.scss';
 import { QuickUnits } from '../common/QuickUnits';
+import styles from './CardSummary.module.scss';
 import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
 import ColorChits from '/components/common/ColorChits';
 import { FCLinkButton } from '/components/common/FCLinkButton';
@@ -43,12 +43,15 @@ function MotorsList({ motors }: { motors?: Record<string, iMotor> }) {
 
   const byStage = arrayGroup(Object.values(motors), motor => motor.stage ?? 0);
   const parts = [];
-  for (const stage of [...byStage.keys()].sort()) {
+  const stages = [...byStage.keys()].sort();
+  for (const stage of stages) {
     const motors = byStage.get(stage);
     if (!motors) continue;
     parts.push(
       <div key={stage}>
-        <strong className='me-2'>Stage {stage}:</strong>
+        {stages.length === 1 && stages[0] === 1 ? (
+          <strong className='me-2'>Stage {stage}:</strong>
+        ) : null}
         {motors.map((motor, i) => (
           <span key={motor.id}>
             {i > 0 ? ', ' : ''}
@@ -112,7 +115,7 @@ export default function CardSummary() {
           className='d-grid'
           style={{ gridTemplateColumns: 'max-content 1fr', gap: '.5em 1em' }}
         >
-          <div className='text-muted'>Name (Mfg.):</div>
+          <div className='text-muted'>Name (Mfg.)</div>
           <div>
             <span className={styles.name}>
               {card.rocket?.name ? `"${card.rocket.name}"` : '(unnamed )'}
@@ -124,7 +127,26 @@ export default function CardSummary() {
             </span>
           </div>
 
-          <div className='text-muted'>Length x Diam.:</div>
+
+          {card.rocket?.color ? (
+            <>
+              <div className='text-muted'>Color(s)</div>
+              <div className='d-flex'>
+                <span className='flex-grow-0'>{card.rocket?.color}</span>
+                <div
+                  className='d-flex flex-row ms-2 my-1 border border-dark'
+                  style={{ flexBasis: '3em' }}
+                >
+                  <ColorChits
+                    className='flex-grow-1'
+                    colors={card.rocket?.color}
+                  />
+                </div>
+              </div>
+            </>
+          ) : null}
+
+          <div className='text-muted'>Len. x Diam.</div>
           <RocketDimensions rocket={card.rocket} />
 
           {card.rocket?.mass ? (
@@ -137,21 +159,10 @@ export default function CardSummary() {
             </>
           ) : null}
 
-          {card.rocket?.color ? (
+          {card.rocket?.recovery ? (
             <>
-              <div className='text-muted'>Color(s)</div>
-              <div className='d-flex'>
-                <span className='flex-grow-0'>{card.rocket?.color}</span>
-                <div
-                  className='d-flex flex-row ms-2 my-1'
-                  style={{ flexBasis: '3em' }}
-                >
-                  <ColorChits
-                    className='flex-grow-1'
-                    colors={card.rocket?.color}
-                  />
-                </div>
-              </div>
+              <div className='text-muted'>Recovery(s)</div>
+              <div className='text-capitalize'>{card?.rocket?.recovery}</div>
             </>
           ) : null}
 
