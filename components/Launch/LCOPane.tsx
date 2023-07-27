@@ -45,7 +45,7 @@ function PadCard({
 
             return (
               <div key={card.id} className='d-flex'>
-                <LaunchCard className='mt-2' card={card} />
+                <LaunchCard className='mt-2' card={card} summary={true} />
                 {isOfficer ? (
                   <Button
                     variant='warning'
@@ -62,7 +62,7 @@ function PadCard({
       </div>
     );
   } else {
-    content = <LaunchCard className='mt-2' card={cards[0]} />;
+    content = <LaunchCard className='mt-2' card={cards[0]} summary={true} />;
   }
 
   return (
