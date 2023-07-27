@@ -150,13 +150,16 @@ export default function CardEditor() {
             className='flex-grow-1'
           />
           {colors && (
-            <div className='d-flex flex-column ms-1 border-light border' style={{ width: '35px' }}>
+            <div
+              className='d-flex flex-column ms-1 border border-dark'
+              style={{ width: '35px' }}
+            >
               <ColorChits colors={colors} className='flex-grow-1' />
             </div>
           )}
         </div>
 
-        <rtui.Select disabled={isReadOnly} label='Recovery' field='recovery'>
+        <rtui.Select disabled={isReadOnly} label='Recovery' field='rocket/recovery'>
           <option value={''}>Unspecified</option>
           <option value={Recovery.CHUTE}>Chute</option>
           <option value={Recovery.STREAMER}>Streamer</option>
