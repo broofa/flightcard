@@ -21,9 +21,10 @@ h2 .root {
 
 .officerStar {
   position: absolute;
-  font-size: 25px;
-  color: #eb0;
-  top: -20;
-  left: -10;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);
+  font-size: 20px;
+  line-height: 20px;
+  color: black;
+  top: -5px;
+  right: -5px;
+  -webkit-text-stroke: 1px white;
 }

@@ -23,13 +23,14 @@ export function AttendeeInfo({
       className={cn(styles.root, className, `d-flex align-items-center`)}
       {...props}
     >
+      {roleApi.isOfficer(attendee) ? (
+        <span className={styles.officerStar}>{'\u2605'}</span>
+      ) : null}
+
       <img className='flex-grow-0 me-2' src={photoUrl} />
       <div className='flex-grow-1 flex-column'>
         <div>{attendee?.name ?? ANONYMOUS}</div>
         <div>
-          {roleApi.isOfficer(attendee) ? (
-            <span className={styles.officerStar}>{'\u2605'}</span>
-          ) : null}
           <CertDot
             showType={true}
             className='flex-grow-0'
