@@ -44,7 +44,6 @@ export function RSOPane() {
               className='mt-2'
               key={card.id}
               card={card}
-              attendee={attendees?.[card.userId]}
               summary={true}
             />
           ))
