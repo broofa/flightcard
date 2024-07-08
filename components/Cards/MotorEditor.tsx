@@ -1,12 +1,11 @@
-import { nanoid } from 'nanoid';
 import React, { ChangeEvent, HTMLAttributes, useRef, useState } from 'react';
 import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import { TCMotor } from 'thrustcurve-db';
-import { busy, sig } from '../common/util';
+import { busy, randomId, sig } from '../common/util';
 import { useUserUnits } from '../contexts/rt_hooks';
 import './MotorEditor.scss';
 import { DELETE, rtRemove, rtSet } from '/rt';
-import { CardFields, CARD_MOTOR_PATH } from '/rt/rtconstants';
+import { CARD_MOTOR_PATH, CardFields } from '/rt/rtconstants';
 import { iMotor } from '/types';
 import {
   getMotorByDisplayName,
@@ -27,7 +26,7 @@ export function MotorEditor({
   onHide: () => void;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
-  const [delayListId] = useState(nanoid()); // 'Just need a unique ID of some sort here
+  const [delayListId] = useState(randomId()); // 'Just need a unique ID of some sort here
   const [userUnits = MKS] = useUserUnits();
   const [suggestions, setSuggestions] = useState<TCMotor[]>([]);
   const saveButton = useRef<HTMLButtonElement>(null);
@@ -67,7 +66,7 @@ export function MotorEditor({
 
     const _newMotor: iMotor = {
       ...motor,
-      id: motor.id || nanoid(),
+      id: motor.id || randomId(),
       name,
       tcMotorId: tcMotor?.motorId ?? DELETE,
       stage: isNaN(_stage) ? DELETE : _stage,
@@ -103,7 +102,7 @@ export function MotorEditor({
 
       <Modal.Body>
         <datalist id={delayListId}>
-          {tcMotor?.delays?.split(',')?.map(d => (
+          {tcMotor?.delays?.split(',')?.map((d) => (
             <option key={String(d)} value={String(d)} />
           ))}
         </datalist>
@@ -119,7 +118,7 @@ export function MotorEditor({
         {suggestions.length ? (
           <>
             <div className='motor-suggestions'>
-              {suggestions.slice(0, MAX_SUGGESTIONS).map(motor => (
+              {suggestions.slice(0, MAX_SUGGESTIONS).map((motor) => (
                 <Badge
                   bg='secondary'
                   className='suggestion'

@@ -1,5 +1,4 @@
 // RTUI = RealTime UI for Controls that connect to the realtime DB
-import { nanoid } from 'nanoid';
 import React, {
   HTMLProps,
   InputHTMLAttributes,
@@ -9,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { Form, FormCheckProps } from 'react-bootstrap';
-import { cn, sig } from '../common/util';
+import { cn, randomId, sig } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import { RTPath } from '/rt/RTPath';
 import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
@@ -55,7 +54,7 @@ function useRealtimeField<RTType, ControlType>(
   const [saveAction, setSaveAction] = useState<Promise<void>>();
 
   // Identifier for connecting label and control
-  const [id] = useState(nanoid());
+  const [id] = useState(randomId());
 
   useRTValue<RTType>(
     path,
@@ -105,7 +104,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
               className ?? ''
             }`}
             {...props}
-            onChange={e => setVal(e.target.value)}
+            onChange={(e) => setVal(e.target.value)}
             onBlur={() => save()}
           />
           <label htmlFor={id}>{label}</label>
@@ -137,7 +136,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
               className ?? ''
             }`}
             {...props}
-            onChange={e => setVal(e.target.value)}
+            onChange={(e) => setVal(e.target.value)}
             onBlur={() => save()}
           />
 
@@ -166,7 +165,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
           checked={val ?? false}
           className={isSaving ? 'busy' : ''}
           {...props}
-          onChange={e => {
+          onChange={(e) => {
             save(e.target.checked);
           }}
         />
@@ -225,7 +224,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
             value={val}
             className={`form-select ${isSaving ? 'busy' : ''}`}
             {...props}
-            onChange={e => save(e.target.value)}
+            onChange={(e) => save(e.target.value)}
           >
             {children}
           </select>
@@ -281,7 +280,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
               className ?? ''
             }`}
             {...props}
-            onChange={e => {
+            onChange={(e) => {
               setVal(e.target.value);
             }}
             onBlur={() => save()}

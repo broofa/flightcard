@@ -1,10 +1,9 @@
-import { nanoid } from 'nanoid';
 import React, { MouseEventHandler, useState } from 'react';
 import { Button, FormSelect, Modal, ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import { APPNAME } from '../App/App';
 import { useCurrentUser, useLaunches } from '../contexts/rt_hooks';
-import { Loading } from '/components/common/util';
+import { Loading, randomId } from '/components/common/util';
 import { DELETE, rtGet, rtTransaction } from '/rt';
 import {
   ATTENDEE_PATH,
@@ -24,9 +23,9 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
   if (!currentUser) return <Loading wat='User' />;
   if (launchesLoading) return <Loading wat='Launches' />;
 
-  const createLaunch: MouseEventHandler = async e => {
+  const createLaunch: MouseEventHandler = async (e) => {
     const target = e.target as HTMLButtonElement;
-    const launchId = nanoid();
+    const launchId = randomId();
 
     // Hide modal so button can't get clicked twice by mistake
     target.disabled = true;
@@ -82,7 +81,7 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
       );
       const newPads: { [padId: string]: iPad } = {};
       for (const pad of Object.values(pads)) {
-        pad.id = nanoid();
+        pad.id = randomId();
         newPads[pad.id] = pad;
       }
       transaction.update<iPads>(PADS_PATH.with({ launchId }), newPads);
@@ -114,10 +113,10 @@ export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {
         <FormSelect
           className='mt-3'
           value={copyId}
-          onChange={e => setCopyId(e.target.value)}
+          onChange={(e) => setCopyId(e.target.value)}
         >
           <option>(Optional) Launch to copy...</option>
-          {arraySort(Object.values(launches ?? []), 'name').map(launch => (
+          {arraySort(Object.values(launches ?? []), 'name').map((launch) => (
             <option key={launch.id} value={launch.id}>
               {launch.name}
             </option>

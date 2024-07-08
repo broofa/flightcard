@@ -12,7 +12,7 @@
  * validate() and isValid() methods.
  */
 
-import { nanoid } from 'nanoid';
+import { randomId } from '/components/common/util';
 
 type FieldsBase = Record<string, string>;
 const memos = new Map<string, RTPath>();
@@ -20,7 +20,7 @@ const memos = new Map<string, RTPath>();
 export class RTPath<Fields = FieldsBase> {
   #path: string | undefined;
   #errorString: string | undefined;
-  id: string = nanoid();
+  id: string = randomId();
 
   constructor(readonly template: string, private readonly fields?: Fields) {
     if (template.endsWith('/')) {
@@ -47,7 +47,7 @@ export class RTPath<Fields = FieldsBase> {
 
   private render(fields?: Fields) {
     const missing: string[] = [];
-    const path = this.template.replace(/:\w+/g, match => {
+    const path = this.template.replace(/:\w+/g, (match) => {
       const token = match.substring(1);
       const val = (fields as unknown as FieldsBase)?.[token];
       if (!val) {

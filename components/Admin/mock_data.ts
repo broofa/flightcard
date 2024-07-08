@@ -1,7 +1,7 @@
-import { nanoid } from 'nanoid';
 import MOTORS from 'thrustcurve-db';
 import { GRAVITY_ACC } from '/components/Cards/MotorAnalysis';
 import { COLORS } from '/components/common/ColorChits';
+import { randomId } from '/components/common/util';
 import { iMotor, iRocket } from '/types';
 import { motorDisplayName } from '/util/motor-util';
 
@@ -323,7 +323,7 @@ export function createRocket(): iRocket {
   const diameter = Math.pow(mass * 5, 1 / 3) / aspectRatio;
 
   const motor: iMotor = {
-    id: nanoid(),
+    id: randomId(),
     name: motorDisplayName(tcMotor),
     stage: 1,
     impulse: tcMotor.totImpulseNs,

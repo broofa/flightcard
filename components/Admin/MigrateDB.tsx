@@ -1,19 +1,16 @@
-import { nanoid } from 'nanoid';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { clear, log } from './AdminLogger';
-import Busy from './Busy';
+import { randomId } from '/components/common/util';
 import { DELETE, rtGet, rtSet, rtTransaction } from '/rt';
 import {
-  ATTENDEES_INDEX_PATH,
-  ATTENDEE_PATH,
   CARDS_INDEX_PATH,
   CARD_MOTORS_PATH,
   CARD_PATH,
   PADS_INDEX_PATH,
   PAD_PATH,
 } from '/rt/rtconstants';
-import { iAttendees, iCards, iPad, iPads } from '/types';
+import { iCards, iPad, iPads } from '/types';
 
 async function complete_migrateMotors() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
@@ -28,7 +25,7 @@ async function complete_migrateMotors() {
       for (const entry of motorEntries) {
         const [motorId, motor] = entry;
         if (motorId != motor.id) {
-          if (!motor.id) motor.id = nanoid();
+          if (!motor.id) motor.id = randomId();
           entry[0] = motor.id;
           needsWrite = true;
         }
@@ -110,7 +107,7 @@ export default function MigrateDB() {
     <Button
       variant='warning'
       onClick={() => {
-        handleClick().catch(err => {
+        handleClick().catch((err) => {
           log(err);
           console.error(err);
         });

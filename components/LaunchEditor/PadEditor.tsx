@@ -1,9 +1,8 @@
-import { nanoid } from 'nanoid';
 import React, { MouseEventHandler, useRef } from 'react';
 import { Button, Modal, ModalProps } from 'react-bootstrap';
 import { useLaunch } from '../contexts/rt_hooks';
 import FloatingInput from '/components/common/FloatingInput';
-import { busy, Loading } from '/components/common/util';
+import { busy, Loading, randomId } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate } from '/rt';
 import { PAD_PATH } from '/rt/rtconstants';
 import { iPad } from '/types';
@@ -40,10 +39,10 @@ export function PadEditor({
         group,
       });
     } else {
-      const names = name.split(',').filter(v => v);
+      const names = name.split(',').filter((v) => v);
       action = Promise.all(
-        names.map(padName => {
-          const id = nanoid();
+        names.map((padName) => {
+          const id = randomId();
           return rtSet<iPad>(PAD_PATH.with({ launchId, padId: id }), {
             id,
             name: padName.trim(),
@@ -100,8 +99,8 @@ export function PadEditor({
 
           <datalist id='group-names'>
             {groups
-              ?.filter(v => v)
-              .map(group => (
+              ?.filter((v) => v)
+              .map((group) => (
                 <option key={group} value={group} />
               ))}
           </datalist>

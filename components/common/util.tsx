@@ -122,3 +122,7 @@ export function sig(val: number, digits = 3) {
 
   return String(isNegative ? -val : val);
 }
+
+export function randomId() {
+  return crypto.randomUUID();
+}

@@ -1,6 +1,6 @@
-import { nanoid } from 'nanoid';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
+import { randomId } from '/components/common/util';
 import { rtSet } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
 import { CardStatus, iCard } from '/types';
@@ -21,7 +21,7 @@ export function useMakeNewCard() {
     if (!launchId || !userId) return;
 
     const card: iCard = {
-      id: nanoid(),
+      id: randomId(),
       status: CardStatus.DRAFT,
       launchId,
       userId,
