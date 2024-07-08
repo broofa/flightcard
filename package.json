@@ -2,6 +2,7 @@
   "name": "flightcard",
   "version": "1.0.0",
   "description": "Flight Card Management for Model Rocket Launches",
+  "type": "module",
   "files": [],
   "funding": [
     "https://github.com/sponsors/broofa"
@@ -49,10 +50,10 @@
     "clean": "rm -fr dist .parcel-cache",
     "lint": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run clean && parcel index.html",
-    "build": "npm run clean && parcel build index.html",
-    "worker:start": "cd worker && npm start",
-    "worker:deploy": "cd worker && npm run deploy"
+    "start": "yarn clean && parcel index.html",
+    "build": "yarn clean && parcel build index.html",
+    "worker:start": "cd worker && yarn start",
+    "worker:deploy": "cd worker && yarn deploy"
   },
   "repository": {
     "type": "git",
