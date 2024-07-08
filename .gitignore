@@ -1,9 +1,10 @@
+.envrc
 .parcel-cache
 .vscode
 .wrangler
+.yarn
 dist
 node_modules
-yarn.lock
-yarn-error.lock
 vscode.code-workspace
-.envrc
+yarn-error.lock
+yarn.lock
