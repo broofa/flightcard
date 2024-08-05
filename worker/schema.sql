@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS certs;
+-- DROP TABLE IF EXISTS certs;
 
 CREATE TABLE IF NOT EXISTS certs (
   memberId INTEGER,
@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS certs (
 );
 
 CREATE INDEX IF NOT EXISTS certs_organization ON certs (organization);
+CREATE INDEX IF NOT EXISTS certs_firstName ON certs (organization);
+CREATE INDEX IF NOT EXISTS certs_lastName ON certs (organization);
