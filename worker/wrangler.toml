@@ -10,8 +10,8 @@ crons = ["*/10 * * * *"] # once/minute
 
 [[d1_databases]]
 binding = "CertsDB"
-database_name = "certs"
-database_id = "06f88949-46bc-4e6e-aa3b-c817fc75efb2"
+database_name = "certs2"
+database_id = "518eaac7-27b4-49e2-8137-6d7ed749abd0"
 
 [[kv_namespaces]]
 binding = "CertsKV"

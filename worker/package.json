@@ -2,17 +2,17 @@
   "name": "club-members",
   "version": "0.0.0",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240620.0",
-    "@types/node": "20.14.10",
-    "typescript": "^5.5.3",
-    "wrangler": "^3.63.1"
+    "@cloudflare/workers-types": "^4.20240729.0",
+    "@types/node": "22.1.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.68.0"
   },
   "private": true,
   "scripts": {
     "start": "wrangler dev -r --test-scheduled src/index.ts",
     "deploy": "wrangler deploy src/index.ts",
-    "db:init": "wrangler d1 execute certs --local --file=schema.sql",
-    "db:deploy": "wrangler d1 execute certs --file=schema.sql",
+    "db:init": "wrangler d1 execute certs2 --local --file=schema.sql",
+    "db:deploy": "wrangler d1 execute certs2 --file=schema.sql",
     "nar:update": "npx tsx src/nar_update.ts"
   }
 }
