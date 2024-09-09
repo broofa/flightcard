@@ -14,7 +14,7 @@
     "@types/react": "18.3.5",
     "bootstrap": "5.3.3",
     "checkcss": "2.0.9",
-    "firebase": "9.23.0",
+    "firebase": "10.13.1",
     "firebaseui": "6.1.0",
     "process": "0.11.10",
     "react": "18.3.1",
