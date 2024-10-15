@@ -69,7 +69,7 @@ async function fetchTripoliCerts() {
 
 export async function updateTRACerts(env: Env) {
   const kv = new KVStore(env);
-  let fetchInfo = await kv.get<FetchInfo>(FETCH_INFO_KEY);
+  const fetchInfo = await kv.get<FetchInfo>(FETCH_INFO_KEY);
 
   // Add a 1-hour fudge factor to account for clock skew between systems
   const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + 3600e3;

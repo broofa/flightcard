@@ -5,7 +5,6 @@ import ProfileName from './NamePref';
 import UnitsPref from './UnitsPref';
 import { LinkButton, Loading } from '/components/common/util';
 import { CertOrg } from '/types';
-import { getCertVerified } from '/util/cert-util';
 
 export default function ProfilePage() {
   const [launch] = useLaunch();
@@ -14,7 +13,7 @@ export default function ProfilePage() {
   if (!attendee) return <Loading wat='Attendee' />;
   if (!launch) return <Loading wat='Launch' />;
 
-  const isVerified = getCertVerified(attendee);
+  // const isVerified = getCertVerified(attendee);
 
   return (
     <>

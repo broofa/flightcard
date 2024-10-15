@@ -16,13 +16,13 @@ async function handleClick() {
     try {
       await rtGet(rtpath);
       canRead = true;
-    } catch (err) {}
+    } catch {}
 
     try {
       await rtUpdate(rtpath, { _temp: true });
       await rtUpdate(rtpath, { _temp: null });
       canWrite = true;
-    } catch (err) {}
+    } catch {}
 
     return `${canRead ? '\u2705' : '\u274c'} ${
       canWrite ? '\u2705' : '\u274c'

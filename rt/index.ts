@@ -1,27 +1,31 @@
-import { initializeApp, setLogLevel } from 'firebase/app';
+import { FirebaseApp, initializeApp, setLogLevel } from 'firebase/app';
 import 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 import 'firebase/database';
 import {
   get as dbGet,
-  getDatabase,
   onValue as dbOnValue,
   ref as dbRef,
   remove as dbRemove,
   set as dbSet,
   update as dbUpdate,
+  getDatabase,
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { RTPath } from './RTPath';
 import { errorTrap } from '/components/common/errorTrap';
 
+declare global {
+  interface Window { app: FirebaseApp; }
+}
+
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
 
-let app = (window as any).app;
+let app = window.app;
 
 // Prevent duplicate DBs with HMR'ing
 if (!app) {
-  app = (window as any).app = initializeApp({
+  app = window.app = initializeApp({
     apiKey: 'AIzaSyARx6u575DX4gjtzhHzT86DJ34s5GHxmRo',
     authDomain: 'flightcard-63595.firebaseapp.com',
     projectId: 'flightcard-63595',

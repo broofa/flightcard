@@ -11,49 +11,49 @@
     "last 2 Chrome versions"
   ],
   "dependencies": {
-    "@types/react": "18.3.5",
+    "@types/react": "18.3.11",
     "bootstrap": "5.3.3",
     "checkcss": "2.0.9",
-    "firebase": "10.13.1",
+    "firebase": "10.14.1",
     "firebaseui": "6.1.0",
     "process": "0.11.10",
     "react": "18.3.1",
-    "react-bootstrap": "2.10.4",
+    "react-bootstrap": "2.10.5",
     "react-dom": "18.3.1",
     "react-router-bootstrap": "0.26.3",
-    "react-router-dom": "6.26.1",
+    "react-router-dom": "6.27.0",
     "simplur": "4.0.0",
     "thrustcurve-db": "3.0.4",
-    "victory": "37.1.1"
+    "victory": "37.2.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20240903.0",
+    "@cloudflare/workers-types": "4.20241011.0",
     "@parcel/babel-plugin-transform-runtime": "2.12.0",
     "@parcel/packager-raw-url": "2.12.0",
     "@parcel/transformer-image": "2.12.0",
     "@parcel/transformer-sass": "2.12.0",
     "@parcel/transformer-webmanifest": "2.12.0",
-    "@types/react-dom": "18.3.0",
+    "@types/react-dom": "18.3.1",
     "@types/react-router-dom": "5.3.3",
-    "@typescript-eslint/eslint-plugin": "8.4.0",
-    "@typescript-eslint/parser": "8.4.0",
-    "eslint": "9.10.0",
-    "eslint-plugin-react": "7.35.2",
-    "eslint-plugin-react-hooks": "4.6.2",
+    "eslint": "9.12.0",
+    "eslint-plugin-react": "7.37.1",
+    "eslint-plugin-react-hooks": "5.0.0",
+    "globals": "^15.11.0",
     "parcel": "2.12.0",
-    "postcss": "8.4.45",
+    "postcss": "8.4.47",
     "postcss-modules": "6.0.0",
-    "sass": "1.78.0",
-    "typescript": "5.5.4"
+    "sass": "1.79.5",
+    "typescript": "5.6.3",
+    "typescript-eslint": "^8.9.0"
   },
   "scripts": {
     "clean": "rm -fr dist .parcel-cache",
     "lint": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "yarn clean && parcel index.html",
-    "build": "yarn clean && parcel build index.html",
-    "worker:start": "cd worker && yarn start",
-    "worker:deploy": "cd worker && yarn deploy"
+    "start": "npm run clean && parcel index.html",
+    "build": "npm run clean && parcel build index.html",
+    "worker:start": "cd worker && npm run start",
+    "worker:deploy": "cd worker && npm run deploy"
   },
   "repository": {
     "type": "git",
@@ -72,5 +72,5 @@
     "url": "https://github.com/broofa/flightcard/issues"
   },
   "homepage": "https://github.com/broofa/flightcard#readme",
-  "packageManager": "yarn@4.3.1+sha256.2535167e742927e1d2a1610d5004576e4e8f764d2ca5470d19536790f55cd6e2"
+  "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b"
 }

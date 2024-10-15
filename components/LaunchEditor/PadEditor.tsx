@@ -11,7 +11,7 @@ export function PadEditor({
   pad,
   groups,
   ...props
-}: { pad: iPad; groups?: string[] } & ModalProps) {
+}: { pad: iPad; groups?: string[]; onHide?: () => void } & ModalProps) {
   const nameRef = useRef<HTMLInputElement>(null);
   const groupRef = useRef<HTMLInputElement>(null);
   const [launch] = useLaunch();
@@ -122,7 +122,7 @@ export function PadEditor({
         <Button
           className='ms-5'
           variant='secondary'
-          onClick={(props as any).onHide}
+          onClick={props.onHide}
         >
           Cancel
         </Button>

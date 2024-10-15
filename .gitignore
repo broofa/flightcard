@@ -6,5 +6,3 @@
 dist
 node_modules
 vscode.code-workspace
-yarn-error.lock
-yarn.lock

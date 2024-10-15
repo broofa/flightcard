@@ -16,8 +16,7 @@ import {
 import { iCard } from '/types';
 
 export function CardActions({
-  card,
-  ...props
+  card
 }: {
   card: iCard;
 } & ModalProps) {

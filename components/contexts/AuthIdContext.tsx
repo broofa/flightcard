@@ -77,7 +77,7 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
               )
             );
             break;
-          case 'auth/invalid-email': // eslint-disable-line no-fallthrough
+          case 'auth/invalid-email':
           default:
             flash(err as Error);
             break;

@@ -5,7 +5,7 @@ export default function Busy({
   promise,
   text,
   ...props
-}: PropsWithChildren<{ promise?: Promise<any>; text?: string }>) {
+}: PropsWithChildren<{ promise?: Promise<unknown>; text?: string }>) {
   const [busy, setBusy] = useState(true);
   promise?.then(() => setBusy(false));
   return (
