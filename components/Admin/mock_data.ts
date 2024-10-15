@@ -270,6 +270,7 @@ const ROCKET_NAMES = [
   '40',
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MOTOR_SIZES = [
   // min/max impulse (MKS units)
   { name: 'A', min: 1.25, max: 2.5 },

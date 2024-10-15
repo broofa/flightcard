@@ -8,6 +8,7 @@ import styles from './CertDot.module.scss';
 
 export function CertDot({
   attendee,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   showType = false,
   className,
   ...props

@@ -6,12 +6,11 @@ import { DELETE, rtGet, rtSet, rtTransaction } from '/rt';
 import {
   CARDS_INDEX_PATH,
   CARD_MOTORS_PATH,
-  CARD_PATH,
-  PADS_INDEX_PATH,
-  PAD_PATH,
+  CARD_PATH
 } from '/rt/rtconstants';
-import { iCards, iPad, iPads } from '/types';
+import { iCards } from '/types';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function complete_migrateMotors() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
   const allCards = await rtGet<Record<string, iCards>>(CARDS_INDEX_PATH);
@@ -40,6 +39,7 @@ async function complete_migrateMotors() {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function migrateCardStatus() {
   log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
   const allCards = await rtGet<Record<string, iCards>>(CARDS_INDEX_PATH);
@@ -73,26 +73,6 @@ async function migrateCardStatus() {
     }
     await transaction.commit();
   }
-}
-
-async function complete_migratePadLaunchId() {
-  log(<h3>Migrating cards/:launchId/:cardId/motors...</h3>);
-  const allPads = await rtGet<Record<string, iPads>>(PADS_INDEX_PATH);
-  const transaction = rtTransaction();
-  for (const [launchId, pads] of Object.entries(allPads)) {
-    log(<h4>Launch {launchId}</h4>);
-    for (const [padId, pad] of Object.entries<iPad>(pads)) {
-      if (!(pad as any).launchId) continue;
-
-      (pad as any).launchId = DELETE;
-
-      const rtPath = PAD_PATH.with({ launchId, padId });
-
-      transaction.update<iPad>(rtPath, pad);
-    }
-  }
-
-  await transaction.commit();
 }
 
 async function handleClick() {

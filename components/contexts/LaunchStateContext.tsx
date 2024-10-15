@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
+import React, { createContext, PropsWithChildren } from 'react';
 import { RTState, useRTValue } from '/rt';
 import {
   ATTENDEES_PATH,

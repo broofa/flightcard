@@ -1,9 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 import { useState } from 'react';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let queue: any[] = [];
+let queue: unknown[][] = [];
 
 let onLog = () => {};
 
@@ -14,7 +12,7 @@ export function useLog() {
   return log;
 }
 
-export function log(...args: any[]) {
+export function log(...args: unknown[]) {
   queue = [...queue, args];
   onLog();
 }

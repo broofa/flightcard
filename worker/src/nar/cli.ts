@@ -40,7 +40,6 @@ async function main() {
         currentPage: 351,
       } as NeonPagination;
 
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const page = await narAPI.fetchMembers(scanState);
         console.log('Results:', page.searchResults.length);
