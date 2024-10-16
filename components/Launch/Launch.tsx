@@ -8,6 +8,7 @@ import { LCOPane } from '/components/Launch/LCOPane';
 import { LaunchCard } from '/components/Launch/LaunchCard';
 import { MEME_SKEPTICAL, Meme } from '/components/Launch/Meme';
 import { RSOPane } from '/components/Launch/RSOPane';
+import { ToolsPane } from '/components/Launch/ToolsPane';
 import { UsersPane } from '/components/Launch/UsersPane';
 import LaunchEditor from '/components/LaunchEditor/LaunchEditor';
 import ProfilePage from '/components/Profile/ProfilePage';
@@ -111,6 +112,7 @@ function Launch() {
       <Route path='edit' element={<LaunchEditor />} />
       <Route path='profile' element={<ProfilePage />} />
       <Route path='report' element={<Stats />} />
+      <Route path='tools' element={<ToolsPane />} />
       <Route path='rso' element={<RSOPane />} />
       <Route path='lco' element={<LCOPane />} />
       <Route path='users/:filter' element={<UsersPane />} />

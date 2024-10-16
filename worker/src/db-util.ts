@@ -6,16 +6,32 @@ export async function certsFetch(
   memberId: number
 ) {
   return await env.CertsDB.prepare(
-    'SELECT * FROM certs WHERE memberId=? AND organization=?'
+    'SELECT * FROM certs WHERE memberId=?1 AND organization=?2'
   )
     .bind(memberId, organization)
     .first();
 }
 
 export async function certsFetchAll(env: Env, organization: CertOrg) {
-  return await env.CertsDB.prepare('SELECT * FROM certs WHERE organization=?')
+  return await env.CertsDB.prepare('SELECT * FROM certs WHERE organization=?1')
     .bind(organization)
     .all();
+}
+
+export async function certsFetchByName(env: Env, lastName: string, firstName?: string) {
+  let query: D1PreparedStatement;
+
+  if (firstName && firstName.length > 0) {
+    query = env.CertsDB.prepare(
+      'SELECT * FROM certs WHERE lastName LIKE $1 AND firstName LIKE $2 ORDER BY lastName, firstName LIMIT 25 COLLATE NOCASE'
+    ).bind(`${lastName}%`, `${firstName}%`);
+  } else {
+    query = env.CertsDB.prepare(
+      'SELECT * FROM certs WHERE lastName LIKE $1 ORDER BY lastName LIMIT 25 COLLATE NOCASE'
+    ).bind(`${lastName}%`);
+  }
+
+  return await query.all();
 }
 
 export async function certsBulkUpdate(env: Env, certs: iCert[]) {
