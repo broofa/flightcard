@@ -94,25 +94,48 @@ export function ToolsPane() {
     fetchMembersMeta();
   }, [])
 
+  const now = Date.now();
+
+  const resultTable = members.length > 0 ?
+    <table className='members-table'>
+      <tr>
+        <th>Org.</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Level</th>
+        <th>Expires</th>
+      </tr>
+      {
+        members.map((member) => {
+          const lapsed = member.expires < now;
+          return (
+            <tr key={member.memberId} className={lapsed ? 'lapsed' : ''}>
+              <td className='organization'>{member.organization}</td>
+              <td className='memberId'>{member.memberId}</td>
+              <td className='name'>{`${member.lastName}, ${member.firstName}`}</td>
+              <td className='level'>{member.level}</td>
+              <td className='expires'>{new Date(member.expires).toDateString()}</td>
+            </tr>
+          );
+        })
+      }
+    </table>
+    : null;
+
   return (
     <>
       <h1>NAR / Tripoli Member Search</h1>
-      <input type='text' value={searchText} onChange={handleChange} className='form-control' placeholder='Last name [, First name]'/>
-      <table className='members-table'>
-        {members.map((member) => (
-          <tr key={member.memberId}>
-            <td>{member.organization}</td>
-            <td>{member.memberId}</td>
-            <td>{`${member.lastName}, ${member.firstName}`}</td>
-            <td>{member.level}</td>
-            <td>{new Date(member.expires).toDateString()}</td>
-          </tr>
-        ))}
-      </table>
+      <input type='text'
+        value={searchText}
+        onChange={handleChange}
+        className='form-control'
+        placeholder='Last name [, First name]' />
+
+      {resultTable}
 
       {membersMeta ? <div className='members-meta'>
-        <div>Last NAR update: {new Date(membersMeta.nar.updatedAt).toDateString()}</div>
-        <div>Last TRA update: {new Date(membersMeta.tra.lastModified).toDateString()}</div>
+        <div>NAR data as of {new Date(membersMeta.nar.updatedAt).toDateString()}</div>
+        <div>TRA  data as of {new Date(membersMeta.tra.lastModified).toDateString()}</div>
       </div> : null
       }
     </>

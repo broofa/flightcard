@@ -3,11 +3,18 @@ input.form-control:invalid {
   background-color: pink;
 }
 
-.members-table td {
-  padding: .2rem .4rem;
+.members-table {
+  margin-top: 1em;
+  th {text-align: center;}
+  th, td {padding: .2rem .4rem;}
+  td.memberId, td.level {text-align: right;}
+  tr.lapsed td.expires {
+    color: red;
+  }
 }
 
 .members-meta {
+  text-align: right;
   margin-top: 2rem;
   font-size: .8rem;
   opacity: 0.5;

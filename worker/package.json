@@ -2,10 +2,10 @@
   "name": "club-members",
   "version": "0.0.0",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240729.0",
-    "@types/node": "22.1.0",
-    "typescript": "^5.5.4",
-    "wrangler": "^3.68.0"
+    "@cloudflare/workers-types": "^4.20241011.0",
+    "@types/node": "22.7.6",
+    "typescript": "^5.6.3",
+    "wrangler": "^3.80.5"
   },
   "private": true,
   "scripts": {
