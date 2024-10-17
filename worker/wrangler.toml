@@ -20,3 +20,6 @@ id = "8efe9d6e4bea4254812ee315232d41ca"
 
 [dev]
 port = 6543
+
+[observability]
+enabled = true
