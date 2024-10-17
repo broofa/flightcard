@@ -27,7 +27,7 @@ export async function certsFetchByName(env: Env, lastName: string, firstName?: s
     ).bind(`${lastName}%`, `${firstName}%`);
   } else {
     query = env.CertsDB.prepare(
-      'SELECT * FROM certs WHERE lastName LIKE $1 ORDER BY lastName LIMIT 25'
+      'SELECT * FROM certs WHERE lastName LIKE $1 ORDER BY lastName, firstName LIMIT 25'
     ).bind(`${lastName}%`);
   }
 

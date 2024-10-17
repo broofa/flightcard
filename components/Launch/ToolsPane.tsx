@@ -57,7 +57,7 @@ export function ToolsPane() {
           <tr key={member.memberId}>
             <td>{member.organization}</td>
             <td>{member.memberId}</td>
-            <td>{`${member.firstName} ${member.lastName}`}</td>
+            <td>{`${member.lastName}, ${member.firstName}`}</td>
             <td>{member.level}</td>
             <td>{new Date(member.expires).toDateString()}</td>
           </tr>

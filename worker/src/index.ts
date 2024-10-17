@@ -45,6 +45,54 @@ export class HTTPError extends Error {
 
 
 const ROUTES = [
+  async function rejectFavicon(request: Request) {
+    if (/favicon/.test(request.url)) {return new Response(null, { status: 204 })};
+  },
+
+  async function corsPreflight(request: Request) {
+    const origin = request.headers.get('origin') ?? '';
+
+    if (!origin) return;
+
+    const { hostname } = new URL(origin);
+
+    // Reject requests from unknown origins
+    if (!DOMAIN_WHITELIST.test(hostname)) {
+      return new Response(null, { status: 403 });
+    }
+
+    // Allow preflight requests that Chrome sends for localhost CORS requests
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'access-control-allow-origin': origin,
+          'access-control-allow-methods': 'GET, OPTIONS',
+          'access-control-allow-headers': 'Content-Type',
+        },
+      });
+    }
+  },
+
+  async function scrapeStatusRoute(request: Request, env: Env) {
+    const {pathname} = new URL(request.url);
+    if (pathname !== '/members/meta') {
+      return;
+    }
+
+    const [narInfo, traInfo] = await Promise.all([
+      env.CertsKV.get('NAR.scanState'),
+      env.CertsKV.get('TRA.fetchInfo'),
+    ])
+
+    const meta = {
+      nar: narInfo ? JSON.parse(narInfo) : null,
+      tra: traInfo ? JSON.parse(traInfo) : null,
+    }
+
+    return meta;
+  },
+
   async function nameSearchRoute(request: Request, env: Env) {
     const { searchParams } = new URL(request.url);
     const firstName= searchParams.get('firstName') ?? undefined;
@@ -91,55 +139,26 @@ const ROUTES = [
 ]
 
 export default {
-  // Handle HTTP requests to this worker.  We have a bit of boiler-late code
-  // here to ensure we always return a JSON response with proper CORS headers
   async fetch(
     request: Request,
     env: Env,
     // ctx: ExecutionContext
   ): Promise<Response> {
-    // Compose response headers.  Use CORS to restrict to development and
-    // production environments
-    const origin = request.headers.get('origin') ?? 'invalid://';
-    const { hostname } = new URL(origin);
-
     const headers: Record<string, string> = {
       'content-type': 'application/json',
-      'access-control-allow-origin': DOMAIN_WHITELIST.test(hostname)
-        ? origin
-        : '',
+      'access-control-allow-origin': request.headers.get('origin') ?? ''
     };
 
-    // Chrome sends preflight request for CORS requests made to localhost, so
-    // handle that here.
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          ...headers,
-          'access-control-allow-methods': 'GET, OPTIONS',
-          'access-control-allow-headers': 'Content-Type',
-        },
-      });
-    }
-
-    // Ignore requests (from browser) for favicons
-    if (/favicon/.test(request.url)) {return new Response(null, { status: 204 })};
-
+    // Process route handlers
     for (const route of ROUTES) {
-      // Invoke handler.  We wrap this in some basic boilerplate to insure we
-      // _always_ return a JSON response, and to make error handling simple and
-      // robust.
       try {
         const result = await route(request, env);
 
-        if (!result) continue;
-
-        if (result instanceof Response) {
+        if (!result) {
+          continue;
+        } else if (result instanceof Response) {
           return result;
-        }
-
-        if (result) {
+        } if (result) {
           return new Response(JSON.stringify(result, null, 2), { headers });
         }
       } catch (err) {
@@ -157,10 +176,10 @@ export default {
     return new Response('No route found for request', { status: 404, headers });
   },
 
+
   // Handle scheduled invocations
   //
   // NOTE: This can be triggered in dev by hitting http://127.0.0.1:6543/__scheduled
-
   async scheduled(
     controller: ScheduledController,
     env: Env,
