@@ -6,7 +6,7 @@ export function useFlownCards() {
 
   if (!cards) return [];
 
-  return Object.values(cards).filter(card => card.status === CardStatus.DONE);
+  return Object.values(cards).filter((card) => card.status === CardStatus.DONE);
 }
 
 export function cardMotors(cards: iCard[]) {

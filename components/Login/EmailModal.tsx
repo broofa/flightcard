@@ -76,7 +76,7 @@ export function EmailModal({ from, ...props }: { from: string } & ModalProps) {
         <Form.Control
           type='email'
           value={email ?? ''}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder='E.g. rory.marshall@example.com'
           required
         />

@@ -401,8 +401,8 @@ async function unseedDB() {
 
     await Promise.all(
       Object.keys(obj)
-        .filter(key => key.startsWith(MOCK_ID_PREFIX))
-        .map(key => {
+        .filter((key) => key.startsWith(MOCK_ID_PREFIX))
+        .map((key) => {
           const itemPath = collectionPath.append(':key', { key });
           log('Removing', itemPath);
           return rtRemove(itemPath);

@@ -21,7 +21,7 @@ export default function RolePref({
       name='role-pref'
       value={role ?? ''}
       type='radio'
-      onChange={val => {
+      onChange={(val) => {
         setRole(val);
       }}
       {...props}

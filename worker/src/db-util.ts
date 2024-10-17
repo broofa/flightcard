@@ -18,7 +18,11 @@ export async function certsFetchAll(env: Env, organization: CertOrg) {
     .all();
 }
 
-export async function certsFetchByName(env: Env, lastName: string, firstName?: string) {
+export async function certsFetchByName(
+  env: Env,
+  lastName: string,
+  firstName?: string
+) {
   let query: D1PreparedStatement;
 
   if (firstName && firstName.length > 0) {
@@ -48,7 +52,7 @@ export async function certsBulkUpdate(env: Env, certs: iCert[]) {
 
   const start = Date.now();
 
-  const statements = certs.map(cert =>
+  const statements = certs.map((cert) =>
     insert.bind(
       cert.memberId,
       cert.firstName,

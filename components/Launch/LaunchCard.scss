@@ -1,9 +1,8 @@
-
 .launch-card {
-  color: black;
   transition: 0.2s;
+  color: black;
 }
 .launch-card:hover {
-  color: white;
   background-color: #343a40; // bootstrap "dark"
+  color: white;
 }

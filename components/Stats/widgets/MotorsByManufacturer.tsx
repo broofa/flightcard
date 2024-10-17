@@ -10,7 +10,7 @@ export function MotorsByManufacturer() {
   const entries = [
     ...arrayGroup(
       motors,
-      motor =>
+      (motor) =>
         getMotor(motor.tcMotorId ?? '')?.manufacturerAbbrev ?? '(unknown)'
     ),
   ];

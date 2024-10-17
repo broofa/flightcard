@@ -44,7 +44,7 @@ export function arrayGroup<KeyType, ItemType>(
   const itemsByGroup = new Map<KeyType, ItemType[]>();
 
   if (typeof extract === 'string') {
-    return arrayGroup(arr, item => item[extract] as KeyType);
+    return arrayGroup(arr, (item) => item[extract] as KeyType);
   }
 
   for (const v of arr) {

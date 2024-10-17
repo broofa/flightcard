@@ -15,14 +15,14 @@ export function MotorsByClass() {
   const motors = cardMotors(useFlownCards());
 
   const impulses = motors
-    .map(motor => motor.impulse ?? 0)
-    .filter(impulse => impulse > 0);
+    .map((motor) => motor.impulse ?? 0)
+    .filter((impulse) => impulse > 0);
 
   let body = <div>No motors found</div>;
 
   if (impulses.length > 0) {
     const range = { min: impulses[0], max: impulses[0] };
-    impulses.forEach(impulse => {
+    impulses.forEach((impulse) => {
       range.min = Math.min(range.min, impulse);
       range.max = Math.max(range.max, impulse);
     });
@@ -34,7 +34,7 @@ export function MotorsByClass() {
 
     const byCert = arrayGroup(
       motors,
-      motor => motorClassForImpulse(motor.impulse) ?? 'unknown'
+      (motor) => motorClassForImpulse(motor.impulse) ?? 'unknown'
     );
 
     const data = impulsesInRange.map(({ name }) => ({

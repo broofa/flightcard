@@ -33,7 +33,9 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
     return null;
   }
 
-  const stage1Motors = Object.values(motors).filter(m => (m.stage ?? 1) === 1);
+  const stage1Motors = Object.values(motors).filter(
+    (m) => (m.stage ?? 1) === 1
+  );
 
   // There should be at least one stage 1 motor
   if (!stage1Motors.length) {
@@ -41,7 +43,7 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
       <Meme
         className='mt-3 p-2'
         meme={MEME_INTERESTING}
-        style={{ height: '50cqmin', width: '20em'}}
+        style={{ height: '50cqmin', width: '20em' }}
         topText='No Stage 1 motors?'
         bottomText='... very interesting'
       />
@@ -72,9 +74,9 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
   if (isNaN(stage1Thrust)) {
     return (
       <Alert className='mt-3 p-2' variant='warning'>
-        Unable to compute total thrust. Make sure the average thrust is mentioned
-        in each motor name using <code>letter-thrust</code> notation. (E.g.
-        "D12" or "J-350")
+        Unable to compute total thrust. Make sure the average thrust is
+        mentioned in each motor name using <code>letter-thrust</code> notation.
+        (E.g. "D12" or "J-350")
       </Alert>
     );
   }
@@ -103,8 +105,8 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
       thrustToWeightRatio < THRUST_RATIO_MIN
         ? 'danger'
         : thrustToWeightRatio < THRUST_RATIO_GOOD
-        ? 'warning'
-        : 'success';
+          ? 'warning'
+          : 'success';
     thrustResult = (
       <div>
         Thrust<span style={{ fontSize: '80%', verticalAlign: 'sub' }}>avg</span>{' '}

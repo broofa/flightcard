@@ -20,7 +20,7 @@ export function PadGroupEditor({
       // collection for a launch, so we have to iterate through each one
       // individually
       await Promise.all(
-        Object.values(pads).map(async pad => {
+        Object.values(pads).map(async (pad) => {
           if ((pad.group ?? '') !== groupName) return;
 
           pad.group = newName?.trim();
@@ -41,7 +41,7 @@ export function PadGroupEditor({
         type='text'
         value={newName}
         placeholder='(default group)'
-        onChange={e => setNewName(e.target.value)}
+        onChange={(e) => setNewName(e.target.value)}
         onBlur={onSave}
       />
     </div>

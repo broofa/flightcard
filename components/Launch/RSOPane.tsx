@@ -23,9 +23,9 @@ export function RSOPane() {
   if (!attendees) return <Loading wat='Users' />;
 
   const rsoCards = Object.values(cards || {}).filter(
-    c => c.status === CardStatus.REVIEW
+    (c) => c.status === CardStatus.REVIEW
   );
-  arraySort(rsoCards, card => attendees[card.userId].name ?? '');
+  arraySort(rsoCards, (card) => attendees[card.userId].name ?? '');
 
   return (
     <>
@@ -39,7 +39,7 @@ export function RSOPane() {
       <h2>RSO Requests</h2>
       <div>
         {rsoCards.length ? (
-          rsoCards.map(card => (
+          rsoCards.map((card) => (
             <LaunchCard
               className='mt-2'
               key={card.id}

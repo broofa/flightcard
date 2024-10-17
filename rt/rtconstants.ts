@@ -38,6 +38,7 @@ export const CARDS_PATH = CARDS_INDEX_PATH.append<LaunchIdField>(':launchId');
 export const CARD_PATH = CARDS_PATH.append<CardIdField>(':cardId');
 export const CARD_STATUS = CARD_PATH.append('status');
 export const CARD_MOTORS_PATH = CARD_PATH.append('motors');
-export const CARD_MOTOR_PATH = CARD_MOTORS_PATH.append<MotorIdField>(':motorId');
+export const CARD_MOTOR_PATH =
+  CARD_MOTORS_PATH.append<MotorIdField>(':motorId');
 export const ROCKET_PATH = CARD_PATH.append('rocket');
 export const ROCKET_MASS_PATH = ROCKET_PATH.append('mass');

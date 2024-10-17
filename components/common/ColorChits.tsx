@@ -64,7 +64,7 @@ export default function ColorChits({
     colors = 'red orange yellow green turquoise blue violet';
   }
 
-  const match = colors?.match(/\w+/g)?.map(v => v.toLowerCase());
+  const match = colors?.match(/\w+/g)?.map((v) => v.toLowerCase());
 
   if (!match) return null;
 

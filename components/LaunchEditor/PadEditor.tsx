@@ -100,9 +100,7 @@ export function PadEditor({
           <datalist id='group-names'>
             {groups
               ?.filter((v) => v)
-              .map((group) => (
-                <option key={group} value={group} />
-              ))}
+              .map((group) => <option key={group} value={group} />)}
           </datalist>
         </div>
         {pad.id ? null : (
@@ -119,11 +117,7 @@ export function PadEditor({
           </Button>
         ) : null}
         <div className='flex-grow-1' />
-        <Button
-          className='ms-5'
-          variant='secondary'
-          onClick={props.onHide}
-        >
+        <Button className='ms-5' variant='secondary' onClick={props.onHide}>
           Cancel
         </Button>
         <Button onClick={handleSave}>{pad.id ? 'Update' : 'Create'}</Button>

@@ -40,7 +40,7 @@ export default function MotorStats() {
     <Button
       variant='info'
       onClick={() => {
-        handleClick().catch(err => {
+        handleClick().catch((err) => {
           log(err);
           console.error(err);
         });

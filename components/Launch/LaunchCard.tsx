@@ -60,7 +60,7 @@ export function LaunchCard({
         {user.name} &mdash; "{card?.rocket?.name ?? '(unnamed)'}"
         {warnings.length ? (
           <div>
-            {warnings.map(w => (
+            {warnings.map((w) => (
               <Warning key={w}>{w}</Warning>
             ))}
           </div>

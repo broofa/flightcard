@@ -20,13 +20,13 @@ export function CardsPane() {
   if (!currentUser) return <Loading wat='User' />;
 
   const userCards = Object.values(cards || {}).filter(
-    c => c.userId == currentUser.id
+    (c) => c.userId == currentUser.id
   );
-  const cardGroups = arrayGroup(userCards, c => c.status ?? DRAFT);
-  const draftCards = userCards.filter(c => c.status == DRAFT);
-  const reviewCards = userCards.filter(c => c.status == REVIEW);
-  const readyCards = userCards.filter(c => c.status == FLY);
-  const doneCards = userCards.filter(c => c.status == DONE);
+  const cardGroups = arrayGroup(userCards, (c) => c.status ?? DRAFT);
+  const draftCards = userCards.filter((c) => c.status == DRAFT);
+  const reviewCards = userCards.filter((c) => c.status == REVIEW);
+  const readyCards = userCards.filter((c) => c.status == FLY);
+  const doneCards = userCards.filter((c) => c.status == DONE);
 
   return (
     <>

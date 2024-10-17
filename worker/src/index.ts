@@ -38,15 +38,19 @@ export const TRIPOLI_CERT_MAP: Record<string, string> = {
 };
 
 export class HTTPError extends Error {
-  constructor(public message: string, public statusCode = 500) {
+  constructor(
+    public message: string,
+    public statusCode = 500
+  ) {
     super(message);
   }
 }
 
-
 const ROUTES = [
   async function rejectFavicon(request: Request) {
-    if (/favicon/.test(request.url)) {return new Response(null, { status: 204 })};
+    if (/favicon/.test(request.url)) {
+      return new Response(null, { status: 204 });
+    }
   },
 
   async function corsPreflight(request: Request) {
@@ -75,7 +79,7 @@ const ROUTES = [
   },
 
   async function scrapeStatusRoute(request: Request, env: Env) {
-    const {pathname} = new URL(request.url);
+    const { pathname } = new URL(request.url);
     if (pathname !== '/members/meta') {
       return;
     }
@@ -83,20 +87,20 @@ const ROUTES = [
     const [narInfo, traInfo] = await Promise.all([
       env.CertsKV.get('NAR.scanState'),
       env.CertsKV.get('TRA.fetchInfo'),
-    ])
+    ]);
 
     const meta = {
       nar: narInfo ? JSON.parse(narInfo) : null,
       tra: traInfo ? JSON.parse(traInfo) : null,
-    }
+    };
 
     return meta;
   },
 
   async function nameSearchRoute(request: Request, env: Env) {
     const { searchParams } = new URL(request.url);
-    const firstName= searchParams.get('firstName') ?? undefined;
-    const lastName = searchParams.get('lastName')?? undefined;
+    const firstName = searchParams.get('firstName') ?? undefined;
+    const lastName = searchParams.get('lastName') ?? undefined;
 
     if (!lastName) {
       return;
@@ -135,18 +139,18 @@ const ROUTES = [
     }
 
     return cert;
-  }
-]
+  },
+];
 
 export default {
   async fetch(
     request: Request,
-    env: Env,
+    env: Env
     // ctx: ExecutionContext
   ): Promise<Response> {
     const headers: Record<string, string> = {
       'content-type': 'application/json',
-      'access-control-allow-origin': request.headers.get('origin') ?? ''
+      'access-control-allow-origin': request.headers.get('origin') ?? '',
     };
 
     // Process route handlers
@@ -158,7 +162,8 @@ export default {
           continue;
         } else if (result instanceof Response) {
           return result;
-        } if (result) {
+        }
+        if (result) {
           return new Response(JSON.stringify(result, null, 2), { headers });
         }
       } catch (err) {
@@ -168,14 +173,13 @@ export default {
             error: message,
             stack: stack?.split(/\n/g),
           }),
-          { status: 500, headers, }
+          { status: 500, headers }
         );
       }
     }
 
     return new Response('No route found for request', { status: 404, headers });
   },
-
 
   // Handle scheduled invocations
   //

@@ -42,7 +42,9 @@ export default function Admin() {
             return cloneElement(args[0], { key: i });
           }
 
-          const err: Error | undefined = args.find((v: unknown) => v instanceof Error);
+          const err: Error | undefined = args.find(
+            (v: unknown) => v instanceof Error
+          );
           args = args.map((v: unknown) => {
             if (v === undefined) return 'undefined';
             const cons = Object.getPrototypeOf(v)?.constructor;

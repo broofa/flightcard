@@ -3,30 +3,30 @@ import '/components/Launch/ToolsPane.scss';
 import { iCert } from '/types';
 import useDebounce from '/util/useDebounce';
 
-const { MEMBER_API_ENDPOINT } = process.env;
+const { MEMBER_API_ENDPOINT, NODE_ENV } = process.env;
 
 type MembersMeta = {
   nar: {
-    queryAccountId: number,
-    queryTimestamp: number,
-    trackingAccountId: number,
-    trackingTimestamp: number,
+    queryAccountId: number;
+    queryTimestamp: number;
+    trackingAccountId: number;
+    trackingTimestamp: number;
     pagination: {
-      currentPage: number,
-      pageSize: number,
-      sortColumn: string,
-      sortDirection: string,
-      totalPages: number,
-      totalResults: number
-    },
-    updatedAt: string
-  },
+      currentPage: number;
+      pageSize: number;
+      sortColumn: string;
+      sortDirection: string;
+      totalPages: number;
+      totalResults: number;
+    };
+    updatedAt: string;
+  };
   tra: {
-    updatedAt: string,
-    certsFetched: number,
-    lastModified: string
-  }
-}
+    updatedAt: string;
+    certsFetched: number;
+    lastModified: string;
+  };
+};
 
 export function ToolsPane() {
   const [searchText, setSearchText] = React.useState('');
@@ -42,7 +42,7 @@ export function ToolsPane() {
     setMembers([]);
   }
 
-  async function fetchMembers(query: { lastName: string, firstName?: string }) {
+  async function fetchMembers(query: { lastName: string; firstName?: string }) {
     const queryURL = new URL(MEMBER_API_ENDPOINT!);
     queryURL.searchParams.append('lastName', query.lastName);
 
@@ -76,8 +76,6 @@ export function ToolsPane() {
     setMembersMeta(json);
   }
 
-
-
   useEffect(() => {
     console.log('debouncedQuery:', debouncedQuery);
     const [lastName, firstName] = searchText.trim().split(/[\W]+/);
@@ -86,58 +84,71 @@ export function ToolsPane() {
 
     // TODO: error handling
     fetchMembers({ lastName, firstName });
-
   }, [debouncedQuery]);
 
   useEffect(() => {
     // TODO: error handling
     fetchMembersMeta();
-  }, [])
+  }, []);
 
   const now = Date.now();
 
-  const resultTable = members.length > 0 ?
-    <table className='members-table'>
-      <tr>
-        <th>Org.</th>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Level</th>
-        <th>Expires</th>
-      </tr>
-      {
-        members.map((member) => {
-          const lapsed = member.expires < now;
-          return (
-            <tr key={member.memberId} className={lapsed ? 'lapsed' : ''}>
-              <td className='organization'>{member.organization}</td>
-              <td className='memberId'>{member.memberId}</td>
-              <td className='name'>{`${member.lastName}, ${member.firstName}`}</td>
-              <td className='level'>{member.level}</td>
-              <td className='expires'>{new Date(member.expires).toDateString()}</td>
-            </tr>
-          );
-        })
-      }
-    </table>
-    : null;
+  const resultTable =
+    members.length > 0 ? (
+      <table className='members-table'>
+        <thead>
+          <tr>
+            <th>Org.</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Level</th>
+            <th>Expires</th>
+          </tr>
+        </thead>
+        <tbody>
+          {members.map((member) => {
+            const lapsed = member.expires < now;
+            return (
+              <tr key={member.memberId} className={lapsed ? 'lapsed' : ''}>
+                <td className='organization'>{member.organization}</td>
+                <td className='memberId'>{member.memberId}</td>
+                <td className='name'>{`${member.lastName}, ${member.firstName}`}</td>
+                <td className='level'>{member.level}</td>
+                <td className='expires'>
+                  {new Date(member.expires).toDateString()}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    ) : null;
 
   return (
     <>
       <h1>NAR / Tripoli Member Search</h1>
-      <input type='text'
+      <input
+        type='text'
         value={searchText}
         onChange={handleChange}
         className='form-control'
-        placeholder='Last name [, First name]' />
+        placeholder='Last name [, First name]'
+      />
 
       {resultTable}
 
-      {membersMeta ? <div className='members-meta'>
-        <div>NAR data as of {new Date(membersMeta.nar.updatedAt).toDateString()}</div>
-        <div>TRA  data as of {new Date(membersMeta.tra.lastModified).toDateString()}</div>
-      </div> : null
-      }
+      {membersMeta ? (
+        <div className='members-meta'>
+          <div>
+            NAR data as of {new Date(membersMeta.nar.updatedAt).toDateString()}
+          </div>
+          <div>
+            TRA data as of{' '}
+            {new Date(membersMeta.tra.lastModified).toDateString()}
+          </div>
+          <div>NODE_ENV: {NODE_ENV}</div>
+        </div>
+      ) : null}
     </>
   );
 }

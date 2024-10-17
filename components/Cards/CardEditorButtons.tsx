@@ -155,7 +155,7 @@ export function PadSelect({
 
   // Group pads by group
   const padGroupEntries = [
-    ...arrayGroup(Object.values(pads), pad => pad.group ?? ''),
+    ...arrayGroup(Object.values(pads), (pad) => pad.group ?? ''),
   ];
 
   // Sort by group name
@@ -178,7 +178,7 @@ export function PadSelect({
 
         {padGroupEntries.map(([group, pads]) => (
           <optgroup key={group} label={group}>
-            {pads.map(pad => (
+            {pads.map((pad) => (
               <option key={pad.id} value={pad.id}>
                 {pad.name}
               </option>

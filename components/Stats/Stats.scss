@@ -1,7 +1,7 @@
 .statlist {
   display: grid;
-  max-height: 15em;
-  overflow-y: auto;
   grid-template-columns: max-content auto;
   gap: 10px 1em;
+  max-height: 15em;
+  overflow-y: auto;
 }

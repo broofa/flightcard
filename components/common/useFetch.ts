@@ -1,6 +1,9 @@
 export class HTTPResponseError extends Error {
-  constructor(readonly message: string, readonly response: Response) {
-    super()
+  constructor(
+    readonly message: string,
+    readonly response: Response
+  ) {
+    super();
   }
 }
 
@@ -33,14 +36,14 @@ export function fetchHelper<ResponseType>(
 
   if (url) {
     fetch(url, { ...options, signal: controller.signal })
-      .then(res => {
+      .then((res) => {
         if (!res.ok) {
           throw new HTTPResponseError(res.statusText, res);
         }
         return res.json();
       })
-      .then(json => setData?.(json))
-      .catch(err => {
+      .then((json) => setData?.(json))
+      .catch((err) => {
         setError?.(err as Error);
       })
       .finally(() => setLoading?.(false));
