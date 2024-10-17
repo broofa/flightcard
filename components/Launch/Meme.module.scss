@@ -1,6 +1,7 @@
 .root {
   position: relative;
-  container-type: normal;
+  border: solid 1px red;
+  container-type: inline-size;
   width: 100%;
 }
 
@@ -17,15 +18,16 @@
   left: 0;
   color: white;
   font-weight: 900;
-  font-size: 3cqh;
   text-align: center;
-  text-shadow: black 0 0 0.1em;
+  text-shadow: black 2px 2px 3px;
   text-transform: uppercase;
 }
 
 .textTop {
   top: 1cqh;
+  font-size: 4cqw;
 }
 .textBottom {
   bottom: 1cqh;
+  font-size: 5cqw;
 }
