@@ -11,7 +11,7 @@ export function AttendeesByCert() {
 
   if (!attendees) return <Loading wat='Attendees' />;
 
-  const byCert = arrayGroup(Object.values(attendees), att => certString(att));
+  const byCert = arrayGroup(Object.values(attendees), (att) => certString(att));
   const data = [...byCert].map(([key, values]) => ({
     x: key,
     y: values.length,

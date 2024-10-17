@@ -12,7 +12,7 @@ export default function RSOActivity() {
   if (!attendees) return <Loading wat='Attendees' />;
 
   const cardsByRSO = [
-    ...arrayGroup(Object.values(cards), card => card.rsoId ?? ''),
+    ...arrayGroup(Object.values(cards), (card) => card.rsoId ?? ''),
   ];
 
   arraySort(cardsByRSO, ([, cards]) => -cards.length);

@@ -26,7 +26,7 @@ function addFlash(node: ReactNode) {
 }
 
 function removeFlash(node: ReactNode) {
-  _flashes = _flashes.filter(n => n !== node);
+  _flashes = _flashes.filter((n) => n !== node);
   onFlashChange(_flashes);
 }
 

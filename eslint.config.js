@@ -6,16 +6,12 @@ import pluginTS from 'typescript-eslint';
 
 export default [
   {
-    ignores: [
-      'node_modules',
-      'dist',
-      '.parcel-cache'
-    ]
+    ignores: ['node_modules', 'dist', '.parcel-cache'],
   },
 
-  ... pluginTS.config(
+  ...pluginTS.config(
     pluginJS.configs.recommended,
-    ...pluginTS.configs.recommended,
+    ...pluginTS.configs.recommended
   ),
 
   pluginReact.configs.flat.recommended,
@@ -28,9 +24,8 @@ export default [
 
   {
     languageOptions: {
-      globals:
- {
-  ...globals.browser
+      globals: {
+        ...globals.browser,
       },
     },
 
@@ -41,7 +36,6 @@ export default [
       'jsx-quotes': ['error', 'prefer-single'],
       'no-empty': 'off',
       'react/no-unescaped-entities': 'off',
-    }
-  }
+    },
+  },
 ];
-

@@ -102,9 +102,9 @@ export function MotorEditor({
 
       <Modal.Body>
         <datalist id={delayListId}>
-          {tcMotor?.delays?.split(',')?.map((d) => (
-            <option key={String(d)} value={String(d)} />
-          ))}
+          {tcMotor?.delays
+            ?.split(',')
+            ?.map((d) => <option key={String(d)} value={String(d)} />)}
         </datalist>
 
         <Form.Control

@@ -33,7 +33,7 @@ function PadCard({
       <div className='flex-grow-1'>
         <strong className='text-warning me-2'>{'\u{26A0}'} Pad Conflict</strong>
         <div className='deck'>
-          {cards.map(card => {
+          {cards.map((card) => {
             const rtFields = {
               launchId: card.launchId,
               cardId: card.id,
@@ -86,12 +86,12 @@ export function LCOPane() {
   if (!allCards) return <Loading wat='Cards' />;
 
   const readyCards = Object.values(allCards).filter(
-    card => card.status === CardStatus.FLY
+    (card) => card.status === CardStatus.FLY
   );
 
-  const padsBygroup = arrayGroup(Object.values(pads), pad => pad.group ?? '');
+  const padsBygroup = arrayGroup(Object.values(pads), (pad) => pad.group ?? '');
 
-  const cardsByPad = arrayGroup(readyCards, card => card.padId ?? '');
+  const cardsByPad = arrayGroup(readyCards, (card) => card.padId ?? '');
 
   const unrackedCards = cardsByPad.get('');
   cardsByPad.delete('');
@@ -110,16 +110,16 @@ export function LCOPane() {
         </div>
       ) : null}
 
-      {groupNames.map(groupName => {
+      {groupNames.map((groupName) => {
         const pads = padsBygroup.get(groupName);
         if (!pads) return null;
 
-        arraySort(pads, pad => pad.name ?? '');
+        arraySort(pads, (pad) => pad.name ?? '');
 
         return (
           <div key={groupName}>
             <h2 className='mt-3'>{groupName}</h2>
-            {pads.map(pad => {
+            {pads.map((pad) => {
               const cards = cardsByPad.get(pad.id);
               if (!cards) return null;
 
@@ -133,7 +133,7 @@ export function LCOPane() {
         <>
           <hr />
           <h2>RSO Approved (waiting for pad)</h2>
-          {unrackedCards.map(card => (
+          {unrackedCards.map((card) => (
             <LaunchCard key={card.id} card={card} />
           ))}
         </>

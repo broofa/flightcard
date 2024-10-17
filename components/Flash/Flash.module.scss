@@ -1,6 +1,6 @@
 .flashItem {
+  transition: height 0.5s ease;
   box-sizing: border-box;
   height: 0;
   overflow-y: hidden;
-  transition:  height .5s ease
 }

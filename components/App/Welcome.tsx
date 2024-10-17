@@ -9,7 +9,9 @@ export default function Welcome() {
 
       <p>
         Pretend there's useful content here, and then head over to ...
-        <FCLinkButton className='d-block my-3' to='/launches'>Launches</FCLinkButton>
+        <FCLinkButton className='d-block my-3' to='/launches'>
+          Launches
+        </FCLinkButton>
       </p>
     </>
   );

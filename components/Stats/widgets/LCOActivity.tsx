@@ -11,7 +11,7 @@ export default function LCOActivity() {
 
   if (!attendees) return <Loading wat='Attendees' />;
 
-  const flightsByLCO = [...arrayGroup(flownCards, card => card.lcoId ?? '')];
+  const flightsByLCO = [...arrayGroup(flownCards, (card) => card.lcoId ?? '')];
 
   arraySort(flightsByLCO, ([, cards]) => -cards.length);
 

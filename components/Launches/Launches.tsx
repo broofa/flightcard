@@ -45,11 +45,11 @@ export default function Launches() {
           <div className='deck'>
             {Object.values(launches)
               .filter(
-                l =>
+                (l) =>
                   !l.startDate ||
                   Date.parse(`${l.endDate}T23:59:59`) >= Date.now()
               )
-              .map(l => (
+              .map((l) => (
                 <EventCard
                   key={l.id}
                   launch={l}
@@ -60,8 +60,8 @@ export default function Launches() {
           <h2>Past Launches</h2>
           <div className='deck'>
             {Object.values(launches)
-              .filter(l => Date.parse(`${l.endDate}T23:59:59`) < Date.now())
-              .map(l => (
+              .filter((l) => Date.parse(`${l.endDate}T23:59:59`) < Date.now())
+              .map((l) => (
                 <EventCard
                   key={l.id}
                   launch={l}

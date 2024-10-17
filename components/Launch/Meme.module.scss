@@ -1,26 +1,26 @@
 .root {
-  container-type: normal;
   position: relative;
+  container-type: normal;
   width: 100%;
 }
 
 .root img {
-  height: 100%;
   width: 100%;
-  object-fit: contain
+  height: 100%;
+  object-fit: contain;
 }
 
 .textTop,
 .textBottom {
+  position: absolute;
+  right: 0;
+  left: 0;
   color: white;
   font-weight: 900;
   font-size: 3cqh;
+  text-align: center;
   text-shadow: black 0 0 0.1em;
   text-transform: uppercase;
-  position: absolute;
-  left: 0;
-  right: 0;
-  text-align: center;
 }
 
 .textTop {

@@ -76,7 +76,7 @@ export function motorSearch(q: string) {
   if (!q) return [];
 
   const terms = q.trim().toLowerCase().split(/\s+/);
-  return MOTORS.map(motor => {
+  return MOTORS.map((motor) => {
     let score = 0;
     let {
       impulseClass = '',
@@ -157,7 +157,7 @@ export function motorDisplayName(motor: TCMotor) {
 export function stage1Thrust(cardMotors: iCard['motors']) {
   if (!cardMotors) return NaN;
 
-  const motors = Object.values(cardMotors).filter(m => (m.stage ?? 1) === 1);
+  const motors = Object.values(cardMotors).filter((m) => (m.stage ?? 1) === 1);
 
   if (!motors?.length) return NaN;
 

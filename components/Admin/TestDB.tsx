@@ -49,7 +49,7 @@ async function handleClick() {
     testAccess('cards'),
     testAccess('cards/testLaunch'),
     testAccess('cards/testLaunch/testCard'),
-  ]).then(results => results.forEach(v => log(v)));
+  ]).then((results) => results.forEach((v) => log(v)));
 }
 
 export default function TestDB() {

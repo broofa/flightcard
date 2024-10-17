@@ -121,7 +121,10 @@ function updateScanState(scanState: ScanState, page: NARPage<NARItem>) {
 }
 
 export default class NarAPI {
-  constructor(private org: string, private key: string) {}
+  constructor(
+    private org: string,
+    private key: string
+  ) {}
 
   async #fetch<T>(path: string, options?: RequestInit) {
     const headers = {

@@ -39,7 +39,7 @@ export default function LaunchEditor() {
 
   const padGroups = pads
     ? Array.from(
-        new Set(Object.values(pads).map(pad => pad.group ?? ''))
+        new Set(Object.values(pads).map((pad) => pad.group ?? ''))
       ).sort()
     : [];
 
@@ -144,17 +144,17 @@ export default function LaunchEditor() {
         </Button>
       </div>
 
-      {padGroups.map(group => (
+      {padGroups.map((group) => (
         <div key={group}>
           <PadGroupEditor launchId={launch.id} padGroup={group} />
           <div className='d-flex flex-wrap gap-3 mb-4'>
             {pads
               ? arraySort(
                   Object.values(pads).filter(
-                    pad => (pad.group ?? '') === group
+                    (pad) => (pad.group ?? '') === group
                   ),
                   'name'
-                ).map(pad => (
+                ).map((pad) => (
                   <Button
                     variant='outline-primary'
                     key={pad.id}

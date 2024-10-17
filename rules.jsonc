@@ -17,7 +17,7 @@
       "$launchId": {
       	".read" : true,
 
-        // Only deletable when launch no longer exists
+        // Deletable when launch no longer exists
         ".write": "newData.exists() || !root.child('launches').child($launchId).exists()",
 
         "$userId": {
@@ -30,13 +30,13 @@
           },
 
           "certs": {
-            "$certId": {
+            "$certOrg": {
               // Writable by user for non-verification changes
-              // Writable by officers (for verifying other users)
               ".write": "(
                 $userId === auth.uid
                 && !newData.child('verifiedTime').exists()
               )
+              // Writable by officers (for verifying other users)
               || (
                 $userId !== auth.uid
                 && root.child('officers').child($launchId).child(auth.uid).val() === true

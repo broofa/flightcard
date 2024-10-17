@@ -104,9 +104,7 @@ export default function LaunchHome() {
             />
             <div className='flex-grow-1 nav flex-column'>
               <h5 className='mt-3'>Officers</h5>
-              <FCLink to='tools'>
-                Registration Desk
-              </FCLink>
+              <FCLink to='tools'>Registration Desk</FCLink>
               <FCLink to='rso'>Range Safety</FCLink>
               <FCLink to='lco'>Launch Control</FCLink>
             </div>

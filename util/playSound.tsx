@@ -9,9 +9,9 @@ export { default as RANGE_CLOSED } from 'url:../sounds/rangeClosed.mp3';
 export { default as RANGE_OPEN } from 'url:../sounds/rangeOpen.mp3';
 
 export const _sndCache = new Map<string, HTMLAudioElement>();
-export let _activeSound : HTMLAudioElement;
+export let _activeSound: HTMLAudioElement;
 
-export function playSound(soundUrl : string) {
+export function playSound(soundUrl: string) {
   _activeSound?.pause();
 
   const snd = _sndCache.get(soundUrl) ?? new Audio(soundUrl);

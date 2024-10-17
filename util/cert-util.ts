@@ -13,7 +13,7 @@ export function getCert(attendee?: iAttendee, isVerified = false) {
   if (!attendee?.certs) return;
 
   const certs = Object.values(attendee.certs).filter(
-    c => !isVerified || c.verifiedTime
+    (c) => !isVerified || c.verifiedTime
   );
   return certs.reduce(
     (a, b) => ((a?.level ?? -1) > (b?.level ?? -1) ? a : b),

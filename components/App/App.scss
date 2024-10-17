@@ -34,24 +34,24 @@ p {
 
 h1,
 .h1 {
-  font-size: 1.8rem;
   margin-top: 1rem;
+  font-size: 1.8rem;
 }
 h2,
 .h2 {
-  font-size: 1.5rem;
   margin-top: 0.755rem;
+  font-size: 1.5rem;
 }
 h3,
 .h3 {
-  font-size: 1.25rem;
   margin-top: 0.5rem;
+  font-size: 1.25rem;
 }
 h4,
 .h4 {
-  font-size: 1rem;
   margin-top: 0.25rem;
   color: gray;
+  font-size: 1rem;
 }
 
 .cursor-pointer {
@@ -60,8 +60,8 @@ h4,
 
 .deck {
   display: grid;
-  gap: 1em;
   grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
+  gap: 1em;
 }
 
 .privileged {
@@ -85,6 +85,10 @@ h4,
 }
 
 .busy {
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-name: BUSY-BG;
   background-image: repeating-linear-gradient(
     135deg,
     rgba(0, 0, 0, 0.2) 0,
@@ -94,37 +98,33 @@ h4,
     rgba(0, 0, 0, 0.2) 40px
   );
   background-size: 56.57px 56.57px; // gradient size * sqrt(2)
-  animation-name: BUSY-BG;
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
 }
 
 .mock,
 .mock-badge:before {
-  display:inline-block;
+  display: inline-block;
+  transform: rotate(-20deg);
   color: #c60;
   text-transform: capitalize;
-  transform: rotate(-20deg);
 }
 .mock-badge {
   position: relative;
 }
 .mock-badge::before {
-  content: 'Test';
   position: absolute;
-  font-size: 24pt;
   top: 10%;
   left: 60%;
   opacity: 0.4;
+  content: 'Test';
+  font-size: 24pt;
 }
 
 nav a {
   color: #aaa;
 }
 nav a:hover {
-  color: #eee;
   background-color: #666;
+  color: #eee;
 }
 nav a.active {
   color: white;

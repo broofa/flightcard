@@ -159,7 +159,11 @@ export default function CardEditor() {
           )}
         </div>
 
-        <rtui.Select disabled={isReadOnly} label='Recovery' field='rocket/recovery'>
+        <rtui.Select
+          disabled={isReadOnly}
+          label='Recovery'
+          field='rocket/recovery'
+        >
           <option value={''}>Unspecified</option>
           <option value={Recovery.CHUTE}>Chute</option>
           <option value={Recovery.STREAMER}>Streamer</option>

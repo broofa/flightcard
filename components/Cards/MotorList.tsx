@@ -69,7 +69,7 @@ export function MotorList({
   // We need an ordered array of motors
   const motorItems = motors ? Object.values(motors) : [];
   const stageGroupEntries = [
-    ...arrayGroup(motorItems, motor => motor.stage ?? 1),
+    ...arrayGroup(motorItems, (motor) => motor.stage ?? 1),
   ];
 
   // Sort by stage
@@ -83,7 +83,7 @@ export function MotorList({
 
     motorList.push(
       <div key={`stage-${stage}`} className='deck'>
-        {stageMotors.map(motor => (
+        {stageMotors.map((motor) => (
           <MotorButton
             disabled={disabled}
             key={motor.id}

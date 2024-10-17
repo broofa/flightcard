@@ -21,7 +21,7 @@ export default function UnitsPref({
       name='units'
       value={units}
       type='radio'
-      onChange={val => {
+      onChange={(val) => {
         setUnits(val);
       }}
     >

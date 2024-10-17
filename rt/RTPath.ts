@@ -22,7 +22,10 @@ export class RTPath<Fields = FieldsBase> {
   #errorString: string | undefined;
   id: string = randomId();
 
-  constructor(readonly template: string, private readonly fields?: Fields) {
+  constructor(
+    readonly template: string,
+    private readonly fields?: Fields
+  ) {
     if (template.endsWith('/')) {
       throw Error('Path template must not end with /');
     }

@@ -19,7 +19,7 @@ function FloatingInput(
 
   let id = label.props.children;
   if (Array.isArray(id)) {
-    id = id.find(v => typeof v == 'string');
+    id = id.find((v) => typeof v == 'string');
   }
   id = id.replace(/\s+/g, '_').toLowerCase();
 

@@ -38,7 +38,7 @@ async function fetchTripoliCerts() {
     // TODO: This will break if there are commas in the field values
     const fields = line
       .match(/"(?:[^"]|"")*"/g)
-      ?.map(v => v.replaceAll(/^"|"$/g, '').replace(/""/g, '"'));
+      ?.map((v) => v.replaceAll(/^"|"$/g, '').replace(/""/g, '"'));
 
     if (!fields) continue;
 
@@ -62,7 +62,7 @@ async function fetchTripoliCerts() {
 
   // Filter out invalid or expired certs.  (Allow for a 24-hour grace period)
   const now = Date.now() - 1000 * 60 * 60 * 24;
-  return certs.filter(cert => {
+  return certs.filter((cert) => {
     return !!cert?.memberId && cert.expires > now;
   });
 }

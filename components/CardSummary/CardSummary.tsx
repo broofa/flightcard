@@ -41,7 +41,10 @@ function RocketDimensions({ rocket }: { rocket?: iRocket }) {
 function MotorsList({ motors }: { motors?: Record<string, iMotor> }) {
   if (!motors) return '(no motors)';
 
-  const byStage = arrayGroup(Object.values(motors), motor => motor.stage ?? 0);
+  const byStage = arrayGroup(
+    Object.values(motors),
+    (motor) => motor.stage ?? 0
+  );
   const parts = [];
   const stages = [...byStage.keys()].sort();
   for (const stage of stages) {
@@ -126,7 +129,6 @@ export default function CardSummary() {
                 : null}
             </span>
           </div>
-
 
           {card.rocket?.color ? (
             <>

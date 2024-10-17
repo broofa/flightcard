@@ -16,7 +16,9 @@ import { RTPath } from './RTPath';
 import { errorTrap } from '/components/common/errorTrap';
 
 declare global {
-  interface Window { app: FirebaseApp; }
+  interface Window {
+    app: FirebaseApp;
+  }
 }
 
 setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
@@ -100,13 +102,13 @@ export function useRTValue<T = never>(
 
     const unsubscribe = dbOnValue(
       dbRef(database, String(path)),
-      s => {
+      (s) => {
         const dbVal = s.val() as T | undefined;
         if (setter) setter(dbVal);
         setVal(dbVal ?? undefined);
         setLoading(false);
       },
-      err => {
+      (err) => {
         setError(err);
         setLoading(false);
       }

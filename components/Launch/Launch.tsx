@@ -24,11 +24,11 @@ import { arraySort } from '/util/array-util';
 export function CardList({ cards }: { cards?: iCard[] }) {
   if (!cards) return <Loading wat='Cards' />;
 
-  arraySort(cards, card => card.rocket?.name);
+  arraySort(cards, (card) => card.rocket?.name);
 
   return (
     <div className='deck'>
-      {cards.map(card => (
+      {cards.map((card) => (
         <LaunchCard key={card.id} card={card} />
       ))}
     </div>

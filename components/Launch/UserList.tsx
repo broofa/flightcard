@@ -75,7 +75,7 @@ function UserEditor({
 
       <Modal.Body>
         <h3>Certifications</h3>
-        {Object.values(attendee.certs ?? []).map(cert => {
+        {Object.values(attendee.certs ?? []).map((cert) => {
           const certLevel = cert.level;
           const certVerified = !!cert.verifiedId;
 
@@ -172,7 +172,7 @@ export function UserList({
         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(12em, 1fr))' }}
         {...props}
       >
-        {arraySort(Object.values(attendees), 'name').map(attendee => {
+        {arraySort(Object.values(attendees), 'name').map((attendee) => {
           if (filter && !filter(attendee, roleApi.isOfficer(attendee))) {
             return null;
           }
