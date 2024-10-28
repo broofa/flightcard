@@ -56,7 +56,7 @@ export default class KVStore {
   async put(key: string, value: unknown) {
     // Worker context
     if (this.env.CertsKV) {
-      await this.env.CertsKV.put(key, JSON.stringify(value));
+      await this.env.CertsKV.put(key, JSON.stringify(value, null, 2));
       return;
     }
 

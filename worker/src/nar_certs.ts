@@ -79,14 +79,18 @@ export async function updateNARCerts(env: Env) {
 
   const kv = new KVStore(env);
 
+  console.log('NAR: Starting update');
   // Recover scan state
   let scanState = await kv.get<ScanState>(SCAN_STATE_KEY);
   if (!scanState) {
     scanState = initScanState();
   }
 
+  console.log('NAR: Scan state:', scanState);
   // If previous scan completed ...
   if (isScanComplete(scanState)) {
+    console.log('NAR: Previous scan complete');
+
     // Impose some idle time before starting a new scan (so we're not constantly
     // hammering the Neon DB)
     const since = Date.now() - Number(scanState.updatedAt ?? 0);
@@ -97,13 +101,16 @@ export async function updateNARCerts(env: Env) {
       return;
     }
 
+    console.log('NAR: Updating fields');
     // Update query fields with the results of the previous scan
     updateScanFields(scanState);
   }
 
+  console.log('NAR: Fetching members');
   const page = await narAPI.fetchMembers(scanState);
 
   // Persist scan state (sideband)
+  console.log('Saving scan state:', scanState);
   const kvTask = kv.put(SCAN_STATE_KEY, scanState);
 
   // Process page
@@ -119,4 +126,6 @@ export async function updateNARCerts(env: Env) {
 
   // Make sure kv save completes before returning
   await kvTask;
+
+  console.log('NAR: Done');
 }
