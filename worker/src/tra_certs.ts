@@ -1,7 +1,11 @@
 import { CertOrg, Env, iCert } from './cert_types';
+import ConsoleLogger from './ConsoleLogger';
 import { certsBulkUpdate } from './db-util';
 import { TRIPOLI_CERT_MAP } from './index';
 import KVStore from './KVStore';
+
+// Create a logger for this module
+const console = ConsoleLogger('TRA');
 
 // See "Member Certification List(csv)" at
 // https://www.tripoli.org/content.aspx?page_id=22&club_id=795696&module_id=468541
@@ -77,7 +81,7 @@ export async function updateTRACerts(env: Env) {
   const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + HOUR;
   if (since < IDLE_INTERVAL) {
     console.log(
-      `TRA: Idling for ${((IDLE_INTERVAL - since) / HOUR).toPrecision(3)} hours`
+      `Idling for ${((IDLE_INTERVAL - since) / HOUR).toPrecision(3)} hours`
     );
     return;
   }
@@ -90,7 +94,7 @@ export async function updateTRACerts(env: Env) {
 
   if (!lastModified || lastModified !== fetchInfo?.lastModified) {
   } else {
-    console.warn('TRA: Skipping (not modified)');
+    console.warn('Skipping (not modified)');
   }
 
   const certs = await fetchTripoliCerts();
