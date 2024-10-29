@@ -73,7 +73,7 @@ export async function updateTRACerts(env: Env) {
 
   // Add a 1-hour fudge factor to account for clock skew between systems
   const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + 3600e3;
-  if (since < IDLE_INTERVAL) {
+  if (!isNaN(since) && since < IDLE_INTERVAL) {
     console.warn(
       `TRA: Idling for ${Math.floor((IDLE_INTERVAL - since) / 60000)} minutes`
     );
