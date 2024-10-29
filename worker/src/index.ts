@@ -78,7 +78,7 @@ const ROUTES = [
     }
   },
 
-  async function scrapeStatusRoute(request: Request, env: Env) {
+  async function membersMetaRoute(request: Request, env: Env) {
     const { pathname } = new URL(request.url);
     if (pathname !== '/members/meta') {
       return;
