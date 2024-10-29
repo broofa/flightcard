@@ -1,7 +1,11 @@
 import { CertOrg, Env, iCert } from './cert_types';
+import ConsoleLogger from './ConsoleLogger';
 import { certsBulkUpdate } from './db-util';
 import { TRIPOLI_CERT_MAP } from './index';
 import KVStore from './KVStore';
+
+// Create a logger for this module
+const console = ConsoleLogger('TRA');
 
 // See "Member Certification List(csv)" at
 // https://www.tripoli.org/content.aspx?page_id=22&club_id=795696&module_id=468541
@@ -9,8 +13,10 @@ const TRA_MEMBERS_LIST = 'https://tripoli.org/docs.ashx?id=916333';
 
 const FETCH_INFO_KEY = 'TRA.fetchInfo';
 
+const HOUR = 60 * 60 * 1000;
+
 // Interval to wait before fetching again
-const IDLE_INTERVAL = 6 * 60 * 60 * 1000;
+const IDLE_INTERVAL = 6 * HOUR;
 
 type FetchInfo = {
   updatedAt: Date;
@@ -61,7 +67,7 @@ async function fetchTripoliCerts() {
   }
 
   // Filter out invalid or expired certs.  (Allow for a 24-hour grace period)
-  const now = Date.now() - 1000 * 60 * 60 * 24;
+  const now = Date.now() - 24 * HOUR;
   return certs.filter((cert) => {
     return !!cert?.memberId && cert.expires > now;
   });
@@ -72,10 +78,10 @@ export async function updateTRACerts(env: Env) {
   const fetchInfo = await kv.get<FetchInfo>(FETCH_INFO_KEY);
 
   // Add a 1-hour fudge factor to account for clock skew between systems
-  const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + 3600e3;
+  const since = Date.now() - Number(fetchInfo?.updatedAt ?? 0) + HOUR;
   if (!isNaN(since) && since < IDLE_INTERVAL) {
-    console.warn(
-      `TRA: Idling for ${Math.floor((IDLE_INTERVAL - since) / 60000)} minutes`
+    console.log(
+      `Idling for ${((IDLE_INTERVAL - since) / HOUR).toPrecision(3)} hours`
     );
     return;
   }
@@ -88,7 +94,7 @@ export async function updateTRACerts(env: Env) {
 
   if (!lastModified || lastModified !== fetchInfo?.lastModified) {
   } else {
-    console.warn('TRA: Skipping (not modified)');
+    console.warn('Skipping (not modified)');
   }
 
   const certs = await fetchTripoliCerts();
