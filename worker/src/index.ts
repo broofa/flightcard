@@ -46,7 +46,9 @@ export class HTTPError extends Error {
   }
 }
 
-const ROUTES = [
+// Ad-hoc router structure.  Every request is passed through these function in
+// order, until one of them returns a Response or object.
+const ROUTES: ((req: Request, env: Env) => Promise<unknown>)[] = [
   async function rejectFavicon(request: Request) {
     if (/favicon/.test(request.url)) {
       return new Response(null, { status: 204 });
@@ -94,7 +96,7 @@ const ROUTES = [
       tra: traInfo ? JSON.parse(traInfo) : null,
     };
 
-    return meta;
+    return meta as unknown;
   },
 
   async function nameSearchRoute(request: Request, env: Env) {
@@ -162,8 +164,7 @@ export default {
           continue;
         } else if (result instanceof Response) {
           return result;
-        }
-        if (result) {
+        } else {
           return new Response(JSON.stringify(result, null, 2), { headers });
         }
       } catch (err) {

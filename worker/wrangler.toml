@@ -5,8 +5,8 @@ compatibility_date = "2023-05-29"
 
 [triggers]
 # Frequency here determines how often nar_certs script can fetch a page of results.
-# crons = ["0 1 * * *"] # once/day @ 1am
-crons = ["*/10 * * * *"] # once/minute
+# crons = ["0 1 * * *"] # daily @ 1am
+crons = ["*/10 * * * *"] # every 10 minutes
 
 [[d1_databases]]
 binding = "CertsDB"
