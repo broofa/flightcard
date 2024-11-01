@@ -4,19 +4,21 @@ main = "src/index.ts"
 compatibility_date = "2023-05-29"
 
 [triggers]
-# Frequency here determines how often nar_certs script can fetch a page of results.
+# Frequency here determines how often NAR logic can fetch a page of results.
 # crons = ["0 1 * * *"] # daily @ 1am
 crons = ["*/10 * * * *"] # every 10 minutes
 
+# Note: Be sure to update bindings in .envrc
 [[d1_databases]]
 binding = "CertsDB"
 database_name = "certs2"
 database_id = "518eaac7-27b4-49e2-8137-6d7ed749abd0"
 
+# Note: Be sure to update bindings in .envrc
 [[kv_namespaces]]
 binding = "CertsKV"
-preview_id = "f8f717868ff844ee9baaeab376a8db64"
-id = "8efe9d6e4bea4254812ee315232d41ca"
+id = "afad0f09ca4e41e79ce14272da78ad04"
+preview_id = "202f9cc828c149d0acfc1238195eeeff"
 
 [dev]
 port = 6543

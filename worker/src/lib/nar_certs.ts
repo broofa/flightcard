@@ -1,23 +1,22 @@
-import ConsoleLogger from './ConsoleLogger';
-import KVStore from './KVStore';
-import { CertOrg, Env, iCert } from './cert_types';
-import { certsBulkUpdate } from './db-util';
+import { CertOrg, iCert } from '../../types_certs';
 import NarAPI, {
   ScanState,
   initScanState,
   isScanComplete,
   updateScanFields,
-} from './nar/NarAPI';
-import { NARItem, NARPage } from './nar/nar_types';
+} from '../nar/NarAPI';
+import { NARItem, NARPage } from '../nar/nar_types';
+import { CFAPI } from './CFAPI';
+import ConsoleLogger from './ConsoleLogger';
+import { certsBulkUpdate } from './db-util';
 
 // Create a logger for this module
-const console = ConsoleLogger('NAR');
+const console = new ConsoleLogger('NAR');
 
 const SCAN_STATE_KEY = 'NAR.scanState';
 
 // Interval to wait after completing a scan before starting a new one.
 const IDLE_INTERVAL = 6 * 60 * 60 * 1000;
-
 
 async function processCerts(env: Env, page: NARPage<NARItem>) {
   const certs: iCert[] = [];
@@ -82,11 +81,11 @@ export async function updateNARCerts(env: Env) {
   const { NAR_API_ORG = '', NAR_API_KEY = '' } = env;
   const narAPI = new NarAPI(NAR_API_ORG, NAR_API_KEY);
 
-  const kv = new KVStore(env);
+  const cfapi = new CFAPI(env);
 
   console.log('Starting update');
   // Recover scan state
-  let scanState = await kv.get<ScanState>(SCAN_STATE_KEY);
+  let scanState = await cfapi.kvGet<ScanState>(SCAN_STATE_KEY);
   if (!scanState) {
     scanState = initScanState();
   }
@@ -116,7 +115,7 @@ export async function updateNARCerts(env: Env) {
 
   // Persist scan state (sideband)
   console.log('Saving scan state:', scanState);
-  const kvTask = kv.put(SCAN_STATE_KEY, scanState);
+  const kvTask = cfapi.kvPut(SCAN_STATE_KEY, scanState);
 
   // Process page
   await processCerts(env, page);

@@ -1,3 +1,4 @@
+import ConsoleLogger from '../lib/ConsoleLogger';
 import { NARItem, NARPage, NeonPagination } from './nar_types';
 
 /**
@@ -28,6 +29,8 @@ import { NARItem, NARPage, NeonPagination } from './nar_types';
  *
  * REF: https://developer.neoncrm.com/api-v2/#/
  */
+
+const console = new ConsoleLogger('NAR');
 
 const API_BASE = `https://api.neoncrm.com/v2`;
 
@@ -263,7 +266,7 @@ export default class NarAPI {
       body: JSON.stringify({ searchFields, outputFields, pagination }),
     };
 
-    console.log(`NAR: Fetching page ${currentPage}...`);
+    console.log(`Fetching page ${currentPage}...`);
 
     const page = await this.accountQuery(options);
 

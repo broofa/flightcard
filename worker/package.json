@@ -1,15 +1,15 @@
 {
   "name": "club-members",
   "version": "0.0.0",
+  "type": "module",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241022.0",
-    "@types/node": "22.8.1",
     "typescript": "^5.6.3",
     "wrangler": "^3.83.0"
   },
   "private": true,
   "scripts": {
-    "start": "wrangler dev -r --test-scheduled src/index.ts",
+    "start": "wrangler dev --test-scheduled src/index.ts",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute certs2 --local --file=schema.sql",
     "db:deploy": "wrangler d1 execute certs2 --file=schema.sql",
