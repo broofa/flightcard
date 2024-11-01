@@ -1,8 +1,13 @@
 # To load these, setup `direnv`
 # Ref: https://direnv.net/
 
+# NAR API auth
 export NAR_API_KEY="[redacted]"
 export NAR_API_ORG="[redacted]"
-export CLOUDFLARE_API_TOKEN="[redacted]"
-export CLOUDFLARE_ACCOUNT_ID="[redacted]"
-export CLOUDFLARE_KV_NAMESPACE="[redacted]"
+
+# Tripoli website auth
+export TRA_USERNAME="[redacted]"
+export TRA_PASSWORD="[redacted]"
+
+# API for posting data to the FlightCard API
+export FC_API_KEY="[redacted]"

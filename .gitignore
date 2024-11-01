@@ -3,6 +3,7 @@
 .vscode
 .wrangler
 .yarn
+*.log
 dist
 node_modules
 vscode.code-workspace
