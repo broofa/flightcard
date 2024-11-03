@@ -35,11 +35,10 @@ export function ToolsPane() {
   const [members, setMembers] = React.useState<iCert[]>([]);
   const [membersMeta, setMembersMeta] = React.useState<MembersMeta>();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
-    const [lastName, firstName] = v.trim().split(/[\W]+/);
-
-    setSearchText(firstName ? `${lastName}, ${firstName}` : v);
+    setSearchText(v);
     setMembers([]);
   }
 
@@ -68,7 +67,19 @@ export function ToolsPane() {
   }
 
   useEffect(() => {
-    const [lastName, firstName] = searchText.trim().split(/[\W]+/);
+    let lastName: string;
+    let firstName: string | undefined;
+
+    if (searchText.includes(',')) {
+      [lastName, firstName] = searchText.trim().split(/[,\s]+/);
+    } else if (searchText.includes(' ')) {
+      [firstName, lastName] = searchText.trim().split(/[,\s]+/);
+    } else {
+      lastName = searchText;
+    }
+
+    lastName = lastName.trim();
+    firstName = firstName?.trim();
 
     if (!lastName || lastName.length < 2) return;
 
@@ -126,8 +137,13 @@ export function ToolsPane() {
         value={searchText}
         onChange={handleChange}
         className='form-control'
-        placeholder='"" or "last, first" or "last name"'
+        placeholder='E.g. "Smith" or "Smith, Alice" or "Alice Smith"'
       />
+      <div className='text-tip'>
+        Enter last name, or "last, first" or "first last" to search. Partial
+        names also work. E.g. "Robert Kieffer", "Kieffer, Robert", "Rob Kie",
+        "Kie, Rob" etc.
+      </div>
 
       {resultTable}
 
