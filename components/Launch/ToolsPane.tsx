@@ -1,33 +1,9 @@
 import React, { useEffect } from 'react';
 import '/components/Launch/ToolsPane.scss';
-import { iCert } from '/types';
+import { iCert, MembersMeta } from '/types';
 import useDebounce from '/util/useDebounce';
 
 const { MEMBER_API_ENDPOINT } = process.env;
-
-type MembersMeta = {
-  nar: {
-    queryAccountId: number;
-    queryTimestamp: number;
-    trackingAccountId: number;
-    trackingTimestamp: number;
-    pagination: {
-      currentPage: number;
-      pageSize: number;
-      sortColumn: string;
-      sortDirection: string;
-      totalPages: number;
-      totalResults: number;
-    };
-    scannedAt: string;
-  };
-
-  tra: {
-    scannedAt: string;
-    certsFetched: number;
-    publishedAt: string;
-  };
-};
 
 export function ToolsPane() {
   const [searchText, setSearchText] = React.useState('');
@@ -35,7 +11,6 @@ export function ToolsPane() {
   const [members, setMembers] = React.useState<iCert[]>([]);
   const [membersMeta, setMembersMeta] = React.useState<MembersMeta>();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
     setSearchText(v);
@@ -60,10 +35,14 @@ export function ToolsPane() {
   async function fetchMembersMeta() {
     const queryURL = new URL(`${MEMBER_API_ENDPOINT!}/members/meta`);
 
-    const res = await fetch(queryURL.toString(), { method: 'GET' });
-
-    const json: MembersMeta = await res.json();
-    setMembersMeta(json);
+    try {
+      const res = await fetch(queryURL.toString(), { method: 'GET' });
+      const json: MembersMeta = await res.json();
+      setMembersMeta(json);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
   }
 
   useEffect(() => {
@@ -124,40 +103,82 @@ export function ToolsPane() {
       </table>
     ) : null;
 
-  const traDate = membersMeta?.tra?.publishedAt;
-  const narDate = membersMeta?.nar?.scannedAt;
-  const narPagination = membersMeta?.nar?.pagination;
+  const traMeta = membersMeta?.tra ? (
+    <section className='meta-section'>
+      <h2>Tripoli Data</h2>
+      <div className='meta-grid'>
+        <MetaRow label='Updated At' date={membersMeta?.tra?.publishedAt} />
+      </div>
+    </section>
+  ) : null;
+
+  const narMeta = membersMeta?.nar ? (
+    <div className='meta-section'>
+      <h2>NAR Data</h2>
+      <div className='meta-grid'>
+        <MetaRow label='Updated' date={membersMeta?.nar?.scanEndAt} />
+        <MetaRow label='Scan Start' date={membersMeta?.nar?.scanBeginAt} />
+        <MetaRow label='Scan Update' date={membersMeta?.nar?.scanUpdateAt} />
+        <MetaRow
+          label='Scan Progress'
+          text={`${membersMeta?.nar?.pagination?.currentPage} of ${membersMeta?.nar?.pagination?.totalPages} pages`}
+        />
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
       <h1>NAR / Tripoli Member Search</h1>
-      <input
-        type='text'
-        value={searchText}
-        onChange={handleChange}
-        className='form-control'
-      />
-      <div className='text-tip'>
-        Enter last name, "last, first" or "first last" to search. Partial
-        names also work. E.g. "Smith", "Smith, Richard", "Rich Smi", etc.
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          alignItems: 'start',
+        }}
+      >
+        <input
+          type='text'
+          value={searchText}
+          onChange={handleChange}
+          placeholder='Member name or partial name'
+          className='form-control'
+        />
+
+        {!searchText ? (
+          <>
+            <div>
+              {traMeta}
+              {narMeta}
+            </div>
+          </>
+        ) : null}
       </div>
 
       {resultTable}
+    </>
+  );
+}
 
-      {membersMeta ? (
-        <div className='members-meta'>
-          <div>
-            TRA data as of {traDate ? new Date(traDate).toDateString() : 'n/a'}
-          </div>
-          <div>
-            NAR data as of {narDate ? new Date(narDate).toDateString() : 'n/a'}
-          </div>
-          <div>
-            NAR scan at page {narPagination?.currentPage ?? 'n/a'} of{' '}
-            {narPagination?.totalPages ?? 'n/a'}
-          </div>
-        </div>
-      ) : null}
+function MetaRow({
+  label,
+  text,
+  date,
+}: {
+  label: string;
+  text?: number | string;
+  date?: string;
+}) {
+  if (date) {
+    text = new Date(date).toLocaleString();
+  }
+  if (!text) return null;
+
+  return (
+    <>
+      <div className='meta-label'>{label}</div>
+      <div className='meta-text'>{text ?? '---'}</div>
     </>
   );
 }

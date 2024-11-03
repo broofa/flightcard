@@ -1,5 +1,9 @@
-input.form-control:invalid {
-  background-color: pink;
+input {
+  max-width: 30em;
+
+  &form-control:invalid {
+    background-color: pink;
+  }
 }
 
 .members-table {
@@ -20,9 +24,23 @@ input.form-control:invalid {
   }
 }
 
-.members-meta {
-  opacity: 0.5;
-  margin-top: 2rem;
+.meta-section {
+  opacity: 50%;
   font-size: 0.8rem;
-  text-align: right;
+
+  h2 {
+    padding: 0;
+    font-weight: bold;
+    font-size: 1em;
+  }
+}
+
+.meta-grid {
+  display: grid;
+  // two columns, with min width on the first column and max width on the second
+  grid-template-columns: minmax(10em, 1fr) max-content;
+}
+.meta-row {
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 }

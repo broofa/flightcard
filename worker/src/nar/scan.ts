@@ -1,34 +1,27 @@
 import { neonToTimestamp } from './nar-util';
 import { NARItem, NARPage, NeonPagination } from './nar_types';
 
-// Ad-hoc type for tracking the state used to scan database. E.g.
-//
-// {
-//   "queryAccountId": 0,
-//   "queryTimestamp": 0,
-//   "trackingAccountId": 21412,
-//   "trackingTimestamp": 1730523582000,
-//   "pagination": {
-//     "currentPage": 0,
-//     "pageSize": 200,
-//     "sortColumn": "Account ID",
-//     "sortDirection": "ASC",
-//     "totalPages": 374,
-//     "totalResults": 74772
-//   },
-//   "scannedAt": "2024-11-02T13:46:25.851Z"
-// }
-
 export type Scan = {
-  scannedAt?: string;
+  // Timestamp most recent query in the current scan
+  scanUpdateAt?: string;
 
-  // pagination of the last page fetched
+  // Timestamp of most recent scan start
+  scanBeginAt?: string;
+
+  // Timestamp of most recent scan end (if a scan is active - which is usually
+  // the case - this will be the time the *previous* scan ended)
+  scanEndAt?: string;
+
+  // pagination of most recently fetched page
   pagination?: NeonPagination;
 
+  // Query fields for fetching a page in the current scan
   queryAccountId: number;
   queryTimestamp: number;
 
-  // The max account ID and timestamp seen in the results of scan
+  // The max account ID and timestamp of the current scan.  This is updated as
+  // the scan progresses.  Once the scan is complete, these are set as the
+  // query* fields to optimize subsequent scans.
   trackingAccountId: number;
   trackingTimestamp: number;
 };
@@ -56,7 +49,7 @@ export function scanUpdate(scanState: Scan, page: NARPage<NARItem>) {
   const { pagination } = page;
 
   scanState.pagination = pagination;
-  scanState.scannedAt = new Date().toISOString();
+  scanState.scanUpdateAt = new Date().toISOString();
 
   // Update tracking fields
   for (const item of page.searchResults) {

@@ -1,4 +1,6 @@
 import { tUnitSystemName } from './util/units';
+import { TRACache } from '/worker/src/lib/tra-util';
+import { Scan } from '/worker/src/nar/scan';
 
 // Tell VSCode not to choke on Parcel's static file imports
 declare module '*.png';
@@ -131,3 +133,11 @@ export interface iCard {
   motors?: Record<string, iMotor>;
 }
 export type iCards = Record<string, iCard>;
+
+// CODE SMELL: Pulling in these types from the worker/* project will almost
+// certainly break, and future-me will regret this.  But it avoids copy-pasting
+// the types between these projects, which is an even worse code smell.
+export type MembersMeta = {
+  nar: Scan;
+  tra: TRACache;
+};

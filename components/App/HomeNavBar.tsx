@@ -24,7 +24,7 @@ export function HomeNavBar() {
         </NavLink>
       </Navbar>
 
-      <div className='p-3' style={{ minHeight: 'calc(100vh - 38px - 65px)' }}>
+      <div className='p-3'>
         <Outlet />
       </div>
     </>

@@ -145,6 +145,8 @@ export default class NARAPI {
     let currentPage = 0;
     if (previousPagination && !scanIsComplete(scan)) {
       currentPage = previousPagination.currentPage + 1;
+    } else {
+      scan.scanBeginAt = new Date().toISOString();
     }
 
     const pagination = {
@@ -189,6 +191,11 @@ export default class NARAPI {
     });
 
     scanUpdate(scan, page);
+
+    if (scanIsComplete(scan)) {
+      console.log('Scan complete');
+      scan.scanEndAt = new Date().toISOString();
+    }
 
     return page;
   }

@@ -8,7 +8,7 @@ const console = new ConsoleWithPrefix('TRA');
 
 export const TRA_CACHE_KEY = 'TRA.fetchInfo';
 
-type TRACache = {
+export type TRACache = {
   scannedAt: string;
   certsFetched: number;
   publishedAt?: string;

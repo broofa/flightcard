@@ -47,7 +47,7 @@ export async function updateNARCerts(env: Env) {
 
     // Impose some idle time before starting a new scan (so we're not constantly
     // hammering the Neon DB)
-    const since = Date.now() - Number(scanState.scannedAt ?? 0);
+    const since = Date.now() - Number(scanState.scanUpdateAt ?? 0);
     if (!isNaN(since) && since < IDLE_INTERVAL) {
       console.warn(
         `Idling for ${Math.floor((IDLE_INTERVAL - since) / 60000)} minutes`
