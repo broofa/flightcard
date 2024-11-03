@@ -70,16 +70,15 @@ export function ToolsPane() {
     let lastName: string;
     let firstName: string | undefined;
 
-    if (searchText.includes(',')) {
-      [lastName, firstName] = searchText.trim().split(/[,\s]+/);
-    } else if (searchText.includes(' ')) {
-      [firstName, lastName] = searchText.trim().split(/[,\s]+/);
-    } else {
-      lastName = searchText;
-    }
+    const st = searchText.trim();
 
-    lastName = lastName.trim();
-    firstName = firstName?.trim();
+    if (st.includes(',')) {
+      [lastName, firstName] = st.trim().split(/[,\s]+/);
+    } else if (st.includes(' ')) {
+      [firstName, lastName] = st.trim().split(/[,\s]+/);
+    } else {
+      lastName = st;
+    }
 
     if (!lastName || lastName.length < 2) return;
 
@@ -137,12 +136,10 @@ export function ToolsPane() {
         value={searchText}
         onChange={handleChange}
         className='form-control'
-        placeholder='E.g. "Smith" or "Smith, Alice" or "Alice Smith"'
       />
       <div className='text-tip'>
-        Enter last name, or "last, first" or "first last" to search. Partial
-        names also work. E.g. "Robert Kieffer", "Kieffer, Robert", "Rob Kie",
-        "Kie, Rob" etc.
+        Enter last name, "last, first" or "first last" to search. Partial
+        names also work. E.g. "Smith", "Smith, Richard", "Rich Smi", etc.
       </div>
 
       {resultTable}
