@@ -1,17 +1,17 @@
 import { CertOrg, iCert } from '../../types_certs';
 import { CFAPI } from './CFAPI';
-import ConsoleLogger from './ConsoleLogger';
+import ConsoleWithPrefix from './ConsoleWithPrefix';
 import { certsBulkUpdate } from './db-util';
 
 // Create a logger for this module
-const console = new ConsoleLogger('TRA');
+const console = new ConsoleWithPrefix('TRA');
 
 export const TRA_CACHE_KEY = 'TRA.fetchInfo';
 
 type TRACache = {
-  updatedAt: Date;
+  scannedAt: string;
   certsFetched: number;
-  lastModifiedDate?: string;
+  publishedAt?: string;
 };
 
 // Tripoli uses some special codes for their cert levels, which we need to map
@@ -32,7 +32,7 @@ const TRIPOLI_CERT_MAP: Record<string, string> = {
 // fetch the members list from the source and parse it
 async function traProcess(membersCSV: string) {
   const certs: iCert[] = [];
-  let lastModifiedDate: string | undefined;
+  let publishedAt: string | undefined;
 
   // Map lines => member structs;
   const lines = membersCSV.split('\n');
@@ -55,7 +55,7 @@ async function traProcess(membersCSV: string) {
     // Detect line containing when data was updated, like
     // "9/19/2024 10:20 PM","","","",""
     if (/^\d+\/\d+\/\d+/.test(fields[0])) {
-      lastModifiedDate = fields[0];
+      publishedAt = fields[0];
       continue;
     }
 
@@ -80,18 +80,18 @@ async function traProcess(membersCSV: string) {
 
   console.log('Found', certs.length, 'certs out of ', lines.length, 'lines');
 
-  return { certs, lastModifiedDate };
+  return { certs, publishedAt };
 }
 
 export async function traUpdate(membersCSV: string, env: Env) {
   const cf = new CFAPI(env);
 
-  const { certs, lastModifiedDate } = await traProcess(membersCSV);
+  const { certs, publishedAt } = await traProcess(membersCSV);
 
   const fetchInfo: TRACache = {
-    updatedAt: new Date(),
+    scannedAt: new Date().toISOString(),
     certsFetched: certs.length,
-    lastModifiedDate,
+    publishedAt,
   };
 
   await Promise.all([

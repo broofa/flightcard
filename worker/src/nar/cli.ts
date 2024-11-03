@@ -1,16 +1,13 @@
 #!/usr/bin/env npx tsx
 
-import NarAPI, {
-  initScanState,
-  isScanComplete,
-  updateScanFields,
-} from './NarAPI';
 import { NeonPagination } from './nar_types';
+import NARAPI from './NARAPI';
+import { scanInit, scanIsComplete, scanReset } from './scan';
 
 const [command] = process.argv.slice(2);
 
 const { NAR_API_ORG = '', NAR_API_KEY = '' } = process.env;
-const narAPI = new NarAPI(NAR_API_ORG, NAR_API_KEY);
+const nar = new NARAPI(NAR_API_ORG, NAR_API_KEY);
 
 function usage() {
   console.log('Usage: ./cli.ts [command]');
@@ -23,31 +20,28 @@ function usage() {
 async function main() {
   switch (command) {
     case 'outputFields':
-      await narAPI.listOutputFields();
+      await nar.listOutputFields();
       break;
 
     case 'searchFields':
-      await narAPI.listSearchFields();
+      await nar.listSearchFields();
       break;
 
-    // This mimics what we do to sync the NAR database in the worker's scheduled
-    // event.  Hence, why there's as little code here as possible (since
-    // anything here would just have to be copy/pasted into the scheduled()
-    // event handler).
     case 'fetch': {
-      const scanState = initScanState();
-      scanState.pagination = {
+      // Mimic the scan loop implemented in the worker's scheduled event handler
+      const scan = scanInit();
+      scan.pagination = {
         currentPage: 351,
       } as NeonPagination;
 
       while (true) {
-        const page = await narAPI.fetchMembers(scanState);
+        const page = await nar.fetchMembers(scan);
         console.log('Results:', page.searchResults.length);
-        console.log('Scan state:', scanState);
-        console.log('Scan complete:', isScanComplete(scanState));
+        console.log('Scan state:', scan);
+        console.log('Scan complete:', scanIsComplete(scan));
 
-        if (isScanComplete(scanState)) {
-          updateScanFields(scanState);
+        if (scanIsComplete(scan)) {
+          scanReset(scan);
         }
       }
     }

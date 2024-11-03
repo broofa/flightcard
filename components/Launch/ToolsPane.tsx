@@ -3,7 +3,7 @@ import '/components/Launch/ToolsPane.scss';
 import { iCert } from '/types';
 import useDebounce from '/util/useDebounce';
 
-const { MEMBER_API_ENDPOINT, NODE_ENV } = process.env;
+const { MEMBER_API_ENDPOINT } = process.env;
 
 type MembersMeta = {
   nar: {
@@ -19,12 +19,13 @@ type MembersMeta = {
       totalPages: number;
       totalResults: number;
     };
-    updatedAt: string;
+    scannedAt: string;
   };
+
   tra: {
-    updatedAt: string;
+    scannedAt: string;
     certsFetched: number;
-    lastModified: string;
+    publishedAt: string;
   };
 };
 
@@ -50,12 +51,7 @@ export function ToolsPane() {
       queryURL.searchParams.append('firstName', query.firstName);
     }
 
-    const res = await fetch(queryURL.toString(), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const res = await fetch(queryURL.toString());
 
     const json = await res.json();
 
@@ -65,19 +61,13 @@ export function ToolsPane() {
   async function fetchMembersMeta() {
     const queryURL = new URL(`${MEMBER_API_ENDPOINT!}/members/meta`);
 
-    const res = await fetch(queryURL.toString(), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const res = await fetch(queryURL.toString(), { method: 'GET' });
 
     const json: MembersMeta = await res.json();
     setMembersMeta(json);
   }
 
   useEffect(() => {
-    console.log('debouncedQuery:', debouncedQuery);
     const [lastName, firstName] = searchText.trim().split(/[\W]+/);
 
     if (!lastName || lastName.length < 2) return;
@@ -124,6 +114,10 @@ export function ToolsPane() {
       </table>
     ) : null;
 
+  const traDate = membersMeta?.tra?.publishedAt;
+  const narDate = membersMeta?.nar?.scannedAt;
+  const narPagination = membersMeta?.nar?.pagination;
+
   return (
     <>
       <h1>NAR / Tripoli Member Search</h1>
@@ -132,7 +126,7 @@ export function ToolsPane() {
         value={searchText}
         onChange={handleChange}
         className='form-control'
-        placeholder='Last name [, First name]'
+        placeholder='"" or "last, first" or "last name"'
       />
 
       {resultTable}
@@ -140,13 +134,15 @@ export function ToolsPane() {
       {membersMeta ? (
         <div className='members-meta'>
           <div>
-            NAR data as of {new Date(membersMeta.nar.updatedAt).toDateString()}
+            TRA data as of {traDate ? new Date(traDate).toDateString() : 'n/a'}
           </div>
           <div>
-            TRA data as of{' '}
-            {new Date(membersMeta.tra.lastModified).toDateString()}
+            NAR data as of {narDate ? new Date(narDate).toDateString() : 'n/a'}
           </div>
-          <div>NODE_ENV: {NODE_ENV}</div>
+          <div>
+            NAR scan at page {narPagination?.currentPage ?? 'n/a'} of{' '}
+            {narPagination?.totalPages ?? 'n/a'}
+          </div>
         </div>
       ) : null}
     </>

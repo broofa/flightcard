@@ -21,3 +21,23 @@ export type NARPage<T> = {
   pagination: NeonPagination;
   searchResults: T[];
 };
+
+type NARCustomField = {
+  id: number;
+  displayName: string;
+};
+
+type NARStandardSearchField = {
+  fieldName: string;
+};
+
+type NAROutputFields = {
+  standardFields: string[];
+  customFields: NARCustomField[];
+};
+
+type NARSearchFields = {
+  standardFields: NARStandardSearchField[];
+  customFields: NARCustomField[];
+};
+
