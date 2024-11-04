@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { cn } from '/components/common/util';
 import '/components/Launch/ToolsPane.scss';
 import { iCert, MembersMeta } from '/types';
 import useDebounce from '/util/useDebounce';
@@ -70,37 +71,13 @@ export function ToolsPane() {
     fetchMembersMeta();
   }, []);
 
-  const now = Date.now();
-
-  const resultTable =
+  const resultList =
     members.length > 0 ? (
-      <table className='members-table'>
-        <thead>
-          <tr>
-            <th>Org.</th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Level</th>
-            <th>Expires</th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => {
-            const lapsed = member.expires < now;
-            return (
-              <tr key={member.memberId} className={lapsed ? 'lapsed' : ''}>
-                <td className='organization'>{member.organization}</td>
-                <td className='memberId'>{member.memberId}</td>
-                <td className='name'>{`${member.lastName}, ${member.firstName}`}</td>
-                <td className='level'>{member.level}</td>
-                <td className='expires'>
-                  {new Date(member.expires).toDateString()}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className='member-list'>
+        {members.map((member, i) => (
+          <MemberRow member={member} key={i} />
+        ))}
+      </div>
     ) : null;
 
   const traMeta = membersMeta?.tra ? (
@@ -156,8 +133,33 @@ export function ToolsPane() {
         ) : null}
       </div>
 
-      {resultTable}
+      {resultList}
     </>
+  );
+}
+
+function MemberRow({
+  member,
+  ...props
+}: { member: iCert } & React.HTMLProps<HTMLDivElement>) {
+  const isExpired = new Date(member.expires) < new Date();
+
+  return (
+    <div className={cn('member-row', { expired: isExpired })} {...props}>
+      <div className='member-info'>
+        <span className='member-name'>{`${member.firstName} ${member.lastName}`}</span>
+        <span className='member-org'>
+          {member.organization} #{member.memberId}
+        </span>
+      </div>
+
+      <div className='member-status'>
+        <span className='member-level'>Level {member.level}</span>
+        <span className='member-expires'>
+          {isExpired ? 'Expired' : 'Expires'} {new Date(member.expires).toLocaleDateString()}
+        </span>
+      </div>
+    </div>
   );
 }
 
