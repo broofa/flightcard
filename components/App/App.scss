@@ -104,8 +104,7 @@ h4,
 .mock-badge:before {
   display: inline-block;
   transform: rotate(-20deg);
-  color: #c60;
-  text-transform: capitalize;
+  color: rgba(200, 80, 0, 0.35);
 }
 .mock-badge {
   position: relative;
@@ -113,7 +112,7 @@ h4,
 .mock-badge::before {
   position: absolute;
   top: 10%;
-  left: 60%;
+  right: 10%;
   opacity: 0.4;
   content: 'Test';
   font-size: 24pt;
