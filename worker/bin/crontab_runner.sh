@@ -7,9 +7,11 @@ source ~/.bash_profile
 cd $(dirname "$0")
 source ../../.envrc
 
-echo Date: $(date) > crontab.log
-echo Dir: $(pwd) >> crontab.log
-echo ""
+cat > crontab.log << EOF
+Date: $(date)
+echo Dir: $(pwd)
+
+EOF
 
 # Run in production mode, and save log
-./fetch_tra_members.js --production 2>&1 | tee -a crontab.log
+./fetch_tra_members.js --production 2>&1 >> crontab.log
