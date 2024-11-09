@@ -1,12 +1,9 @@
 {
-  "name": "flightcard",
+  "name": "@flightcard/webapp",
   "version": "1.0.0",
-  "description": "Flight Card Management for Model Rocket Launches",
+  "description": "The FlightCard Web App",
   "type": "module",
   "files": [],
-  "funding": [
-    "https://github.com/sponsors/broofa"
-  ],
   "browserslist": [
     "last 2 Chrome versions"
   ],
@@ -27,7 +24,6 @@
     "victory": "37.2.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20241011.0",
     "@parcel/babel-plugin-transform-runtime": "2.12.0",
     "@parcel/packager-raw-url": "2.12.0",
     "@parcel/transformer-image": "2.12.0",

@@ -3,23 +3,12 @@
   "version": "1.0.0",
   "author": "robert@broofa.com",
   "license": "ISC",
-  "description": "Flight Card Management for Model Rocket Launches",
+  "description": "An App for Rocketry Clubs",
   "type": "module",
   "files": [],
   "funding": [
     "https://github.com/sponsors/broofa"
   ],
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
-  "devDependencies": {
-    "eslint": "9.12.0",
-    "eslint-plugin-react": "7.37.1",
-    "eslint-plugin-react-hooks": "5.0.0",
-    "globals": "^15.11.0",
-    "prettier": "^3.3.3",
-    "prettier-plugin-css-order": "^2.1.2"
-  },
   "scripts": {
     "start:webapp": "cd webapp && npm start",
     "start:worker": "cd worker && npm start"
@@ -29,11 +18,12 @@
     "url": "git+https://github.com/broofa/flightcard.git"
   },
   "keywords": [
-    "flight",
-    "cards",
+    "flightcard",
+    "flight cards",
     "rocketry",
-    "model",
-    "rockets"
+    "high power rocketry",
+    "rockets",
+    "model rockets"
   ],
   "bugs": {
     "url": "https://github.com/broofa/flightcard/issues"
