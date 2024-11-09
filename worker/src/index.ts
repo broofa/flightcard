@@ -11,13 +11,13 @@
  */
 
 import {
-  corsPreflightRoute,
-  idSearchRoute,
-  membersMetaRoute,
-  membersUploadRoute,
-  nameSearchRoute,
-  rejectFaviconRoute,
-  Route,
+    corsPreflightRoute,
+    idSearchRoute,
+    membersMetaRoute,
+    membersUploadRoute,
+    nameSearchRoute,
+    rejectFaviconRoute,
+    Route,
 } from './lib/routes';
 import { updateNARCerts } from './nar/nar-util';
 
@@ -75,7 +75,7 @@ export default {
 
   // Handle scheduled invocations
   //
-  // NOTE: This can be triggered in dev by hitting http://127.0.0.1:6543/__scheduled
+  // NOTE: This can be triggered in dev by hitting http://127.0.0.1:1235/__scheduled
   async scheduled(
     controller: ScheduledController,
     env: Env,

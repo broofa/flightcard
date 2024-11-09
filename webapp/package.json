@@ -8,7 +8,7 @@
     "last 2 Chrome versions"
   ],
   "dependencies": {
-    "@types/react": "18.3.11",
+    "@types/react": "18.3.12",
     "bootstrap": "5.3.3",
     "checkcss": "2.0.9",
     "firebase": "10.14.1",
@@ -18,10 +18,10 @@
     "react-bootstrap": "2.10.5",
     "react-dom": "18.3.1",
     "react-router-bootstrap": "0.26.3",
-    "react-router-dom": "6.27.0",
+    "react-router-dom": "6.28.0",
     "simplur": "4.0.0",
     "thrustcurve-db": "3.0.4",
-    "victory": "37.2.0"
+    "victory": "37.3.1"
   },
   "devDependencies": {
     "@parcel/babel-plugin-transform-runtime": "2.12.0",
@@ -31,25 +31,25 @@
     "@parcel/transformer-webmanifest": "2.12.0",
     "@types/react-dom": "18.3.1",
     "@types/react-router-dom": "5.3.3",
-    "eslint": "9.12.0",
-    "eslint-plugin-react": "7.37.1",
+    "eslint": "9.14.0",
+    "eslint-plugin-react": "7.37.2",
     "eslint-plugin-react-hooks": "5.0.0",
-    "globals": "^15.11.0",
+    "globals": "^15.12.0",
     "parcel": "2.12.0",
     "postcss": "^8.4.47",
     "postcss-modules": "6.0.0",
     "prettier": "^3.3.3",
     "prettier-plugin-css-order": "^2.1.2",
-    "puppeteer": "^23.6.1",
-    "sass": "1.79.5",
+    "puppeteer": "^23.7.1",
+    "sass": "1.80.6",
     "typescript": "5.6.3",
-    "typescript-eslint": "^8.9.0"
+    "typescript-eslint": "^8.13.0"
   },
   "scripts": {
     "clean": "rm -fr dist .parcel-cache",
     "lint": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run clean && parcel index.html",
+    "start": "npm run clean && parcel --port=1234 index.html",
     "build": "npm run clean && parcel build index.html",
     "worker:start": "cd worker && npm run start",
     "worker:deploy": "cd worker && npm run deploy"
