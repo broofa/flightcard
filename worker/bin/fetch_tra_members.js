@@ -26,7 +26,7 @@ const isProduction = process.argv.includes('--production');
 // TODO: Need to read this from env var
 const MEMBER_API_ENDPOINT = isProduction
   ? 'https://club-members.robert4852.workers.dev'
-  : 'http://localhost:6543';
+  : 'http://localhost:1235';
 
 console.log('isProduction:', isProduction);
 console.log('MEMBER_API_ENDPOINT:', MEMBER_API_ENDPOINT);

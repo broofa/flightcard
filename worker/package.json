@@ -1,5 +1,5 @@
 {
-  "name": "club-members",
+  "name": "@flightcard/worker",
   "version": "0.0.0",
   "type": "module",
   "devDependencies": {

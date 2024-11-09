@@ -21,7 +21,7 @@ id = "afad0f09ca4e41e79ce14272da78ad04"
 preview_id = "202f9cc828c149d0acfc1238195eeeff"
 
 [dev]
-port = 6543
+port = 1235
 
 [observability]
 enabled = true

@@ -1,76 +1,30 @@
 {
   "name": "flightcard",
   "version": "1.0.0",
-  "description": "Flight Card Management for Model Rocket Launches",
+  "author": "robert@broofa.com",
+  "license": "ISC",
+  "description": "An App for Rocketry Clubs",
   "type": "module",
   "files": [],
   "funding": [
     "https://github.com/sponsors/broofa"
   ],
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
-  "dependencies": {
-    "@types/react": "18.3.11",
-    "bootstrap": "5.3.3",
-    "checkcss": "2.0.9",
-    "firebase": "10.14.1",
-    "firebaseui": "6.1.0",
-    "process": "0.11.10",
-    "react": "18.3.1",
-    "react-bootstrap": "2.10.5",
-    "react-dom": "18.3.1",
-    "react-router-bootstrap": "0.26.3",
-    "react-router-dom": "6.27.0",
-    "simplur": "4.0.0",
-    "thrustcurve-db": "3.0.4",
-    "victory": "37.2.0"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "4.20241011.0",
-    "@parcel/babel-plugin-transform-runtime": "2.12.0",
-    "@parcel/packager-raw-url": "2.12.0",
-    "@parcel/transformer-image": "2.12.0",
-    "@parcel/transformer-sass": "2.12.0",
-    "@parcel/transformer-webmanifest": "2.12.0",
-    "@types/react-dom": "18.3.1",
-    "@types/react-router-dom": "5.3.3",
-    "eslint": "9.12.0",
-    "eslint-plugin-react": "7.37.1",
-    "eslint-plugin-react-hooks": "5.0.0",
-    "globals": "^15.11.0",
-    "parcel": "2.12.0",
-    "postcss": "^8.4.47",
-    "postcss-modules": "6.0.0",
-    "prettier": "^3.3.3",
-    "prettier-plugin-css-order": "^2.1.2",
-    "puppeteer": "^23.6.1",
-    "sass": "1.79.5",
-    "typescript": "5.6.3",
-    "typescript-eslint": "^8.9.0"
-  },
   "scripts": {
-    "clean": "rm -fr dist .parcel-cache",
-    "lint": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run clean && parcel index.html",
-    "build": "npm run clean && parcel build index.html",
-    "worker:start": "cd worker && npm run start",
-    "worker:deploy": "cd worker && npm run deploy"
+    "start:webapp": "cd webapp && npm start",
+    "start:worker": "cd worker && npm start"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/broofa/flightcard.git"
   },
   "keywords": [
-    "flight",
-    "cards",
+    "flightcard",
+    "flight cards",
     "rocketry",
-    "model",
-    "rockets"
+    "high power rocketry",
+    "rockets",
+    "model rockets"
   ],
-  "author": "robert@broofa.com",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/broofa/flightcard/issues"
   },
