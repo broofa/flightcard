@@ -12,6 +12,7 @@
 
 import {
   corsPreflightRoute,
+  durableObjectRoute,
   idSearchRoute,
   membersMetaRoute,
   membersUploadRoute,
@@ -21,11 +22,14 @@ import {
 } from './lib/routes';
 import { updateNARCerts } from './nar/nar-util';
 
+export { LaunchDO } from './lib/LaunchDO';
+
 // Ad-hoc router structure.  Every request is passed through these function in
 // order, until one of them returns a Response or object.
 const ROUTES: Route[] = [
   rejectFaviconRoute,
   corsPreflightRoute,
+  durableObjectRoute,
   membersUploadRoute,
   membersMetaRoute,
   nameSearchRoute,

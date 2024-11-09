@@ -7,5 +7,6 @@ interface Env {
 	TRA_USERNAME: string;
 	TRA_PASSWORD: string;
 	FC_API_KEY: string;
+	LAUNCH_DO: DurableObjectNamespace /* LaunchDO */;
 	CertsDB: D1Database;
 }

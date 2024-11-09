@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Alert } from 'react-bootstrap';
 import {
   Navigate,
@@ -12,6 +12,7 @@ import Admin from '../Admin/Admin';
 import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
 import { LaunchStateProvider } from '../contexts/LaunchStateContext';
 import { useCurrentAttendee } from '../contexts/rt_hooks';
+import { FlashList } from '../Flash/FlashList';
 import Launch from '../Launch/Launch';
 import LaunchHome from '../Launch/LaunchHome';
 import Launches from '../Launches/Launches';
@@ -22,7 +23,6 @@ import { LaunchNavBar } from './LaunchNavBar';
 import { Waiver } from './Waiver';
 import Welcome from './Welcome';
 import { Loading } from '/components/common/util';
-import { FlashList } from '../Flash/FlashList';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';
@@ -51,9 +51,33 @@ function RequireWaiver() {
   return attendee?.waiverTime ? <Outlet /> : <Waiver />;
 }
 
+function connectToSocket() {
+  console.log('Connecting to socket');
+  const wsURL = new URL('/ws', process.env.MEMBER_API_ENDPOINT);
+  const ws = new WebSocket(wsURL);
+  ws.onmessage = (msg) => {
+    console.log('Received message', msg.data);
+  };
+  ws.onopen = () => {
+    console.log('Connected to socket');
+    ws.send('Hello');
+  };
+  ws.onclose = () => {
+    console.log('Disconnected from socket');
+  };
+  ws.onerror = (err) => {
+    console.error('Socket error', err);
+  };
+  return ws;
+}
+
 export default function App() {
   const match = useMatch<'launchId', string>('/launches/:launchId/*');
   const { launchId } = match?.params ?? {};
+
+  useEffect(() => {
+    connectToSocket();
+  }, []);
 
   return (
     <>

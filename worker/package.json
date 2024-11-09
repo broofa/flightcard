@@ -9,6 +9,7 @@
   },
   "private": true,
   "scripts": {
+    "cf-typegen": "wrangler types",
     "start": "wrangler dev --test-scheduled src/index.ts",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute certs2 --local --file=schema.sql",

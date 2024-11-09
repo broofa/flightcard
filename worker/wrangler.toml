@@ -20,6 +20,15 @@ binding = "CertsKV"
 id = "afad0f09ca4e41e79ce14272da78ad04"
 preview_id = "202f9cc828c149d0acfc1238195eeeff"
 
+[[durable_objects.bindings]]
+name = "LAUNCH_DO"
+class_name = "LaunchDO"
+
+# Durable object migrations (not sure what this is, but wrangler says I need it)
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["LaunchDO"]
+
 [dev]
 port = 6543
 
