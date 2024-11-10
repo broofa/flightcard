@@ -1,5 +1,5 @@
-import MOTORS, { TCMotor } from 'thrustcurve-db';
-import { iCard, iMotor } from '../types';
+import MOTORS, { type TCMotor } from 'thrustcurve-db';
+import type { iCard, iMotor } from '../types';
 
 // Init motor impulse class information structure
 let _impulse: number;
@@ -155,24 +155,24 @@ export function motorDisplayName(motor: TCMotor) {
  * thrust cannot be accurately determined
  */
 export function stage1Thrust(cardMotors: iCard['motors']) {
-  if (!cardMotors) return NaN;
+  if (!cardMotors) return Number.NaN;
 
   const motors = Object.values(cardMotors).filter((m) => (m.stage ?? 1) === 1);
 
-  if (!motors?.length) return NaN;
+  if (!motors?.length) return Number.NaN;
 
   return motors.reduce((acc, motor) => {
     let thrust: number;
     if (motor.tcMotorId) {
       // Use thrust from thrustcurve data if available
-      thrust = getMotor(motor.tcMotorId)?.avgThrustN ?? NaN;
+      thrust = getMotor(motor.tcMotorId)?.avgThrustN ?? Number.NaN;
     } else if (motor.name) {
       // Scrape from motor name
       const match = motor.name.match(/[a-z]([\d.]+)/i)?.[1];
-      thrust = match ? parseInt(match) : NaN;
+      thrust = match ? Number.parseInt(match) : Number.NaN;
     } else {
       // No thrust data available
-      thrust = NaN;
+      thrust = Number.NaN;
     }
 
     return acc + thrust;
@@ -193,7 +193,7 @@ export function motorClassForImpulse(impulse: number | undefined) {
 export function totalImpulseClass(motors?: iMotor[]) {
   if (!motors) return undefined;
   const impulse = Object.entries(motors).reduce(
-    (acc: number, [, m]) => acc + (m.impulse ?? NaN),
+    (acc: number, [, m]) => acc + (m.impulse ?? Number.NaN),
     0
   );
 

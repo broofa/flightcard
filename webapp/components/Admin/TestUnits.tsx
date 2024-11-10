@@ -1,21 +1,19 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { clear, log } from './AdminLogger';
 import { MKS, unitParse } from '/util/units';
+import { clear, log } from './AdminLogger';
 
 async function handleClick() {
   clear();
   log('Starting tests');
 
   function expectUnit(v: string, unit: string, expected: number) {
-    const actual = parseFloat(unitParse(v, unit).toPrecision(4));
-    try {
-    } catch (err) {
-      log(v, unit, 'ERROR', (err as Error).message);
-      return;
-    }
+    const actual = Number.parseFloat(unitParse(v, unit).toPrecision(4));
 
-    if ((isNaN(actual) && isNaN(expected)) || actual === expected) {
+    if (
+      (Number.isNaN(actual) && Number.isNaN(expected)) ||
+      actual === expected
+    ) {
       log('\u2705', v, 'to', unit, '=', expected);
     } else {
       log(
@@ -33,7 +31,7 @@ async function handleClick() {
   // Misc
   expectUnit('1.23', MKS.mass, 1.23); // unitless
   expectUnit('-1.23', MKS.mass, -1.23); // negative
-  expectUnit('1ft', MKS.mass, NaN); // incompatible units
+  expectUnit('1ft', MKS.mass, Number.NaN); // incompatible units
 
   // Incompatible units
 

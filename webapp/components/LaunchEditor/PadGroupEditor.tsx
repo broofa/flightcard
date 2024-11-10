@@ -1,7 +1,7 @@
-import React, { HTMLAttributes } from 'react';
-import { iPads } from '../../types';
+import React, { type HTMLAttributes } from 'react';
 import { rtGet, rtSet } from '/rt';
 import { PADS_PATH, PAD_PATH } from '/rt/rtconstants';
+import type { iPads } from '../../types';
 
 export function PadGroupEditor({
   launchId,

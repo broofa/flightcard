@@ -1,9 +1,9 @@
 import React from 'react';
 import { Alert, Navbar } from 'react-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
-import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
+import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 
 function NavBarLink({
   launchId,
@@ -33,9 +33,13 @@ export function LaunchNavBar() {
 
   if (loading) {
     return <Loading wat='Launch (navbar)' />;
-  } else if (error) {
+  }
+
+  if (error) {
     return <Alert variant='danger'>LaunchRoute: {error.message}</Alert>;
-  } else if (!launch) {
+  }
+
+  if (!launch) {
     return <Alert variant='warning'>Launch Not Found</Alert>;
   }
 

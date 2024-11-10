@@ -1,23 +1,23 @@
 import React, {
-  ChangeEvent,
-  HTMLAttributes,
-  InputHTMLAttributes,
+  type ChangeEvent,
+  type HTMLAttributes,
+  type InputHTMLAttributes,
   useCallback,
   useEffect,
   useState,
 } from 'react';
 import { Alert, FloatingLabel, Form } from 'react-bootstrap';
-import { CertOrg, iCert } from '../../types';
-import { errorTrap } from '../common/errorTrap';
-import { fetchHelper, HTTPResponseError } from '../common/useFetch';
-import { cn, Loading } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import {
   ATTENDEE_NAR_CERT_PATH,
   ATTENDEE_TRA_CERT_PATH,
-  AttendeeFields,
+  type AttendeeFields,
 } from '/rt/rtconstants';
 import useDebounce from '/util/useDebounce';
+import { CertOrg, type iCert } from '../../types';
+import { errorTrap } from '../common/errorTrap';
+import { type HTTPResponseError, fetchHelper } from '../common/useFetch';
+import { Loading, cn } from '../common/util';
 
 function Emoji({
   code,
@@ -75,7 +75,7 @@ export default function CertPref({
   const [fetchError, setFetchError] = useState<Error>();
   const [debouncedMemberId, isDebouncing] = useDebounce(memberId, 500);
 
-  const memberNum = parseInt(debouncedMemberId ?? '');
+  const memberNum = Number.parseInt(debouncedMemberId ?? '');
   const memberInfoUrl =
     isChanged && !isDebouncing && !isNaN(memberNum)
       ? `${MEMBER_API_ENDPOINT}?org=${org}&id=${memberNum}`

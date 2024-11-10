@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { iCards } from '../../types';
-import { clear, log } from './AdminLogger';
 import { randomId } from '/components/common/util';
 import { DELETE, rtGet, rtSet, rtTransaction } from '/rt';
 import { CARDS_INDEX_PATH, CARD_MOTORS_PATH, CARD_PATH } from '/rt/rtconstants';
+import type { iCards } from '../../types';
+import { clear, log } from './AdminLogger';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function complete_migrateMotors() {
@@ -19,7 +19,7 @@ async function complete_migrateMotors() {
       let needsWrite = false;
       for (const entry of motorEntries) {
         const [motorId, motor] = entry;
-        if (motorId != motor.id) {
+        if (motorId !== motor.id) {
           if (!motor.id) motor.id = randomId();
           entry[0] = motor.id;
           needsWrite = true;

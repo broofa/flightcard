@@ -1,10 +1,10 @@
 import React from 'react';
+import { LinkButton, Loading } from '/components/common/util';
 import { CertOrg } from '../../types';
 import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
 import CertPref from './CertPref';
 import ProfileName from './NamePref';
 import UnitsPref from './UnitsPref';
-import { LinkButton, Loading } from '/components/common/util';
 
 export default function ProfilePage() {
   const [launch] = useLaunch();

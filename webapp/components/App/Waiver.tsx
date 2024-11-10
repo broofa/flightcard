@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { Button } from 'react-bootstrap';
+import { Loading, busy } from '/components/common/util';
+import { rtSet } from '/rt';
+import { ATTENDEE_PATH } from '/rt/rtconstants';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import { APPNAME } from './App';
-import { busy, Loading } from '/components/common/util';
-import { rtSet } from '/rt';
-import { ATTENDEE_PATH } from '/rt/rtconstants';
 
 export function Waiver() {
   const [launch] = useLaunch();

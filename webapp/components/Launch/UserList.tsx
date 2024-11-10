@@ -1,7 +1,5 @@
-import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
+import React, { type ChangeEvent, type HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { CertOrg, iAttendee, iCert, iPerm } from '../../types';
-import { arraySort } from '../../util/array-util';
 import { isMock } from '/components/Admin/MockDB';
 import { ANONYMOUS } from '/components/App/App';
 import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
@@ -20,6 +18,8 @@ import {
   ATTENDEE_TRA_CERT_PATH,
   OFFICER_PATH,
 } from '/rt/rtconstants';
+import { CertOrg, type iAttendee, type iCert, type iPerm } from '../../types';
+import { arraySort } from '../../util/array-util';
 
 export type UserFilterFunction =
   | (() => boolean)
@@ -45,7 +45,7 @@ function UserEditor({
   if (!attendee) return <Loading wat='User' />;
   if (!currentUser) return <Loading wat='Current user' />;
 
-  const onVerify = function (organization: CertOrg, verified: boolean) {
+  const onVerify = (organization: CertOrg, verified: boolean) => {
     const rtPath =
       organization === 'TRA'
         ? ATTENDEE_TRA_CERT_PATH.with(rtFields)
@@ -59,7 +59,7 @@ function UserEditor({
     return rtUpdate<iCert>(rtPath, cert);
   };
 
-  const onOfficerToggle = async function (e: ChangeEvent<HTMLInputElement>) {
+  const onOfficerToggle = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       await rtSet<boolean>(OFFICER_PATH.with(rtFields), true);
     } else {

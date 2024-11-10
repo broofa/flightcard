@@ -1,8 +1,8 @@
 import React, {
   cloneElement,
-  ForwardedRef,
-  InputHTMLAttributes,
-  ReactElement,
+  type ForwardedRef,
+  type InputHTMLAttributes,
+  type ReactElement,
 } from 'react';
 import { cn } from './util';
 

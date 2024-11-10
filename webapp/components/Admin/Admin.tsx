@@ -13,9 +13,8 @@ export default function Admin() {
   useEffect(() => {
     const logEl = logList.current;
     if (!logEl) return;
-    // @ts-ignore - typescript doesn't know about scrollTo
     (logEl.lastChild as HTMLElement)?.scrollIntoView({ behavior: 'smooth' });
-  }, [log]);
+  }, []);
 
   return (
     <>
@@ -45,7 +44,7 @@ export default function Admin() {
           const err: Error | undefined = args.find(
             (v: unknown) => v instanceof Error
           );
-          args = args.map((v: unknown) => {
+          const argStrings = args.map((v: unknown) => {
             if (v === undefined) return 'undefined';
             const cons = Object.getPrototypeOf(v)?.constructor;
             if (cons === Object || cons === Array) {
@@ -56,7 +55,7 @@ export default function Admin() {
 
           return (
             <div key={i} className={err ? 'text-danger' : ''}>
-              {args.join(' ')}
+              {argStrings.join(' ')}
             </div>
           );
         })}

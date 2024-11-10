@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import { clear, log } from './AdminLogger';
 import { auth, rtGet, rtUpdate } from '/rt';
 import { RTPath } from '/rt/RTPath';
+import { clear, log } from './AdminLogger';
 
 async function handleClick() {
   const user = auth.currentUser;
@@ -12,7 +12,8 @@ async function handleClick() {
 
   async function testAccess(path: string) {
     const rtpath = new RTPath(path);
-    let canRead, canWrite;
+    let canRead = false,
+      canWrite = false;
     try {
       await rtGet(rtpath);
       canRead = true;
@@ -49,7 +50,11 @@ async function handleClick() {
     testAccess('cards'),
     testAccess('cards/testLaunch'),
     testAccess('cards/testLaunch/testCard'),
-  ]).then((results) => results.forEach((v) => log(v)));
+  ]).then((results) => {
+    for (const v of results) {
+      log(v);
+    }
+  });
 }
 
 export default function TestDB() {

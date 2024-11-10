@@ -4,9 +4,7 @@
   "description": "The FlightCard Web App",
   "type": "module",
   "files": [],
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
+  "browserslist": ["last 2 Chrome versions"],
   "dependencies": {
     "@types/react": "18.3.12",
     "bootstrap": "5.3.3",
@@ -36,8 +34,6 @@
     "sass": "1.80.6",
     "typescript": "5.6.3"
   },
-
-
   "scripts": {
     "clean": "rm -fr dist .parcel-cache",
     "lint": "tsc --noEmit",
@@ -51,13 +47,7 @@
     "type": "git",
     "url": "git+https://github.com/broofa/flightcard.git"
   },
-  "keywords": [
-    "flight",
-    "cards",
-    "rocketry",
-    "model",
-    "rockets"
-  ],
+  "keywords": ["flight", "cards", "rocketry", "model", "rockets"],
   "author": "robert@broofa.com",
   "license": "ISC",
   "bugs": {

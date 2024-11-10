@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { iCert, MembersMeta } from '../../types';
 import { cn } from '/components/common/util';
+import type { MembersMeta, iCert } from '../../types';
 import '/components/Launch/ToolsPane.scss';
 import useDebounce from '/util/useDebounce';
 

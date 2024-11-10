@@ -1,6 +1,11 @@
-import React, { HTMLAttributes, ReactNode, useEffect, useState } from 'react';
-import { FlashEvent } from '/components/Flash/flash';
+import React, {
+  type HTMLAttributes,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 import { FlashItem } from '/components/Flash/FlashItem';
+import type { FlashEvent } from '/components/Flash/flash';
 
 export function FlashList(props: HTMLAttributes<HTMLDivElement>) {
   const [flashes, setFlashes] = useState([] as ReactNode[]);

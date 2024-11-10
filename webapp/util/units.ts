@@ -106,7 +106,7 @@ define('lbf-s', 'n-s', 4.44822);
 
 export function unitConvert(val: number | string, from: string, to: string) {
   const factor = to === from ? 1 : _FACTORS?.get(from)?.get(to);
-  if (factor == null) return NaN;
+  if (factor == null) return Number.NaN;
 
   return Number(val) * factor;
 }
@@ -186,7 +186,7 @@ export function unitParse(
   }
 
   if (isNaN(v)) {
-    return NaN;
+    return Number.NaN;
   }
 
   v = unitConvert(v, unit, toUnit);

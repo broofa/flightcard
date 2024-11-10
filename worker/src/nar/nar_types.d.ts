@@ -40,4 +40,3 @@ type NARSearchFields = {
   standardFields: NARStandardSearchField[];
   customFields: NARCustomField[];
 };
-

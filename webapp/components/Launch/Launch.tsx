@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Alert } from 'react-bootstrap';
-import { Route, Routes, RoutesProps, useLocation } from 'react-router-dom';
-import { iCard } from '../../types';
+import { Route, Routes, type RoutesProps, useLocation } from 'react-router-dom';
 import CardSummary from '/components/CardSummary/CardSummary';
 import CardEditor from '/components/Cards/CardEditor';
 import { CardsPane } from '/components/Launch/CardsPane';
@@ -20,6 +19,7 @@ import { useCurrentAttendee, useLaunch } from '/components/contexts/rt_hooks';
 import { rtSet, useRTValue } from '/rt';
 import { LAUNCH_RIDEALONG_PATH } from '/rt/rtconstants';
 import { arraySort } from '/util/array-util';
+import type { iCard } from '../../types';
 
 export function CardList({ cards }: { cards?: iCard[] }) {
   if (!cards) return <Loading wat='Cards' />;
@@ -46,11 +46,11 @@ function NotFound({ isLCO, isRiding }: { isLCO: boolean; isRiding: boolean }) {
           style={{ width: '50%' }}
         />
       );
-    } else {
-      return (
-        <Alert variant='warning text-center'>LCO temporarily unavailable</Alert>
-      );
     }
+
+    return (
+      <Alert variant='warning text-center'>LCO temporarily unavailable</Alert>
+    );
   }
   return <Alert variant='warning text-center'>Page Not Found</Alert>;
 }

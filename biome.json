@@ -19,10 +19,33 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+
+      "a11y": {
+        "noLabelWithoutControl": "off",
+        "noSvgWithoutTitle": "off",
+        "useAltText": "off",
+        "useKeyWithClickEvents": "off"
+      },
+
+      "performance": { "noDelete": "off" },
+
+      "style": {
+        "noUnusedTemplateLiteral": "error",
+        "useSingleVarDeclarator": "off",
+        "useTemplate": "off"
+      },
+
+      "suspicious": {
+        "noArrayIndexKey": "off"
+      }
     }
   },
   "javascript": {
-    "formatter": { "quoteStyle": "double" }
+    "formatter": {
+      "jsxQuoteStyle": "single",
+      "quoteStyle": "single",
+      "trailingCommas": "es5"
+    }
   }
 }

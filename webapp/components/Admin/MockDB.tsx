@@ -1,22 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import {
-  CardStatus,
-  CertOrg,
-  iAttendees,
-  iCard,
-  iCards,
-  iCerts,
-  iLaunches,
-  iMotor,
-  iOfficers,
-  iPads,
-  iRocket,
-  iUsers,
-} from '../../types';
-import { clear, log } from './AdminLogger';
-import { createRocket, NAMES, rnd, rndItem } from './mock_data';
-import { auth, DELETE, rtGet, rtRemove, rtTransaction } from '/rt';
+import { DELETE, auth, rtGet, rtRemove, rtTransaction } from '/rt';
+import { RTPath } from '/rt/RTPath';
 import {
   ATTENDEES_PATH,
   CARDS_PATH,
@@ -25,7 +10,22 @@ import {
   PADS_PATH,
   USER_PATH,
 } from '/rt/rtconstants';
-import { RTPath } from '/rt/RTPath';
+import {
+  CardStatus,
+  CertOrg,
+  type iAttendees,
+  type iCard,
+  type iCards,
+  type iCerts,
+  type iLaunches,
+  type iMotor,
+  type iOfficers,
+  type iPads,
+  type iRocket,
+  type iUsers,
+} from '../../types';
+import { clear, log } from './AdminLogger';
+import { NAMES, createRocket, rnd, rndItem } from './mock_data';
 
 const MOCK_ID_PREFIX = 'FC_';
 
@@ -69,8 +69,8 @@ const PADS = [
 let seedIds: Record<string, number> = {};
 
 function genId(idType = 'id') {
-  const id = (seedIds[idType] = (seedIds[idType] ?? 0) + 1);
-  return `${MOCK_ID_PREFIX}${idType}_${String(id).padStart(2, '0')}`;
+  seedIds[idType] = (seedIds[idType] ?? 0) + 1;
+  return `${MOCK_ID_PREFIX}${idType}_${String(seedIds[idType]).padStart(2, '0')}`;
 }
 
 function genReset() {
@@ -78,8 +78,7 @@ function genReset() {
 }
 
 export function isMock(id: string | { id: string }) {
-  id = typeof id === 'string' ? id : id.id;
-  return id.startsWith(MOCK_ID_PREFIX);
+  return (typeof id === 'string' ? id : id.id).startsWith(MOCK_ID_PREFIX);
 }
 
 type DBRoot = {

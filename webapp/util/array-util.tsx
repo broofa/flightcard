@@ -9,9 +9,8 @@ export function arraySort<T>(
 
   if (typeof extract === 'string') {
     const prop = extract;
-    extractor = function (item: T) {
-      return (item as unknown as { [k: string]: Comparable })[prop];
-    };
+    extractor = (item: T) =>
+      (item as unknown as { [k: string]: Comparable })[prop];
   } else {
     extractor = extract;
   }

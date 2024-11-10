@@ -1,11 +1,10 @@
 import React from 'react';
-import { ModalProps } from 'react-bootstrap';
-import { iCard } from '../../types';
+import type { ModalProps } from 'react-bootstrap';
+import type { iCard } from '../../types';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import { useCurrentAttendee } from '../contexts/rt_hooks';
 import {
   DeleteButton,
-  getCardPermissions,
   LCOFinishButton,
   LCORequestButton,
   PadSelect,
@@ -13,6 +12,7 @@ import {
   RSORejectButton,
   RSORequestButton,
   WithdrawButton,
+  getCardPermissions,
 } from './CardEditorButtons';
 
 export function CardActions({

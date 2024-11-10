@@ -1,6 +1,6 @@
-import { tUnitSystemName } from './util/units';
-import { TRACache } from '/worker/src/lib/tra-util';
-import { Scan } from '/worker/src/nar/scan';
+import type { TRACache } from '../worker/src/lib/tra-util';
+import type { Scan } from '../worker/src/nar/scan';
+import type { tUnitSystemName } from './util/units';
 
 // Tell VSCode not to choke on Parcel's static file imports
 declare module '*.png';

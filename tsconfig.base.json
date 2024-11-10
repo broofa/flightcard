@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2022"],
+    "module": "es2022",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022"
+  },
+  "exclude": ["node_modules"]
+}

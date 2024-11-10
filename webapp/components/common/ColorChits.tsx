@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import React, { type HTMLAttributes } from 'react';
 import { cn } from './util';
 
 // X11 colors, minus really unlikely stuff

@@ -3,6 +3,11 @@ main = "src/index.ts"
 
 compatibility_date = "2023-05-29"
 
+[vars]
+CLOUDFLARE_API_TOKEN="not used in dev"
+CLOUDFLARE_ACCOUNT_ID="not used in dev"
+FC_DB="not used in dev"
+
 [triggers]
 # Frequency here determines how often NAR logic can fetch a page of results.
 # crons = ["0 1 * * *"] # daily @ 1am

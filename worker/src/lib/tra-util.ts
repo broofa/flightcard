@@ -1,4 +1,4 @@
-import { CertOrg, iCert } from '../../types_certs';
+import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from './CFAPI';
 import ConsoleWithPrefix from './ConsoleWithPrefix';
 import { certsBulkUpdate } from './db-util';
@@ -59,10 +59,12 @@ async function traProcess(membersCSV: string) {
       continue;
     }
 
-    const memberId = /^\d+$/.test(fields[0]) ? parseInt(fields[0]) : undefined;
+    const memberId = /^\d+$/.test(fields[0])
+      ? Number.parseInt(fields[0])
+      : undefined;
     const lastName = fields[1].replace(/,.*/, '');
     const firstName = fields[1].replace(/.*,\s*/, '');
-    const level = parseInt(TRIPOLI_CERT_MAP[fields[2]] ?? fields[2]);
+    const level = Number.parseInt(TRIPOLI_CERT_MAP[fields[2]] ?? fields[2]);
     const expires = Date.parse(fields[3]);
 
     // Skip entries with invalid member ids

@@ -1,4 +1,4 @@
-import { CertOrg, iCert } from "../../types_certs";
+import type { CertOrg, iCert } from '../../types_certs';
 
 export const CERTS_BY_ID_ORG =
   'SELECT * FROM certs WHERE memberId=?1 AND organization=?2';

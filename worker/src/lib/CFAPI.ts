@@ -14,16 +14,16 @@ export class CFAPI {
   /**
    * @param {Env} env
    */
-  constructor(env) {
+  constructor(env: Env) {
     this.env = env;
-    this.#useSDK = env.CertsKV ? true : false;
+    this.#useSDK = !!env.CertsKV;
   }
 
   /**
    * @param {...string} parts
    * @returns {string}
    */
-  baseUrl(...parts) {
+  baseUrl(...parts: string[]) {
     return [
       API_BASE,
       'accounts',
@@ -37,7 +37,7 @@ export class CFAPI {
    * @returns {string}
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  kvUrl(...parts) {
+  kvUrl(...parts: string[]): string {
     // Throwing this error because I haven't figured out how to
     throw new Error('KV not yet supported by CFAPI');
 
@@ -46,7 +46,7 @@ export class CFAPI {
     // return this.baseUrl('storage', 'kv', 'namespaces', kvId, ...parts);
   }
 
-  dbUrl(...parts) {
+  dbUrl(...parts: string[]) {
     const dbId = this.env.FC_DB;
 
     return this.baseUrl('d1', 'database', dbId, ...parts);
@@ -56,7 +56,7 @@ export class CFAPI {
    * @param {...string} parts
    * @returns {string}
    */
-  apiPath(url) {
+  apiPath(url: string) {
     return url.replace(this.baseUrl(), '');
   }
 
@@ -67,7 +67,7 @@ export class CFAPI {
    * @param {RequestInit} [options]
    * @returns {Promise<string>}
    */
-  async fetch(url, options) {
+  async fetch(url: string, options: RequestInit = {}) {
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.env.CLOUDFLARE_API_TOKEN}`,
@@ -91,8 +91,8 @@ export class CFAPI {
    * @param {string} key
    * @returns {Promise<T>}
    */
-  async kvGet(key) {
-    let json;
+  async kvGet<T>(key: string): Promise<T | null> {
+    let json: string | undefined;
     if (this.#useSDK) {
       json = (await this.env.CertsKV.get(key)) ?? undefined;
     } else {
@@ -106,7 +106,7 @@ export class CFAPI {
    * @param {string} key
    * @param {unknown} value
    */
-  async kvPut(key, value) {
+  async kvPut(key: string, value: unknown) {
     const json = JSON.stringify(value, null, 2);
 
     if (this.#useSDK) {
@@ -125,7 +125,7 @@ export class CFAPI {
    * @param {string} sql
    * @param  {...string} params
    */
-  async dbQuery(sql, ...params) {
+  async dbQuery(sql: string, ...params: unknown[]) {
     const url = this.dbUrl('query');
     const body = JSON.stringify({ sql, params });
 

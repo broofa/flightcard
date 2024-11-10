@@ -99,7 +99,7 @@ export async function idSearchRoute(request: Request, env: Env) {
     return;
   }
 
-  const memberId = parseInt(id);
+  const memberId = Number.parseInt(id);
 
   if (isNaN(memberId)) {
     return new Response('Invalid ID', { status: 400 });

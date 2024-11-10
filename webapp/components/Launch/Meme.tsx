@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import React, { type HTMLAttributes } from 'react';
 import { cn } from '../common/util';
 import styles from './Meme.module.scss';
 

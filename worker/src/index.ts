@@ -11,13 +11,13 @@
  */
 
 import {
-    corsPreflightRoute,
-    idSearchRoute,
-    membersMetaRoute,
-    membersUploadRoute,
-    nameSearchRoute,
-    rejectFaviconRoute,
-    Route,
+  type Route,
+  corsPreflightRoute,
+  idSearchRoute,
+  membersMetaRoute,
+  membersUploadRoute,
+  nameSearchRoute,
+  rejectFaviconRoute,
 } from './lib/routes';
 import { updateNARCerts } from './nar/nar-util';
 

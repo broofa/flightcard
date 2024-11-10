@@ -1,6 +1,6 @@
-import React, { HTMLAttributes } from 'react';
+import React, { type HTMLAttributes } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { iCard } from '../../types';
+import type { iCard } from '../../types';
 import '/components/Launch/LaunchCard.scss';
 import ColorChits from '/components/common/ColorChits';
 import { Warning } from '/components/common/Warning';
@@ -36,11 +36,11 @@ export function LaunchCard({
         'Unknown rocket impulse (Is flier certified for this flight?)'
       );
     } else if (impulseClass > 'L' && certLevel < 3) {
-      warnings.push(`Flier not L3 certified`);
+      warnings.push('Flier not L3 certified');
     } else if (impulseClass > 'I' && certLevel < 2) {
-      warnings.push(`Flier not L2 certified`);
+      warnings.push('Flier not L2 certified');
     } else if (impulseClass > 'H' && certLevel < 1) {
-      warnings.push(`Flier not L1 certified`);
+      warnings.push('Flier not L1 certified');
     }
   } else {
     if (!impulseClass || (impulseClass > 'H' && !isVerified)) {

@@ -1,5 +1,5 @@
 import { neonToTimestamp } from './nar-util';
-import { NARItem, NARPage, NeonPagination } from './nar_types';
+import type { NARItem, NARPage, NeonPagination } from './nar_types';
 
 export type Scan = {
   // Timestamp most recent query in the current scan
@@ -55,7 +55,7 @@ export function scanUpdate(scanState: Scan, page: NARPage<NARItem>) {
   for (const item of page.searchResults) {
     scanState.trackingAccountId = Math.max(
       scanState.trackingAccountId,
-      parseInt(item['Account ID'], 10)
+      Number.parseInt(item['Account ID'], 10)
     );
     scanState.trackingTimestamp = Math.max(
       scanState.trackingTimestamp,

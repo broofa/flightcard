@@ -1,14 +1,14 @@
 import React from 'react';
 import { Card, Nav } from 'react-bootstrap';
+import Icon from '/components/common/Icon';
+import { Loading } from '/components/common/util';
+import { auth } from '/rt';
 import ProfileName from '../Profile/NamePref';
 import { FCLink } from '../common/FCLink';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
-import Icon from '/components/common/Icon';
-import { Loading } from '/components/common/util';
-import { auth } from '/rt';
 
 import SIDE_FLIER from '/art/home_fly.webp';
 import SIDE_OFFICER from '/art/home_officiate.webp';

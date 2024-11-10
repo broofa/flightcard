@@ -1,8 +1,8 @@
-import React, { HTMLAttributes } from 'react';
-import { CertLevel, CertOrg, iAttendee } from '../../types';
+import React, { type HTMLAttributes } from 'react';
+import { getCert } from '/util/cert-util';
+import type { CertLevel, CertOrg, iAttendee } from '../../types';
 import { Warning } from './Warning';
 import { cn } from './util';
-import { getCert } from '/util/cert-util';
 
 import styles from './CertDot.module.scss';
 

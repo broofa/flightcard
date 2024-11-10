@@ -1,17 +1,17 @@
 // RTUI = RealTime UI for Controls that connect to the realtime DB
 import React, {
-  HTMLProps,
-  InputHTMLAttributes,
-  ReactElement,
+  type HTMLProps,
+  type InputHTMLAttributes,
+  type ReactElement,
   useCallback,
   useMemo,
   useState,
 } from 'react';
-import { Form, FormCheckProps } from 'react-bootstrap';
-import { cn, randomId, sig } from '../common/util';
+import { Form, type FormCheckProps } from 'react-bootstrap';
 import { DELETE, rtSet, useRTValue } from '/rt';
-import { RTPath } from '/rt/RTPath';
-import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
+import type { RTPath } from '/rt/RTPath';
+import { MKS, type tUnitSystem, unitConvert, unitParse } from '/util/units';
+import { cn, randomId, sig } from '../common/util';
 
 // Adapter for converting values between DB and control types
 type RTAdapter<RTType, ControlType> = {

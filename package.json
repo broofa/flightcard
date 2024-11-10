@@ -6,9 +6,7 @@
   "description": "An App for Rocketry Clubs",
   "type": "module",
   "files": [],
-  "funding": [
-    "https://github.com/sponsors/broofa"
-  ],
+  "funding": ["https://github.com/sponsors/broofa"],
   "scripts": {
     "start:webapp": "cd webapp && npm start",
     "start:worker": "cd worker && npm start"
