@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Alert } from 'react-bootstrap';
 
 export type FlashEvent = CustomEvent<ReactNode[]>;

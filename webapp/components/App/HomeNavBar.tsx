@@ -1,8 +1,7 @@
-import React from 'react';
 import { Navbar } from 'react-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
-import { auth } from '/rt';
 import { APPNAME } from './App';
+import { auth } from '/rt';
 
 import LOGO_FC from '/art/logo.svg';
 

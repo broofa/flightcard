@@ -1,13 +1,5 @@
-import React, {
-  type HTMLAttributes,
-  type MouseEventHandler,
-  type ReactElement,
-} from 'react';
+import type { HTMLAttributes, MouseEventHandler, ReactElement } from 'react';
 import { Button } from 'react-bootstrap';
-import { Loading, busy } from '/components/common/util';
-import { rtRemove } from '/rt';
-import { CARD_PATH } from '/rt/rtconstants';
-import { CardStatus, type iCard, type iPad } from '../../types';
 import { arrayGroup, arraySort } from '../../util/array-util';
 import RolePref from '../Profile/RolePref';
 import { useIsOfficer } from '../contexts/officer_hooks';
@@ -19,6 +11,10 @@ import {
   usePads,
 } from '../contexts/rt_hooks';
 import { LaunchCard } from './LaunchCard';
+import { Loading, busy } from '/components/common/util';
+import { rtRemove } from '/rt';
+import { CARD_PATH } from '/rt/rtconstants';
+import { CardStatus, type iCard, type iPad } from '/types';
 
 function PadCard({
   pad,

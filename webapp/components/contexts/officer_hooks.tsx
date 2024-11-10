@@ -1,5 +1,5 @@
-import type { iAttendee } from '../../types';
 import { useCurrentAttendee, useOfficers } from './rt_hooks';
+import type { iAttendee } from '/types';
 
 export function useIsOfficer() {
   const [currentAttendee] = useCurrentAttendee();

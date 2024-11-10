@@ -1,10 +1,9 @@
-import React from 'react';
 import { Alert, Modal, type ModalProps } from 'react-bootstrap';
 import type { TCMotor } from 'thrustcurve-db';
-import { sig } from '/components/common/util';
-import { motorDisplayName } from '/util/motor-util';
 import { Sparky } from '../common/Sparky';
 import { MKSValue } from './MKSValue';
+import { sig } from '/components/common/util';
+import { motorDisplayName } from '/util/motor-util';
 
 export function MotorDetail({
   motor,

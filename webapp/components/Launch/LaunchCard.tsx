@@ -1,11 +1,11 @@
-import React, { type HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { iCard } from '../../types';
 import '/components/Launch/LaunchCard.scss';
 import ColorChits from '/components/common/ColorChits';
 import { Warning } from '/components/common/Warning';
 import { Loading } from '/components/common/util';
 import { useAttendees } from '/components/contexts/rt_hooks';
+import type { iCard } from '/types';
 import { getCertLevel, getCertVerified } from '/util/cert-util';
 import { totalImpulseClass } from '/util/motor-util';
 

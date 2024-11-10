@@ -1,11 +1,11 @@
 import { sendSignInLinkToEmail } from 'firebase/auth';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert, Button, Form, Modal, type ModalProps } from 'react-bootstrap';
-import { busy } from '/components/common/util';
-import { auth } from '/rt';
 import { APPNAME } from '../App/App';
 import { flash } from '../Flash/flash';
 import { EMAIL_KEY } from './Login';
+import { busy } from '/components/common/util';
+import { auth } from '/rt';
 
 export function EmailModal({ from, ...props }: { from: string } & ModalProps) {
   const [email, setEmail] = useState(localStorage.getItem(EMAIL_KEY) ?? '');

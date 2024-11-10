@@ -1,4 +1,4 @@
-import React, { type HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { rtSet, useRTValue } from '/rt';
 import { USER_UNITS } from '/rt/rtconstants';

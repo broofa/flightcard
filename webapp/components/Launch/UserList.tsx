@@ -1,5 +1,6 @@
-import React, { type ChangeEvent, type HTMLAttributes, useState } from 'react';
+import { type ChangeEvent, type HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
+import { arraySort } from '../../util/array-util';
 import { isMock } from '/components/Admin/MockDB';
 import { ANONYMOUS } from '/components/App/App';
 import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
@@ -18,8 +19,7 @@ import {
   ATTENDEE_TRA_CERT_PATH,
   OFFICER_PATH,
 } from '/rt/rtconstants';
-import { CertOrg, type iAttendee, type iCert, type iPerm } from '../../types';
-import { arraySort } from '../../util/array-util';
+import { CertOrg, type iAttendee, type iCert, type iPerm } from '/types';
 
 export type UserFilterFunction =
   | (() => boolean)

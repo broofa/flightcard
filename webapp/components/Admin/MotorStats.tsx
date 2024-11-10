@@ -1,11 +1,10 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
-import { rtGet } from '/rt';
-import { CARDS_INDEX_PATH } from '/rt/rtconstants';
-import { getMotor } from '/util/motor-util';
-import type { iCards } from '../../types';
 import { arraySort } from '../../util/array-util';
 import { clear, log } from './AdminLogger';
+import { rtGet } from '/rt';
+import { CARDS_INDEX_PATH } from '/rt/rtconstants';
+import type { iCards } from '/types';
+import { getMotor } from '/util/motor-util';
 
 async function handleClick() {
   clear();

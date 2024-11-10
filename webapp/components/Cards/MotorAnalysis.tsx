@@ -1,5 +1,6 @@
-import React from 'react';
 import { Alert } from 'react-bootstrap';
+import { MEME_INTERESTING, Meme } from '../Launch/Meme';
+import { useUserUnits } from '../contexts/rt_hooks';
 import { sig } from '/components/common/util';
 import { useRTValue } from '/rt';
 import {
@@ -7,11 +8,9 @@ import {
   type CardFields,
   ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
+import type { iCard, iRocket } from '/types';
 import { getMotor } from '/util/motor-util';
 import { MKS, unitConvert } from '/util/units';
-import type { iCard, iRocket } from '../../types';
-import { MEME_INTERESTING, Meme } from '../Launch/Meme';
-import { useUserUnits } from '../contexts/rt_hooks';
 
 // Force of gravity (m/^2)
 export const GRAVITY_ACC = 9.807;

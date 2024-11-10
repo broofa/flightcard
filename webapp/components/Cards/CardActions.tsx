@@ -1,6 +1,4 @@
-import React from 'react';
 import type { ModalProps } from 'react-bootstrap';
-import type { iCard } from '../../types';
 import { useIsOfficer } from '../contexts/officer_hooks';
 import { useCurrentAttendee } from '../contexts/rt_hooks';
 import {
@@ -14,6 +12,7 @@ import {
   WithdrawButton,
   getCardPermissions,
 } from './CardEditorButtons';
+import type { iCard } from '/types';
 
 export function CardActions({
   card,

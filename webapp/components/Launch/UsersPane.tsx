@@ -1,11 +1,10 @@
-import React from 'react';
 import { ButtonGroup } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
-import { LinkButton, Loading } from '/components/common/util';
-import { getCertLevel } from '/util/cert-util';
-import type { iAttendee, iPerm } from '../../types';
 import { useLaunch } from '../contexts/rt_hooks';
 import { UserList } from './UserList';
+import { LinkButton, Loading } from '/components/common/util';
+import type { iAttendee, iPerm } from '/types';
+import { getCertLevel } from '/util/cert-util';
 
 const OFFICERS = 'officers';
 const LOW_POWER = 'low';

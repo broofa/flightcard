@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
-import { getMotor } from '/util/motor-util';
 import { arrayGroup, arraySort } from '../../../util/array-util';
 import { cardMotors, useFlownCards } from '../stat_hooks';
+import { getMotor } from '/util/motor-util';
 
 export function MotorsByManufacturer() {
   const motors = cardMotors(useFlownCards());

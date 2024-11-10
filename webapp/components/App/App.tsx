@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert } from 'react-bootstrap';
 import {
   Navigate,
@@ -18,11 +17,11 @@ import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
 import { LaunchStateProvider } from '../contexts/LaunchStateContext';
 import { useCurrentAttendee } from '../contexts/rt_hooks';
 import './App.scss';
-import { Loading } from '/components/common/util';
 import { HomeNavBar } from './HomeNavBar';
 import { LaunchNavBar } from './LaunchNavBar';
 import { Waiver } from './Waiver';
 import Welcome from './Welcome';
+import { Loading } from '/components/common/util';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';

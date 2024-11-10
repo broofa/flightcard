@@ -1,8 +1,9 @@
-import React, { type HTMLAttributes, useMemo, useState } from 'react';
+import { type HTMLAttributes, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
 import type { TCMotor } from 'thrustcurve-db';
 
+import { AttendeeInfo } from '../common/AttendeeInfo/AttendeeInfo';
 import { CardActions } from '/components/Cards/CardActions';
 import MotorAnalysis from '/components/Cards/MotorAnalysis';
 import { MotorDetail } from '/components/Cards/MotorDetail';
@@ -26,15 +27,14 @@ import {
   type CardFields,
   ROCKET_PATH,
 } from '/rt/rtconstants';
-import { MKS } from '/util/units';
 import {
   CardStatus,
   Recovery,
   type iAttendee,
   type iCard,
   type iMotor,
-} from '../../types';
-import { AttendeeInfo } from '../common/AttendeeInfo/AttendeeInfo';
+} from '/types';
+import { MKS } from '/util/units';
 
 function FormSection({
   className,

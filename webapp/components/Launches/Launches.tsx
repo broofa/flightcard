@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { Loading, cn } from '/components/common/util';
 import { isMock } from '../Admin/MockDB';
 import { useCurrentUser, useLaunches } from '../contexts/rt_hooks';
 import { CreateLaunchModal } from './CreateLaunchModal';
 import EventCard from './EventCard';
+import { Loading, cn } from '/components/common/util';
 
 export default function Launches() {
   const [launches, launchesLoading] = useLaunches();

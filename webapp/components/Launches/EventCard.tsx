@@ -1,7 +1,6 @@
-import React from 'react';
 import { Card, type CardProps } from 'react-bootstrap';
 import { LinkButton } from '/components/common/util';
-import type { iLaunch } from '../../types';
+import type { iLaunch } from '/types';
 
 function dateString(ts: string) {
   return new Date(`${ts}T00:00:00`).toLocaleDateString();

@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function UnitsFAQ() {
   return (
     <details className='bg-light rounded mb-2 px-2 flex-grow-1'>

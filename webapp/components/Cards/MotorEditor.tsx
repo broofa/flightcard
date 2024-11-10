@@ -1,17 +1,12 @@
-import React, {
-  type ChangeEvent,
-  type HTMLAttributes,
-  useRef,
-  useState,
-} from 'react';
+import { type ChangeEvent, type HTMLAttributes, useRef, useState } from 'react';
 import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import type { TCMotor } from 'thrustcurve-db';
-import type { iMotor } from '../../types';
 import { busy, randomId, sig } from '../common/util';
 import { useUserUnits } from '../contexts/rt_hooks';
 import './MotorEditor.scss';
 import { DELETE, rtRemove, rtSet } from '/rt';
 import { CARD_MOTOR_PATH, type CardFields } from '/rt/rtconstants';
+import type { iMotor } from '/types';
 import {
   getMotorByDisplayName,
   motorDisplayName,

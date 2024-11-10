@@ -1,8 +1,7 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
+import { clear, log } from './AdminLogger';
 import { auth, rtGet, rtUpdate } from '/rt';
 import { RTPath } from '/rt/RTPath';
-import { clear, log } from './AdminLogger';
 
 async function handleClick() {
   const user = auth.currentUser;

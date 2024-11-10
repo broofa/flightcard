@@ -1,4 +1,4 @@
-import React, { createContext, type PropsWithChildren } from 'react';
+import { type PropsWithChildren, createContext } from 'react';
 import { type RTState, useRTValue } from '/rt';
 import {
   ATTENDEES_PATH,
@@ -7,13 +7,7 @@ import {
   OFFICERS_PATH,
   PADS_PATH,
 } from '/rt/rtconstants';
-import type {
-  iAttendees,
-  iCards,
-  iLaunch,
-  iOfficers,
-  iPads,
-} from '../../types';
+import type { iAttendees, iCards, iLaunch, iOfficers, iPads } from '/types';
 
 export const launchStateContext = createContext<{
   launch: RTState<iLaunch>;

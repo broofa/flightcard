@@ -1,4 +1,4 @@
-import React, { type HTMLAttributes, useEffect, useRef } from 'react';
+import { type HTMLAttributes, useEffect, useRef } from 'react';
 import { Button, type ButtonProps } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Link, type LinkProps } from 'react-router-dom';

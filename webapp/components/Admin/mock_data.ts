@@ -2,8 +2,8 @@ import MOTORS from 'thrustcurve-db';
 import { GRAVITY_ACC } from '/components/Cards/MotorAnalysis';
 import { COLORS } from '/components/common/ColorChits';
 import { randomId } from '/components/common/util';
+import type { iMotor, iRocket } from '/types';
 import { motorDisplayName } from '/util/motor-util';
-import type { iMotor, iRocket } from '../../types';
 
 export const NAMES = [
   'Shirley Baker',

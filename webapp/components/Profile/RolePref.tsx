@@ -1,8 +1,8 @@
-import React, { type HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import { ATTENDEE_ROLE_PATH } from '/rt/rtconstants';
-import type { tRole } from '../../types';
+import type { tRole } from '/types';
 
 export default function RolePref({
   launchId,

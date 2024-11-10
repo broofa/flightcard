@@ -1,6 +1,6 @@
-import React, { type InputHTMLAttributes } from 'react';
-import { ATTENDEE_PATH, type AttendeeFields } from '/rt/rtconstants';
+import type { InputHTMLAttributes } from 'react';
 import { rtuiFromPath } from '../rtui/RTUI';
+import { ATTENDEE_PATH, type AttendeeFields } from '/rt/rtconstants';
 
 export default function ProfileName({
   attendeeFields,

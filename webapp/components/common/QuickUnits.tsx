@@ -1,4 +1,3 @@
-import React from 'react';
 import UnitsPref from '/components/Profile/UnitsPref';
 import { useCurrentAttendee } from '/components/contexts/rt_hooks';
 

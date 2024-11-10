@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Alert } from 'react-bootstrap';
 import { Route, Routes, type RoutesProps, useLocation } from 'react-router-dom';
 import CardSummary from '/components/CardSummary/CardSummary';
@@ -18,8 +18,8 @@ import { useRoleAPI } from '/components/contexts/officer_hooks';
 import { useCurrentAttendee, useLaunch } from '/components/contexts/rt_hooks';
 import { rtSet, useRTValue } from '/rt';
 import { LAUNCH_RIDEALONG_PATH } from '/rt/rtconstants';
+import type { iCard } from '/types';
 import { arraySort } from '/util/array-util';
-import type { iCard } from '../../types';
 
 export function CardList({ cards }: { cards?: iCard[] }) {
   if (!cards) return <Loading wat='Cards' />;

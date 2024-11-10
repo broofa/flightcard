@@ -1,5 +1,5 @@
 import MOTORS, { type TCMotor } from 'thrustcurve-db';
-import type { iCard, iMotor } from '../types';
+import type { iCard, iMotor } from '/types';
 
 // Init motor impulse class information structure
 let _impulse: number;

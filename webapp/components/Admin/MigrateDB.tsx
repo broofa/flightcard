@@ -1,10 +1,9 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
+import { clear, log } from './AdminLogger';
 import { randomId } from '/components/common/util';
 import { DELETE, rtGet, rtSet, rtTransaction } from '/rt';
 import { CARDS_INDEX_PATH, CARD_MOTORS_PATH, CARD_PATH } from '/rt/rtconstants';
-import type { iCards } from '../../types';
-import { clear, log } from './AdminLogger';
+import type { iCards } from '/types';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function complete_migrateMotors() {

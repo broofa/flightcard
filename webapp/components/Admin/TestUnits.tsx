@@ -1,7 +1,6 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
-import { MKS, unitParse } from '/util/units';
 import { clear, log } from './AdminLogger';
+import { MKS, unitParse } from '/util/units';
 
 async function handleClick() {
   clear();

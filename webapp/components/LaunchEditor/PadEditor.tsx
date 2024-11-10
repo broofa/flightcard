@@ -1,11 +1,11 @@
-import React, { type MouseEventHandler, useRef } from 'react';
+import { type MouseEventHandler, useRef } from 'react';
 import { Button, Modal, type ModalProps } from 'react-bootstrap';
+import { useLaunch } from '../contexts/rt_hooks';
 import FloatingInput from '/components/common/FloatingInput';
 import { Loading, busy, randomId } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate } from '/rt';
 import { PAD_PATH } from '/rt/rtconstants';
-import type { iPad } from '../../types';
-import { useLaunch } from '../contexts/rt_hooks';
+import type { iPad } from '/types';
 
 export function PadEditor({
   pad,

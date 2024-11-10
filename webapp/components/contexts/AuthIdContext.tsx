@@ -3,7 +3,7 @@ import {
   type UserCredential,
   getAdditionalUserInfo,
 } from 'firebase/auth';
-import React, {
+import {
   type PropsWithChildren,
   createContext,
   useContext,
@@ -11,11 +11,11 @@ import React, {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { type RTState, auth, rtGet, rtUpdate } from '/rt';
-import { USER_PATH } from '/rt/rtconstants';
-import type { iUser } from '../../types';
 import { flash } from '../Flash/flash';
 import { checkForEmailLinkLogin } from '../Login/checkForEmailLinkLogin';
+import { type RTState, auth, rtGet, rtUpdate } from '/rt';
+import { USER_PATH } from '/rt/rtconstants';
+import type { iUser } from '/types';
 
 const authUserContext = createContext<RTState<User>>([
   undefined,

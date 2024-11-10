@@ -1,6 +1,6 @@
-import React, { type HTMLAttributes, useEffect, useRef } from 'react';
+import { type HTMLAttributes, useEffect, useRef } from 'react';
 import { cn } from '../common/util';
-import styles from './Flash.module.scss';
+import * as styles from './Flash.module.scss';
 
 export function FlashItem({
   className,

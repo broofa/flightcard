@@ -1,4 +1,4 @@
-import React, { type ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import {
   Button,
   type ButtonProps,
@@ -6,13 +6,13 @@ import {
   type FormSelectProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { DELETE, rtRemove, rtUpdate } from '/rt';
-import { CARD_PATH } from '/rt/rtconstants';
-import { CardStatus, type iAttendee, type iCard } from '../../types';
 import { arrayGroup, arraySort } from '../../util/array-util';
 import { flash } from '../Flash/flash';
 import { Loading, busy } from '../common/util';
 import { useCurrentAttendee, usePads } from '../contexts/rt_hooks';
+import { DELETE, rtRemove, rtUpdate } from '/rt';
+import { CARD_PATH } from '/rt/rtconstants';
+import { CardStatus, type iAttendee, type iCard } from '/types';
 
 const { DRAFT, REVIEW, FLY, DONE } = CardStatus;
 

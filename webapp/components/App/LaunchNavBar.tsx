@@ -1,9 +1,8 @@
-import React from 'react';
 import { Alert, Navbar } from 'react-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
+import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import Icon from '/components/common/Icon';
 import { Loading } from '/components/common/util';
-import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 
 function NavBarLink({
   launchId,

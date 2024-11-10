@@ -1,4 +1,4 @@
-import React, {
+import {
   type HTMLAttributes,
   type ReactNode,
   useEffect,

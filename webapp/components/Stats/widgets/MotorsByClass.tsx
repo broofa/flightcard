@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from 'react-bootstrap';
 import {
   Bar,
@@ -7,9 +6,9 @@ import {
   VictoryChart,
   VictoryLabel,
 } from 'victory';
+import { cardMotors, useFlownCards } from '../stat_hooks';
 import { arrayGroup } from '/util/array-util';
 import { IMPULSE_CLASSES, motorClassForImpulse } from '/util/motor-util';
-import { cardMotors, useFlownCards } from '../stat_hooks';
 
 export function MotorsByClass() {
   const motors = cardMotors(useFlownCards());

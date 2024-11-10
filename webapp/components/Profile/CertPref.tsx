@@ -1,4 +1,4 @@
-import React, {
+import {
   type ChangeEvent,
   type HTMLAttributes,
   type InputHTMLAttributes,
@@ -7,17 +7,17 @@ import React, {
   useState,
 } from 'react';
 import { Alert, FloatingLabel, Form } from 'react-bootstrap';
+import { errorTrap } from '../common/errorTrap';
+import { type HTTPResponseError, fetchHelper } from '../common/useFetch';
+import { Loading, cn } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import {
   ATTENDEE_NAR_CERT_PATH,
   ATTENDEE_TRA_CERT_PATH,
   type AttendeeFields,
 } from '/rt/rtconstants';
+import { CertOrg, type iCert } from '/types';
 import useDebounce from '/util/useDebounce';
-import { CertOrg, type iCert } from '../../types';
-import { errorTrap } from '../common/errorTrap';
-import { type HTTPResponseError, fetchHelper } from '../common/useFetch';
-import { Loading, cn } from '../common/util';
 
 function Emoji({
   code,

@@ -1,8 +1,9 @@
-import React, {
-  cloneElement,
+import {
   type ForwardedRef,
   type InputHTMLAttributes,
   type ReactElement,
+  cloneElement,
+  forwardRef,
 } from 'react';
 import { cn } from './util';
 
@@ -38,4 +39,4 @@ function FloatingInput(
   );
 }
 
-export default React.forwardRef(FloatingInput);
+export default forwardRef(FloatingInput);

@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { type RTState, useRTValue } from '/rt';
-import { LAUNCHES_PATH, USER_PATH } from '/rt/rtconstants';
-import { MKS, USCS, type tUnitSystem } from '/util/units';
-import type { iAttendee, iCard, iLaunches, iUser } from '../../types';
 import { useAuthUser } from './AuthIdContext';
 import { launchStateContext } from './LaunchStateContext';
+import { type RTState, useRTValue } from '/rt';
+import { LAUNCHES_PATH, USER_PATH } from '/rt/rtconstants';
+import type { iAttendee, iCard, iLaunches, iUser } from '/types';
+import { MKS, USCS, type tUnitSystem } from '/util/units';
 
 export function useCurrentUser() {
   const [authUser, authLoading, authError] = useAuthUser();

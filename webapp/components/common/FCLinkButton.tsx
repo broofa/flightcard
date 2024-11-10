@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, type ButtonProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 

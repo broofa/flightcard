@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
 import { useFlownCards } from '/components/Stats/stat_hooks';
 import { Loading } from '/components/common/util';

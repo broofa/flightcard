@@ -1,5 +1,5 @@
-import { CardStatus, type iCard, type iMotor } from '../../types';
 import { useCards } from '../contexts/rt_hooks';
+import { CardStatus, type iCard, type iMotor } from '/types';
 
 export function useFlownCards() {
   const [cards] = useCards();

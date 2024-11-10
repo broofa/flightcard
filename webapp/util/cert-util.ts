@@ -1,4 +1,4 @@
-import type { iAttendee } from '../types';
+import type { iAttendee } from "/types";
 
 export function certString(attendee: iAttendee): string {
   const cert = getCert(attendee);

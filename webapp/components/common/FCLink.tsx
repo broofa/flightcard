@@ -1,4 +1,3 @@
-import React from 'react';
 import { Nav, type NavLinkProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 

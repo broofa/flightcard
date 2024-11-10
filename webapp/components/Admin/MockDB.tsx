@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from 'react-bootstrap';
+import { clear, log } from './AdminLogger';
+import { NAMES, createRocket, rnd, rndItem } from './mock_data';
 import { DELETE, auth, rtGet, rtRemove, rtTransaction } from '/rt';
 import { RTPath } from '/rt/RTPath';
 import {
@@ -23,9 +25,7 @@ import {
   type iPads,
   type iRocket,
   type iUsers,
-} from '../../types';
-import { clear, log } from './AdminLogger';
-import { NAMES, createRocket, rnd, rndItem } from './mock_data';
+} from '/types';
 
 const MOCK_ID_PREFIX = 'FC_';
 
