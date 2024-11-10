@@ -22,10 +22,10 @@ export function MotorsByClass() {
 
   if (impulses.length > 0) {
     const range = { min: impulses[0], max: impulses[0] };
-    impulses.forEach((impulse) => {
+    for (const impulse of impulses) {
       range.min = Math.min(range.min, impulse);
       range.max = Math.max(range.max, impulse);
-    });
+    }
 
     // Get names of all impulse classes that are in the range of the motors flown
     const impulsesInRange = IMPULSE_CLASSES.filter(({ min, max }) => {

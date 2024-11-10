@@ -77,7 +77,7 @@ export default function ColorChits({
             style={{ backgroundColor: color }}
             key={`chit-${i}`}
             {...props}
-          ></div>
+          />
         ) : null
       )}
     </>

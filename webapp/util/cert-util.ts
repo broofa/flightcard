@@ -26,5 +26,5 @@ export function getCertLevel(attendee?: iAttendee, isVerified = false) {
 }
 
 export function getCertVerified(attendee?: iAttendee) {
-  return getCert(attendee, true) ? true : false;
+  return !!getCert(attendee, true);
 }

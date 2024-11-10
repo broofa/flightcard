@@ -95,7 +95,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       >(rtpath.append(field, {}), '', STRING_ADAPTER);
 
       return (
-        <div className={cn(className, `form-floating`)}>
+        <div className={cn(className, 'form-floating')}>
           <input
             id={id}
             placeholder={id}
@@ -245,7 +245,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       label: ReactElement | string;
       unitType: keyof tUnitSystem;
     }) {
-      const fromType = unitType == 'lengthSmall' ? 'length' : unitType;
+      const fromType = unitType === 'lengthSmall' ? 'length' : unitType;
 
       // Need to memoize the adapter because useRealtimeField's useEffect hook is
       // constrained by it
@@ -259,7 +259,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
           },
           toRT(v: string) {
             const val = unitParse(v, userUnits[unitType], MKS[fromType]);
-            if (val === 0 || isNaN(val)) return DELETE;
+            if (val === 0 || Number.isNaN(val)) return DELETE;
             return unitParse(v, userUnits[unitType], MKS[fromType]);
           },
         };

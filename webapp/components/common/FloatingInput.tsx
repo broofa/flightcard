@@ -19,12 +19,12 @@ function FloatingInput(
 
   let id = label.props.children;
   if (Array.isArray(id)) {
-    id = id.find((v) => typeof v == 'string');
+    id = id.find((v) => typeof v === 'string');
   }
   id = id.replace(/\s+/g, '_').toLowerCase();
 
   return (
-    <div style={style} className={cn(className, `form-floating`)}>
+    <div style={style} className={cn(className, 'form-floating')}>
       <input
         ref={ref}
         id={id}

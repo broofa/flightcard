@@ -9,7 +9,6 @@ export function FlashItem({
 }: HTMLAttributes<HTMLDivElement>) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: false positive?
   useEffect(() => {
     const el = ref.current;
 

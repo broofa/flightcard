@@ -32,7 +32,7 @@ export function PadEditor({
     const name = nameRef.current?.value ?? '';
     const group = groupRef.current?.value || DELETE;
 
-    let action;
+    let action: Promise<unknown>;
     if (pad.id) {
       action = rtUpdate<iPad>(PAD_PATH.with({ launchId, padId: pad.id }), {
         name: name.trim(),

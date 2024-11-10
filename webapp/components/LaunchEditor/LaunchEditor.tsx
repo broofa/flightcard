@@ -60,7 +60,7 @@ export default function LaunchEditor() {
         let value: string | undefined = target.value;
 
         if (value == null || value === '') value = DELETE;
-        if (value == launch?.[field]) return;
+        if (value === launch?.[field]) return;
 
         rtUpdate(LAUNCH_PATH.with({ launchId: launch.id }), { [field]: value });
       },
@@ -77,7 +77,7 @@ export default function LaunchEditor() {
     const response = prompt(
       simplur`This will permanently DELETE this launch and all activity associated with it, including ${nAttendees} attendee[|s] and ${nCards} flightcard[|s].\n\nYou will not be able to undo this!\n\nTo proceed type the name of the launch here ("${launch.name}") and click OK.`
     );
-    if (response != launch.name) return;
+    if (response !== launch.name) return;
 
     const rtFields = { launchId: launch.id };
 

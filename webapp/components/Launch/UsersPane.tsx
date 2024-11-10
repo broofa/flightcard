@@ -17,7 +17,7 @@ function officerUsers(user?: iAttendee, isOfficer?: iPerm) {
 }
 
 function lowPowerUsers(user: iAttendee) {
-  return getCertLevel(user) == 0;
+  return getCertLevel(user) === 0;
 }
 
 function highPowerUsers(user: iAttendee) {
@@ -30,7 +30,8 @@ export function UsersPane() {
 
   if (!launch) return <Loading wat='Launch' />;
 
-  let title, userFilter;
+  let title: string,
+    userFilter: undefined | ((attendee: iAttendee, perm: iPerm) => boolean);
   switch (filter) {
     case OFFICERS:
       title = 'Officers';

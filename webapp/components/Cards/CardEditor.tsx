@@ -42,7 +42,7 @@ function FormSection({
   ...props
 }: { className?: string } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn(className, `text-muted h2 mt-3`)} {...props}>
+    <div className={cn(className, 'text-muted h2 mt-3')} {...props}>
       {children}
     </div>
   );
@@ -81,7 +81,7 @@ export default function CardEditor() {
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
 
-  const isOwner = attendee?.id == card?.userId;
+  const isOwner = attendee?.id === card?.userId;
   const isDraft = card?.status === CardStatus.DRAFT;
   const isReadOnly = !isDraft && !isOfficer;
 

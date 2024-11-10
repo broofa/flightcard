@@ -39,7 +39,7 @@ import { type Scan, scanIsComplete, scanUpdate } from './scan';
 
 const console = new ConsoleWithPrefix('NAR');
 
-const API_BASE = `https://api.neoncrm.com/v2`;
+const API_BASE = 'https://api.neoncrm.com/v2';
 
 // NeonCRM limits the page size to 200
 const MAX_PAGE_SIZE = 200;
@@ -185,7 +185,7 @@ export default class NARAPI {
 
     console.log(`Fetching page ${currentPage}...`);
 
-    const page = await this.#fetch<NARPage<NARItem>>(`/accounts/search`, {
+    const page = await this.#fetch<NARPage<NARItem>>('/accounts/search', {
       method: 'POST',
       body: JSON.stringify({ searchFields, outputFields, pagination }),
     });

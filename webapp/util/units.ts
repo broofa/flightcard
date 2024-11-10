@@ -116,7 +116,7 @@ export function unitParse(
   defaultUnit: string,
   toUnit = defaultUnit
 ): number {
-  val = typeof val == 'number' ? String(val) : val.trim();
+  val = typeof val === 'number' ? String(val) : val.trim();
 
   let v: number, unit: string;
 
@@ -185,7 +185,7 @@ export function unitParse(
     unit = defaultUnit;
   }
 
-  if (isNaN(v)) {
+  if (Number.isNaN(v)) {
     return Number.NaN;
   }
 

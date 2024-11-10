@@ -40,6 +40,7 @@ export class RTPath<Fields = FieldsBase> {
     const memoKey = `${template} (${fieldKey})`;
     const instance = memos.get(memoKey);
     if (instance) {
+      // biome-ignore lint/correctness/noConstructorReturn:
       return instance as unknown as RTPath<Fields>;
     }
 

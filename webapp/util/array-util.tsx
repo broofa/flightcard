@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Comparable = any;
+type Comparable = unknown;
 
 export function arraySort<T>(
   arr: T[],
@@ -18,6 +18,11 @@ export function arraySort<T>(
   function comparator(a: T, b: T) {
     const av = extractor(a);
     const bv = extractor(b);
+
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
+
     return av < bv ? -1 : av > bv ? 1 : 0;
   }
 
@@ -32,7 +37,10 @@ function _arrayGroupPush<ItemType, KeyType>(
   item: ItemType
 ) {
   let group = groups.get(key);
-  if (group == null) groups.set(key, (group = []));
+  if (group == null) {
+    group = [];
+    groups.set(key, group);
+  }
   group.push(item);
 }
 

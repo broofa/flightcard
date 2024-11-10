@@ -77,7 +77,7 @@ export default function CertPref({
 
   const memberNum = Number.parseInt(debouncedMemberId ?? '');
   const memberInfoUrl =
-    isChanged && !isDebouncing && !isNaN(memberNum)
+    isChanged && !isDebouncing && !Number.isNaN(memberNum)
       ? `${MEMBER_API_ENDPOINT}?org=${org}&id=${memberNum}`
       : undefined;
 
@@ -114,9 +114,9 @@ export default function CertPref({
 
   if (dbCertLoading) return <Loading wat='certification' />;
   return (
-    <div className={cn(className, `d-flex flex-column flex-sm-row`)} {...props}>
+    <div className={cn(className, 'd-flex flex-column flex-sm-row')} {...props}>
       <FloatingLabel
-        label={`${org == CertOrg.TRA ? 'Tripoli' : 'NAR'} member #`}
+        label={`${org === CertOrg.TRA ? 'Tripoli' : 'NAR'} member #`}
         className='flex-shrink-0 me-2 mb-2'
       >
         <Form.Control

@@ -44,7 +44,7 @@ export default function ProfilePage() {
       <h2>Actions</h2>
       <div className='d-flex flex-wrap gap-3 mb-3'>
         <LinkButton to={'/launches'}>Other Launches&hellip;</LinkButton>
-        {attendee?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
+        {attendee?.id === 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
           <LinkButton to={'/admin'}>Admin</LinkButton>
         ) : null}
         <div className='flex-grow-1' />

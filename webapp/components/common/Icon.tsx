@@ -16,7 +16,7 @@ export default function Icon({
   size?: string;
   color?: string;
 } & HTMLAttributes<SVGElement>) {
-  let path;
+  let path: JSX.Element | undefined;
   switch (name) {
     case 'card-fill':
       path = (

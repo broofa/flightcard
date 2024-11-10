@@ -86,12 +86,12 @@ async function traScrape() {
  * @param {string} membersCSV
  */
 async function traPost(membersCSV) {
-  var body = JSON.stringify(
+  const body = JSON.stringify(
     { key: FC_API_KEY, membersCSV: membersCSV },
     null,
     2
   );
-  var headers = {};
+  const headers = {};
   const res = await fetch(FC_TRA_ENDPOINT, { method: 'POST', headers, body });
   if (!res.ok) {
     console.error(

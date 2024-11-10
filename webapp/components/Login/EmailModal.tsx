@@ -39,7 +39,7 @@ export function EmailModal({ from, ...props }: { from: string } & ModalProps) {
     setEmailSent(true);
   }
 
-  let title, body, footer;
+  let title: string, body: JSX.Element, footer: JSX.Element;
 
   if (emailSent) {
     // UI after email is sent

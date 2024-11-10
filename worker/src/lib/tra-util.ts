@@ -68,14 +68,14 @@ async function traProcess(membersCSV: string) {
     const expires = Date.parse(fields[3]);
 
     // Skip entries with invalid member ids
-    if (!memberId || isNaN(memberId)) continue;
+    if (!memberId || Number.isNaN(memberId)) continue;
 
     certs.push({
       memberId,
       firstName,
       lastName,
-      level: isNaN(level) ? 0 : level,
-      expires: isNaN(expires) ? 0 : expires,
+      level: Number.isNaN(level) ? 0 : level,
+      expires: Number.isNaN(expires) ? 0 : expires,
       organization: CertOrg.TRA,
     });
   }

@@ -49,7 +49,6 @@ export default {
         const result = await route(request, env);
 
         if (!result) {
-          continue;
         } else if (result instanceof Response) {
           return result;
         } else {

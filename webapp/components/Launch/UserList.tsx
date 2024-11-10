@@ -106,7 +106,7 @@ function UserEditor({
                   inline
                   id={`verified-${cert.organization}`}
                   className='flex-grow-1'
-                  label={`Verified`}
+                  label={'Verified'}
                   onChange={() =>
                     onVerify(cert.organization ?? CertOrg.TRA, !certVerified)
                   }
@@ -179,7 +179,11 @@ export function UserList({
 
           const { id } = attendee;
           const attendeeInfo = (
-            <AttendeeInfo attendee={attendee} className='flex-grow-1' />
+            <AttendeeInfo
+              key={attendee.id}
+              attendee={attendee}
+              className='flex-grow-1'
+            />
           );
 
           return isOfficer ? (
@@ -187,7 +191,7 @@ export function UserList({
               key={id}
               variant='light'
               className={cn(
-                `d-flex flex-grow-1 p-1 align-items-center text-start`,
+                'd-flex flex-grow-1 p-1 align-items-center text-start',
                 {
                   'mock-badge': isMock(attendee),
                 }

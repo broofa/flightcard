@@ -44,6 +44,8 @@ async function main() {
           scanReset(scan);
         }
       }
+
+      break;
     }
 
     default:
