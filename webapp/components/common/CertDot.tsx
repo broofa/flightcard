@@ -4,7 +4,7 @@ import { cn } from './util';
 import type { CertLevel, CertOrg, iAttendee } from '/types';
 import { getCert } from '/util/cert-util';
 
-import styles from './CertDot.module.scss';
+import * as styles from './CertDot.module.scss';
 
 export function CertDot({
   attendee,

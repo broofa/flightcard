@@ -4,6 +4,7 @@
   "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["dom", "es2022"],
     "outDir": "dist_tsc",
