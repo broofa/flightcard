@@ -1,12 +1,13 @@
-import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
-import { timestampToNeon } from './nar-util';
 import type {
   NARItem,
   NAROutputFields,
   NARPage,
   NARSearchFields,
-} from './nar_types';
-import { type Scan, scanIsComplete, scanUpdate } from './scan';
+  Scan,
+} from '@flightcard/common-types';
+import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
+import { timestampToNeon } from './nar-util';
+import { scanIsComplete, scanUpdate } from './scan';
 
 /**
  * API for I/O with NAR database on Neon CRM.

@@ -1,3 +1,4 @@
 {
-  "name": "@flightcard/common-types"
+  "name": "@flightcard/common-types",
+  "types": "index.d.ts"
 }

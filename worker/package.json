@@ -15,5 +15,8 @@
     "db:init": "wrangler d1 execute certs2 --local --file=schema.sql",
     "db:deploy": "wrangler d1 execute certs2 --file=schema.sql",
     "nar:update": "npx tsx src/nar_update.ts"
+  },
+  "dependencies": {
+    "@flightcard/common-types": "*"
   }
 }

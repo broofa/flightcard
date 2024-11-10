@@ -1,3 +1,4 @@
+import type { TRACache } from '@flightcard/common-types';
 import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from './CFAPI';
 import ConsoleWithPrefix from './ConsoleWithPrefix';
@@ -7,12 +8,6 @@ import { certsBulkUpdate } from './db-util';
 const console = new ConsoleWithPrefix('TRA');
 
 export const TRA_CACHE_KEY = 'TRA.fetchInfo';
-
-export type TRACache = {
-  scannedAt: string;
-  certsFetched: number;
-  publishedAt?: string;
-};
 
 // Tripoli uses some special codes for their cert levels, which we need to map
 // to the expected 0-3 values.

@@ -1,10 +1,10 @@
+import type { NARItem, NARPage, Scan } from '@flightcard/common-types';
 import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from '../lib/CFAPI';
 import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
 import { certsBulkUpdate } from '../lib/db-util';
 import NARAPI from './NARAPI';
-import type { NARItem, NARPage } from './nar_types';
-import { type Scan, scanInit, scanIsComplete, scanReset } from './scan';
+import { scanInit, scanIsComplete, scanReset } from './scan';
 
 // Create a logger for this module
 const console = new ConsoleWithPrefix('NAR');

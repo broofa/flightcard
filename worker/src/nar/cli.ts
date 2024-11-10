@@ -1,7 +1,7 @@
 #!/usr/bin/env npx tsx
 
+import type { NeonPagination } from '@flightcard/common-types';
 import NARAPI from './NARAPI';
-import type { NeonPagination } from './nar_types';
 import { scanInit, scanIsComplete, scanReset } from './scan';
 
 const [command] = process.argv.slice(2);
