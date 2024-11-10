@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '../common/util';
-import * as styles from './Meme.module.scss';
+import styles from './Meme.module.scss';
 
 export * as MEME_INTERESTING from '/media/memes/interesting_owl.webp';
 export * as MEME_LAUGHING from '/media/memes/laughing_chimp.webp';

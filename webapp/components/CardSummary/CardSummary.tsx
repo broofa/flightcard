@@ -11,13 +11,13 @@ import simplur from 'simplur';
 import type { iMotor, iRocket } from '/types';
 
 import { Alert } from 'react-bootstrap';
-import { arrayGroup } from '../../util/array-util';
-import { QuickUnits } from '../common/QuickUnits';
-import * as styles from './CardSummary.module.scss';
 import { AttendeeInfo } from '/components/common/AttendeeInfo/AttendeeInfo';
 import ColorChits from '/components/common/ColorChits';
 import { FCLinkButton } from '/components/common/FCLinkButton';
 import Icon from '/components/common/Icon';
+import { arrayGroup } from '../../util/array-util';
+import { QuickUnits } from '../common/QuickUnits';
+import styles from './CardSummary.module.scss';
 
 function RocketDimensions({ rocket }: { rocket?: iRocket }) {
   const [userUnits = MKS] = useUserUnits();

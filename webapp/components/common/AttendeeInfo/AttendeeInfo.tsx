@@ -1,11 +1,11 @@
 import type { HTMLAttributes } from 'react';
-import * as styles from './AttendeeInfo.module.scss';
 import DEFAULT_PROFILE_IMAGE from '/art/astronaut.svg';
 import { ANONYMOUS } from '/components/App/App';
 import { CertDot } from '/components/common/CertDot';
 import { cn } from '/components/common/util';
 import { useRoleAPI } from '/components/contexts/officer_hooks';
 import type { iAttendee } from '/types';
+import styles from './AttendeeInfo.module.scss';
 
 export function AttendeeInfo({
   attendee,

@@ -1,10 +1,10 @@
 import type { HTMLAttributes } from 'react';
-import { Warning } from './Warning';
-import { cn } from './util';
 import type { CertLevel, CertOrg, iAttendee } from '/types';
 import { getCert } from '/util/cert-util';
+import { Warning } from './Warning';
+import { cn } from './util';
 
-import * as styles from './CertDot.module.scss';
+import styles from './CertDot.module.scss';
 
 export function CertDot({
   attendee,
