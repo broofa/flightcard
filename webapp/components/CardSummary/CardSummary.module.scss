@@ -3,10 +3,6 @@
   font-size: 1rem;
 }
 
-.special {
-  color: inherit
-}
-
 .special::before {
   content: 'Note: ';
   color: darken(blue, 15%);
