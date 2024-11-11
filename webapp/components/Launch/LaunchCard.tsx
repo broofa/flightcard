@@ -7,7 +7,7 @@ import { Loading } from '/components/common/util';
 import { useAttendees } from '/components/contexts/rt_hooks';
 import type { iCard } from '/types';
 import { getCertLevel, getCertVerified } from '/util/cert-util';
-import { totalImpulseClass } from '/util/motor-util';
+import { totalImpulseClass } from '/util/MotorDB';
 
 export function LaunchCard({
   card,

@@ -289,15 +289,15 @@ function mockPads(root: DBRoot, launchId?: string) {
   }
 }
 
-function _mockCard(
+async function _mockCard(
   props: {
     launchId: string;
     userId: string;
     status: CardStatus;
   } & Partial<iCard>
-): iCard {
+): Promise<iCard> {
   const id = genId('card');
-  const rocket = createRocket();
+  const rocket = await createRocket();
 
   const { _motor: motor } = rocket as iRocket & { _motor?: iMotor };
   delete rocket._motor;
@@ -364,7 +364,7 @@ async function mockCards(root: DBRoot, launchId?: string) {
           padId = rndItem(padIds);
         }
 
-        const card = _mockCard({
+        const card = await _mockCard({
           launchId,
           userId,
           rsoId,

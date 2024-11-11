@@ -2,16 +2,18 @@ import { Fragment } from 'react';
 import { Card } from 'react-bootstrap';
 import { arrayGroup, arraySort } from '../../../util/array-util';
 import { cardMotors, useFlownCards } from '../stat_hooks';
-import { getMotor } from '/util/motor-util';
+import { useMotorDB } from '/util/MotorDB-hook';
 
 export function MotorsByManufacturer() {
+  const motorDB = useMotorDB();
   const motors = cardMotors(useFlownCards());
 
   const entries = [
     ...arrayGroup(
       motors,
       (motor) =>
-        getMotor(motor.tcMotorId ?? '')?.manufacturerAbbrev ?? '(unknown)'
+        motorDB?.getMotor(motor.tcMotorId ?? '')?.manufacturerAbbrev ??
+        '(unknown)'
     ),
   ];
 

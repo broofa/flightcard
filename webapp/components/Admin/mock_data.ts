@@ -1,9 +1,12 @@
-import MOTORS from 'thrustcurve-db';
+// import MOTORS from 'thrustcurve-db';
+import type { TCMotor } from 'thrustcurve-db';
+import { loadMotorDB, motorDisplayName } from '../../util/MotorDB';
 import { GRAVITY_ACC } from '/components/Cards/MotorAnalysis';
 import { COLORS } from '/components/common/ColorChits';
 import { randomId } from '/components/common/util';
 import type { iMotor, iRocket } from '/types';
-import { motorDisplayName } from '/util/motor-util';
+
+const MOTORS: TCMotor[] = [];
 
 export const NAMES = [
   'Shirley Baker',
@@ -303,14 +306,16 @@ export function rnd(min: number, max?: number): number {
   return Math.floor(frnd(min, max));
 }
 
-export function rndItem<Type>(vals: Type[] | Set<Type>): Type {
+export function rndItem<Type>(vals: readonly Type[] | Set<Type>): Type {
   const arr = Array.isArray(vals) ? vals : Array.from(vals);
 
   return arr[rnd(arr.length)];
 }
 
-export function createRocket(): iRocket {
-  const tcMotor = rndItem(MOTORS);
+export async function createRocket() {
+  const motorDB = await loadMotorDB();
+
+  const tcMotor = rndItem(motorDB.motors);
 
   // weight should be < thrust * 5, but we generate some underpowered rockets to
   // test thrust:weight ratio UI

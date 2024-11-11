@@ -6,9 +6,9 @@ import {
   VictoryChart,
   VictoryLabel,
 } from 'victory';
+import { IMPULSE_CLASSES, motorClassForImpulse } from '../../../util/MotorDB';
 import { cardMotors, useFlownCards } from '../stat_hooks';
 import { arrayGroup } from '/util/array-util';
-import { IMPULSE_CLASSES, motorClassForImpulse } from '/util/motor-util';
 
 export function MotorsByClass() {
   const motors = cardMotors(useFlownCards());
@@ -17,9 +17,11 @@ export function MotorsByClass() {
     .map((motor) => motor.impulse ?? 0)
     .filter((impulse) => impulse > 0);
 
-  let body = <div>No motors found</div>;
+  let body: JSX.Element;
 
-  if (impulses.length > 0) {
+  if (impulses.length <= 0) {
+    body = <div>No motors found</div>;
+  } else {
     const range = { min: impulses[0], max: impulses[0] };
     for (const impulse of impulses) {
       range.min = Math.min(range.min, impulse);

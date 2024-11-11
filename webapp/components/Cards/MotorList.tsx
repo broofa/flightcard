@@ -5,9 +5,9 @@ import { Sparky } from '../common/Sparky';
 import { useRTValue } from '/rt';
 import { CARD_MOTORS_PATH, type CardFields } from '/rt/rtconstants';
 import type { iMotor } from '/types';
-import { getMotor } from '/util/motor-util';
 
 import LOGO_THRUSTCURVE from '/media/logos/logo-thrustcurve.svg';
+import { useMotorDB } from '/util/MotorDB-hook';
 
 function MotorButton({
   motor,
@@ -20,7 +20,8 @@ function MotorButton({
   setEditMotor: (motor: iMotor | undefined) => void;
   setDetailMotor: (motor: TCMotor | undefined) => void;
 }) {
-  const tcMotor = getMotor(motor.tcMotorId ?? '');
+  const motorDB = useMotorDB();
+  const tcMotor = motorDB?.getMotor(motor.tcMotorId ?? '');
   return (
     <ButtonGroup className='d-flex' key={motor.id}>
       <Button

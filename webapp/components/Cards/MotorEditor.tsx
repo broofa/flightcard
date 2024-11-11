@@ -1,17 +1,14 @@
 import { type ChangeEvent, type HTMLAttributes, useRef, useState } from 'react';
 import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
 import type { TCMotor } from 'thrustcurve-db';
+import { motorDisplayName } from '../../util/MotorDB';
 import { busy, randomId, sig } from '../common/util';
 import { useUserUnits } from '../contexts/rt_hooks';
 import './MotorEditor.scss';
 import { DELETE, rtRemove, rtSet } from '/rt';
 import { CARD_MOTOR_PATH, type CardFields } from '/rt/rtconstants';
 import type { iMotor } from '/types';
-import {
-  getMotorByDisplayName,
-  motorDisplayName,
-  motorSearch,
-} from '/util/motor-util';
+import { useMotorDB } from '/util/MotorDB-hook';
 import { MKS, unitConvert, unitParse } from '/util/units';
 
 const MAX_SUGGESTIONS = 12;
@@ -26,6 +23,7 @@ export function MotorEditor({
   onHide: () => void;
   className?: string;
 } & HTMLAttributes<HTMLDivElement>) {
+  const motorDB = useMotorDB();
   const [delayListId] = useState(randomId()); // 'Just need a unique ID of some sort here
   const [userUnits = MKS] = useUserUnits();
   const [suggestions, setSuggestions] = useState<TCMotor[]>([]);
@@ -36,13 +34,14 @@ export function MotorEditor({
   const [stage, setStage] = useState(String(motor?.stage ?? '1'));
   const [delay, setDelay] = useState(String(motor?.delay ?? ''));
 
-  const tcMotor = getMotorByDisplayName(name);
+  const tcMotor = motorDB?.getMotorByDisplayName(name);
 
   const [impulse, setImpulse] = useState('');
 
   function onNameChange(e: ChangeEvent<HTMLInputElement>) {
+    if (!motorDB) return;
     const newName = e.target.value;
-    setSuggestions(motorSearch(newName));
+    setSuggestions(motorDB.motorSearch(newName));
     setName(newName);
   }
 

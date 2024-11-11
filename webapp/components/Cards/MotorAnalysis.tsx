@@ -9,7 +9,7 @@ import {
   ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
 import type { iCard, iRocket } from '/types';
-import { getMotor } from '/util/motor-util';
+import { useMotorDB } from '/util/MotorDB-hook';
 import { MKS, unitConvert } from '/util/units';
 
 // Force of gravity (m/^2)
@@ -22,13 +22,14 @@ const THRUST_RATIO_MIN = 3;
 const THRUST_RATIO_GOOD = 5;
 
 export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
+  const motorDB = useMotorDB();
   const [userUnits = MKS] = useUserUnits();
 
   const [mass] = useRTValue<iRocket['mass']>(ROCKET_MASS_PATH.with(rtFields));
   const [motors] = useRTValue<iCard['motors']>(CARD_MOTORS_PATH.with(rtFields));
 
   // Don't show if there's no motors
-  if (!motors || !Object.entries(motors).length) {
+  if (!motorDB || !motors || !Object.entries(motors).length) {
     return null;
   }
 
@@ -60,7 +61,8 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
 
   // Compute total thrust of all stage 1 motors
   const stage1Thrust = stage1Motors.reduce((acc, motor) => {
-    let thrust = getMotor(motor.tcMotorId ?? '')?.avgThrustN ?? Number.NaN;
+    let thrust =
+      motorDB.getMotor(motor.tcMotorId ?? '')?.avgThrustN ?? Number.NaN;
 
     // Scrape thrust from motor name
     if (Number.isNaN(thrust)) {
