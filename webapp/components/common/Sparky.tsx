@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 import { Image } from 'react-bootstrap';
 
 import FIRE_IMG from '/art/fire.gif';

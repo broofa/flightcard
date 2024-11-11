@@ -1,4 +1,4 @@
-import { FirebaseApp, initializeApp, setLogLevel } from 'firebase/app';
+import { type FirebaseApp, initializeApp, setLogLevel } from 'firebase/app';
 import 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 import 'firebase/database';
@@ -12,8 +12,8 @@ import {
   getDatabase,
 } from 'firebase/database';
 import { useEffect, useState } from 'react';
-import { RTPath } from './RTPath';
 import { errorTrap } from '/components/common/errorTrap';
+import type { RTPath } from './RTPath';
 
 declare global {
   interface Window {
@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-setLogLevel(process.env.NODE_ENV == 'development' ? 'warn' : 'error');
+setLogLevel(process.env.NODE_ENV === 'development' ? 'warn' : 'error');
 
 let app = window.app;
 
@@ -48,9 +48,11 @@ export const auth = getAuth(app);
 export type RTState<T> = [T | undefined, boolean, Error | undefined];
 
 export async function rtGet<T>(path: RTPath): Promise<T> {
-  return path.isValid()
-    ? (await errorTrap(dbGet(dbRef(database, String(path))))).val()
-    : undefined;
+  if (!path.isValid()) {
+    return undefined as unknown as T;
+  }
+
+  return (await errorTrap(dbGet(dbRef(database, String(path))))).val();
 }
 
 export function rtSet<T = never>(path: RTPath, value: T) {

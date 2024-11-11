@@ -1,6 +1,5 @@
-import React from 'react';
-import { Alert, Modal, ModalProps } from 'react-bootstrap';
-import { TCMotor } from 'thrustcurve-db';
+import { Alert, Modal, type ModalProps } from 'react-bootstrap';
+import type { TCMotor } from 'thrustcurve-db';
 import { Sparky } from '../common/Sparky';
 import { MKSValue } from './MKSValue';
 import { sig } from '/components/common/util';
@@ -10,7 +9,7 @@ export function MotorDetail({
   motor,
   ...props
 }: { motor: TCMotor } & ModalProps) {
-  let graph;
+  let graph: JSX.Element | undefined;
   const { samples } = motor;
   if (samples) {
     const W = 400;

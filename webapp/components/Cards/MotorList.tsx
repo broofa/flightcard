@@ -1,11 +1,10 @@
-import React from 'react';
 import { Button, ButtonGroup, Image } from 'react-bootstrap';
-import { TCMotor } from 'thrustcurve-db';
-import { iMotor } from '../../types';
+import type { TCMotor } from 'thrustcurve-db';
 import { arrayGroup, arraySort } from '../../util/array-util';
 import { Sparky } from '../common/Sparky';
 import { useRTValue } from '/rt';
-import { CARD_MOTORS_PATH, CardFields } from '/rt/rtconstants';
+import { CARD_MOTORS_PATH, type CardFields } from '/rt/rtconstants';
+import type { iMotor } from '/types';
 import { getMotor } from '/util/motor-util';
 
 import LOGO_THRUSTCURVE from '/media/logos/logo-thrustcurve.svg';

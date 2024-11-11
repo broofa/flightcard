@@ -1,17 +1,17 @@
 // RTUI = RealTime UI for Controls that connect to the realtime DB
-import React, {
-  HTMLProps,
-  InputHTMLAttributes,
-  ReactElement,
+import {
+  type HTMLProps,
+  type InputHTMLAttributes,
+  type ReactElement,
   useCallback,
   useMemo,
   useState,
 } from 'react';
-import { Form, FormCheckProps } from 'react-bootstrap';
+import { Form, type FormCheckProps } from 'react-bootstrap';
 import { cn, randomId, sig } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
-import { RTPath } from '/rt/RTPath';
-import { MKS, tUnitSystem, unitConvert, unitParse } from '/util/units';
+import type { RTPath } from '/rt/RTPath';
+import { MKS, type tUnitSystem, unitConvert, unitParse } from '/util/units';
 
 // Adapter for converting values between DB and control types
 type RTAdapter<RTType, ControlType> = {
@@ -95,7 +95,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       >(rtpath.append(field, {}), '', STRING_ADAPTER);
 
       return (
-        <div className={cn(className, `form-floating`)}>
+        <div className={cn(className, 'form-floating')}>
           <input
             id={id}
             placeholder={id}
@@ -245,7 +245,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
       label: ReactElement | string;
       unitType: keyof tUnitSystem;
     }) {
-      const fromType = unitType == 'lengthSmall' ? 'length' : unitType;
+      const fromType = unitType === 'lengthSmall' ? 'length' : unitType;
 
       // Need to memoize the adapter because useRealtimeField's useEffect hook is
       // constrained by it
@@ -259,7 +259,7 @@ export function rtuiFromPath(rtpath: RTPath, userUnits: tUnitSystem = MKS) {
           },
           toRT(v: string) {
             const val = unitParse(v, userUnits[unitType], MKS[fromType]);
-            if (val === 0 || isNaN(val)) return DELETE;
+            if (val === 0 || Number.isNaN(val)) return DELETE;
             return unitParse(v, userUnits[unitType], MKS[fromType]);
           },
         };

@@ -1,15 +1,14 @@
-import React from 'react';
 import { Alert } from 'react-bootstrap';
-import { iCard, iRocket } from '../../types';
 import { MEME_INTERESTING, Meme } from '../Launch/Meme';
 import { useUserUnits } from '../contexts/rt_hooks';
 import { sig } from '/components/common/util';
 import { useRTValue } from '/rt';
 import {
   CARD_MOTORS_PATH,
-  CardFields,
+  type CardFields,
   ROCKET_MASS_PATH,
 } from '/rt/rtconstants';
+import type { iCard, iRocket } from '/types';
 import { getMotor } from '/util/motor-util';
 import { MKS, unitConvert } from '/util/units';
 
@@ -61,17 +60,17 @@ export default function MotorAnalysis({ rtFields }: { rtFields: CardFields }) {
 
   // Compute total thrust of all stage 1 motors
   const stage1Thrust = stage1Motors.reduce((acc, motor) => {
-    let thrust = getMotor(motor.tcMotorId ?? '')?.avgThrustN ?? NaN;
+    let thrust = getMotor(motor.tcMotorId ?? '')?.avgThrustN ?? Number.NaN;
 
     // Scrape thrust from motor name
-    if (isNaN(thrust)) {
+    if (Number.isNaN(thrust)) {
       const match = motor.name?.match(/\b[a-q]-?([\d.]+)\b/i)?.[1];
-      thrust = match ? parseInt(match) : NaN;
+      thrust = match ? Number.parseInt(match) : Number.NaN;
     }
     return acc + thrust;
   }, 0);
 
-  if (isNaN(stage1Thrust)) {
+  if (Number.isNaN(stage1Thrust)) {
     return (
       <Alert className='mt-3 p-2' variant='warning'>
         Unable to compute total thrust. Make sure the average thrust is

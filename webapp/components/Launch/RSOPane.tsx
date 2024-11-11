@@ -1,6 +1,4 @@
-import React from 'react';
 import { Alert } from 'react-bootstrap';
-import { CardStatus } from '../../types';
 import { arraySort } from '../../util/array-util';
 import RolePref from '../Profile/RolePref';
 import { useIsOfficer } from '../contexts/officer_hooks';
@@ -12,6 +10,7 @@ import {
 } from '../contexts/rt_hooks';
 import { LaunchCard } from './LaunchCard';
 import { Loading } from '/components/common/util';
+import { CardStatus } from '/types';
 
 export function RSOPane() {
   const [launch] = useLaunch();

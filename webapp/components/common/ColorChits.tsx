@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 import { cn } from './util';
 
 // X11 colors, minus really unlikely stuff
@@ -77,7 +77,7 @@ export default function ColorChits({
             style={{ backgroundColor: color }}
             key={`chit-${i}`}
             {...props}
-          ></div>
+          />
         ) : null
       )}
     </>

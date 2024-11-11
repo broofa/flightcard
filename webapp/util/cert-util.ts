@@ -1,4 +1,4 @@
-import { iAttendee } from '../types';
+import type { iAttendee } from "/types";
 
 export function certString(attendee: iAttendee): string {
   const cert = getCert(attendee);
@@ -26,5 +26,5 @@ export function getCertLevel(attendee?: iAttendee, isVerified = false) {
 }
 
 export function getCertVerified(attendee?: iAttendee) {
-  return getCert(attendee, true) ? true : false;
+  return !!getCert(attendee, true);
 }

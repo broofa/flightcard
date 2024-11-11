@@ -1,6 +1,6 @@
 import { isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
-import { EMAIL_KEY } from './Login';
 import { auth } from '/rt';
+import { EMAIL_KEY } from './Login';
 
 export async function checkForEmailLinkLogin() {
   const { href } = window.location;

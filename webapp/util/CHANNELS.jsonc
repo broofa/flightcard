@@ -5,327 +5,327 @@
     "channel": "1",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.5875,
     "channel": "2",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.6125,
     "channel": "3",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.6375,
     "channel": "4",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.6625,
     "channel": "5",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.6875,
     "channel": "6",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.7125,
     "channel": "7",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 5,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.5625,
     "channel": "8",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 467.5875,
     "channel": "9",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 467.6125,
     "channel": "10",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 467.6375,
     "channel": "11",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 467.6625,
     "channel": "12",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 467.6875,
     "channel": "13",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 467.7125,
     "channel": "14",
     "frs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 0.5,
-      "bandwidth": 0.0125,
-    },
+      "bandwidth": 0.0125
+    }
   },
   {
     "frequency": 462.55,
     "channel": "15",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.575,
     "channel": "16",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.6,
     "channel": "17",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.625,
     "channel": "18",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.65,
     "channel": "19",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.675,
     "channel": "20",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.7,
     "channel": "21",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 462.725,
     "channel": "22",
     "frs": {
       "power": 2,
-      "bandwidth": 0.0125,
+      "bandwidth": 0.0125
     },
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.55,
     "channel": "15R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.575,
     "channel": "16R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.6,
     "channel": "17R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.625,
     "channel": "18R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.65,
     "channel": "19R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.675,
     "channel": "20R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.7,
     "channel": "21R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
+      "bandwidth": 0.02
+    }
   },
   {
     "frequency": 467.725,
     "channel": "22R",
     "gmrs": {
       "power": 50,
-      "bandwidth": 0.02,
-    },
-  },
+      "bandwidth": 0.02
+    }
+  }
 ]

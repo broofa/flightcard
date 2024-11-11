@@ -1,10 +1,9 @@
-import React from 'react';
-import { CertOrg } from '../../types';
 import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
 import CertPref from './CertPref';
 import ProfileName from './NamePref';
 import UnitsPref from './UnitsPref';
 import { LinkButton, Loading } from '/components/common/util';
+import { CertOrg } from '/types';
 
 export default function ProfilePage() {
   const [launch] = useLaunch();
@@ -44,7 +43,7 @@ export default function ProfilePage() {
       <h2>Actions</h2>
       <div className='d-flex flex-wrap gap-3 mb-3'>
         <LinkButton to={'/launches'}>Other Launches&hellip;</LinkButton>
-        {attendee?.id == 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
+        {attendee?.id === 'ToMOmSnv7XVtygKOF9jjtwz0Kzs2' ? (
           <LinkButton to={'/admin'}>Admin</LinkButton>
         ) : null}
         <div className='flex-grow-1' />

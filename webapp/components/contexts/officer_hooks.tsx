@@ -1,10 +1,10 @@
-import { iAttendee } from '../../types';
 import { useCurrentAttendee, useOfficers } from './rt_hooks';
+import type { iAttendee } from '/types';
 
 export function useIsOfficer() {
   const [currentAttendee] = useCurrentAttendee();
   const [officers] = useOfficers();
-  return officers?.[currentAttendee?.id ?? ''] ? true : false;
+  return !!officers?.[currentAttendee?.id ?? ''];
 }
 
 export function useRoleAPI() {

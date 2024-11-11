@@ -1,11 +1,11 @@
-import React, { MouseEventHandler, useRef } from 'react';
-import { Button, Modal, ModalProps } from 'react-bootstrap';
-import { iPad } from '../../types';
+import { type MouseEventHandler, useRef } from 'react';
+import { Button, Modal, type ModalProps } from 'react-bootstrap';
 import { useLaunch } from '../contexts/rt_hooks';
 import FloatingInput from '/components/common/FloatingInput';
-import { busy, Loading, randomId } from '/components/common/util';
+import { Loading, busy, randomId } from '/components/common/util';
 import { DELETE, rtRemove, rtSet, rtUpdate } from '/rt';
 import { PAD_PATH } from '/rt/rtconstants';
+import type { iPad } from '/types';
 
 export function PadEditor({
   pad,
@@ -24,7 +24,7 @@ export function PadEditor({
 
   const { onHide } = props;
 
-  const handleSave: MouseEventHandler = function (e) {
+  const handleSave: MouseEventHandler = (e) => {
     const target = e.target as HTMLButtonElement;
 
     target.classList.toggle('busy', true);
@@ -32,7 +32,7 @@ export function PadEditor({
     const name = nameRef.current?.value ?? '';
     const group = groupRef.current?.value || DELETE;
 
-    let action;
+    let action: Promise<unknown>;
     if (pad.id) {
       action = rtUpdate<iPad>(PAD_PATH.with({ launchId, padId: pad.id }), {
         name: name.trim(),
@@ -55,7 +55,7 @@ export function PadEditor({
     busy(e.target as HTMLElement, action).then(onHide);
   };
 
-  const handleDelete: MouseEventHandler = function (e) {
+  const handleDelete: MouseEventHandler = (e) => {
     if (
       !confirm(
         `Permanently delete the "${
@@ -100,7 +100,9 @@ export function PadEditor({
           <datalist id='group-names'>
             {groups
               ?.filter((v) => v)
-              .map((group) => <option key={group} value={group} />)}
+              .map((group) => (
+                <option key={group} value={group} />
+              ))}
           </datalist>
         </div>
         {pad.id ? null : (

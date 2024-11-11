@@ -1,17 +1,21 @@
-import { getAdditionalUserInfo, User } from 'firebase/auth';
-import React, {
+import {
+  type User,
+  type UserCredential,
+  getAdditionalUserInfo,
+} from 'firebase/auth';
+import {
+  type PropsWithChildren,
   createContext,
-  PropsWithChildren,
   useContext,
   useEffect,
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { iUser } from '../../types';
 import { flash } from '../Flash/flash';
 import { checkForEmailLinkLogin } from '../Login/checkForEmailLinkLogin';
-import { auth, rtGet, RTState, rtUpdate } from '/rt';
+import { type RTState, auth, rtGet, rtUpdate } from '/rt';
 import { USER_PATH } from '/rt/rtconstants';
+import type { iUser } from '/types';
 
 const authUserContext = createContext<RTState<User>>([
   undefined,
@@ -64,8 +68,8 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
 
   // Check href to see if this is a login via email-link
   useEffect(() => {
-    (async function () {
-      let userCredential;
+    (async () => {
+      let userCredential: UserCredential | undefined;
       try {
         userCredential = await checkForEmailLinkLogin();
       } catch (err) {
@@ -77,7 +81,7 @@ export function AuthUserProvider({ children }: PropsWithChildren) {
               )
             );
             break;
-          case 'auth/invalid-email':
+          // case 'auth/invalid-email':
           default:
             flash(err as Error);
             break;

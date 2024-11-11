@@ -1,6 +1,6 @@
 import { sendSignInLinkToEmail } from 'firebase/auth';
-import React, { useRef, useState } from 'react';
-import { Alert, Button, Form, Modal, ModalProps } from 'react-bootstrap';
+import { useRef, useState } from 'react';
+import { Alert, Button, Form, Modal, type ModalProps } from 'react-bootstrap';
 import { APPNAME } from '../App/App';
 import { flash } from '../Flash/flash';
 import { EMAIL_KEY } from './Login';
@@ -39,7 +39,7 @@ export function EmailModal({ from, ...props }: { from: string } & ModalProps) {
     setEmailSent(true);
   }
 
-  let title, body, footer;
+  let title: string, body: JSX.Element, footer: JSX.Element;
 
   if (emailSent) {
     // UI after email is sent

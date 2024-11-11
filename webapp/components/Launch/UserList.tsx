@@ -1,6 +1,5 @@
-import React, { ChangeEvent, HTMLAttributes, useState } from 'react';
+import { type ChangeEvent, type HTMLAttributes, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { CertOrg, iAttendee, iCert, iPerm } from '../../types';
 import { arraySort } from '../../util/array-util';
 import { isMock } from '/components/Admin/MockDB';
 import { ANONYMOUS } from '/components/App/App';
@@ -20,6 +19,7 @@ import {
   ATTENDEE_TRA_CERT_PATH,
   OFFICER_PATH,
 } from '/rt/rtconstants';
+import { CertOrg, type iAttendee, type iCert, type iPerm } from '/types';
 
 export type UserFilterFunction =
   | (() => boolean)
@@ -45,7 +45,7 @@ function UserEditor({
   if (!attendee) return <Loading wat='User' />;
   if (!currentUser) return <Loading wat='Current user' />;
 
-  const onVerify = function (organization: CertOrg, verified: boolean) {
+  const onVerify = (organization: CertOrg, verified: boolean) => {
     const rtPath =
       organization === 'TRA'
         ? ATTENDEE_TRA_CERT_PATH.with(rtFields)
@@ -59,7 +59,7 @@ function UserEditor({
     return rtUpdate<iCert>(rtPath, cert);
   };
 
-  const onOfficerToggle = async function (e: ChangeEvent<HTMLInputElement>) {
+  const onOfficerToggle = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       await rtSet<boolean>(OFFICER_PATH.with(rtFields), true);
     } else {
@@ -106,7 +106,7 @@ function UserEditor({
                   inline
                   id={`verified-${cert.organization}`}
                   className='flex-grow-1'
-                  label={`Verified`}
+                  label={'Verified'}
                   onChange={() =>
                     onVerify(cert.organization ?? CertOrg.TRA, !certVerified)
                   }
@@ -179,7 +179,11 @@ export function UserList({
 
           const { id } = attendee;
           const attendeeInfo = (
-            <AttendeeInfo attendee={attendee} className='flex-grow-1' />
+            <AttendeeInfo
+              key={attendee.id}
+              attendee={attendee}
+              className='flex-grow-1'
+            />
           );
 
           return isOfficer ? (
@@ -187,7 +191,7 @@ export function UserList({
               key={id}
               variant='light'
               className={cn(
-                `d-flex flex-grow-1 p-1 align-items-center text-start`,
+                'd-flex flex-grow-1 p-1 align-items-center text-start',
                 {
                   'mock-badge': isMock(attendee),
                 }

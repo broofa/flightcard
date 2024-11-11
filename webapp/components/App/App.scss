@@ -1,5 +1,6 @@
 // Import bootstrap
-@import './node_modules/bootstrap/scss/bootstrap';
+// REF: https://getbootstrap.com/docs/5.2/getting-started/parcel/#import-bootstrap
+@use "~bootstrap/scss/bootstrap";
 
 // Simple hack to support dark mode
 // REF: https://stackoverflow.com/a/40725251/109538

@@ -71,6 +71,7 @@ async function traScrape() {
     // doesn't have access to any closure state.  The only way to pass data to
     // it is by passing it as an argument. And the only way to get data back
     // from it is by returning it.
+    /** @type {string} */
     const membersCSV = await page.evaluate(async (url) => {
       const res = await fetch(url);
       return res.text();
@@ -86,12 +87,12 @@ async function traScrape() {
  * @param {string} membersCSV
  */
 async function traPost(membersCSV) {
-  var body = JSON.stringify(
+  const body = JSON.stringify(
     { key: FC_API_KEY, membersCSV: membersCSV },
     null,
     2
   );
-  var headers = {};
+  const headers = {};
   const res = await fetch(FC_TRA_ENDPOINT, { method: 'POST', headers, body });
   if (!res.ok) {
     console.error(
@@ -115,7 +116,6 @@ async function main() {
   /** @type {string} */
   let membersCSV;
 
-  /** @type {TRACache} */
   if (!isProduction) {
     membersCSV = await readCache();
 

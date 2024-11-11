@@ -1,22 +1,22 @@
-import React, {
-  ChangeEvent,
-  HTMLAttributes,
-  InputHTMLAttributes,
+import {
+  type ChangeEvent,
+  type HTMLAttributes,
+  type InputHTMLAttributes,
   useCallback,
   useEffect,
   useState,
 } from 'react';
 import { Alert, FloatingLabel, Form } from 'react-bootstrap';
-import { CertOrg, iCert } from '../../types';
 import { errorTrap } from '../common/errorTrap';
-import { fetchHelper, HTTPResponseError } from '../common/useFetch';
-import { cn, Loading } from '../common/util';
+import { type HTTPResponseError, fetchHelper } from '../common/useFetch';
+import { Loading, cn } from '../common/util';
 import { DELETE, rtSet, useRTValue } from '/rt';
 import {
   ATTENDEE_NAR_CERT_PATH,
   ATTENDEE_TRA_CERT_PATH,
-  AttendeeFields,
+  type AttendeeFields,
 } from '/rt/rtconstants';
+import { CertOrg, type iCert } from '/types';
 import useDebounce from '/util/useDebounce';
 
 function Emoji({
@@ -75,9 +75,9 @@ export default function CertPref({
   const [fetchError, setFetchError] = useState<Error>();
   const [debouncedMemberId, isDebouncing] = useDebounce(memberId, 500);
 
-  const memberNum = parseInt(debouncedMemberId ?? '');
+  const memberNum = Number.parseInt(debouncedMemberId ?? '');
   const memberInfoUrl =
-    isChanged && !isDebouncing && !isNaN(memberNum)
+    isChanged && !isDebouncing && !Number.isNaN(memberNum)
       ? `${MEMBER_API_ENDPOINT}?org=${org}&id=${memberNum}`
       : undefined;
 
@@ -114,9 +114,9 @@ export default function CertPref({
 
   if (dbCertLoading) return <Loading wat='certification' />;
   return (
-    <div className={cn(className, `d-flex flex-column flex-sm-row`)} {...props}>
+    <div className={cn(className, 'd-flex flex-column flex-sm-row')} {...props}>
       <FloatingLabel
-        label={`${org == CertOrg.TRA ? 'Tripoli' : 'NAR'} member #`}
+        label={`${org === CertOrg.TRA ? 'Tripoli' : 'NAR'} member #`}
         className='flex-shrink-0 me-2 mb-2'
       >
         <Form.Control

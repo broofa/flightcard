@@ -1,5 +1,4 @@
-import React from 'react';
-import { Nav, NavLinkProps } from 'react-bootstrap';
+import { Nav, type NavLinkProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 export function FCLink({

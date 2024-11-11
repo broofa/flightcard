@@ -1,8 +1,8 @@
-import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { iUser } from '../../types';
+import { type PropsWithChildren, createContext, useContext } from 'react';
 import { useAuthUser } from './AuthIdContext';
-import { RTState, useRTValue } from '/rt';
+import { type RTState, useRTValue } from '/rt';
 import { USER_PATH } from '/rt/rtconstants';
+import type { iUser } from '/types';
 
 const currentUserContext = createContext<RTState<iUser>>([
   undefined,

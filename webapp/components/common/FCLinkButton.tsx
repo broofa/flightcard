@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button, ButtonProps } from 'react-bootstrap';
+import { Button, type ButtonProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 export function FCLinkButton({

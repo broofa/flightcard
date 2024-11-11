@@ -1,12 +1,13 @@
-import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
-import { timestampToNeon } from './nar-util';
-import {
+import type {
   NARItem,
   NAROutputFields,
   NARPage,
   NARSearchFields,
-} from './nar_types';
-import { Scan, scanIsComplete, scanUpdate } from './scan';
+  Scan,
+} from '@flightcard/common-types';
+import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
+import { timestampToNeon } from './nar-util';
+import { scanIsComplete, scanUpdate } from './scan';
 
 /**
  * API for I/O with NAR database on Neon CRM.
@@ -39,7 +40,7 @@ import { Scan, scanIsComplete, scanUpdate } from './scan';
 
 const console = new ConsoleWithPrefix('NAR');
 
-const API_BASE = `https://api.neoncrm.com/v2`;
+const API_BASE = 'https://api.neoncrm.com/v2';
 
 // NeonCRM limits the page size to 200
 const MAX_PAGE_SIZE = 200;
@@ -185,7 +186,7 @@ export default class NARAPI {
 
     console.log(`Fetching page ${currentPage}...`);
 
-    const page = await this.#fetch<NARPage<NARItem>>(`/accounts/search`, {
+    const page = await this.#fetch<NARPage<NARItem>>('/accounts/search', {
       method: 'POST',
       body: JSON.stringify({ searchFields, outputFields, pagination }),
     });

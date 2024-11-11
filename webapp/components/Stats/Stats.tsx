@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLaunch } from '../contexts/rt_hooks';
 import './Stats.scss';
 import { AttendeesByCert } from './widgets/AttendeesByCert';

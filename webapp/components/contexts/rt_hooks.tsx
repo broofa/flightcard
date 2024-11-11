@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { iAttendee, iCard, iLaunches, iUser } from '../../types';
 import { useAuthUser } from './AuthIdContext';
 import { launchStateContext } from './LaunchStateContext';
-import { RTState, useRTValue } from '/rt';
+import { type RTState, useRTValue } from '/rt';
 import { LAUNCHES_PATH, USER_PATH } from '/rt/rtconstants';
-import { MKS, USCS, tUnitSystem } from '/util/units';
+import type { iAttendee, iCard, iLaunches, iUser } from '/types';
+import { MKS, USCS, type tUnitSystem } from '/util/units';
 
 export function useCurrentUser() {
   const [authUser, authLoading, authError] = useAuthUser();
@@ -14,7 +14,9 @@ export function useCurrentUser() {
 
   if (authLoading) {
     return [undefined, true, undefined] as RTState<iUser>;
-  } else if (authError) {
+  }
+
+  if (authError) {
     return [undefined, false, authError] as RTState<iUser>;
   }
 
@@ -66,5 +68,5 @@ export function usePads() {
 
 export function useUserUnits(): RTState<tUnitSystem> {
   const [currentUser, loading, err] = useCurrentUser();
-  return [currentUser?.units == 'uscs' ? USCS : MKS, loading, err];
+  return [currentUser?.units === 'uscs' ? USCS : MKS, loading, err];
 }

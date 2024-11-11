@@ -6,9 +6,7 @@
   "description": "An App for Rocketry Clubs",
   "type": "module",
   "files": [],
-  "funding": [
-    "https://github.com/sponsors/broofa"
-  ],
+  "funding": ["https://github.com/sponsors/broofa"],
   "scripts": {
     "start:webapp": "cd webapp && npm start",
     "start:worker": "cd worker && npm start"
@@ -29,5 +27,9 @@
     "url": "https://github.com/broofa/flightcard/issues"
   },
   "homepage": "https://github.com/broofa/flightcard#readme",
-  "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b"
+  "packageManager": "npm@10.9.0+sha512.65a9c38a8172948f617a53619762cd77e12b9950fe1f9239debcb8d62c652f2081824b986fee7c0af6c0a7df615becebe4bf56e17ec27214a87aa29d9e038b4b",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  },
+  "workspaces": ["common-types", "webapp", "worker"]
 }

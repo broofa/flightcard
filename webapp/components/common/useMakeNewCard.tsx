@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { CardStatus, iCard } from '../../types';
 import { useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import { randomId } from '/components/common/util';
 import { rtSet } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
+import { CardStatus, type iCard } from '/types';
 
 // This doesn't feel like the right way of doing this, but wrapping this logic
 // in a hook avoids copy/pasting code around, and the mistakes that come with

@@ -1,4 +1,5 @@
-import { CertOrg, iCert } from '../../types_certs';
+import type { TRACache } from '@flightcard/common-types';
+import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from './CFAPI';
 import ConsoleWithPrefix from './ConsoleWithPrefix';
 import { certsBulkUpdate } from './db-util';
@@ -7,12 +8,6 @@ import { certsBulkUpdate } from './db-util';
 const console = new ConsoleWithPrefix('TRA');
 
 export const TRA_CACHE_KEY = 'TRA.fetchInfo';
-
-export type TRACache = {
-  scannedAt: string;
-  certsFetched: number;
-  publishedAt?: string;
-};
 
 // Tripoli uses some special codes for their cert levels, which we need to map
 // to the expected 0-3 values.
@@ -59,21 +54,23 @@ async function traProcess(membersCSV: string) {
       continue;
     }
 
-    const memberId = /^\d+$/.test(fields[0]) ? parseInt(fields[0]) : undefined;
+    const memberId = /^\d+$/.test(fields[0])
+      ? Number.parseInt(fields[0])
+      : undefined;
     const lastName = fields[1].replace(/,.*/, '');
     const firstName = fields[1].replace(/.*,\s*/, '');
-    const level = parseInt(TRIPOLI_CERT_MAP[fields[2]] ?? fields[2]);
+    const level = Number.parseInt(TRIPOLI_CERT_MAP[fields[2]] ?? fields[2]);
     const expires = Date.parse(fields[3]);
 
     // Skip entries with invalid member ids
-    if (!memberId || isNaN(memberId)) continue;
+    if (!memberId || Number.isNaN(memberId)) continue;
 
     certs.push({
       memberId,
       firstName,
       lastName,
-      level: isNaN(level) ? 0 : level,
-      expires: isNaN(expires) ? 0 : expires,
+      level: Number.isNaN(level) ? 0 : level,
+      expires: Number.isNaN(expires) ? 0 : expires,
       organization: CertOrg.TRA,
     });
   }

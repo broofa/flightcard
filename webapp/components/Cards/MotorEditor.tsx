@@ -1,12 +1,12 @@
-import React, { ChangeEvent, HTMLAttributes, useRef, useState } from 'react';
+import { type ChangeEvent, type HTMLAttributes, useRef, useState } from 'react';
 import { Badge, Button, Form, FormSelect, Modal } from 'react-bootstrap';
-import { TCMotor } from 'thrustcurve-db';
-import { iMotor } from '../../types';
+import type { TCMotor } from 'thrustcurve-db';
 import { busy, randomId, sig } from '../common/util';
 import { useUserUnits } from '../contexts/rt_hooks';
 import './MotorEditor.scss';
 import { DELETE, rtRemove, rtSet } from '/rt';
-import { CARD_MOTOR_PATH, CardFields } from '/rt/rtconstants';
+import { CARD_MOTOR_PATH, type CardFields } from '/rt/rtconstants';
+import type { iMotor } from '/types';
 import {
   getMotorByDisplayName,
   motorDisplayName,
@@ -59,8 +59,8 @@ export function MotorEditor({
   }
 
   function onSave() {
-    const _stage = parseInt(stage ?? '');
-    const _delay = parseInt(delay ?? '');
+    const _stage = Number.parseInt(stage ?? '');
+    const _delay = Number.parseInt(delay ?? '');
     const _impulse =
       tcMotor?.totImpulseNs ?? unitParse(impulse, userUnits.impulse);
 
@@ -69,9 +69,9 @@ export function MotorEditor({
       id: motor.id || randomId(),
       name,
       tcMotorId: tcMotor?.motorId ?? DELETE,
-      stage: isNaN(_stage) ? DELETE : _stage,
-      delay: isNaN(_delay) ? DELETE : _delay,
-      impulse: isNaN(_impulse) ? DELETE : _impulse,
+      stage: Number.isNaN(_stage) ? DELETE : _stage,
+      delay: Number.isNaN(_delay) ? DELETE : _delay,
+      impulse: Number.isNaN(_impulse) ? DELETE : _impulse,
     };
 
     busy(
@@ -102,9 +102,9 @@ export function MotorEditor({
 
       <Modal.Body>
         <datalist id={delayListId}>
-          {tcMotor?.delays
-            ?.split(',')
-            ?.map((d) => <option key={String(d)} value={String(d)} />)}
+          {tcMotor?.delays?.split(',')?.map((d) => (
+            <option key={String(d)} value={String(d)} />
+          ))}
         </datalist>
 
         <Form.Control

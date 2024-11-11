@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert } from 'react-bootstrap';
 import {
   Navigate,
@@ -9,20 +8,20 @@ import {
   useMatch,
 } from 'react-router-dom';
 import Admin from '../Admin/Admin';
-import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
-import { LaunchStateProvider } from '../contexts/LaunchStateContext';
-import { useCurrentAttendee } from '../contexts/rt_hooks';
+import { FlashList } from '../Flash/FlashList';
 import Launch from '../Launch/Launch';
 import LaunchHome from '../Launch/LaunchHome';
 import Launches from '../Launches/Launches';
 import Login from '../Login/Login';
+import { AuthUserProvider, useAuthUser } from '../contexts/AuthIdContext';
+import { LaunchStateProvider } from '../contexts/LaunchStateContext';
+import { useCurrentAttendee } from '../contexts/rt_hooks';
 import './App.scss';
 import { HomeNavBar } from './HomeNavBar';
 import { LaunchNavBar } from './LaunchNavBar';
 import { Waiver } from './Waiver';
 import Welcome from './Welcome';
 import { Loading } from '/components/common/util';
-import { FlashList } from '../Flash/FlashList';
 
 export const APPNAME = 'FlightCard';
 export const ANONYMOUS = '(anonymous)';
@@ -34,11 +33,14 @@ function RequireAuth() {
 
   if (loading) {
     return <Loading wat='User Credentials' />;
-  } else if (error) {
+  }
+
+  if (error) {
     return (
       <Alert variant='danger'>Authentication error: {error.message}</Alert>
     );
-  } else if (!authUser) {
+  }
+  if (!authUser) {
     return <Navigate to='/login' state={{ from: location }} replace />;
   }
 

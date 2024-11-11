@@ -1,7 +1,7 @@
-import React, { HTMLAttributes, useEffect, useRef } from 'react';
-import { Button, ButtonProps } from 'react-bootstrap';
+import { type HTMLAttributes, useEffect, useRef } from 'react';
+import { Button, type ButtonProps } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Link, LinkProps } from 'react-router-dom';
+import { Link, type LinkProps } from 'react-router-dom';
 
 export function usePrevious<T>(value: T) {
   const ref = useRef<T>();
@@ -19,7 +19,8 @@ export function cn(...args: (string | object | undefined)[]) {
   for (const arg of args) {
     if (!arg) {
       continue;
-    } else if (typeof arg === 'string') {
+    }
+    if (typeof arg === 'string') {
       for (const cn of arg.split(/\s+/g)) {
         classes.add(cn);
       }
@@ -108,7 +109,7 @@ export function busy<T extends Promise<unknown>>(
  * Round number to X significant digits
  */
 export function sig(val: number, digits = 3) {
-  if (!isFinite(val)) return String(val);
+  if (!Number.isFinite(val)) return String(val);
   if (val === 0) return '0';
 
   const isNegative = val < 0;

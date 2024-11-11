@@ -1,8 +1,8 @@
 import MOTORS from 'thrustcurve-db';
-import { iMotor, iRocket } from '../../types';
 import { GRAVITY_ACC } from '/components/Cards/MotorAnalysis';
 import { COLORS } from '/components/common/ColorChits';
 import { randomId } from '/components/common/util';
+import type { iMotor, iRocket } from '/types';
 import { motorDisplayName } from '/util/motor-util';
 
 export const NAMES = [
@@ -303,12 +303,9 @@ export function rnd(min: number, max?: number): number {
   return Math.floor(frnd(min, max));
 }
 
-export function rndItem<Type>(arr: Type[] | Set<Type>): Type {
-  if (arr instanceof Set) {
-    arr = Array.from(arr);
-  } else if (arr.constructor === Object) {
-    arr = Object.values(arr);
-  }
+export function rndItem<Type>(vals: Type[] | Set<Type>): Type {
+  const arr = Array.isArray(vals) ? vals : Array.from(vals);
+
   return arr[rnd(arr.length)];
 }
 
@@ -320,8 +317,8 @@ export function createRocket(): iRocket {
   const mass = tcMotor.avgThrustN / frnd(2, frnd(4, 20)) / GRAVITY_ACC;
 
   const aspectRatio = frnd(frnd(5, 30), frnd(10, 40));
-  const length = Math.pow(mass * 2, 1 / 3);
-  const diameter = Math.pow(mass * 5, 1 / 3) / aspectRatio;
+  const length = (mass * 2) ** (1 / 3);
+  const diameter = (mass * 5) ** (1 / 3) / aspectRatio;
 
   const motor: iMotor = {
     id: randomId(),
@@ -332,8 +329,8 @@ export function createRocket(): iRocket {
   };
 
   const delays = tcMotor.delays?.split(',');
-  const delay = parseInt(rndItem(delays ?? []));
-  if (!isNaN(delay)) motor.delay = delay;
+  const delay = Number.parseInt(rndItem(delays ?? []));
+  if (!Number.isNaN(delay)) motor.delay = delay;
 
   const color = [
     rndItem(COLORS),

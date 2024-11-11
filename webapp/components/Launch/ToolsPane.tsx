@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
-import { iCert, MembersMeta } from '../../types';
+import { type ChangeEvent, type HTMLProps, useEffect, useState } from 'react';
 import { cn } from '/components/common/util';
 import '/components/Launch/ToolsPane.scss';
+import type { MembersMeta, iCert } from '/types';
 import useDebounce from '/util/useDebounce';
 
 const { MEMBER_API_ENDPOINT } = process.env;
 
 export function ToolsPane() {
-  const [searchText, setSearchText] = React.useState('');
+  const [searchText, setSearchText] = useState('');
   const [debouncedQuery] = useDebounce(searchText, 500);
-  const [members, setMembers] = React.useState<iCert[]>([]);
-  const [membersMeta, setMembersMeta] = React.useState<MembersMeta>();
+  const [members, setMembers] = useState<iCert[]>([]);
+  const [membersMeta, setMembersMeta] = useState<MembersMeta>();
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const v = e.target.value;
     setSearchText(v);
     setMembers([]);
@@ -141,7 +141,7 @@ export function ToolsPane() {
 function MemberRow({
   member,
   ...props
-}: { member: iCert } & React.HTMLProps<HTMLDivElement>) {
+}: { member: iCert } & HTMLProps<HTMLDivElement>) {
   const isExpired = new Date(member.expires) < new Date();
 
   return (

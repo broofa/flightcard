@@ -1,11 +1,10 @@
-import React from 'react';
 import { Button } from 'react-bootstrap';
-import { CardStatus } from '../../types';
 import { arrayGroup } from '../../util/array-util';
 import { useMakeNewCard } from '../common/useMakeNewCard';
 import { Loading } from '../common/util';
 import { useCards, useCurrentUser, useLaunch } from '../contexts/rt_hooks';
 import { CardList } from './Launch';
+import { CardStatus } from '/types';
 
 export function CardsPane() {
   const [launch] = useLaunch();
@@ -20,13 +19,13 @@ export function CardsPane() {
   if (!currentUser) return <Loading wat='User' />;
 
   const userCards = Object.values(cards || {}).filter(
-    (c) => c.userId == currentUser.id
+    (c) => c.userId === currentUser.id
   );
   const cardGroups = arrayGroup(userCards, (c) => c.status ?? DRAFT);
-  const draftCards = userCards.filter((c) => c.status == DRAFT);
-  const reviewCards = userCards.filter((c) => c.status == REVIEW);
-  const readyCards = userCards.filter((c) => c.status == FLY);
-  const doneCards = userCards.filter((c) => c.status == DONE);
+  const draftCards = userCards.filter((c) => c.status === DRAFT);
+  const reviewCards = userCards.filter((c) => c.status === REVIEW);
+  const readyCards = userCards.filter((c) => c.status === FLY);
+  const doneCards = userCards.filter((c) => c.status === DONE);
 
   return (
     <>

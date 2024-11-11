@@ -1,14 +1,14 @@
-import React, { HTMLAttributes } from 'react';
-import { iPads } from '../../types';
+import { type HTMLAttributes, useState } from 'react';
 import { rtGet, rtSet } from '/rt';
 import { PADS_PATH, PAD_PATH } from '/rt/rtconstants';
+import type { iPads } from '/types';
 
 export function PadGroupEditor({
   launchId,
   padGroup: groupName,
   ...props
 }: { launchId: string; padGroup?: string } & HTMLAttributes<HTMLDivElement>) {
-  const [newName, setNewName] = React.useState(groupName);
+  const [newName, setNewName] = useState(groupName);
 
   const rtPath = PADS_PATH.with({ launchId });
 

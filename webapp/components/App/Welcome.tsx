@@ -1,4 +1,3 @@
-import React from 'react';
 import { FCLinkButton } from '../common/FCLinkButton';
 import { APPNAME } from './App';
 

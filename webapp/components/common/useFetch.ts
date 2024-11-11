@@ -31,7 +31,7 @@ export function fetchHelper<ResponseType>(
 ) {
   const controller = new AbortController();
 
-  setLoading?.(url ? true : false);
+  setLoading?.(!!url);
   setError?.(undefined);
 
   if (url) {

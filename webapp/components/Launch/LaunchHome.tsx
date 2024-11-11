@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Nav } from 'react-bootstrap';
 import ProfileName from '../Profile/NamePref';
 import { FCLink } from '../common/FCLink';

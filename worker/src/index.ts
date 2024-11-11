@@ -10,27 +10,8 @@
  * Learn more at https://developers.cloudflare.com/workers/runtime-apis/scheduled-event/
  */
 
-import {
-    corsPreflightRoute,
-    idSearchRoute,
-    membersMetaRoute,
-    membersUploadRoute,
-    nameSearchRoute,
-    rejectFaviconRoute,
-    Route,
-} from './lib/routes';
 import { updateNARCerts } from './nar/nar-util';
-
-// Ad-hoc router structure.  Every request is passed through these function in
-// order, until one of them returns a Response or object.
-const ROUTES: Route[] = [
-  rejectFaviconRoute,
-  corsPreflightRoute,
-  membersUploadRoute,
-  membersMetaRoute,
-  nameSearchRoute,
-  idSearchRoute,
-];
+import { ROUTES } from './routes/routes';
 
 export default {
   async fetch(
@@ -49,7 +30,6 @@ export default {
         const result = await route(request, env);
 
         if (!result) {
-          continue;
         } else if (result instanceof Response) {
           return result;
         } else {

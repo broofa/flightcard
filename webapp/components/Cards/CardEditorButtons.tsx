@@ -1,18 +1,18 @@
-import React, { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import {
   Button,
-  ButtonProps,
+  type ButtonProps,
   FormSelect,
-  FormSelectProps,
+  type FormSelectProps,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { CardStatus, iAttendee, iCard } from '../../types';
 import { arrayGroup, arraySort } from '../../util/array-util';
 import { flash } from '../Flash/flash';
 import { Loading, busy } from '../common/util';
 import { useCurrentAttendee, usePads } from '../contexts/rt_hooks';
 import { DELETE, rtRemove, rtUpdate } from '/rt';
 import { CARD_PATH } from '/rt/rtconstants';
+import { CardStatus, type iAttendee, type iCard } from '/types';
 
 const { DRAFT, REVIEW, FLY, DONE } = CardStatus;
 
@@ -126,9 +126,9 @@ export function getCardPermissions(
     userCanSubmitToRSO: isOfficer || user.id === card.userId,
 
     canApprove: !card.rsoId && status === REVIEW,
-    userCanApprove: isOfficer && user.id != card.userId,
+    userCanApprove: isOfficer && user.id !== card.userId,
 
-    canReject: !!card.rsoId && status != DONE,
+    canReject: !!card.rsoId && status !== DONE,
     userCanReject: isOfficer,
 
     canAssignPad: (!!card.rsoId && status === REVIEW) || status === FLY,

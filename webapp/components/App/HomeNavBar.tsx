@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navbar } from 'react-bootstrap';
 import { NavLink, Outlet } from 'react-router-dom';
 import { APPNAME } from './App';

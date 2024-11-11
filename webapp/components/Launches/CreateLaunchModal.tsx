@@ -1,7 +1,6 @@
-import React, { MouseEventHandler, useState } from 'react';
-import { Button, FormSelect, Modal, ModalProps } from 'react-bootstrap';
+import { type MouseEventHandler, useState } from 'react';
+import { Button, FormSelect, Modal, type ModalProps } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
-import { iAttendee, iLaunch, iPad, iPads } from '../../types';
 import { APPNAME } from '../App/App';
 import { useCurrentUser, useLaunches } from '../contexts/rt_hooks';
 import { Loading, randomId } from '/components/common/util';
@@ -12,6 +11,7 @@ import {
   OFFICER_PATH,
   PADS_PATH,
 } from '/rt/rtconstants';
+import type { iAttendee, iLaunch, iPad, iPads } from '/types';
 import { arraySort } from '/util/array-util';
 
 export function CreateLaunchModal(props: ModalProps & { onHide: () => void }) {

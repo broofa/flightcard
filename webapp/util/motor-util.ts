@@ -1,49 +1,55 @@
-import MOTORS, { TCMotor } from 'thrustcurve-db';
-import { iCard, iMotor } from '../types';
+import MOTORS, { type TCMotor } from 'thrustcurve-db';
+import type { iCard, iMotor } from '/types';
 
 // Init motor impulse class information structure
 let _impulse: number;
 export const IMPULSE_CLASSES = [
-  { name: '\u{215b}A', min: 0, max: (_impulse = 0.3125) }, // 1/8A
-  { name: '\u{215c}A', min: _impulse, max: (_impulse *= 2) }, // 1/4A
-  { name: '\u{215d}A', min: _impulse, max: (_impulse *= 2) }, // 1/2A
-  { name: 'A', min: _impulse, max: (_impulse *= 2) },
-  { name: 'B', min: _impulse, max: (_impulse *= 2) },
-  { name: 'C', min: _impulse, max: (_impulse *= 2) },
-  { name: 'D', min: _impulse, max: (_impulse *= 2) },
-  { name: 'E', min: _impulse, max: (_impulse *= 2) },
-  { name: 'F', min: _impulse, max: (_impulse *= 2) },
-  { name: 'G', min: _impulse, max: (_impulse *= 2) },
-  { name: 'H', min: _impulse, max: (_impulse *= 2) },
-  { name: 'I', min: _impulse, max: (_impulse *= 2) },
-  { name: 'J', min: _impulse, max: (_impulse *= 2) },
-  { name: 'K', min: _impulse, max: (_impulse *= 2) },
-  { name: 'L', min: _impulse, max: (_impulse *= 2) },
-  { name: 'M', min: _impulse, max: (_impulse *= 2) },
-  { name: 'N', min: _impulse, max: (_impulse *= 2) },
-  { name: 'O', min: _impulse, max: (_impulse *= 2) },
-  { name: 'P', min: _impulse, max: (_impulse *= 2) },
-  { name: 'Q', min: _impulse, max: (_impulse *= 2) },
-  { name: 'R', min: _impulse, max: (_impulse *= 2) },
-  { name: 'S', min: _impulse, max: (_impulse *= 2) },
-  { name: 'T', min: _impulse, max: (_impulse *= 2) },
-  { name: 'U', min: _impulse, max: (_impulse *= 2) },
-  { name: 'V', min: _impulse, max: (_impulse *= 2) },
-  { name: 'W', min: _impulse, max: (_impulse *= 2) },
-  { name: 'X', min: _impulse, max: (_impulse *= 2) },
-  { name: 'Y', min: _impulse, max: (_impulse *= 2) },
-  { name: 'Z', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AA', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AB', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AC', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AD', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AE', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AF', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AG', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AH', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AI', min: _impulse, max: (_impulse *= 2) },
-  { name: 'AJ', min: _impulse, max: (_impulse *= 2) },
-];
+  '\u{215b}A', // 1/8A
+  '\u{215c}A', // 1/4A
+  '\u{215d}A', // 1/2A
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+  'AA',
+  'AB',
+  'AC',
+  'AD',
+  'AE',
+  'AF',
+  'AG',
+  'AH',
+  'AI',
+  'AJ',
+].map((name, i) => {
+  return {
+    name,
+    min: i === 0 ? 0 : 0.3125 * 2 ** (i - 1),
+    max: 0.3125 * 2 ** i,
+  };
+});
 
 const motorIndex = new Map<string, TCMotor>();
 const motorNameIndex = new Map<string, TCMotor>();
@@ -155,24 +161,24 @@ export function motorDisplayName(motor: TCMotor) {
  * thrust cannot be accurately determined
  */
 export function stage1Thrust(cardMotors: iCard['motors']) {
-  if (!cardMotors) return NaN;
+  if (!cardMotors) return Number.NaN;
 
   const motors = Object.values(cardMotors).filter((m) => (m.stage ?? 1) === 1);
 
-  if (!motors?.length) return NaN;
+  if (!motors?.length) return Number.NaN;
 
   return motors.reduce((acc, motor) => {
     let thrust: number;
     if (motor.tcMotorId) {
       // Use thrust from thrustcurve data if available
-      thrust = getMotor(motor.tcMotorId)?.avgThrustN ?? NaN;
+      thrust = getMotor(motor.tcMotorId)?.avgThrustN ?? Number.NaN;
     } else if (motor.name) {
       // Scrape from motor name
       const match = motor.name.match(/[a-z]([\d.]+)/i)?.[1];
-      thrust = match ? parseInt(match) : NaN;
+      thrust = match ? Number.parseInt(match) : Number.NaN;
     } else {
       // No thrust data available
-      thrust = NaN;
+      thrust = Number.NaN;
     }
 
     return acc + thrust;
@@ -182,7 +188,7 @@ export function stage1Thrust(cardMotors: iCard['motors']) {
 export function motorClassForImpulse(impulse: number | undefined) {
   if (impulse === undefined) return undefined;
 
-  if (isNaN(impulse)) return undefined;
+  if (Number.isNaN(impulse)) return undefined;
   for (const { name, min, max } of IMPULSE_CLASSES) {
     // Note: Using min(exclusive), max(inclusive) here, as that's how NFPA 1125
     // interprets impulse range limits
@@ -193,7 +199,7 @@ export function motorClassForImpulse(impulse: number | undefined) {
 export function totalImpulseClass(motors?: iMotor[]) {
   if (!motors) return undefined;
   const impulse = Object.entries(motors).reduce(
-    (acc: number, [, m]) => acc + (m.impulse ?? NaN),
+    (acc: number, [, m]) => acc + (m.impulse ?? Number.NaN),
     0
   );
 

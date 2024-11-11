@@ -1,8 +1,7 @@
-import React, { FocusEventHandler, useState } from 'react';
+import { type FocusEventHandler, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router';
 import simplur from 'simplur';
-import { iLaunch, iPad } from '../../types';
 import { arraySort } from '../../util/array-util';
 import { flash } from '../Flash/flash';
 import { PadEditor } from '../LaunchEditor/PadEditor';
@@ -24,6 +23,7 @@ import {
   OFFICERS_PATH,
   PADS_PATH,
 } from '/rt/rtconstants';
+import type { iLaunch, iPad } from '/types';
 
 export default function LaunchEditor() {
   const [launch] = useLaunch();
@@ -60,7 +60,7 @@ export default function LaunchEditor() {
         let value: string | undefined = target.value;
 
         if (value == null || value === '') value = DELETE;
-        if (value == launch?.[field]) return;
+        if (value === launch?.[field]) return;
 
         rtUpdate(LAUNCH_PATH.with({ launchId: launch.id }), { [field]: value });
       },
@@ -77,7 +77,7 @@ export default function LaunchEditor() {
     const response = prompt(
       simplur`This will permanently DELETE this launch and all activity associated with it, including ${nAttendees} attendee[|s] and ${nCards} flightcard[|s].\n\nYou will not be able to undo this!\n\nTo proceed type the name of the launch here ("${launch.name}") and click OK.`
     );
-    if (response != launch.name) return;
+    if (response !== launch.name) return;
 
     const rtFields = { launchId: launch.id };
 

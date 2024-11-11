@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Alert } from 'react-bootstrap';
 
 export type FlashEvent = CustomEvent<ReactNode[]>;
@@ -31,12 +31,14 @@ function removeFlash(node: ReactNode) {
 }
 
 export function flash(node: ReactNode | Error | string) {
+  let unflash: () => void;
   if (node instanceof Error) {
-    node = <Alert variant='danger'>{node.message}</Alert>;
+    unflash = addFlash(<Alert variant='danger'>{node.message}</Alert>);
   } else if (typeof node === 'string') {
-    node = <Alert variant='success'>{node}</Alert>;
+    unflash = addFlash(<Alert variant='success'>{node}</Alert>);
+  } else {
+    unflash = addFlash(node);
   }
 
-  const unflash = addFlash(node);
   setTimeout(unflash, 10000);
 }

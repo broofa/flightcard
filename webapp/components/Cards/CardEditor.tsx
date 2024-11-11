@@ -1,9 +1,8 @@
-import React, { HTMLAttributes, useMemo, useState } from 'react';
+import { type HTMLAttributes, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useMatch } from 'react-router-dom';
-import { TCMotor } from 'thrustcurve-db';
+import type { TCMotor } from 'thrustcurve-db';
 
-import { CardStatus, Recovery, iAttendee, iCard, iMotor } from '../../types';
 import { AttendeeInfo } from '../common/AttendeeInfo/AttendeeInfo';
 import { CardActions } from '/components/Cards/CardActions';
 import MotorAnalysis from '/components/Cards/MotorAnalysis';
@@ -23,11 +22,18 @@ import { rtuiFromPath } from '/components/rtui/RTUI';
 import { useRTValue } from '/rt';
 import {
   ATTENDEE_PATH,
-  AttendeeFields,
+  type AttendeeFields,
   CARD_PATH,
-  CardFields,
+  type CardFields,
   ROCKET_PATH,
 } from '/rt/rtconstants';
+import {
+  CardStatus,
+  Recovery,
+  type iAttendee,
+  type iCard,
+  type iMotor,
+} from '/types';
 import { MKS } from '/util/units';
 
 function FormSection({
@@ -36,7 +42,7 @@ function FormSection({
   ...props
 }: { className?: string } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn(className, `text-muted h2 mt-3`)} {...props}>
+    <div className={cn(className, 'text-muted h2 mt-3')} {...props}>
       {children}
     </div>
   );
@@ -75,7 +81,7 @@ export default function CardEditor() {
   if (!card) return <Loading wat='Card' />;
   if (!attendee) return <Loading wat='Current user' />;
 
-  const isOwner = attendee?.id == card?.userId;
+  const isOwner = attendee?.id === card?.userId;
   const isDraft = card?.status === CardStatus.DRAFT;
   const isReadOnly = !isDraft && !isOfficer;
 

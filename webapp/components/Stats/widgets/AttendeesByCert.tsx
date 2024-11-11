@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Bar, VictoryBar, VictoryChart } from 'victory';
 import { arrayGroup, arraySort } from '../../../util/array-util';

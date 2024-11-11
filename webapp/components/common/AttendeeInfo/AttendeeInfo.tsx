@@ -1,11 +1,11 @@
-import React, { HTMLAttributes } from 'react';
-import { iAttendee } from '../../../types';
-import styles from './AttendeeInfo.module.scss';
+import type { HTMLAttributes } from 'react';
 import DEFAULT_PROFILE_IMAGE from '/art/astronaut.svg';
 import { ANONYMOUS } from '/components/App/App';
 import { CertDot } from '/components/common/CertDot';
 import { cn } from '/components/common/util';
 import { useRoleAPI } from '/components/contexts/officer_hooks';
+import type { iAttendee } from '/types';
+import styles from './AttendeeInfo.module.scss';
 
 export function AttendeeInfo({
   attendee,
@@ -20,7 +20,7 @@ export function AttendeeInfo({
   const photoUrl = attendee.photoURL ?? DEFAULT_PROFILE_IMAGE;
   return (
     <div
-      className={cn(styles.root, className, `d-flex align-items-center`)}
+      className={cn(styles.root, className, 'd-flex align-items-center')}
       {...props}
     >
       {roleApi.isOfficer(attendee) ? (
