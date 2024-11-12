@@ -2,11 +2,14 @@
 
 interface Env {
 	CertsKV: KVNamespace;
+	CLOUDFLARE_API_TOKEN: "not used in dev";
+	CLOUDFLARE_ACCOUNT_ID: "not used in dev";
+	FC_DB: "not used in dev";
 	NAR_API_KEY: string;
 	NAR_API_ORG: string;
 	TRA_USERNAME: string;
 	TRA_PASSWORD: string;
 	FC_API_KEY: string;
-	LAUNCH_DO: DurableObjectNamespace /* LaunchDO */;
+	LAUNCH_DO: DurableObjectNamespace<import("./src/index").LaunchDO>;
 	CertsDB: D1Database;
 }

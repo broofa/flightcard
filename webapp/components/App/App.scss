@@ -1,0 +1,144 @@
+// Import bootstrap
+// REF: https://getbootstrap.com/docs/5.2/getting-started/parcel/#import-bootstrap
+@use "~bootstrap/scss/bootstrap";
+
+// Simple hack to support dark mode
+// REF: https://stackoverflow.com/a/40725251/109538
+@media (prefers-color-scheme: dark) {
+  html {
+    filter: invert(100%) hue-rotate(180deg);
+  }
+  body {
+    background-color: #eee;
+  }
+  img,
+  .modal-backdrop,
+  .no-invert {
+    filter: invert(100%) hue-rotate(180deg) !important;
+  }
+
+  // Patch up some of the more obvious dark-mode flaws...
+  .navbar.bg-dark {
+    background: #ddd !important;
+  }
+  nav a {
+    color: #222 !important;
+  }
+  nav a:hover {
+    background-color: #bbb !important;
+  }
+}
+
+p {
+  margin-block: 0.5em;
+}
+
+h1,
+.h1 {
+  margin-top: 1rem;
+  font-size: 1.8rem;
+}
+h2,
+.h2 {
+  margin-top: 0.755rem;
+  font-size: 1.5rem;
+}
+h3,
+.h3 {
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+}
+h4,
+.h4 {
+  margin-top: 0.25rem;
+  color: gray;
+  font-size: 1rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
+  gap: 1em;
+}
+
+.privileged {
+  /*  For admin-only features */
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(128, 128, 0, 0.8),
+    rgba(128, 128, 0, 0.8) 10px,
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.1) 20px
+  );
+}
+
+@keyframes BUSY-BG {
+  0% {
+    background-position-x: 0px;
+  }
+  100% {
+    background-position-x: 57.57px;
+  } // Same as background-size width
+}
+
+.busy {
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-name: BUSY-BG;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.2) 0,
+    rgba(0, 0, 0, 0.2) 20px,
+    rgba(255, 255, 255, 0.2) 20px,
+    rgba(255, 255, 255, 0.2) 40px,
+    rgba(0, 0, 0, 0.2) 40px
+  );
+  background-size: 56.57px 56.57px; // gradient size * sqrt(2)
+}
+
+.mock,
+.mock-badge:before {
+  display: inline-block;
+  transform: rotate(-20deg);
+  color: rgba(200, 80, 0, 0.35);
+}
+.mock-badge {
+  position: relative;
+}
+.mock-badge::before {
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  opacity: 0.4;
+  content: 'Test';
+  font-size: 24pt;
+}
+
+nav a {
+  color: #aaa;
+}
+nav a:hover {
+  background-color: #666;
+  color: #eee;
+}
+nav a.active {
+  color: white;
+}
+
+.form-select {
+  width: auto !important;
+}
+
+.text-tip {
+  color: #6c757d; // text-secondary
+  font-size: 0.875em;
+}
+
+.form-floating .form-select {
+  width: 100% !important;
+}

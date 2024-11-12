@@ -1,10 +1,10 @@
-import { CertOrg, iCert } from '../../types_certs';
+import type { NARItem, NARPage, Scan } from '@flightcard/common-types';
+import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from '../lib/CFAPI';
 import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
 import { certsBulkUpdate } from '../lib/db-util';
-import { NARItem, NARPage } from './nar_types';
 import NARAPI from './NARAPI';
-import { Scan, scanInit, scanIsComplete, scanReset } from './scan';
+import { scanInit, scanIsComplete, scanReset } from './scan';
 
 // Create a logger for this module
 const console = new ConsoleWithPrefix('NAR');
@@ -24,7 +24,9 @@ export function timestampToNeon(ts: number, dateOnly = false) {
   return dateOnly
     ? date.replace(/T.*/, '')
     : // ISO8601? Time zones?  Neon ain't got time for that shit.
-      date.replace('T', ' ').replace('Z', '');
+      date
+        .replace('T', ' ')
+        .replace('Z', '');
 }
 
 export async function updateNARCerts(env: Env) {
@@ -48,7 +50,7 @@ export async function updateNARCerts(env: Env) {
     // Impose some idle time before starting a new scan (so we're not constantly
     // hammering the Neon DB)
     const since = Date.now() - Number(scanState.scanUpdateAt ?? 0);
-    if (!isNaN(since) && since < IDLE_INTERVAL) {
+    if (!Number.isNaN(since) && since < IDLE_INTERVAL) {
       console.warn(
         `Idling for ${Math.floor((IDLE_INTERVAL - since) / 60000)} minutes`
       );
@@ -116,9 +118,9 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
       'Last Name': lastName,
     } = result;
 
-    const memberId = parseInt(memberIdString, 10);
+    const memberId = Number.parseInt(memberIdString, 10);
     // const modified = Date.parse(modifiedAt);
-    const level = parseInt(levelString, 10);
+    const level = Number.parseInt(levelString, 10);
     const expires = Date.parse(expiresString);
 
     if (!memberId || memberId > 1e6) {
@@ -133,8 +135,8 @@ async function processCerts(env: Env, page: NARPage<NARItem>) {
       memberId,
       firstName,
       lastName,
-      level: isNaN(level) ? 0 : level,
-      expires: isNaN(expires) ? 0 : expires,
+      level: Number.isNaN(level) ? 0 : level,
+      expires: Number.isNaN(expires) ? 0 : expires,
       organization: CertOrg.NAR,
     };
 

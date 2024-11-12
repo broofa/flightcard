@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "exclude": ["dist"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "es2022"],
+    "outDir": "dist_tsc",
+    "paths": { "/*": ["./*"] }
+  }
+}

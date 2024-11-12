@@ -1,6 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { NeonPagination } from './nar_types';
+import type { NeonPagination } from '@flightcard/common-types';
 import NARAPI from './NARAPI';
 import { scanInit, scanIsComplete, scanReset } from './scan';
 
@@ -44,6 +44,8 @@ async function main() {
           scanReset(scan);
         }
       }
+
+      break;
     }
 
     default:
