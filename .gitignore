@@ -2,7 +2,6 @@
 .parcel-cache
 .vscode
 .wrangler
-.yarn
 *.log
 dist
 node_modules
