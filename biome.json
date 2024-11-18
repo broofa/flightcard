@@ -27,7 +27,8 @@
         "noLabelWithoutControl": "off",
         "noSvgWithoutTitle": "off",
         "useAltText": "off",
-        "useKeyWithClickEvents": "off"
+        "useKeyWithClickEvents": "off",
+        "useButtonType": "off"
       },
 
       "correctness": {
