@@ -46,7 +46,6 @@ export async function requestAccessToken(authCode: string) {
   });
 
   url.search = params.toString();
-  console.log('*** URL', url.toString());
   const response = await fetch(url.toString(), {
     method: 'POST',
     headers: {

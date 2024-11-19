@@ -11,14 +11,11 @@ async function googleLogin(onSignIn: (userInfo: UserInfo) => void) {
     scope: GOOGLE_SCOPES.join(' '),
     ux_mode: 'popup',
     callback: async (response) => {
-      const userInfoResponse = await fetch(
-        'https://localhost:3000/api/accounts',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(response, null, 2),
-        }
-      );
+      const userInfoResponse = await fetch('/api/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(response, null, 2),
+      });
       const userInfo: UserInfo = await userInfoResponse.json();
       onSignIn?.(userInfo);
     },
@@ -64,7 +61,11 @@ export default function Login() {
       {userInfo ? (
         <pre>
           {JSON.stringify(userInfo, null, 2)}
-          <img src={userInfo.picture} alt='profile' style={{borderRadius: '1em'}}/>
+          <img
+            src={userInfo.picture}
+            alt='profile'
+            style={{ borderRadius: '1em' }}
+          />
           <div>
             {userInfo.given_name} {userInfo.family_name}
           </div>

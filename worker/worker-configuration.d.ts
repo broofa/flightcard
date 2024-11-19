@@ -4,7 +4,7 @@ interface Env {
   CertsKV: KVNamespace;
   CLOUDFLARE_API_TOKEN: 'not used in dev';
   CLOUDFLARE_ACCOUNT_ID: 'not used in dev';
-  FC_DB: 'not used in dev';
+  FC_CERTS_DB: 'not used in dev';
   NAR_API_KEY: string;
   NAR_API_ORG: string;
   TRA_USERNAME: string;

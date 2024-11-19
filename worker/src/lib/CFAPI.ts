@@ -47,7 +47,7 @@ export class CFAPI {
   }
 
   dbUrl(...parts: string[]) {
-    const dbId = this.env.FC_DB;
+    const dbId = this.env.FC_CERTS_DB;
 
     return this.baseUrl('d1', 'database', dbId, ...parts);
   }

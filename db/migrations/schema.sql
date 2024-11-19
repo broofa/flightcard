@@ -1,0 +1,21 @@
+PRAGMA defer_foreign_keys=TRUE;
+
+DROP TABLE IF EXISTS users;
+CREATE TABLE IF NOT EXISTS users (
+  userID INTEGER PRIMARY KEY,
+  narID INTEGER,
+  traID INTEGER,
+  firstName TEXT COLLATE NOCASE,
+  lastName TEXT COLLATE NOCASE,
+  email TEXT COLLATE NOCASE,
+  avatarURL TEXT
+);
+
+DROP TABLE IF EXISTS sessions;
+CREATE TABLE IF NOT EXISTS sessions (
+  sessionID TEXT PRIMARY KEY,
+  userID INTEGER,
+  expires INTEGER,
+
+  FOREIGN KEY (userID) REFERENCES users(userID)
+);

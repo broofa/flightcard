@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   // Exchange the code for an access token
   const accessToken = await requestAccessToken(authCode);
-  console.log('*** TOKEN', accessToken);
+
   if (!accessToken) {
     return Response.json(
       { error: 'Failed to get access token' },

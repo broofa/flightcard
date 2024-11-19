@@ -1,5 +1,5 @@
 {
-  "name": "webnext",
+  "name": "@flichtcard/webnext",
   "version": "0.1.0",
   "private": true,
   "scripts": {
