@@ -40,12 +40,12 @@ export default {
 
         const { message, stack } = err as Error;
 
-        return new Response(
-          JSON.stringify({
+        return Response.json(
+          {
             error: message,
             stack: stack?.split(/\n/g),
-          }),
-          { status: 500, headers }
+          },
+          { status: 500 }
         );
       }
     }

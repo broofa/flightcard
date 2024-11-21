@@ -8,6 +8,7 @@
   "files": [],
   "funding": ["https://github.com/sponsors/broofa"],
   "scripts": {
+    "build:watch": "npx -y tsc-watch -p db",
     "start:webapp": "cd webapp && npm start",
     "start:worker": "cd worker && npm start"
   },
@@ -31,5 +32,5 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
   },
-  "workspaces": ["common-types", "webapp", "worker"]
+  "workspaces": ["common-types", "db", "webapp", "web-next", "worker", "worker-next"]
 }

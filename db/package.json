@@ -1,12 +1,18 @@
 {
-  "name": "@flichtcard/db",
+  "name": "@flightcard/db",
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "migrate": "tsx ./bin/migrate.ts $@"
+  },
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20241112.0",
     "@types/node": "^20",
-    "tsx": "4.19.2"
+    "tsx": "^4.19.2"
   }
 }

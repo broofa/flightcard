@@ -1,8 +1,0 @@
-.envrc
-.parcel-cache
-.vscode
-.wrangler
-*.log
-dist
-node_modules
-vscode.code-workspace

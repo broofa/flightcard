@@ -1,8 +1,8 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env npx tsx
 
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import CFDatabaseClient from './src/CFDatabaseClient';
+import { CFDatabaseClient } from './src/CFDatabaseClient';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -25,4 +25,4 @@ const sql = await fs.readFile(dbFile, 'utf-8');
 
 const results = await db.query(sql);
 
-console.log('Results', results);
+console.log('OK');

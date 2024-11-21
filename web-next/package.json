@@ -1,7 +1,12 @@
 {
-  "name": "@flichtcard/webnext",
+  "name": "@flightcard/web-next",
   "version": "0.1.0",
   "private": true,
+  "exports": {
+    ".": {
+      "import": "./src/index.js"
+    }
+  },
   "scripts": {
     "dev": "next dev --experimental-https",
     "build": "next build",
@@ -9,6 +14,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@flightcard/db": "*",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106"

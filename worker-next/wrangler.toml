@@ -1,0 +1,33 @@
+name = "club-members"
+main = "src/index.ts"
+
+compatibility_date = "2023-05-29"
+
+[vars]
+CLOUDFLARE_API_TOKEN="not used in dev"
+CLOUDFLARE_ACCOUNT_ID="not used in dev"
+FC_CERTS_DB="not used in dev"
+
+[triggers]
+# Frequency here determines how often NAR logic can fetch a page of results.
+# crons = ["0 1 * * *"] # daily @ 1am
+crons = ["*/10 * * * *"] # every 10 minutes
+
+# Note: Be sure to update bindings in .envrc
+[[d1_databases]]
+binding = "CertsDB"
+database_name = "certs2"
+database_id = "518eaac7-27b4-49e2-8137-6d7ed749abd0"
+
+# Note: Be sure to update bindings in .envrc
+[[kv_namespaces]]
+binding = "CertsKV"
+id = "afad0f09ca4e41e79ce14272da78ad04"
+preview_id = "202f9cc828c149d0acfc1238195eeeff"
+
+[dev]
+port = 1235
+
+[observability]
+enabled = true
+head_sampling_rate = 1

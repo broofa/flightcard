@@ -1,11 +1,6 @@
 import { API_BASE } from './CFDatabaseClient';
 
 export class CFRestClient {
-  /**
-   *
-   * @param accountID The Cloudflare account ID
-   * @param apiToken  The Cloudflare API token
-   */
   constructor(
     private accountID: string,
     private apiToken: string

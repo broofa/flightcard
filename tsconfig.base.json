@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "checkJs": false,
+    "composite": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["es2022"],
     "module": "es2022",

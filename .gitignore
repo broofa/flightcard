@@ -6,3 +6,12 @@
 dist
 node_modules
 vscode.code-workspace
+.envrc
+.parcel-cache
+.vscode
+.wrangler
+*.log
+dist
+node_modules
+vscode.code-workspace
+tsconfig.tsbuildinfo
