@@ -1,5 +1,5 @@
-export default function (request: Request) {
-  const origin = request.headers.get('origin') ?? '';
+export default function (req: Request) {
+  const origin = req.headers.get('origin') ?? '';
 
   if (!origin) return;
 
@@ -11,7 +11,7 @@ export default function (request: Request) {
   }
 
   // Allow preflight requests that Chrome sends for localhost CORS requests
-  if (request.method === 'OPTIONS') {
+  if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
       headers: {

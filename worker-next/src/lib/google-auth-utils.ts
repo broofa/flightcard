@@ -1,11 +1,3 @@
-// REF: https://developers.google.com/identity/protocols/oauth2/scopes
-export const GOOGLE_SCOPES = [
-  // 'https://www.googleapis.com/auth/userinfo.email',
-  // 'https://www.googleapis.com/auth/userinfo.profile',
-  'email',
-  'profile',
-];
-
 const GOOGLE_USER_INFO_URI = 'https://www.googleapis.com/oauth2/v1/userinfo';
 const GOOGLE_TOKEN_URI = 'https://oauth2.googleapis.com/token';
 
@@ -34,12 +26,12 @@ export interface UserInfo {
   verified_email?: boolean;
 }
 
-export async function requestAccessToken(authCode: string) {
+export async function requestAccessToken(env: Env, authCode: string) {
   const url = new URL(GOOGLE_TOKEN_URI!);
   const params = new URLSearchParams({
     access_type: 'offline',
-    client_id: process.env.GOOGLE_CLIENT_ID!,
-    client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+    client_id: env.GOOGLE_CLIENT_ID,
+    client_secret: env.GOOGLE_CLIENT_SECRET,
     code: authCode,
     grant_type: 'authorization_code',
     redirect_uri: 'https://localhost:3000',
@@ -75,25 +67,4 @@ export async function requestUserInfo(accessToken: string): Promise<UserInfo> {
   });
 
   return await response.json();
-}
-
-// Loads google API
-let googleLoginPromise: Promise<typeof google> | undefined;
-function loadGoogleAuth() {
-  if (typeof window === 'undefined') {
-    // Skip SSR
-  }
-
-  if (!googleLoginPromise) {
-    // TODO: Reject after timeout
-    googleLoginPromise = new Promise<typeof google>((resolve) => {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.onload = () => resolve(window.google);
-
-      document.documentElement.appendChild(script);
-    });
-  }
-  return googleLoginPromise;
 }

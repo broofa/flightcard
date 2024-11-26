@@ -29,7 +29,7 @@ export class BaseModel<ModelProps extends BaseProps> {
   }
 }
 
-type UserProps = BaseProps & {
+export type UserProps = BaseProps & {
   userID: string;
   email?: string;
   firstName?: string;

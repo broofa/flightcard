@@ -11,10 +11,12 @@
   },
   "private": true,
   "scripts": {
+    "cf-codegen": "wrangler types",
     "start": "wrangler dev --test-scheduled src/index.ts",
-    "deploy": "wrangler deploy",
-    "db:init": "wrangler d1 execute certs2 --local --file=schema.sql",
-    "db:deploy": "wrangler d1 execute certs2 --file=schema.sql",
+    "deploy": "wrangler deploy && npm run db:migrate --remote",
+    "db:do": "wrangler d1 execute flightcard --command",
+    "db:migrate:reset": "npm run db:do \"drop table migrations\"",
+    "db:migrate": "wrangler d1 migrations apply flightcard",
     "nar:update": "npx tsx src/nar_update.ts"
   },
   "dependencies": {
