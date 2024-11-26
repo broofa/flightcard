@@ -1,4 +1,4 @@
-import type { NARItem, NARPage, Scan } from '@flightcard/common-types';
+import type { NARItem, NARPage, Scan } from '@flightcard/common';
 import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from '../lib/CFAPI';
 import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';

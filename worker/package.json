@@ -18,6 +18,6 @@
     "nar:update": "npx tsx src/nar_update.ts"
   },
   "dependencies": {
-    "@flightcard/common-types": "*"
+    "@flightcard/common": "*"
   }
 }

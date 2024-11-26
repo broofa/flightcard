@@ -9,6 +9,9 @@
     "typescript": "^5.6.3",
     "wrangler": "^3.83.0"
   },
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "private": true,
   "scripts": {
     "cf-codegen": "wrangler types",
@@ -20,6 +23,6 @@
     "nar:update": "npx tsx src/nar_update.ts"
   },
   "dependencies": {
-    "@flightcard/common-types": "*"
+    "@flightcard/common": "*"
   }
 }

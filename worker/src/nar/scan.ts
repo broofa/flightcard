@@ -1,4 +1,4 @@
-import type { NARItem, NARPage, Scan } from '@flightcard/common-types';
+import type { NARItem, NARPage, Scan } from '@flightcard/common';
 import { neonToTimestamp } from './nar-util';
 
 export function scanInit(): Scan {

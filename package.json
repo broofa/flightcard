@@ -32,5 +32,5 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
   },
-  "workspaces": ["common-types", "db", "webapp", "web-next", "worker", "worker-next"]
+  "workspaces": ["common", "db", "web-next", "worker-next"]
 }

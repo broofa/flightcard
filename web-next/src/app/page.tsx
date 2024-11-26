@@ -1,4 +1,4 @@
-import Login from '@/app/Login';
+import { LoginProtected } from '@/app/LoginProtected';
 
 export default function Home() {
   return (
@@ -8,7 +8,7 @@ export default function Home() {
     >
       <main className='flex flex-col gap-8 prow-start-2 items-center w-80'>
         <h1>Welcome to FlightCard</h1>
-        <Login />
+        <LoginProtected>hello</LoginProtected>
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { Scan, TRACache } from '@flightcard/common-types';
+import type { Scan, TRACache } from '@flightcard/common';
 import type { tUnitSystemName } from '/util/units';
 
 // Tell VSCode not to choke on Parcel's static file imports

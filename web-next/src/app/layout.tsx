@@ -2,6 +2,7 @@
 
 import { Raleway } from 'next/font/google';
 
+import Head from 'next/head';
 import './globals.css';
 import './Login';
 
@@ -19,6 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en' suppressHydrationWarning>
+      <Head>
+        <link rel='icon' type='image/png' href='/favicon.png' />
+      </Head>
+
       <body className={`${railway.className} antialiased`}>{children}</body>
     </html>
   );

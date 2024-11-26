@@ -6,6 +6,8 @@ import {
   requestUserInfo,
 } from '../lib/google-auth-utils';
 
+import { FLIGHTCARD_SESSION_COOKIE } from '@flightcard/common/constants.js';
+
 // this here for the time being
 type CodeResponse = {
   code: string;
@@ -28,8 +30,6 @@ type SessionModel = {
   userID: string;
   expiresAt: number;
 };
-
-export const FLIGHTCARD_SESSION_COOKIE = '_fcid';
 
 export async function PostGoogleLogin(
   req: Request,
@@ -71,7 +71,7 @@ export async function PostGoogleLogin(
     `${FLIGHTCARD_SESSION_COOKIE}=${session.sessionID}`,
     `Max-Age=${maxAge}`,
     'Path=/',
-    'HttpOnly',
+    // 'HttpOnly',
     'Secure',
     'SameSite=Strict',
   ];

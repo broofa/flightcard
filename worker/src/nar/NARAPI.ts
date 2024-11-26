@@ -4,7 +4,7 @@ import type {
   NARPage,
   NARSearchFields,
   Scan,
-} from '@flightcard/common-types';
+} from '@flightcard/common';
 import ConsoleWithPrefix from '../lib/ConsoleWithPrefix';
 import { timestampToNeon } from './nar-util';
 import { scanIsComplete, scanUpdate } from './scan';

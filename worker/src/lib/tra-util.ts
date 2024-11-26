@@ -1,4 +1,4 @@
-import type { TRACache } from '@flightcard/common-types';
+import type { TRACache } from '@flightcard/common';
 import { CertOrg, type iCert } from '../../types_certs';
 import { CFAPI } from './CFAPI';
 import ConsoleWithPrefix from './ConsoleWithPrefix';

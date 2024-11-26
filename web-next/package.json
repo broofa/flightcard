@@ -1,6 +1,6 @@
 {
   "name": "@flightcard/web-next",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "exports": {
     ".": {
@@ -14,7 +14,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@flightcard/common": "*",
     "@flightcard/db": "*",
+    "@flightcard/worker-next": "*",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106"

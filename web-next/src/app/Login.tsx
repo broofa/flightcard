@@ -1,5 +1,7 @@
 'use client';
 
+import { useCurrentUser } from '@/app/useCurrentUser';
+import { FLIGHTCARD_SESSION_COOKIE } from '@flightcard/common/constants.js';
 import { useEffect, useState } from 'react';
 
 // REF: https://developers.google.com/identity/protocols/oauth2/scopes
@@ -12,6 +14,7 @@ export const GOOGLE_SCOPES = [
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setSessionID] = useCurrentUser();
 
   useEffect(() => {
     googleAPI.then(() => setIsLoading(false));
@@ -20,8 +23,8 @@ export default function Login() {
   return (
     <button
       disabled={isLoading}
-      className='btn btn-primary w-full'
-      onClick={googleLogin}
+      className='btn btn-outline w-50'
+      onClick={doGoogleLogin}
     >
       <img src='google.svg' alt='Google Logo' className='w-6 h-6' />
       Login With Google
@@ -46,7 +49,7 @@ const googleAPI = (() => {
   });
 })();
 
-async function googleLogin() {
+async function doGoogleLogin() {
   const g = await googleAPI;
 
   if (!g) {
@@ -66,33 +69,15 @@ async function googleLogin() {
         },
         body: JSON.stringify(response, null, 2),
       });
+
+      updateCurrentUser();
     },
   });
 
   client.requestCode();
 }
 
-// Loads google auth API.  The api is set as a window global, but we want to
-// load it `async` + `defer`, which means we can't rely on it being available
-// immediately.  So we load it dynamically and use the script#onload event to
-// detect when it's available.
-let _authAPIPromise: Promise<typeof google> | undefined;
-
-function loadGoogleAuthAPI() {
-  if (typeof window === 'undefined') {
-    // Skip SSR
-  }
-
-  if (!_authAPIPromise) {
-    // TODO: Reject after timeout
-    _authAPIPromise = new Promise<typeof google>((resolve) => {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.onload = () => resolve(window.google);
-
-      document.documentElement.appendChild(script);
-    });
-  }
-  return _authAPIPromise;
+function updateCurrentUser() {
+  const sessionID = document.cookie.split(FLIGHTCARD_SESSION_COOKIE + '=')[1];
+  console.log('SESSSSIONID', document.cookie);
 }

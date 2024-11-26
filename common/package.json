@@ -1,0 +1,11 @@
+{
+  "name": "@flightcard/common",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "exports": {
+    "./*": {
+      "default": "./src/*"
+    }
+  },
+  "types": "index.d.ts"
+}

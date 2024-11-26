@@ -14,7 +14,7 @@ export enum CertOrg {
   TRA = 'TRA',
 }
 
-// TODO: De-dupe this type.  It's defined in webapp/types.ts as well, and should move to @flightcard/common-types
+// TODO: De-dupe this type.  It's defined in webapp/types.ts as well, and should move to @flightcard/common
 export interface iCert {
   level: CertLevel;
   firstName: string;
