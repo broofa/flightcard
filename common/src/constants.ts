@@ -1,1 +1,1 @@
-export const FLIGHTCARD_SESSION_COOKIE = '_fcid';
+export const FC_SESSION_COOKIE = '_fcid';

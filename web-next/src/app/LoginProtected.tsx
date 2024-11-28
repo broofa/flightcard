@@ -8,7 +8,6 @@ import { useCurrentUser } from '@/app/useCurrentUser';
 export function LoginProtected({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-
   const [currentUser] = useCurrentUser();
 
   if (!currentUser) {

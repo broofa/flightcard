@@ -11,24 +11,25 @@ export async function UseCors(req: RouteRequest) {
   let res: Response | undefined;
   if (req.method === 'OPTIONS') {
     res = new Response(null, { status: 200 });
-    res.headers.set('access-control-allow-methods', 'GET, OPTIONS');
-    res.headers.set(
-      'access-control-allow-headers',
-      'Content-Type, Authorization'
-    );
   } else {
     res = await req.next();
   }
 
-  res?.headers.set('access-control-allow-origin', origin);
+  res?.headers.set('Access-Control-Allow-Origin', origin);
+  res?.headers.set('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+  res?.headers.set('Access-Control-Allow-Credentials', 'true');
+  res?.headers.set(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization'
+  );
 
   return res;
 }
 
 function isFlightCardOrigin(origin: string) {
-  let { hostname } = new URL(origin);
-  if (!hostname) return true;
+  if (!origin) return true;
 
+  let { hostname } = new URL(origin);
   hostname = hostname.toLowerCase();
 
   if (!hostname) return false;

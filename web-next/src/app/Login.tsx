@@ -1,7 +1,6 @@
 'use client';
 
 import { useCurrentUser } from '@/app/useCurrentUser';
-import { FLIGHTCARD_SESSION_COOKIE } from '@flightcard/common/constants.js';
 import { useEffect, useState } from 'react';
 
 // REF: https://developers.google.com/identity/protocols/oauth2/scopes
@@ -14,11 +13,39 @@ export const GOOGLE_SCOPES = [
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setSessionID] = useCurrentUser();
+  const [currentUser, userRefresh] = useCurrentUser();
 
   useEffect(() => {
     googleAPI.then(() => setIsLoading(false));
   }, []);
+
+  async function doGoogleLogin() {
+    const g = await googleAPI;
+
+    if (!g) {
+      console.error('Google API not loaded');
+      return;
+    }
+
+    const client = g.accounts.oauth2.initCodeClient({
+      client_id: process.env.GOOGLE_CLIENT_ID!,
+      scope: GOOGLE_SCOPES.join(' '),
+      ux_mode: 'popup',
+      callback: async (response) => {
+        const userInfoResponse = await fetch('/worker/google-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(response, null, 2),
+        });
+
+        userRefresh();
+      },
+    });
+
+    client.requestCode();
+  }
 
   return (
     <button
@@ -48,36 +75,3 @@ const googleAPI = (() => {
     document.documentElement.appendChild(script);
   });
 })();
-
-async function doGoogleLogin() {
-  const g = await googleAPI;
-
-  if (!g) {
-    console.error('Google API not loaded');
-    return;
-  }
-
-  const client = g.accounts.oauth2.initCodeClient({
-    client_id: process.env.GOOGLE_CLIENT_ID!,
-    scope: GOOGLE_SCOPES.join(' '),
-    ux_mode: 'popup',
-    callback: async (response) => {
-      const userInfoResponse = await fetch('/worker/google-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(response, null, 2),
-      });
-
-      updateCurrentUser();
-    },
-  });
-
-  client.requestCode();
-}
-
-function updateCurrentUser() {
-  const sessionID = document.cookie.split(FLIGHTCARD_SESSION_COOKIE + '=')[1];
-  console.log('SESSSSIONID', document.cookie);
-}

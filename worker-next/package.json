@@ -23,6 +23,8 @@
     "nar:update": "npx tsx src/nar_update.ts"
   },
   "dependencies": {
-    "@flightcard/common": "*"
+    "@flightcard/common": "*",
+    "@flightcard/db": "*",
+    "cookie": "^1.0.2"
   }
 }

@@ -6,7 +6,8 @@ import {
   requestUserInfo,
 } from '../lib/google-auth-utils';
 
-import { FLIGHTCARD_SESSION_COOKIE } from '@flightcard/common/constants.js';
+// @ts-ignore - TS can't find type declarations here.  Not sure why :-(
+import { FC_SESSION_COOKIE } from '@flightcard/common/constants.ts';
 
 // this here for the time being
 type CodeResponse = {
@@ -64,16 +65,15 @@ export async function PostGoogleLogin(
     return Response.json({ error: 'Session creation failed' }, { status: 400 });
   }
 
-  console.log('session', session);
   const maxAge = Math.floor(session.expiresAt - Date.now() / 1000);
 
   const cookieAtts = [
-    `${FLIGHTCARD_SESSION_COOKIE}=${session.sessionID}`,
+    `${FC_SESSION_COOKIE}=${session.sessionID}`,
     `Max-Age=${maxAge}`,
     'Path=/',
     // 'HttpOnly',
     'Secure',
-    'SameSite=Strict',
+    'SameSite=None',
   ];
 
   const res = Response.json(userInfo);
@@ -90,7 +90,7 @@ async function updateUser(env: Env, userInfo: UserInfo) {
   await db
     .prepare(`INSERT INTO users (userID, email, firstName, lastName, avatarURL)
     VALUES (?1, ?2, ?3, ?4, ?5)
-    ON CONFLICT(email) DO UPDATE SET firstName=?2, lastName=?3, avatarURL=?4
+    ON CONFLICT(email) DO UPDATE SET firstName=?3, lastName=?4, avatarURL=?5
     ;`)
     .bind(
       userID,

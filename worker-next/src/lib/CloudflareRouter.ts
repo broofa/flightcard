@@ -33,6 +33,15 @@ export class Router {
     });
   }
 
+  DELETE(path: string, route: Route) {
+    this.use(async (req, env) => {
+      if (req.method === 'DELETE' && req.parsedURL.pathname === path) {
+        return route(req, env);
+      }
+      return req.next();
+    });
+  }
+
   async handleRequest(request: Request, env: Env): Promise<Response> {
     const routeRequest = request as RouteRequest;
     routeRequest.parsedURL = new URL(request.url);
