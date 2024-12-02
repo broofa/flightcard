@@ -6,7 +6,7 @@ export async function UseError(req: RouteRequest) {
   } catch (err) {
     const { message, stack } = err as Error;
 
-    console.error('Unhandled route error:', err);
+    console.error('Error while handling', req.url, err);
     return Response.json(
       {
         error: message,

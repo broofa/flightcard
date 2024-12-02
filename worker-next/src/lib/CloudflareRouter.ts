@@ -15,6 +15,15 @@ export class Router {
     this.routes.push(route);
   }
 
+  DELETE(path: string, route: Route) {
+    this.use(async (req, env) => {
+      if (req.method === 'DELETE' && req.parsedURL.pathname === path) {
+        return route(req, env);
+      }
+      return req.next();
+    });
+  }
+
   GET(path: string, route: Route) {
     this.use(async (req, env) => {
       if (req.method === 'GET' && req.parsedURL.pathname === path) {
@@ -33,18 +42,19 @@ export class Router {
     });
   }
 
-  DELETE(path: string, route: Route) {
+  PATCH(path: string, route: Route) {
     this.use(async (req, env) => {
-      if (req.method === 'DELETE' && req.parsedURL.pathname === path) {
+      if (req.method === 'PATCH' && req.parsedURL.pathname === path) {
         return route(req, env);
       }
       return req.next();
     });
   }
 
-  async handleRequest(request: Request, env: Env): Promise<Response> {
-    const routeRequest = request as RouteRequest;
-    routeRequest.parsedURL = new URL(request.url);
+  async handleRequest(req: Request, env: Env): Promise<Response> {
+    console.log('HANDLING', req.url);
+    const routeRequest = req as RouteRequest;
+    routeRequest.parsedURL = new URL(req.url);
 
     let i = 0;
     routeRequest.next = () => {

@@ -8,6 +8,7 @@ import {
 
 // @ts-ignore - TS can't find type declarations here.  Not sure why :-(
 import { FC_SESSION_COOKIE } from '@flightcard/common/constants.ts';
+import { CFQuery } from '../lib/CFQuery';
 
 // this here for the time being
 type CodeResponse = {
@@ -85,26 +86,37 @@ async function updateUser(env: Env, userInfo: UserInfo) {
   const db = env.AppDB;
 
   const userID = crypto.randomUUID();
+  const {
+    email,
+    given_name: firstName,
+    family_name: lastName,
+    picture: avatarURL,
+  } = userInfo;
 
   // Create user
-  await db
-    .prepare(`INSERT INTO users (userID, email, firstName, lastName, avatarURL)
-    VALUES (?1, ?2, ?3, ?4, ?5)
-    ON CONFLICT(email) DO UPDATE SET firstName=?3, lastName=?4, avatarURL=?5
-    ;`)
-    .bind(
+  await new CFQuery()
+    .insert('users')
+    .values({
       userID,
-      userInfo.email,
-      userInfo.given_name,
-      userInfo.family_name,
-      userInfo.picture
-    )
-    .run();
+      email,
+      firstName,
+      lastName,
+      avatarURL,
+    })
+    .onConflict('email')
+    .set({
+      firstName,
+      lastName,
+      avatarURL,
+    })
+    .run(env);
 
-  return await db
-    .prepare('SELECT * FROM users WHERE email = ?1;')
-    .bind(userInfo.email)
-    .first<UserModel>();
+  // Return new user
+  return await new CFQuery()
+    .select('*')
+    .from('users')
+    .where('email', userInfo.email)
+    .first<UserModel>(env);
 }
 
 async function createSession(env: Env, user: UserModel) {
@@ -112,16 +124,21 @@ async function createSession(env: Env, user: UserModel) {
 
   // Create session
   const sessionID = crypto.randomUUID();
-  const expiresAt = Date.now() / 1000 + 30 * 24 * 60 * 60; // Seconds
-  await db
-    .prepare(`INSERT INTO sessions (sessionID, userID, expiresAt)
-      VALUES (?1, ?2, ?3);`)
-    .bind(sessionID, user.userID, expiresAt)
-    .run();
+  const expiresAt = new Date();
+  expiresAt.setMonth(expiresAt.getMonth() + 1);
 
-  // Return new session id model
-  return await db
-    .prepare('SELECT * FROM sessions WHERE sessionID = ?1;')
-    .bind(sessionID)
-    .first<SessionModel>();
+  await new CFQuery()
+    .insert('sessions')
+    .values({
+      sessionID,
+      userID: user.userID,
+      expiresAt: expiresAt.toISOString(),
+    })
+    .run(env);
+
+  return await new CFQuery()
+    .select('*')
+    .from('sessions')
+    .where('sessionID', sessionID)
+    .first<SessionModel>(env);
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import { useCurrentAttendee, useLaunch } from '../contexts/rt_hooks';
 import CertPref from './CertPref';
 import ProfileName from './NamePref';

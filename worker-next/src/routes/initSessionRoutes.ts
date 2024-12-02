@@ -1,59 +1,61 @@
 import { FC_SESSION_COOKIE } from '@flightcard/common/constants.ts';
 import type { UserModel } from '@flightcard/db';
-import { parse } from 'cookie';
-import type { Router } from '../lib/CloudflareRouter';
+import cookie from 'cookie';
+import { CFQuery } from '../lib/CFQuery';
 
-// Get user for the current sesssion cookie
+export function getSessionID(req: Request) {
+  const cookies = cookie.parse(req.headers.get('Cookie') || '');
+  return cookies[FC_SESSION_COOKIE];
+}
 
-export function initSessionRoutes(router: Router) {
-  router.GET('/sessions/current/user', GetSessionUser);
-  router.DELETE('/sessions/current', DeleteSession);
+export async function querySessionUser(req: Request, env: Env) {
+  const sessionID = getSessionID(req);
+
+  if (!sessionID) {
+    return null;
+  }
+
+  const query = new CFQuery();
+  query
+    .select('*')
+    .from('users')
+    .where(
+      'userID',
+      query
+        .subquery()
+        .select('userID')
+        .from('sessions')
+        .where('sessionID', sessionID)
+    );
+
+  return await query.first<UserModel>(env);
 }
 
 export async function GetSessionUser(req: Request, env: Env) {
-  const cookie = parse(req.headers.get('Cookie') || '');
-  const sessionID = cookie[FC_SESSION_COOKIE];
-
-  if (!sessionID) {
-    return Response.json(null);
-  }
-
-  const db = env.AppDB;
-
-  const user = await db
-    .prepare(
-      'SELECT * FROM users WHERE userID = (SELECT userID FROM sessions WHERE sessionID = ?);'
-    )
-    .bind(sessionID)
-    .first<UserModel>();
+  const user = await querySessionUser(req, env);
 
   return Response.json(user);
 }
 
 export async function DeleteSession(req: Request, env: Env) {
-  const cookie = parse(req.headers.get('Cookie') || '');
-  const sessionID = cookie[FC_SESSION_COOKIE];
+  const res = Response.json(null);
+
+  const sessionID = getSessionID(req);
   if (!sessionID) {
-    return new Response('No session cookie', { status: 401 });
+    // No cookie = nothing to do
+    return res;
   }
 
-  const db = env.AppDB;
+  await new CFQuery().delete('sessions').where('sessionID', sessionID).run(env);
 
-  await db
-    .prepare('DELETE FROM sessions WHERE sessionID = ?;')
-    .bind(sessionID)
-    .run();
-
-  const cookieAtts = [
-    `${FC_SESSION_COOKIE}=`,
-    `Max-Age=${0}`,
-    'Path=/',
-    // 'HttpOnly',
-    'Secure',
-    'SameSite=None',
-  ];
-
-  const res = Response.json(null);
-  res.headers.set('Set-Cookie', cookieAtts.join('; '));
+  res.headers.set(
+    'Set-Cookie',
+    cookie.serialize(FC_SESSION_COOKIE, '', {
+      maxAge: 0,
+      path: '/',
+      secure: true,
+      sameSite: 'none',
+    })
+  );
   return res;
 }
