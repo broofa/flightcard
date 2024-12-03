@@ -1,14 +1,11 @@
 // Haven't been able to get @types/google.acccounts to work so just defining
 
-import {
-  type UserInfo,
-  requestAccessToken,
-  requestUserInfo,
-} from '../lib/google-auth-utils';
+import { requestAccessToken, requestUserInfo } from '../lib/google-util';
 
 // @ts-ignore - TS can't find type declarations here.  Not sure why :-(
-import { FC_SESSION_COOKIE } from '@flightcard/common/constants.ts';
+import { FC_SESSION_COOKIE, toss } from '@flightcard/common';
 import { CFQuery } from '../lib/CFQuery';
+import { upsertUser } from '../lib/user-util';
 
 // this here for the time being
 type CodeResponse = {
@@ -18,7 +15,7 @@ type CodeResponse = {
   prompt: string;
 };
 
-type UserModel = {
+export type UserModel = {
   userID: string;
   email: string;
   firstName: string;
@@ -56,7 +53,15 @@ export async function PostGoogleLogin(
   const userInfo = await requestUserInfo(accessToken.access_token);
 
   // Create / update user account
-  const user = await updateUser(env, userInfo);
+  const user = await upsertUser(env, {
+    userID: crypto.randomUUID(),
+    email: userInfo.email ?? toss('No email in Google profile?!?'),
+    firstName: userInfo.given_name,
+    lastName: userInfo.family_name,
+    avatarURL: userInfo.picture,
+    units: 'si',
+  });
+
   if (!user) {
     return Response.json({ error: 'User upsert failed' }, { status: 400 });
   }
@@ -80,43 +85,6 @@ export async function PostGoogleLogin(
   const res = Response.json(userInfo);
   res.headers.set('Set-Cookie', cookieAtts.join('; '));
   return res;
-}
-
-async function updateUser(env: Env, userInfo: UserInfo) {
-  const db = env.AppDB;
-
-  const userID = crypto.randomUUID();
-  const {
-    email,
-    given_name: firstName,
-    family_name: lastName,
-    picture: avatarURL,
-  } = userInfo;
-
-  // Create user
-  await new CFQuery()
-    .insert('users')
-    .values({
-      userID,
-      email,
-      firstName,
-      lastName,
-      avatarURL,
-    })
-    .onConflict('email')
-    .set({
-      firstName,
-      lastName,
-      avatarURL,
-    })
-    .run(env);
-
-  // Return new user
-  return await new CFQuery()
-    .select('*')
-    .from('users')
-    .where('email', userInfo.email)
-    .first<UserModel>(env);
 }
 
 async function createSession(env: Env, user: UserModel) {

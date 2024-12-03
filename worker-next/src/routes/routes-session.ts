@@ -1,4 +1,4 @@
-import { FC_SESSION_COOKIE } from '@flightcard/common/constants.ts';
+import { FC_SESSION_COOKIE } from '@flightcard/common';
 import type { UserModel } from '@flightcard/db';
 import cookie from 'cookie';
 import { CFQuery } from '../lib/CFQuery';

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC_SESSION_COOKIE } from '@flightcard/common/constants.ts';
+import { FC_SESSION_COOKIE } from '@flightcard/common';
 import { UserModel } from '@flightcard/db';
 import { useEffect, useState } from 'react';
 

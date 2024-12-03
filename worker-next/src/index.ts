@@ -4,8 +4,8 @@ import { PostGoogleLogin } from './routes/PostGoogleLogin';
 import { Use404 } from './routes/Use404';
 import { UseCors } from './routes/UseCors';
 import { UseError } from './routes/UseError';
-import { DeleteSession, GetSessionUser } from './routes/initSessionRoutes';
-import { UpdateUser } from './routes/initUserRoutes';
+import { DeleteSession, GetSessionUser } from './routes/routes-session';
+import { UpdateUser } from './routes/routes-user';
 
 const router = new Router();
 

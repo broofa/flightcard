@@ -1,6 +1,6 @@
 import { isUserProps } from '@flightcard/db';
 import { CFQuery } from '../lib/CFQuery';
-import { querySessionUser } from './initSessionRoutes';
+import { querySessionUser } from './routes-session';
 
 export async function UpdateUser(req: Request, env: Env) {
   const currentUser = await querySessionUser(req, env);
