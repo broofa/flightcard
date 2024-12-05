@@ -1,16 +1,26 @@
 'use client';
 
+import { InputField } from '@/app/profile/InputField';
 import { Loading } from '@/app/profile/Loading';
+import { RadioField } from '@/app/profile/RadioField';
 import { useCurrentUser } from '@/app/useCurrentUser';
 import type { UserProps } from '@flightcard/db';
-import type React from 'react';
 import { type ChangeEvent, useState } from 'react';
+import { BusyButton } from '../../../lib/Busy';
+import { useFetch } from '../../../lib/useFetch';
+import { objectEqual } from '@flightcard/common';
+import { useDebounce } from '../../../lib/useDebounce';
 
 type UserFormProps = UserProps & { name?: string };
 
 export default function ProfilePage() {
   const [currentUser] = useCurrentUser();
   const [fields, setFields] = useState<UserFormProps>();
+  const save = useFetch();
+  const traInfo = useFetch();
+  const debouncedTraID = useDebounce(fields?.traID, 500);
+
+  
 
   if (!currentUser) return <Loading wat='User' />;
 
@@ -19,7 +29,7 @@ export default function ProfilePage() {
     return <Loading wat='Fields' />;
   }
 
-  const changed = !objectDiff(fields, currentUser.props());
+  const changed = !objectEqual(fields, currentUser.props());
   const defaultName = [fields.firstName, fields.lastName]
     .filter(Boolean)
     .join(' ');
@@ -28,7 +38,7 @@ export default function ProfilePage() {
     setFields(undefined);
   };
 
-  const doSave = () => {
+  const doSave = async () => {
     const payload = { ...fields };
     // Parse UI-only fields
     const nameParts = payload.name?.split(/\s+/) || [];
@@ -37,11 +47,13 @@ export default function ProfilePage() {
     delete payload.name;
 
     // TODO: HANDLE ERRORS!
-    fetch('/worker/users/current', {
+    await save.fetch('/worker/users/current', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+
+    setFields(currentUser.props());
   };
 
   const updateField = (
@@ -104,70 +116,15 @@ export default function ProfilePage() {
           Cancel
         </button>
         <span className='grow' />
-        <button
+        <BusyButton
+          busy={save.busy}
           className='btn btn-primary w-24'
           disabled={changed}
           onClick={doSave}
         >
           Save
-        </button>
+        </BusyButton>
       </div>
     </div>
   );
-}
-
-function InputField({
-  label,
-  value,
-  ...props
-}: { label: string } & React.HTMLProps<HTMLInputElement>) {
-  value ??= '';
-  return (
-    <label className='w-full input input-bordered flex flex-col items-start gap-0'>
-      <span className='label-text w-20 grow-0'>{label}</span>
-      {/* TODO: remove readOnly */}
-      <input type='text' value={String(value)} {...props} />
-    </label>
-  );
-}
-
-function RadioField({
-  value,
-  values,
-  ...props
-}: { values: Record<string, string> } & React.HTMLProps<HTMLInputElement>) {
-  return (
-    <div className='flex gap-4 w-full'>
-      {Object.entries(values).map(([optionTitle, optionValue]) => (
-        <label key={optionValue} className='label cursor-pointer flex gap-2'>
-          <span className='label-text w-max'>{optionTitle}</span>
-          <input
-            type='radio'
-            className='radio'
-            {...props}
-            value={optionValue}
-            checked={optionValue === value}
-          />
-        </label>
-      ))}
-    </div>
-  );
-}
-
-function objectDiff(o1: Record<string, unknown>, o2: Record<string, unknown>) {
-  for (const key in o1) {
-    if (o1[key] !== o2[key]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function objectClean<T>(obj: T) {
-  for (const key in obj) {
-    if (obj[key] == null || obj[key] === '') {
-      delete obj[key];
-    }
-  }
-  return obj;
 }

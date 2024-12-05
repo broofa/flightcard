@@ -1,10 +1,7 @@
 export function toss(s: string): never {
-  const err = new Error(s);
-  // remove this function from stack
-  // err.stack = err.stack
-  //   ?.split('\n')
-  //   .filter((line) => /\btoss\b/.test(line) === false)
-  //   .join('\n');
+  throw new Error(s);
+}
 
-  throw err;
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

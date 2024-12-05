@@ -3,6 +3,9 @@
 import { Raleway } from 'next/font/google';
 
 import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import Icon from '../../lib/Icon';
 import './globals.css';
 import './Login';
 
@@ -18,13 +21,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const router = useRouter();
+
   return (
     <html lang='en' suppressHydrationWarning>
       <Head>
         <link rel='icon' type='image/png' href='/favicon.png' />
       </Head>
 
-      <body className={`${railway.className} antialiased`}>{children}</body>
+      <body
+        className={`${railway.className} border border-dark mx-auto antialiased`}
+      >
+        <details className='dropdown'>
+          <summary className='btn m-1 px-2 m-0'>
+            <Icon name='list' size='1.5em' />
+          </summary>
+
+          <ul className='menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow'>
+            <Link href='/'>Home</Link>
+            <Link href='/profile'>Settings</Link>
+            <div className='divider'>🌸</div>
+            <Link href='/'>Logout</Link>
+          </ul>
+        </details>
+
+        {children}
+      </body>
     </html>
   );
 }
