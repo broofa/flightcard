@@ -1,13 +1,28 @@
 /* https://cssloaders.github.io/ */
 .busy-spinner {
+  --busy-size: 1.5em;
+  --busy-width: calc(var(--busy-size) * 0.2);
+  --busy-width-neg: calc(var(--busy-size) * -0.2);
+
   pointer-events: none;
   transform: rotateZ(45deg);
   perspective: 1000px;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: var(--busy-size);
+  height: var(--busy-size);
   color: orange;
 }
+
+.busy-spinner-sm {
+  --busy-size: 1em;
+}
+.busy-spinner-md {
+  /* default */
+}
+.busy-spinner-lg {
+  --busy-size: 2em;
+}
+
 .busy-spinner:before,
 .busy-spinner:after {
   content: "";
@@ -48,28 +63,28 @@
 @keyframes spin {
   0%,
   100% {
-    box-shadow: 6px 0px 0 0px currentcolor;
+    box-shadow: var(--busy-width) 0px 0 0px currentcolor;
   }
   12% {
-    box-shadow: 6px 6px 0 0 currentcolor;
+    box-shadow: var(--busy-width) var(--busy-width) 0 0 currentcolor;
   }
   25% {
-    box-shadow: 0 6px 0 0px currentcolor;
+    box-shadow: 0 var(--busy-width) 0 0px currentcolor;
   }
   37% {
-    box-shadow: -6px 6px 0 0 currentcolor;
+    box-shadow: var(--busy-width-neg) var(--busy-width) 0 0 currentcolor;
   }
   50% {
-    box-shadow: -6px 0 0 0 currentcolor;
+    box-shadow: var(--busy-width-neg) 0 0 0 currentcolor;
   }
   62% {
-    box-shadow: -6px -6px 0 0 currentcolor;
+    box-shadow: var(--busy-width-neg) var(--busy-width-neg) 0 0 currentcolor;
   }
   75% {
-    box-shadow: 0px -6px 0 0 currentcolor;
+    box-shadow: 0px var(--busy-width-neg) 0 0 currentcolor;
   }
   87% {
-    box-shadow: 6px -6px 0 0 currentcolor;
+    box-shadow: var(--busy-width) var(--busy-width-neg) 0 0 currentcolor;
   }
 }
 

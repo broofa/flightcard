@@ -3,7 +3,7 @@
 import { requestAccessToken, requestUserInfo } from '../lib/google-util';
 
 // @ts-ignore - TS can't find type declarations here.  Not sure why :-(
-import { FC_SESSION_COOKIE, toss } from '@flightcard/common';
+import { FC_SESSION_COOKIE, errorResponse, toss } from '@flightcard/common';
 import { CFQuery } from '../lib/CFQuery';
 import { upsertUser } from '../lib/user-util';
 
@@ -43,10 +43,7 @@ export async function PostGoogleLogin(
   const accessToken = await requestAccessToken(env, body.code);
 
   if (!accessToken) {
-    return Response.json(
-      { error: 'Failed to get access token' },
-      { status: 400 }
-    );
+    return errorResponse('Failed to get access token', { status: 400 });
   }
 
   // Fetch user profile info
@@ -63,12 +60,12 @@ export async function PostGoogleLogin(
   });
 
   if (!user) {
-    return Response.json({ error: 'User upsert failed' }, { status: 400 });
+    return errorResponse('User upsert failed', { status: 400 });
   }
 
   const session = await createSession(env, user);
   if (!session) {
-    return Response.json({ error: 'Session creation failed' }, { status: 400 });
+    return errorResponse('Session creation failed', { status: 400 });
   }
 
   const maxAge = Math.floor(session.expiresAt - Date.now() / 1000);

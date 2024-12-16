@@ -13,7 +13,7 @@ export const GOOGLE_SCOPES = [
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, userRefresh] = useCurrentUser();
+  const { refresh: refreshCurrentUser } = useCurrentUser();
 
   useEffect(() => {
     googleAPI.then(() => setIsLoading(false));
@@ -40,7 +40,7 @@ export default function Login() {
           body: JSON.stringify(response, null, 2),
         });
 
-        userRefresh();
+        refreshCurrentUser();
       },
     });
 

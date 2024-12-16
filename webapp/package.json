@@ -39,7 +39,7 @@
   "scripts": {
     "clean": "rm -fr dist .parcel-cache",
     "lint": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Coming soon\" && exit 1",
     "start": "npm run clean && parcel --port=1234 index.html",
     "build": "npm run clean && parcel build index.html",
     "worker:start": "cd worker && npm run start",

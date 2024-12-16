@@ -40,6 +40,7 @@ export default {
 
         const { message, stack } = err as Error;
 
+        // TODO: Use errorResponse() (web-next)
         return Response.json(
           {
             error: message,

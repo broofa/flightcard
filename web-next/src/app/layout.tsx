@@ -2,9 +2,9 @@
 
 import { Raleway } from 'next/font/google';
 
+import { useCurrentUser } from '@/app/useCurrentUser';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Icon from '../../lib/Icon';
 import './globals.css';
 import './Login';
@@ -21,7 +21,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const router = useRouter();
+  const { logout } = useCurrentUser();
 
   return (
     <html lang='en' suppressHydrationWarning>
@@ -30,7 +30,7 @@ export default function RootLayout({
       </Head>
 
       <body
-        className={`${railway.className} border border-dark mx-auto antialiased`}
+        className={`${railway.className} flex flex-col  sm:w-full md:w-2/3 lg:w-1/2 sm:mx-0 md:mx-auto`}
       >
         <details className='dropdown'>
           <summary className='btn m-1 px-2 m-0'>
@@ -39,9 +39,15 @@ export default function RootLayout({
 
           <ul className='menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow'>
             <Link href='/'>Home</Link>
+            <Link href='/rockets'>Your Rockets</Link>
             <Link href='/profile'>Settings</Link>
-            <div className='divider'>🌸</div>
-            <Link href='/'>Logout</Link>
+            <div className='divider'>Tools</div>
+            <Link href='/'>NAR / TRA Member Search</Link>
+            <Link href='/'>ThrustCurve Motor Search</Link>
+            <div className='divider'>🚀</div>
+            <button className='btn btn-sm btm-warning' onClick={logout}>
+              Logout
+            </button>
           </ul>
         </details>
 

@@ -7,7 +7,7 @@ export async function upsertUser(env: Env, userProps: UserProps) {
   await new CFQuery()
     .insert('users')
     .values({
-      userID: userProps,
+      userID: userProps.userID,
       email: userProps.email,
       firstName: userProps.firstName,
       lastName: userProps.lastName,

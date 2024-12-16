@@ -7,8 +7,8 @@
     ".": "./src/index.ts"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "4.20241112.0",
-    "@types/node": "^20"
+    "@cloudflare/workers-types": "4.20241205.0",
+    "@types/node": "^22"
   },
   "scripts": {
     "migrate": "tsx ./bin/migrate.ts $@"

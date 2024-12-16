@@ -1,72 +1,39 @@
 'use client';
 
-import { FC_SESSION_COOKIE } from '@flightcard/common';
-import { UserModel } from '@flightcard/db';
-import { useEffect, useState } from 'react';
+import { UserModel, type UserProps } from '@flightcard/db';
+import useSWR from 'swr';
 
-const USER_CHANGE_EVENT = 'userChange';
-const emitter = new EventTarget();
-const emitUserChange = (user?: UserModel) => {
-  const event = new CustomEvent(USER_CHANGE_EVENT, { detail: user });
-  emitter.dispatchEvent(event);
-};
+const CURRENT_SESSION_URL = `${process.env.FC_API_ORIGIN}/sessions/current`
+const CURRENT_SESSION_USER_URL = `${CURRENT_SESSION_URL}/user`
 
 export function useCurrentUser() {
-  const [sessionID, setSessionID] = useState<string>();
-  const [user, setUser] = useState<UserModel>();
+  const userFetch = useSWR(CURRENT_SESSION_URL, fetchCurrentUser);
 
-  function userRefresh() {
-    return fetchCurrentUser().then((newUser) => {
-      if (newUser?.userID !== user?.userID) {
-        setUser(newUser);
-        emitUserChange(newUser);
-      }
-    });
-  }
-
-  function userLogout() {
-    fetch(`${process.env.FC_API_ORIGIN}/sessions/current`, {
+  function logout() {
+    fetch(CURRENT_SESSION_URL, {
       method: 'DELETE',
       credentials: 'include',
-    }).finally(userRefresh);
+    }).finally(userFetch.mutate);
   }
 
-  useEffect(() => {
-    userRefresh();
-    emitter.addEventListener(
-      USER_CHANGE_EVENT,
-      (ev: CustomEventInit<UserModel | undefined>) => setUser(ev.detail)
-    );
-    return () => emitter.removeEventListener(USER_CHANGE_EVENT, userRefresh);
-  }, []);
-
-  return [user, userRefresh, userLogout] as const;
+  return {
+    currentUser: userFetch.data,
+    refresh: userFetch.mutate,
+    logout,
+  } as const;
 }
 
-function readSessionId() {
-  return document.cookie.split(FC_SESSION_COOKIE + '=')[1];
-}
-
-let inflight: Promise<UserModel | undefined> | undefined;
 async function fetchCurrentUser() {
-  if (!inflight) {
-    const url = `${process.env.FC_API_ORIGIN}/sessions/current/user`;
-    inflight = fetch(url, { credentials: 'include' }).then(async (res) => {
-      if (!res.ok) {
-        console.error('Fetch failed, code=', res.status);
-        return undefined;
-      }
-      const props = await res.json();
-      if (!props) {
-        return;
-      }
+  const res = await fetch(CURRENT_SESSION_USER_URL, { credentials: 'include' });
 
-      return new UserModel(props);
-    });
-    inflight.finally(() => {
-      inflight = undefined;
-    });
+  if (!res.ok) {
+    throw new Error(`Fetch failed, code=${res.status}`);
   }
 
-  return await inflight;
+  const userProps: UserProps = await res.json();
+  if (!userProps) {
+    return;
+  }
+
+  return new UserModel(userProps);
 }

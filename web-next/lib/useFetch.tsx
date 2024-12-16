@@ -1,22 +1,42 @@
-import { wait } from '@flightcard/common';
-import { useState } from 'react';
+import { type DependencyList, useEffect, useState } from 'react';
 
-export function useFetch() {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [response, setResponse] = useState<Response | null>(null);
+function cachedFetch(input: string, init?: RequestInit) {
+  const method = init?.method ?? 'GET';
+  const key = `${method} ${input}`;
+  return fetch(input, init).then((res) => {
+    if (!res.ok) {
+      throw new Error(`Fetch failed, code=${res.status}`);
+    }
 
-  const fetcher = async (...args: Parameters<typeof fetch>) => {
-    setBusy(true);
+    return res.json();
+  });
+}
+
+export function useFetch<T extends DependencyList, U = unknown>(
+  fetcher: (deps: T) => Promise<U>,
+  deps: T
+) {
+  const [data, setData] = useState<U>();
+  const [error, setError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function run() {
+    setIsLoading(true);
     try {
-      const [response] = await Promise.all([fetch(...args), wait(500)]);
-      setResponse(response);
+      const data = await fetcher(deps);
+      setData(data);
+      setError(undefined);
     } catch (err) {
+      setData(undefined);
       setError(err as Error);
     } finally {
-      setBusy(false);
+      setIsLoading(false);
     }
-  };
+  }
 
-  return { busy, error, response, fetch: fetcher };
+  useEffect(() => {
+    run();
+  }, deps);
+
+  return { run, data, error, isLoading };
 }

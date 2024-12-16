@@ -7,6 +7,9 @@ export class CFQuery {
       return `(${value.toString()})`;
     }
 
+    if (value && typeof value === 'object') {
+      throw new Error('Cannot use object as parameter');
+    }
     this.params.push(value);
     return `?${this.params.length}`;
   }
@@ -85,7 +88,9 @@ export class CFQuery {
     }
 
     this.parts.push(
-      `SET (${names.join(', ')}) ${operator} (${indexes.join(', ')})`
+      operator === '='
+        ? `SET (${names.join(', ')}) = (${indexes.join(', ')})`
+        : `(${names.join(', ')}) VALUES (${indexes.join(', ')})`
     );
     return this;
   }

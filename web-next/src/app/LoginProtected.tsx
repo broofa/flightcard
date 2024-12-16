@@ -8,10 +8,15 @@ import { useCurrentUser } from '@/app/useCurrentUser';
 export function LoginProtected({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [currentUser] = useCurrentUser();
+  const {currentUser} = useCurrentUser();
 
   if (!currentUser) {
-    return <Login />;
+    return (
+      <>
+        <h1>Welcome to FlightCard</h1>
+        <Login />
+      </>
+    );
   }
 
   return <>{children}</>;
