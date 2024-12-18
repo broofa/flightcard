@@ -1,10 +1,20 @@
+/**
+ * A lightweight query builder for (CloudFlare D1) SQLite DBs
+ */
 export class CFQuery {
   parts: string[] = [];
   params: unknown[] = [];
 
   _param(value: unknown) {
+    if (typeof value === 'function') {
+      const q = new CFQuery();
+      q.params = this.params;
+      value(q);
+      return `( ${q.toString()} )`;
+    }
+
     if (value instanceof CFQuery) {
-      return `(${value.toString()})`;
+      return `( ${value.toString()} )`;
     }
 
     if (value && typeof value === 'object') {
@@ -12,16 +22,6 @@ export class CFQuery {
     }
     this.params.push(value);
     return `?${this.params.length}`;
-  }
-
-  /**
-   * Creates a new CFQuery object, but one that shares params with the target
-   * query
-   */
-  subquery() {
-    const subquery = new CFQuery();
-    subquery.params = this.params;
-    return subquery;
   }
 
   /**
@@ -35,7 +35,7 @@ export class CFQuery {
   /**
    * INSERT
    */
-  insert(table: string) {
+  insertInto(table: string) {
     this.parts.push(`INSERT INTO ${table}`);
     return this;
   }
@@ -57,9 +57,9 @@ export class CFQuery {
   }
 
   /**
-   * ON CONFLICT
+   * ON CONFLICT DO
    */
-  onConflict(field: string, action: 'UPDATE' | 'NOTHING' = 'UPDATE') {
+  onConflictDo(field: string, action: 'UPDATE' | 'NOTHING' = 'UPDATE') {
     this.parts.push(`ON CONFLICT (${field}) DO ${action}`);
     return this;
   }
@@ -76,6 +76,23 @@ export class CFQuery {
    * SET
    */
   set(fields: Record<string, unknown>, operator: '=' | 'VALUES' = '=') {
+    const { names, indexes } = this.#setvalues(fields);
+
+    this.parts.push(`SET (${names.join(', ')}) = (${indexes.join(', ')})`);
+    return this;
+  }
+
+  /**
+   * VALUES
+   */
+  values(fields: Record<string, unknown>) {
+    const { names, indexes } = this.#setvalues(fields);
+
+    this.parts.push(`(${names.join(', ')}) VALUES (${indexes.join(', ')})`);
+    return this;
+  }
+
+  #setvalues(fields: Record<string, unknown>) {
     const names = [],
       indexes = [];
     for (const [k, v] of Object.entries(fields)) {
@@ -87,32 +104,34 @@ export class CFQuery {
       indexes.push(this._param(v));
     }
 
-    this.parts.push(
-      operator === '='
-        ? `SET (${names.join(', ')}) = (${indexes.join(', ')})`
-        : `(${names.join(', ')}) VALUES (${indexes.join(', ')})`
-    );
-    return this;
-  }
-
-  /**
-   * VALUES
-   */
-  values(fields: Record<string, unknown>) {
-    return this.set(fields, 'VALUES');
+    return { names, indexes };
   }
 
   /**
    * WHERE
    */
-  where(key: string, value: unknown) {
-    this.parts.push(`WHERE ${key} = ${this._param(value)}`);
+  where(key: string, ...values: unknown[]) {
+    return this.#clause('WHERE', key, ...values);
+  }
+
+  and(key: string, ...values: unknown[]) {
+    return this.#clause('AND', key, ...values);
+  }
+
+  or(key: string, ...values: unknown[]) {
+    return this.#clause('OR', key, ...values);
+  }
+
+  #clause(type: 'WHERE' | 'AND' | 'OR', key: string, ...values: unknown[]) {
+    let i = 0;
+    const clause = key.replaceAll('?', () => this._param(values[i++]));
+    if (i !== values.length) {
+      throw new Error('token <-> value mismatch');
+    }
+    this.parts.push(`${type} ${clause}`);
     return this;
   }
 
-  /**
-   *
-   */
   toString() {
     return this.parts.join(' ');
   }

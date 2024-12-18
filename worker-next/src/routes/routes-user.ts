@@ -6,7 +6,7 @@ export async function UpdateUser(req: Request, env: Env) {
   const currentUser = await querySessionUser(req, env);
 
   if (!currentUser) {
-    return Response.json(null, { status: 400 });
+    return Response.json(null, { status: 401 });
   }
 
   const userProps = await req.json();
@@ -26,7 +26,7 @@ export async function UpdateUser(req: Request, env: Env) {
   const query = new CFQuery()
     .update('users')
     .set({ avatarURL, firstName, lastName, narID, traID, units })
-    .where('userID', userID);
+    .where('userID = ?', userID);
 
   const result = await query.run(env);
 

@@ -1,164 +1,65 @@
 'use client';
 
-import { InputField } from '@/app/profile/InputField';
-import { Recovery, type RocketProps } from '@flightcard/db';
-import { type ChangeEvent, useState } from 'react';
-import { BusyButton, BusySpinner } from '../../../lib/Busy';
-import { cn } from '../../../lib/cn';
-import { useFetch } from '../../../lib/useFetch';
+import { useCurrentUser } from '@/app/useCurrentUser';
+import type { RocketProps } from '@flightcard/db';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import Icon from '../../../lib/Icon';
 
 type RocketFormProps = RocketProps;
 
-export default function ProfilePage() {
-  const [fields, setFields] = useState<RocketFormProps>();
-  const [changed, setChanged] = useState(false);
-  const [saveFields, setSaveFields] = useState<RocketFormProps>();
+export default function RocketsIndex() {
+  const [rockets, setRockets] = useState<RocketFormProps[]>();
+  const { currentUser } = useCurrentUser();
+  const router = useRouter();
 
-  const save = useFetch(
-    async ([saveFields]) => {
-      setSaveFields(undefined);
-      await saveRocket(saveFields);
-    },
-    [saveFields]
-  );
-
-  if (!fields) {
-    setFields({ rocketID: crypto.randomUUID() });
-    return <BusySpinner />;
-  }
-
-  const doCancel = () => {
-    setFields(undefined);
-  };
-
-  const doSave = async () => {
-    const payload = { ...fields };
-    // Parse UI-only fields
-    delete payload.name;
-
-    setSaveFields(fields);
-    setChanged(false);
-  };
-
-  const updateField = (
-    key: keyof RocketFormProps,
-    value: RocketFormProps[typeof key]
-  ) => {
-    setFields({ ...fields, [key]: value });
-    setChanged(true);
-  };
+  useEffect(() => {
+    fetchRockets().then(setRockets);
+  }, []);
 
   return (
-    <div
-      className='grid p-8 gap-4'
-      suppressHydrationWarning
-    >
-      <div className='flex w-full gap-3'>
-        <InputField
-          label='Rocket Name'
-          value={fields.name ?? ''}
-          placeholder='Unnamed Rocket'
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            updateField('name', e.target.value)
-          }
-        />
+    <div className='grid p-8 gap-4' suppressHydrationWarning>
+      <h1 className='text-2xl'>Your Rockets</h1>
 
-        <div className='bg-red-500 w-12 text-white p-2 rounded-box'> </div>
-      </div>
-
-      <div className='flex flex-wrap gap-4'>
-        <InputField
-          label='Manufacturer'
-          className='w-min'
-          value={fields.manufacturer ?? ''}
-          placeholder='e.g. "Mega Der Red Max" or "Scratch"'
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            updateField('manufacturer', e.target.value)
-          }
-        />
-
-        <InputField
-          label='Diameter'
-          className='w-min'
-          value={fields.diameter ?? ''}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            updateField('diameter', e.target.value)
-          }
-        />
-
-        <InputField
-          label='Length'
-          className='w-min'
-          value={fields.length ?? ''}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            updateField('length', e.target.value)
-          }
-        />
-
-        <InputField
-          label='Mass'
-          className='w-min'
-          value={fields.mass ?? ''}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            updateField('mass', e.target.value)
-          }
-        />
-      </div>
-
-      <label className='form-control'>
-        <div className='label'>
-          <span className='label-text'>Recovery</span>
-        </div>
-
-        <select
-          className={cn(
-            { 'select-warning': !fields.recovery },
-            'select select-bordered w-max'
-          )}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-            updateField('recovery', e.target.value)
-          }
-        >
-          <option value={''}>Unspecified</option>
-          <option value={Recovery.CHUTE}>Chute</option>
-          <option value={Recovery.STREAMER}>Streamer</option>
-          <option value={Recovery.DUAL_DEPLOY}>Dual-Deploy</option>
-          <option value={Recovery.TUMBLE}>Tumble</option>
-          <option value={Recovery.GLIDE}>Glide</option>
-          <option value={Recovery.HELICOPTER}>Helicopter</option>
-        </select>
-      </label>
+      {rockets ? (
+        <ul className='grid gap-4'>
+          {rockets.map((rocket) => (
+            <div
+              key={rocket.rocketID}
+              className='card bg-base-100 w-96 shadow-xl flex flex-row'
+            >
+              <div className='card-title grow'>{rocket.name}</div>
+              <button
+                className='btn btn-sm btn-outline btn-primary'
+                onClick={() => router.push(`/rockets/${rocket.rocketID}/edit`)}
+              >
+                <Icon name='pencil-fill' />
+              </button>
+            </div>
+          ))}
+        </ul>
+      ) : (
+        <p>Loading...</p>
+      )}
 
       <div className='divider  w-full'>🚀</div>
 
       <div className='flex w-full'>
-        <button className='btn w-24' disabled={!changed} onClick={doCancel}>
-          Cancel
-        </button>
-
         <span className='grow' />
 
-        <BusyButton
-          busy={save.isLoading}
-          className='btn btn-primary w-24'
-          disabled={!changed}
-          onClick={doSave}
+        <button
+          className='btn btn-sm btn-primary'
+          onClick={() => router.push('/rockets/new/edit')}
         >
-          Save
-        </BusyButton>
+          New Rocket
+        </button>
       </div>
     </div>
   );
 }
 
-async function saveRocket(fields?: RocketFormProps) {
-  if (!fields) return;
-
-  const payload = { ...fields };
-
-  await fetch(`/worker/rockets/${fields.rocketID}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(fields),
-  });
+async function fetchRockets() {
+  const res = await fetch('/worker/rockets');
+  const { results } = await res.json();
+  return results;
 }

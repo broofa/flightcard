@@ -93,7 +93,7 @@ async function createSession(env: Env, user: UserModel) {
   expiresAt.setMonth(expiresAt.getMonth() + 1);
 
   await new CFQuery()
-    .insert('sessions')
+    .insertInto('sessions')
     .values({
       sessionID,
       userID: user.userID,
@@ -104,6 +104,6 @@ async function createSession(env: Env, user: UserModel) {
   return await new CFQuery()
     .select('*')
     .from('sessions')
-    .where('sessionID', sessionID)
+    .where('sessionID = ?', sessionID)
     .first<SessionModel>(env);
 }

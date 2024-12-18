@@ -19,14 +19,9 @@ export async function querySessionUser(req: Request, env: Env) {
   query
     .select('*')
     .from('users')
-    .where(
-      'userID',
-      query
-        .subquery()
-        .select('userID')
-        .from('sessions')
-        .where('sessionID', sessionID)
-    );
+    .where('userID = ?', (q: CFQuery) => {
+      q.select('userID').from('sessions').where('sessionID = ?', sessionID);
+    });
 
   return await query.first<UserModel>(env);
 }
@@ -46,7 +41,10 @@ export async function DeleteSession(req: Request, env: Env) {
     return res;
   }
 
-  await new CFQuery().delete('sessions').where('sessionID', sessionID).run(env);
+  await new CFQuery()
+    .delete('sessions')
+    .where('sessionID = ?', sessionID)
+    .run(env);
 
   res.headers.set(
     'Set-Cookie',

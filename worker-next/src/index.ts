@@ -4,6 +4,7 @@ import { PostGoogleLogin } from './routes/PostGoogleLogin';
 import { Use404 } from './routes/Use404';
 import { UseCors } from './routes/UseCors';
 import { UseError } from './routes/UseError';
+import { GetRockets, PostRockets } from './routes/routes-rockets';
 import { DeleteSession, GetSessionUser } from './routes/routes-session';
 import { UpdateUser } from './routes/routes-user';
 
@@ -26,6 +27,10 @@ router.DELETE('/sessions/current', DeleteSession);
 
 // User routes
 router.PATCH('/users/current', UpdateUser);
+
+// Rocket routes
+router.GET('/rockets', GetRockets);
+router.POST('/rockets', PostRockets);
 
 export default {
   async fetch(

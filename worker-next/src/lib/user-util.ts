@@ -5,7 +5,7 @@ import { CFQuery } from './CFQuery';
 export async function upsertUser(env: Env, userProps: UserProps) {
   // Create user
   await new CFQuery()
-    .insert('users')
+    .insertInto('users')
     .values({
       userID: userProps.userID,
       email: userProps.email,
@@ -14,13 +14,13 @@ export async function upsertUser(env: Env, userProps: UserProps) {
       avatarURL: userProps.avatarURL,
       units: userProps.units,
     })
-    .onConflict('email', 'NOTHING')
+    .onConflictDo('email', 'NOTHING')
     .run(env);
 
   // Return new user
   return await new CFQuery()
     .select('*')
     .from('users')
-    .where('email', userProps.email)
+    .where('email = ?', userProps.email)
     .first<UserModel>(env);
 }

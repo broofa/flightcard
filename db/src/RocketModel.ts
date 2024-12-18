@@ -10,16 +10,15 @@ export enum Recovery {
 }
 
 export type RocketProps = BaseProps & {
-  rocketID: string;
-
-  name?: string;
-  manufacturer?: string;
   color?: string;
-  recovery?: Recovery;
   diameter?: number; // meters
   length?: number; // meters
+  manufacturer?: string;
   mass?: number; // kg
-  // _motor?: iMotor;
+  name?: string;
+  recovery?: Recovery;
+  rocketID: string;
+  userID: string;
 };
 
 export function isRocketProps(v: unknown): v is RocketProps {
