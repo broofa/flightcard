@@ -23,16 +23,11 @@ export default function Home() {
           <h1>
             Hello, {currentUser?.get('firstName')}. Welcome to FlightCard.
           </h1>
-          <p>
-            An application for fliers, organizers, and spectators at rocketry
-            club launches.
-          </p>
 
           <div className='grid grid-cols-2 gap-4 w-full'>
             <button className='btn' onClick={() => router.push('/rockets')}>
               Your Rockets
             </button>{' '}
-
             <button className='btn' disabled={true}>
               Attend a Launch
             </button>

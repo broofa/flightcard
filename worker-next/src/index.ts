@@ -4,7 +4,7 @@ import { PostGoogleLogin } from './routes/PostGoogleLogin';
 import { Use404 } from './routes/Use404';
 import { UseCors } from './routes/UseCors';
 import { UseError } from './routes/UseError';
-import { GetRockets, PostRockets } from './routes/routes-rockets';
+import { GetRocket, GetRockets, PostRockets } from './routes/routes-rockets';
 import { DeleteSession, GetSessionUser } from './routes/routes-session';
 import { UpdateUser } from './routes/routes-user';
 
@@ -16,21 +16,22 @@ router.use(UseCors);
 router.use(Use404);
 
 // Misc. routes
-router.GET('/favicon', GetFavicon);
+router.GET(/^\/favicon$/, GetFavicon);
 
 // Login routes
-router.POST('/google-login', PostGoogleLogin);
+router.POST(/^\/google-login$/, PostGoogleLogin);
 
 // Session routes
-router.GET('/sessions/current/user', GetSessionUser);
-router.DELETE('/sessions/current', DeleteSession);
+router.GET(/^\/sessions\/current\/user$/, GetSessionUser);
+router.DELETE(/^\/sessions\/current$/, DeleteSession);
 
 // User routes
-router.PATCH('/users/current', UpdateUser);
+router.PATCH(/^\/users\/current$/, UpdateUser);
 
 // Rocket routes
-router.GET('/rockets', GetRockets);
-router.POST('/rockets', PostRockets);
+router.GET(/^\/rockets$/, GetRockets);
+router.POST(/^\/rockets$/, PostRockets);
+router.GET(/^\/rockets\/(?<rocketID>\w+)$/, GetRocket);
 
 export default {
   async fetch(

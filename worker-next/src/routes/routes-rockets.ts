@@ -1,13 +1,14 @@
 import { type RocketProps, isRocketProps } from '@flightcard/db';
 import { CFQuery } from '../lib/CFQuery';
+import type { RouteRequest } from '../lib/CloudflareRouter';
 import { querySessionUser } from './routes-session';
 
-async function getRocketProps(req: Request) {
+async function getRocketProps(req: RouteRequest) {
   const rocketProps = await req.json();
   return isRocketProps(rocketProps) ? rocketProps : null;
 }
 
-export async function GetRockets(req: Request, env: Env) {
+export async function GetRockets(req: RouteRequest, env: Env) {
   const currentUser = await querySessionUser(req, env);
 
   if (!currentUser) {
@@ -17,14 +18,29 @@ export async function GetRockets(req: Request, env: Env) {
   const query = new CFQuery()
     .select('*')
     .from('rockets')
-    .where('userID = ?', currentUser.userID);
+    // .where('userID = ?', currentUser.userID);
 
   const result = await query.run(env);
 
   return Response.json(result);
 }
 
-export async function PostRockets(req: Request, env: Env) {
+export async function GetRocket(req: RouteRequest, env: Env) {
+  const { rocketID } = req.params as { rocketID: string };
+
+  console.log('GETTING ROCKET', req.params, rocketID);
+
+  const query = new CFQuery()
+    .select('*')
+    .from('rockets')
+    .where('rocketID = ?', rocketID);
+
+  const result = await query.first(env);
+
+  return Response.json(result);
+}
+
+export async function PostRockets(req: RouteRequest, env: Env) {
   const currentUser = await querySessionUser(req, env);
 
   if (!currentUser) {

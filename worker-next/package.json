@@ -17,7 +17,7 @@
     "cf-codegen": "wrangler types",
     "start": "wrangler dev --test-scheduled src/index.ts",
     "deploy": "wrangler deploy && npm run db:migrate --remote",
-    "db:do": "wrangler d1 execute flightcard --command",
+    "db:do": "wrangler d1 execute -y flightcard --command",
     "db:schema": "npm run db:do \"SELECT name, sql FROM sqlite_schema\"",
     "db:migrate:reset": "npm run db:do \"drop table migrations\"",
     "db:migrate": "wrangler d1 migrations apply flightcard"

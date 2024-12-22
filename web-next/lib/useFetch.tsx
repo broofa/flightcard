@@ -18,7 +18,7 @@ export function useFetch<T extends DependencyList, U = unknown>(
 ) {
   const [data, setData] = useState<U>();
   const [error, setError] = useState<Error>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   async function run() {
     setIsLoading(true);

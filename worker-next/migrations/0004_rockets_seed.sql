@@ -80,4 +80,4 @@ VALUES
     2.6,
     24.0,
     0.5
-  );
+  ) ON CONFLICT DO NOTHING;

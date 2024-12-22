@@ -1,8 +1,10 @@
 'use client';
 
 import { InputField } from '@/app/profile/InputField';
+import { useRocket } from '@/app/rockets/[rocketID]/useRocket';
 import { useCurrentUser } from '@/app/useCurrentUser';
 import { Recovery, type RocketProps } from '@flightcard/db';
+import { useParams } from 'next/navigation';
 import { type ChangeEvent, useState } from 'react';
 import { BusyButton, BusySpinner } from '../../../../../lib/Busy';
 import { cn } from '../../../../../lib/cn';
@@ -15,6 +17,13 @@ export default function RocketEditor() {
   const [changed, setChanged] = useState(false);
   const [saveFields, setSaveFields] = useState<RocketFormProps>();
   const { currentUser } = useCurrentUser();
+
+  const { rocketID } = useParams();
+
+  const rocketFetch = useRocket(rocketID);
+  const rocket = rocketFetch.data;
+
+  console.log('FETCH', rocketFetch.isLoading, rocket);
 
   const save = useFetch(
     async ([saveFields]) => {

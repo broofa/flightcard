@@ -1,54 +1,59 @@
-export type Route = (
+type RouteHandler = (
   req: RouteRequest,
   env: Env
 ) => Promise<undefined | Response> | undefined | Response;
 
+type Route = {
+  handler: RouteHandler;
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  pattern?: RegExp;
+};
+
 export type RouteRequest = Request & {
   parsedURL: URL;
-  next: () => ReturnType<Route>;
+  params?: Record<string, string>;
+  next: () => ReturnType<RouteHandler>;
 };
 
 export class Router {
   routes: Route[] = [];
 
-  use(route: Route) {
-    this.routes.push(route);
+  use(handler: RouteHandler) {
+    this.routes.push({ handler });
   }
 
-  DELETE(path: string, route: Route) {
-    this.use(async (req, env) => {
-      if (req.method === 'DELETE' && req.parsedURL.pathname === path) {
-        return route(req, env);
-      }
-      return req.next();
-    });
+  DELETE(pattern: RegExp, handler: RouteHandler) {
+    this.routes.push({ method: 'DELETE', pattern, handler });
   }
 
-  GET(path: string, route: Route) {
-    this.use(async (req, env) => {
-      if (req.method === 'GET' && req.parsedURL.pathname === path) {
-        return route(req, env);
-      }
-      return req.next();
-    });
+  GET(pattern: RegExp, handler: RouteHandler) {
+    this.routes.push({ method: 'GET', pattern, handler });
   }
 
-  POST(path: string, route: Route) {
-    this.use(async (req, env) => {
-      if (req.method === 'POST' && req.parsedURL.pathname === path) {
-        return route(req, env);
-      }
-      return req.next();
-    });
+  POST(pattern: RegExp, handler: RouteHandler) {
+    this.routes.push({ method: 'POST', pattern, handler });
   }
 
-  PATCH(path: string, route: Route) {
-    this.use(async (req, env) => {
-      if (req.method === 'PATCH' && req.parsedURL.pathname === path) {
-        return route(req, env);
+  PUT(pattern: RegExp, handler: RouteHandler) {
+    this.routes.push({ method: 'PUT', pattern, handler });
+  }
+
+  PATCH(pattern: RegExp, handler: RouteHandler) {
+    this.routes.push({ method: 'PATCH', pattern, handler });
+  }
+
+  // Woot! Using a generator!
+  *routesForRequest(req: RouteRequest) {
+    for (const route of this.routes) {
+      if (route.method && req.method !== route.method) continue;
+      if (route.pattern) {
+        const matches = req.parsedURL.pathname.match(route.pattern);
+        if (!matches) continue;
+        req.params = matches.groups ?? {};
       }
-      return req.next();
-    });
+
+      yield route;
+    }
   }
 
   async handleRequest(req: Request, env: Env): Promise<Response> {
@@ -58,18 +63,35 @@ export class Router {
 
     let i = 0;
     routeRequest.next = () => {
-      const nextRoute = this.routes[i++];
+      let nextRoute: Route | undefined;
+      while (i < this.routes.length) {
+        nextRoute = this.routes[i++];
+        if (!nextRoute) return;
+
+        if (nextRoute.method && nextRoute.method !== req.method) continue;
+        if (nextRoute.pattern) {
+          const matches = routeRequest.parsedURL.pathname.match(
+            nextRoute.pattern
+          );
+          if (!matches) continue;
+          routeRequest.params = matches.groups ?? {};
+        }
+        break;
+      }
+
       if (!nextRoute) return;
-      return nextRoute(routeRequest, env);
+
+      console.log('...', nextRoute.handler.name);
+      return nextRoute.handler(routeRequest, env);
     };
 
     // Process route handlers
     const res = await routeRequest.next();
 
     if (!res) {
-      // If we get here, it means there's no error handler route and/or no 404
-      // handler
-      throw new Error(`Unhandled route @ ${routeRequest.parsedURL.pathname}`);
+      throw new Error(
+        `No response for route: ${routeRequest.parsedURL.pathname}`
+      );
     }
 
     return res;

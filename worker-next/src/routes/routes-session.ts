@@ -10,7 +10,7 @@ export function getSessionID(req: Request) {
 
 export async function querySessionUser(req: Request, env: Env) {
   const sessionID = getSessionID(req);
-
+console.log('SESSION ID', sessionID);
   if (!sessionID) {
     return null;
   }

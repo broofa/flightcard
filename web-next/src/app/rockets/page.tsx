@@ -22,15 +22,20 @@ export default function RocketsIndex() {
       <h1 className='text-2xl'>Your Rockets</h1>
 
       {rockets ? (
-        <ul className='grid gap-4'>
+        <ul className='grid gap-2'>
           {rockets.map((rocket) => (
             <div
               key={rocket.rocketID}
-              className='card bg-base-100 w-96 shadow-xl flex flex-row'
+              className='join bg-base-100 border flex flex-row'
             >
-              <div className='card-title grow'>{rocket.name}</div>
               <button
-                className='btn btn-sm btn-outline btn-primary'
+                className='join-item btn btn-sm grow'
+                onClick={() => router.push(`/rockets/${rocket.rocketID}`)}
+              >
+                {rocket.name}
+              </button>
+              <button
+                className='join-item btn btn-sm '
                 onClick={() => router.push(`/rockets/${rocket.rocketID}/edit`)}
               >
                 <Icon name='pencil-fill' />

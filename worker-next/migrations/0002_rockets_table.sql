@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS rockets (
   rocketID TEXT PRIMARY KEY,
   userID TEXT NOT NULL,
   name TEXT COLLATE NOCASE,
+  manufacturer TEXT COLLATE NOCASE,
   color TEXT COLLATE NOCASE,
   recovery TEXT CHECK(
     recovery IN (
