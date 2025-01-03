@@ -5,7 +5,7 @@ export class CFQuery {
   parts: string[] = [];
   params: unknown[] = [];
 
-  _param(value: unknown) {
+  _param(value: unknown = null) {
     if (typeof value === 'function') {
       const q = new CFQuery();
       q.params = this.params;
@@ -18,8 +18,14 @@ export class CFQuery {
     }
 
     if (value && typeof value === 'object') {
-      throw new Error('Cannot use object as parameter');
+      if (value.constructor === Object) {
+        // If vanilla object, convert to JSON
+        value = JSON.stringify(value);
+      } else {
+        throw new Error('Unexpected parameter type');
+      }
     }
+
     this.params.push(value);
     return `?${this.params.length}`;
   }
@@ -27,7 +33,7 @@ export class CFQuery {
   /**
    * SELECT
    */
-  select(...fields: string[]) {
+  select(...fields: string[]): Pick<CFQuery, 'from' | 'where'> {
     this.parts.push(`SELECT ${fields.join(', ')}`);
     return this;
   }
@@ -35,7 +41,7 @@ export class CFQuery {
   /**
    * INSERT
    */
-  insertInto(table: string) {
+  insertInto(table: string): Pick<CFQuery, 'values'> {
     this.parts.push(`INSERT INTO ${table}`);
     return this;
   }
@@ -43,7 +49,7 @@ export class CFQuery {
   /**
    * UPDATE
    */
-  update(table: string) {
+  update(table: string): Pick<CFQuery, 'set'> {
     this.parts.push(`UPDATE ${table}`);
     return this;
   }
@@ -51,7 +57,7 @@ export class CFQuery {
   /**
    * DELETE
    */
-  delete(table: string) {
+  delete(table: string): Pick<CFQuery, 'where' | 'run' | 'first'> {
     this.parts.push(`DELETE FROM ${table}`);
     return this;
   }
@@ -59,7 +65,10 @@ export class CFQuery {
   /**
    * ON CONFLICT DO
    */
-  onConflictDo(field: string, action: 'UPDATE' | 'NOTHING' = 'UPDATE') {
+  onConflictDo(
+    field: string,
+    action: 'UPDATE' | 'NOTHING' = 'UPDATE'
+  ): Pick<CFQuery, 'set' | 'run' | 'first'> {
     this.parts.push(`ON CONFLICT (${field}) DO ${action}`);
     return this;
   }
@@ -67,7 +76,9 @@ export class CFQuery {
   /**
    * FROM
    */
-  from(table: string) {
+  from(
+    table: string
+  ): Pick<CFQuery, 'where' | 'onConflictDo' | 'run' | 'first'> {
     this.parts.push(`FROM ${table}`);
     return this;
   }
@@ -75,50 +86,55 @@ export class CFQuery {
   /**
    * SET
    */
-  set(fields: Record<string, unknown>, operator: '=' | 'VALUES' = '=') {
-    const { names, indexes } = this.#setvalues(fields);
+  set<T extends object>(
+    row: T,
+    operator: '=' | 'VALUES' = '='
+  ): ReturnType<CFQuery['from']> {
+    const { columns, valueGroups } = this.#setValues([row]);
 
-    this.parts.push(`SET (${names.join(', ')}) = (${indexes.join(', ')})`);
+    this.parts.push(`SET (${columns.join(', ')}) = ${valueGroups.join(', ')}`);
     return this;
   }
 
   /**
    * VALUES
    */
-  values(fields: Record<string, unknown>) {
-    const { names, indexes } = this.#setvalues(fields);
+  values<T extends object>(rows: T | T[]): ReturnType<CFQuery['from']> {
+    const { columns, valueGroups } = this.#setValues(
+      Array.isArray(rows) ? rows : [rows]
+    );
 
-    this.parts.push(`(${names.join(', ')}) VALUES (${indexes.join(', ')})`);
+    this.parts.push(`(${columns.join(', ')}) VALUES ${valueGroups.join(', ')}`);
     return this;
   }
 
-  #setvalues(fields: Record<string, unknown>) {
-    const names = [],
-      indexes = [];
-    for (const [k, v] of Object.entries(fields)) {
-      if (v === undefined) {
-        continue;
-      }
+  #setValues<T extends object>(rows: T[]) {
+    const columns = Object.keys(rows[0]) as (keyof T)[];
 
-      names.push(k);
-      indexes.push(this._param(v));
-    }
+    // Gather all columns
+    const valueGroups = rows.map((row) => {
+      const indexes = columns.map((k) => this._param(row[k]));
+      return `(${indexes.join(', ')})`;
+    });
 
-    return { names, indexes };
+    return { columns: columns.map((c) => `"${c as string}"`), valueGroups };
   }
 
   /**
    * WHERE
    */
-  where(key: string, ...values: unknown[]) {
+  where(
+    key: string,
+    ...values: unknown[]
+  ): Pick<CFQuery, 'and' | 'or' | 'onConflictDo' | 'run' | 'first'> {
     return this.#clause('WHERE', key, ...values);
   }
 
-  and(key: string, ...values: unknown[]) {
+  and(key: string, ...values: unknown[]): ReturnType<CFQuery['where']> {
     return this.#clause('AND', key, ...values);
   }
 
-  or(key: string, ...values: unknown[]) {
+  or(key: string, ...values: unknown[]): ReturnType<CFQuery['where']> {
     return this.#clause('OR', key, ...values);
   }
 
@@ -137,17 +153,34 @@ export class CFQuery {
   }
 
   toStatement(env: Env) {
-    console.log('QUERY:', this.toString(), this.params);
+    // console.log('QUERY:', this.toString(), this.params);
 
     const statement = env.AppDB.prepare(this.toString());
     return this.params.length ? statement.bind(...this.params) : statement;
   }
 
-  run(env: Env) {
-    return this.toStatement(env).run();
+  async run(env: Env) {
+    try {
+      return await this.toStatement(env).run();
+    } catch (err) {
+      throw new QueryError(this, err as Error);
+    }
   }
 
-  first<T>(env: Env) {
-    return this.toStatement(env).first<T>();
+  async first<T>(env: Env) {
+    try {
+      return await this.toStatement(env).first<T>();
+    } catch (err) {
+      throw new QueryError(this, err as Error);
+    }
+  }
+}
+
+class QueryError extends Error {
+  constructor(
+    public query: CFQuery,
+    cause: Error
+  ) {
+    super(cause.message, { cause });
   }
 }

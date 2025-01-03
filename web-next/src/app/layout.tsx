@@ -2,7 +2,7 @@
 
 import { Raleway } from 'next/font/google';
 
-import { useCurrentUser } from '@/app/useCurrentUser';
+import { deleteCurrentSession } from '@/util/session-util';
 import Head from 'next/head';
 import Link from 'next/link';
 import Icon from '../../lib/Icon';
@@ -21,8 +21,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { logout } = useCurrentUser();
-
   return (
     <html lang='en' suppressHydrationWarning>
       <Head>
@@ -45,7 +43,10 @@ export default function RootLayout({
             <Link href='/'>NAR / TRA Member Search</Link>
             <Link href='/'>ThrustCurve Motor Search</Link>
             <div className='divider'>🚀</div>
-            <button className='btn btn-sm btm-warning' onClick={logout}>
+            <button
+              className='btn btn-sm btm-warning'
+              onClick={deleteCurrentSession}
+            >
               Logout
             </button>
           </ul>

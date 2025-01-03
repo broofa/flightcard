@@ -1,87 +1,34 @@
+import { ROCKET_COLORS } from '@flightcard/models';
 import type { HTMLAttributes } from 'react';
-import { cn } from './cn';
 
-// X11 colors, minus really unlikely stuff
-export const COLORS = new Set([
-  'aqua',
-  'aquamarine',
-  'azure',
-  'beige',
-  'bisque',
-  'black',
-  'blue',
-  'brown',
-  'chartreuse',
-  'chocolate',
-  'coral',
-  'crimson',
-  'cyan',
-  'fuchsia',
-  'gainsboro',
-  'gold',
-  'goldenrod',
-  'gray',
-  'green',
-  'grey',
-  'honeydew',
-  'hotpink',
-  'indigo',
-  'ivory',
-  'khaki',
-  'lavender',
-  'lime',
-  'linen',
-  'magenta',
-  'maroon',
-  'navy',
-  'olive',
-  'orange',
-  'pink',
-  'plum',
-  'purple',
-  'red',
-  'salmon',
-  'sienna',
-  'silver',
-  'snow',
-  'tan',
-  'teal',
-  'thistle',
-  'tomato',
-  'turquoise',
-  'violet',
-  'wheat',
-  'white',
-  'yellow',
-]);
+const COLORS = new Set(ROCKET_COLORS);
 
 export default function ColorChits({
-  colors,
-  className,
+  colors: text = '',
   ...props
-}: { colors?: string } & HTMLAttributes<HTMLDivElement>) {
-  if (!colors) {
-    colors = 'black white';
-  } else if (/rainbow/i.test(colors)) {
-    colors = 'red orange yellow green turquoise blue violet';
+}: { colors: string } & HTMLAttributes<HTMLDivElement>) {
+  text = text.toLowerCase();
+  const colors = text.split(/\W+/).filter((v) => COLORS.has(v));
+  if (!colors.length) {
+    colors.push('black', 'white');
   }
-
-  const match = colors?.match(/\w+/g)?.map((v) => v.toLowerCase());
-
-  if (!match) return null;
+  if (text.includes('rainbow')) {
+    colors.push(
+      'red',
+      'orange',
+      'yellow',
+      'green',
+      'turquoise',
+      'blue',
+      'violet'
+    );
+  }
 
   return (
     <>
-      {match.map((color, i) =>
-        COLORS.has(color) ? (
-          <div
-            className={cn(className, 'no-invert')}
-            style={{ backgroundColor: color }}
-            key={`chit-${i}`}
-            {...props}
-          />
-        ) : null
-      )}
+      {colors.map((color, i) => (
+        <div style={{ backgroundColor: color }} key={`chit-${i}`} {...props} />
+      ))}
     </>
   );
 }

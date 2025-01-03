@@ -15,13 +15,16 @@ export async function UseCors(req: RouteRequest) {
     res = await req.next();
   }
 
-  res?.headers.set('Access-Control-Allow-Origin', origin);
-  res?.headers.set('Access-Control-Allow-Methods', 'GET, POST, DELETE');
-  res?.headers.set('Access-Control-Allow-Credentials', 'true');
-  res?.headers.set(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization'
-  );
+  if (origin) {
+    // Request is from a known origin, so set CORS headers
+    res?.headers.set('Access-Control-Allow-Origin', origin);
+    res?.headers.set('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+    res?.headers.set('Access-Control-Allow-Credentials', 'true');
+    res?.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
+    );
+  }
 
   return res;
 }

@@ -1,8 +1,22 @@
-import { isUserProps } from '@flightcard/db';
+import { isUserModel } from '@flightcard/models';
 import { CFQuery } from '../lib/CFQuery';
+import type { RouteRequest } from '../lib/CloudflareRouter';
 import { querySessionUser } from './routes-session';
 
-export async function UpdateUser(req: Request, env: Env) {
+export async function GetUser(req: RouteRequest, env: Env) {
+  const { userID } = req.params as { userID: string };
+
+  const query = new CFQuery()
+    .select('*')
+    .from('users')
+    .where('userID = ?', userID);
+
+  const result = await query.first(env);
+
+  return Response.json(result);
+}
+
+export async function UpdateUser(req: RouteRequest, env: Env) {
   const currentUser = await querySessionUser(req, env);
 
   if (!currentUser) {
@@ -10,7 +24,7 @@ export async function UpdateUser(req: Request, env: Env) {
   }
 
   const userProps = await req.json();
-  if (!isUserProps(userProps)) {
+  if (!isUserModel(userProps)) {
     return Response.json(null, { status: 400 });
   }
 

@@ -1,21 +1,18 @@
 'use client';
 
-import { useCurrentUser } from '@/app/useCurrentUser';
-import type { RocketProps } from '@flightcard/db';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import Icon from '../../../lib/Icon';
-
-type RocketFormProps = RocketProps;
+import { modelStore } from '../../../lib/model_store';
+import { useUserRockets } from '../../../lib/rocket_hooks';
+import { useCurrentUser } from '../../../lib/session_hooks';
 
 export default function RocketsIndex() {
-  const [rockets, setRockets] = useState<RocketFormProps[]>();
-  const { currentUser } = useCurrentUser();
-  const router = useRouter();
+  const currentUser = useCurrentUser();
+  const rockets = useUserRockets(currentUser?.userID);
 
-  useEffect(() => {
-    fetchRockets().then(setRockets);
-  }, []);
+  console.log(modelStore);
+
+  const router = useRouter();
 
   return (
     <div className='grid p-8 gap-4' suppressHydrationWarning>

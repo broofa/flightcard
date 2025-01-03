@@ -1,7 +1,7 @@
 'use client';
 import { InputField } from '@/app/profile/InputField';
 import type { ErrorResponse } from '@flightcard/common';
-import { CertOrg, type CertProps } from '@flightcard/db';
+import { type CertModel, CertOrg } from '@flightcard/models';
 import type { JSX } from 'react';
 import { BusySpinner } from '../../../lib/Busy';
 import { useDebounce } from '../../../lib/useDebounce';
@@ -67,5 +67,5 @@ async function fetchCert([certOrg, certID]: [CertOrg, string | undefined]) {
     const err = (await res.json()) as ErrorResponse;
     throw new Error(err.error.message);
   }
-  return (await res.json()) as CertProps;
+  return (await res.json()) as CertModel;
 }

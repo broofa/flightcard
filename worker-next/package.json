@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "type": "module",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241205.0",
-    "@types/node": "22.10.1",
-    "puppeteer": "^23.10.2",
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "@types/node": "^22.10.3",
+    "puppeteer": "^23.11.1",
     "typescript": "^5.7.2",
-    "wrangler": "^3.94.0"
+    "wrangler": "^3.99.0"
   },
   "exports": {
     ".": "./src/index.ts"
@@ -20,11 +20,12 @@
     "db:do": "wrangler d1 execute -y flightcard --command",
     "db:schema": "npm run db:do \"SELECT name, sql FROM sqlite_schema\"",
     "db:migrate:reset": "npm run db:do \"drop table migrations\"",
-    "db:migrate": "wrangler d1 migrations apply flightcard"
+    "db:migrate": "wrangler d1 migrations apply flightcard --local"
   },
   "dependencies": {
     "@flightcard/common": "*",
     "@flightcard/db": "*",
+    "@flightcard/models": "*",
     "cookie": "^1.0.2"
   }
 }

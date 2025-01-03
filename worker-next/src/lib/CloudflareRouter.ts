@@ -57,32 +57,40 @@ export class Router {
   }
 
   async handleRequest(req: Request, env: Env): Promise<Response> {
-    console.log('HANDLING', req.url);
     const routeRequest = req as RouteRequest;
     routeRequest.parsedURL = new URL(req.url);
 
     let i = 0;
     routeRequest.next = () => {
-      let nextRoute: Route | undefined;
-      while (i < this.routes.length) {
-        nextRoute = this.routes[i++];
-        if (!nextRoute) return;
+      let route: Route | undefined;
+      while (!route && i < this.routes.length) {
+        const rt = this.routes[i++];
 
-        if (nextRoute.method && nextRoute.method !== req.method) continue;
-        if (nextRoute.pattern) {
-          const matches = routeRequest.parsedURL.pathname.match(
-            nextRoute.pattern
-          );
-          if (!matches) continue;
-          routeRequest.params = matches.groups ?? {};
+        if (!rt.method) {
+          // "use" middleware
+          route = rt;
+          break;
         }
-        break;
+
+        if (rt.method !== req.method) {
+          continue;
+        }
+
+        if (!rt.pattern) {
+          route = rt;
+        } else {
+          // method routes
+          const matches = routeRequest.parsedURL.pathname.match(rt.pattern);
+          if (matches) {
+            routeRequest.params = matches.groups ?? {};
+            route = rt;
+          }
+        }
       }
 
-      if (!nextRoute) return;
-
-      console.log('...', nextRoute.handler.name);
-      return nextRoute.handler(routeRequest, env);
+      if (route) {
+        return route.handler(routeRequest, env);
+      }
     };
 
     // Process route handlers

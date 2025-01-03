@@ -16,20 +16,20 @@
   "dependencies": {
     "@flightcard/common": "*",
     "@flightcard/db": "*",
+    "@flightcard/models": "*",
     "@flightcard/worker-next": "*",
-    "next": "15.0.4",
+    "next": "15.1.3",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "swr": "^2.2.5"
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@types/google.accounts": "0.0.15",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "daisyui": "4.12.20",
+    "daisyui": "4.12.23",
     "postcss": "^8",
-    "tailwindcss": "^3.4.16",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }
 }

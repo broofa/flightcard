@@ -4,16 +4,16 @@ import { CertInputField } from '@/app/profile/CertInputField';
 import { InputField } from '@/app/profile/InputField';
 import { Loading } from '@/app/profile/Loading';
 import { RadioField } from '@/app/profile/RadioField';
-import { useCurrentUser } from '@/app/useCurrentUser';
-import { CertOrg, type UserProps } from '@flightcard/db';
+import { CertOrg, type UserModel } from '@flightcard/models';
 import { type ChangeEvent, useState } from 'react';
 import { BusyButton } from '../../../lib/Busy';
+import { useCurrentUser } from '../../../lib/session_hooks';
 import { useFetch } from '../../../lib/useFetch';
 
-type UserFormProps = UserProps & { name?: string };
+type UserFormProps = UserModel & { name?: string };
 
 export default function ProfilePage() {
-  const { currentUser } = useCurrentUser();
+  const currentUser = useCurrentUser();
   const [fields, setFields] = useState<UserFormProps>();
   const [changed, setChanged] = useState(false);
   const [saveFields, setSaveFields] = useState<UserFormProps>();
@@ -29,7 +29,7 @@ export default function ProfilePage() {
   if (!currentUser) return <Loading wat='User' />;
 
   if (!fields) {
-    const initFields: UserFormProps = currentUser.props();
+    const initFields: UserFormProps = { ...currentUser };
     initFields.name = `${initFields.firstName} ${initFields.lastName}`;
     setFields(initFields);
     return;

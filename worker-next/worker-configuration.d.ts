@@ -2,15 +2,16 @@
 
 interface Env {
 	CertsKV: KVNamespace;
+	FC_API_KEY: string;
+	FC_DB_ID: string;
 	NAR_API_KEY: string;
 	NAR_API_ORG: string;
 	TRA_USERNAME: string;
 	TRA_PASSWORD: string;
-	FC_API_KEY: string;
-	FC_DB_ID: string;
 	GOOGLE_CLIENT_ID: string;
 	GOOGLE_CLIENT_SECRET: string;
 	CLOUDFLARE_API_TOKEN: string;
 	CLOUDFLARE_ACCOUNT_ID: string;
+	FC_LAUNCH_DO: DurableObjectNamespace<import("./src/index").LaunchDO>;
 	AppDB: D1Database;
 }

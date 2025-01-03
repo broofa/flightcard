@@ -1,11 +1,11 @@
-import { type RocketProps, isRocketProps } from '@flightcard/db';
+import { createRocket, isRocketModel } from '@flightcard/models';
 import { CFQuery } from '../lib/CFQuery';
 import type { RouteRequest } from '../lib/CloudflareRouter';
 import { querySessionUser } from './routes-session';
 
-async function getRocketProps(req: RouteRequest) {
+async function getRocketModel(req: RouteRequest) {
   const rocketProps = await req.json();
-  return isRocketProps(rocketProps) ? rocketProps : null;
+  return isRocketModel(rocketProps) ? rocketProps : null;
 }
 
 export async function GetRockets(req: RouteRequest, env: Env) {
@@ -15,10 +15,8 @@ export async function GetRockets(req: RouteRequest, env: Env) {
     return Response.json(null, { status: 401 });
   }
 
-  const query = new CFQuery()
-    .select('*')
-    .from('rockets')
-    // .where('userID = ?', currentUser.userID);
+  const query = new CFQuery().select('*').from('rockets');
+  // .where('userID = ?', currentUser.userID);
 
   const result = await query.run(env);
 
@@ -27,8 +25,6 @@ export async function GetRockets(req: RouteRequest, env: Env) {
 
 export async function GetRocket(req: RouteRequest, env: Env) {
   const { rocketID } = req.params as { rocketID: string };
-
-  console.log('GETTING ROCKET', req.params, rocketID);
 
   const query = new CFQuery()
     .select('*')
@@ -49,7 +45,7 @@ export async function PostRockets(req: RouteRequest, env: Env) {
 
   const rocketProps = await req.json();
 
-  if (!isRocketProps(rocketProps)) {
+  if (!isRocketModel(rocketProps)) {
     return Response.json(null, { status: 400 });
   }
 
@@ -59,7 +55,7 @@ export async function PostRockets(req: RouteRequest, env: Env) {
   }
 
   // Pluck props to update
-  const values: RocketProps = {
+  const values = createRocket({
     color: rocketProps.color,
     diameter: rocketProps.diameter,
     length: rocketProps.length,
@@ -69,7 +65,7 @@ export async function PostRockets(req: RouteRequest, env: Env) {
     recovery: rocketProps.recovery,
     rocketID: rocketProps.rocketID,
     userID: rocketProps.userID,
-  };
+  });
 
   const query = new CFQuery()
     .insertInto('rockets')

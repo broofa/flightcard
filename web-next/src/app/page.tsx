@@ -2,11 +2,11 @@
 
 import Login from '@/app/Login';
 import { LoginProtected } from '@/app/LoginProtected';
-import { useCurrentUser } from '@/app/useCurrentUser';
 import { useRouter } from 'next/navigation';
+import { useCurrentUser } from '../../lib/session_hooks';
 
 export default function Home() {
-  const { currentUser } = useCurrentUser();
+  const currentUser = useCurrentUser();
   const router = useRouter();
 
   if (!currentUser) {
@@ -20,9 +20,7 @@ export default function Home() {
     >
       <main className='flex flex-col gap-8 prow-start-2 items-center w-80'>
         <LoginProtected>
-          <h1>
-            Hello, {currentUser?.get('firstName')}. Welcome to FlightCard.
-          </h1>
+          <h1>Hello, {currentUser.firstName}. Welcome to FlightCard.</h1>
 
           <div className='grid grid-cols-2 gap-4 w-full'>
             <button className='btn' onClick={() => router.push('/rockets')}>

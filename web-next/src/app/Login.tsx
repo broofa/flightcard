@@ -1,6 +1,6 @@
 'use client';
 
-import { useCurrentUser } from '@/app/useCurrentUser';
+import { sessionCache } from '@/util/caches';
 import { useEffect, useState } from 'react';
 
 // REF: https://developers.google.com/identity/protocols/oauth2/scopes
@@ -13,7 +13,6 @@ export const GOOGLE_SCOPES = [
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
-  const { refresh: refreshCurrentUser } = useCurrentUser();
 
   useEffect(() => {
     googleAPI.then(() => setIsLoading(false));
@@ -40,7 +39,7 @@ export default function Login() {
           body: JSON.stringify(response, null, 2),
         });
 
-        refreshCurrentUser();
+        sessionCache.refresh('current');
       },
     });
 

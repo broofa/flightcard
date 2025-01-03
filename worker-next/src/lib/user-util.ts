@@ -1,18 +1,17 @@
-import type { UserProps } from '@flightcard/db';
-import type { UserModel } from '../routes/PostGoogleLogin';
+import type { UserModel } from '@flightcard/models';
 import { CFQuery } from './CFQuery';
 
-export async function upsertUser(env: Env, userProps: UserProps) {
+export async function upsertUser(env: Env, userModel: UserModel) {
   // Create user
   await new CFQuery()
     .insertInto('users')
     .values({
-      userID: userProps.userID,
-      email: userProps.email,
-      firstName: userProps.firstName,
-      lastName: userProps.lastName,
-      avatarURL: userProps.avatarURL,
-      units: userProps.units,
+      userID: userModel.userID,
+      email: userModel.email,
+      firstName: userModel.firstName,
+      lastName: userModel.lastName,
+      avatarURL: userModel.avatarURL,
+      units: userModel.units,
     })
     .onConflictDo('email', 'NOTHING')
     .run(env);
@@ -21,6 +20,6 @@ export async function upsertUser(env: Env, userProps: UserProps) {
   return await new CFQuery()
     .select('*')
     .from('users')
-    .where('email = ?', userProps.email)
+    .where('email = ?', userModel.email)
     .first<UserModel>(env);
 }

@@ -4,7 +4,7 @@
  * To add an icon, copy/paste the <path> element from the SVG source listed on the icons page.  (E.g. )
  */
 
-import type { HTMLAttributes } from 'react';
+import type { HTMLAttributes, JSX } from 'react';
 
 export default function Icon({
   name,

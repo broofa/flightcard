@@ -29,13 +29,14 @@
     "url": "https://github.com/broofa/flightcard/issues"
   },
   "homepage": "https://github.com/broofa/flightcard#readme",
-  "packageManager": "npm@11.0.0-pre.0+sha512.cfcc8b3c222b6f57889184e08b1a4d735fe15a66bd7c73df26a4059dcbfb3fb5dda3343319b8692c89385cf4dfbd65c71d2157db12df2ed84485bd60193b5ad9",
+  "packageManager": "npm@11",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4"
   },
   "workspaces": [
     "common",
     "db",
+    "models",
     "web-next",
     "worker-next"
   ]

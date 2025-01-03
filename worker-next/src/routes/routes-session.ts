@@ -1,7 +1,8 @@
 import { FC_SESSION_COOKIE } from '@flightcard/common';
-import type { UserModel } from '@flightcard/db';
+import type { SessionModel, UserModel } from '@flightcard/models';
 import cookie from 'cookie';
 import { CFQuery } from '../lib/CFQuery';
+import type { RouteRequest } from '../lib/CloudflareRouter';
 
 export function getSessionID(req: Request) {
   const cookies = cookie.parse(req.headers.get('Cookie') || '');
@@ -10,7 +11,7 @@ export function getSessionID(req: Request) {
 
 export async function querySessionUser(req: Request, env: Env) {
   const sessionID = getSessionID(req);
-console.log('SESSION ID', sessionID);
+  console.log('SESSION ID', sessionID);
   if (!sessionID) {
     return null;
   }
@@ -24,6 +25,22 @@ console.log('SESSION ID', sessionID);
     });
 
   return await query.first<UserModel>(env);
+}
+
+export async function GetSession(req: RouteRequest, env: Env) {
+  let { sessionID } = req.params as { sessionID: string };
+  if (sessionID === 'current') {
+    sessionID = getSessionID(req) ?? '';
+  }
+
+  const query = new CFQuery()
+    .select('*')
+    .from('sessions')
+    .where('sessionID = ?', sessionID);
+
+  const result = await query.first<SessionModel>(env);
+
+  return Response.json(result);
 }
 
 export async function GetSessionUser(req: Request, env: Env) {

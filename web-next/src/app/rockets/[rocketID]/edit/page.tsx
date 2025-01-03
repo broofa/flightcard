@@ -2,21 +2,21 @@
 
 import { InputField } from '@/app/profile/InputField';
 import { useRocket } from '@/app/rockets/[rocketID]/useRocket';
-import { useCurrentUser } from '@/app/useCurrentUser';
-import { Recovery, type RocketProps } from '@flightcard/db';
+import { Recovery, type RocketModel } from '@flightcard/models';
 import { useParams } from 'next/navigation';
 import { type ChangeEvent, useState } from 'react';
 import { BusyButton, BusySpinner } from '../../../../../lib/Busy';
 import { cn } from '../../../../../lib/cn';
+import { useCurrentUser } from '../../../../../lib/session_hooks';
 import { useFetch } from '../../../../../lib/useFetch';
 
-type RocketFormProps = RocketProps;
+type RocketFormProps = RocketModel;
 
 export default function RocketEditor() {
   const [fields, setFields] = useState<RocketFormProps>();
   const [changed, setChanged] = useState(false);
   const [saveFields, setSaveFields] = useState<RocketFormProps>();
-  const { currentUser } = useCurrentUser();
+  const currentUser = useCurrentUser();
 
   const { rocketID } = useParams();
 

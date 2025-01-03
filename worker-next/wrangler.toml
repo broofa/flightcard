@@ -1,11 +1,22 @@
-name = "club-members"
+name = "flightcard-worker"
 main = "src/index.ts"
 
-compatibility_date = "2023-05-29"
+compatibility_date = "2024-12-30"
+
+[observability]
+enabled = true
 
 [vars]
 CLOUDFLARE_API_TOKEN = "not used in dev"
 CLOUDFLARE_ACCOUNT_ID = "not used in dev"
+
+[[durable_objects.bindings]]
+name = "FC_LAUNCH_DO"
+class_name = "LaunchDO"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["LaunchDO"]
 
 [triggers]
 # Frequency here determines how often NAR logic can fetch a page of results.
@@ -26,7 +37,3 @@ preview_id = "202f9cc828c149d0acfc1238195eeeff"
 
 [dev]
 port = 1235
-
-[observability]
-enabled = true
-head_sampling_rate = 1

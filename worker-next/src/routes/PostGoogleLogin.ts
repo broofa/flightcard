@@ -4,6 +4,7 @@ import { requestAccessToken, requestUserInfo } from '../lib/google-util';
 
 // @ts-ignore - TS can't find type declarations here.  Not sure why :-(
 import { FC_SESSION_COOKIE, errorResponse, toss } from '@flightcard/common';
+import type { SessionModel, UserModel } from '@flightcard/models';
 import { CFQuery } from '../lib/CFQuery';
 import { upsertUser } from '../lib/user-util';
 
@@ -13,21 +14,6 @@ type CodeResponse = {
   scope: string;
   authuser: string;
   prompt: string;
-};
-
-export type UserModel = {
-  userID: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  avatarURL: string;
-  createdAt: number;
-};
-
-type SessionModel = {
-  sessionID: string;
-  userID: string;
-  expiresAt: number;
 };
 
 export async function PostGoogleLogin(
@@ -51,6 +37,7 @@ export async function PostGoogleLogin(
 
   // Create / update user account
   const user = await upsertUser(env, {
+    _type: 'user',
     userID: crypto.randomUUID(),
     email: userInfo.email ?? toss('No email in Google profile?!?'),
     firstName: userInfo.given_name,
