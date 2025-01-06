@@ -4,7 +4,11 @@ import { requestAccessToken, requestUserInfo } from '../lib/google-util';
 
 // @ts-ignore - TS can't find type declarations here.  Not sure why :-(
 import { FC_SESSION_COOKIE, errorResponse, toss } from '@flightcard/common';
-import type { SessionModel, UserModel } from '@flightcard/models';
+import {
+  type SessionModel,
+  type UserModel,
+  UserUnits,
+} from '@flightcard/models';
 import { CFQuery } from '../lib/CFQuery';
 import { upsertUser } from '../lib/user-util';
 
@@ -43,7 +47,7 @@ export async function PostGoogleLogin(
     firstName: userInfo.given_name,
     lastName: userInfo.family_name,
     avatarURL: userInfo.picture,
-    units: 'si',
+    units: UserUnits.SI,
   });
 
   if (!user) {

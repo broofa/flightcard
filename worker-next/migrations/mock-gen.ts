@@ -1,9 +1,3 @@
-/**
- * Generate a robust set of mock data for testing and development.
- *
- * NOTE: IDEMPOTENT!
- */
-
 import {
   type AttendeeModel,
   type CertModel,
@@ -11,6 +5,8 @@ import {
   type FlightModel,
   FlightStatus,
   type LaunchModel,
+  type MotorExtra,
+  type MotorModel,
   type PadModel,
   ROCKET_COLORS,
   type RocketModel,
@@ -20,6 +16,7 @@ import {
   createCert,
   createFlight,
   createLaunch,
+  createMotor,
   createPad,
   createRocket,
   createUser,
@@ -29,12 +26,15 @@ import {
   MOCK_ROCKET_NAMES,
   MOCK_USER_NAMES,
 } from './mock-util';
+// Had to copy these files locally to keep TSC happy.  Need to figure out why and update the npm project.
+import MOTORS from './thrustcurve-db/thrustcurve-db';
 
 type Mocks = {
   attendees: AttendeeModel[];
   certs: CertModel[];
   flights: FlightModel[];
   launches: LaunchModel[];
+  motors: MotorModel[];
   pads: PadModel[];
   rockets: RocketModel[];
   users: UserModel[];
@@ -48,29 +48,36 @@ export function getMockModels() {
   return gen.mocks;
 }
 
-// Samll, high-quality, seedable PRNG
-// REF https://github.com/bryc/code/blob/master/jshash/PRNGs.md#mulberry32
-function mulberry32(a: number) {
+// Small, high-quality, seedable PRNG
+// REF https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
+function splitmix32(a: number) {
   return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return (t ^ (t >>> 14)) >>> 0; // "">>> 0" Ensures non-negative
+    a = ((a | 0) + 0x9e3779b9) | 0;
+    let t = a ^ (a >>> 16);
+    t = Math.imul(t, 0x21f0aaad);
+    t ^= t >>> 15;
+    t = Math.imul(t, 0x735a2d97);
+    t ^= t >>> 15;
+    return t >>> 0; // Ensures non-negative
   };
 }
 
+/**
+ * Class that contains all state used while generating the mocks.  This insures
+ * any "random" data is deterministic and repeatable.
+ */
 class MockGenerator {
   #ids: Record<string, number> = {};
 
-  // Seedable RNG here for repeatable results
-  #rng = mulberry32(0x6d086bf3); // Seed value is arbitrary
+  // Randomly chosen seed.  Exact value is not significant.
+  #rng = splitmix32(0x6d086bf3);
 
   mocks: Mocks = {
     attendees: [],
     certs: [],
     flights: [],
     launches: [],
+    motors: [],
     pads: [],
     rockets: [],
     users: [],
@@ -146,10 +153,9 @@ class MockGenerator {
         ? this.#rndItem(officers)
         : undefined;
 
-      const isOfficer = officers.length < Math.sqrt(nAttendees) / 2;
-      if (isOfficer) {
+      attendee.isOfficer = officers.length < Math.sqrt(nAttendees) / 1.5;
+      if (attendee.isOfficer) {
         officers.push(attendee);
-        attendee.isOfficer = isOfficer;
       }
 
       if (registeredBy) {
@@ -183,6 +189,23 @@ class MockGenerator {
       status: this.#rndItem(STATUSES),
     });
     this.mocks.flights.push(flight);
+
+    if (this.#rndBool(0.8)) {
+      // Simple motor config
+      const motor = this.mockMotor(flight);
+    } else if (this.#rndBool()) {
+      // Multi-stage
+      const nStages = this.#rndInt(3) + 1;
+      for (let stage = 1; stage <= nStages; stage++) {
+        this.mockMotor(flight, { stage });
+      }
+    } else {
+      // Cluster
+      const nMotors = this.#rndInt(3) + 1;
+      for (let i = 0; i <= nMotors; i++) {
+        this.mockMotor(flight);
+      }
+    }
     return flight;
   }
 
@@ -264,7 +287,6 @@ class MockGenerator {
         m.organization === org
     );
     if (prior) {
-      console.log('PRIOR!', prior);
       return prior;
     }
 
@@ -298,5 +320,26 @@ class MockGenerator {
     });
     this.mocks.attendees.push(attendee);
     return attendee;
+  }
+
+  mockMotor(flight: FlightModel, extra?: MotorExtra) {
+    const tcMotor = this.#rndItem(MOTORS)!;
+    const delays = tcMotor.delays
+      ?.split(',')
+      .map((d) => Number.parseInt(d, 10));
+    const motor = createMotor({
+      motorID: this.#mockID('motor'),
+      designation: tcMotor.designation,
+      flightID: flight.flightID,
+      extra: {
+        tcMotorID: tcMotor.motorId,
+        impulse: tcMotor.totImpulseNs,
+        stage: 1,
+        delay: delays ? this.#rndItem(delays) : undefined,
+        ...extra,
+      },
+    });
+
+    this.mocks.motors.push(motor);
   }
 }

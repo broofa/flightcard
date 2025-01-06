@@ -5,6 +5,7 @@ export * from './FlightModel.ts';
 export * from './LaunchModel.ts';
 export * from './ModelCache.ts';
 export * from './ModelStore.ts';
+export * from './MotorModel.ts';
 export * from './PadModel.ts';
 export * from './RocketModel.ts';
 export * from './SessionModel.ts';

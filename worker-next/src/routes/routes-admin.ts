@@ -18,6 +18,7 @@ const TABLES: {
   { tableName: 'rockets', primaryKey: 'rocketID' },
   { tableName: 'attendees', primaryKey: 'attendeeID' },
   { tableName: 'flights', primaryKey: 'flightID' },
+  { tableName: 'motors', primaryKey: 'motorID' },
 ];
 
 async function deleteMocks(env: Env) {
@@ -38,16 +39,18 @@ async function saveMocks<T extends BaseModel>(
 ) {
   const results = [];
   const models = mocks[tableName];
-  for (let model of models) {
+  const values = models.map((model) => {
     model = { ...model };
     delete model._type;
+    return model;
+  });
 
-    const query = new CFQuery().insertInto(tableName).values(model);
-    const result = await query.run(env);
-    results.push(result);
-  }
-
-  return results.length;
+  const query = new CFQuery().insertInto(tableName).values(values);
+  return {
+    ...(await query.run(env)),
+    query: query.toSqlString(),
+    queryLength: query.toSqlString().length,
+  };
 }
 
 export async function GetAdminMocks(req: RouteRequest, env: Env) {
@@ -55,12 +58,11 @@ export async function GetAdminMocks(req: RouteRequest, env: Env) {
 
   const mocks = getMockModels();
 
-  const saved: Record<string, unknown> = {};
+  const results: Record<string, unknown> = {};
 
-  // Order matters here!
   for (const { tableName, primaryKey } of TABLES) {
-    saved[tableName] = await saveMocks(env, mocks, tableName, primaryKey);
+    results[tableName] = await saveMocks(env, mocks, tableName, primaryKey);
   }
 
-  return Response.json(saved);
+  return Response.json(results);
 }

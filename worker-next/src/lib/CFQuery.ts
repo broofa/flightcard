@@ -1,39 +1,33 @@
+import { compose, escapeId } from './SqlString';
+
+type CallableQuery = Pick<
+  CFQuery,
+  'toString' | 'toSqlString' | 'run' | 'first'
+>;
+
 /**
  * A lightweight query builder for (CloudFlare D1) SQLite DBs
  */
 export class CFQuery {
   parts: string[] = [];
-  params: unknown[] = [];
+  vars: unknown[] = [];
 
-  _param(value: unknown = null) {
+  _var(value: unknown = null) {
     if (typeof value === 'function') {
       const q = new CFQuery();
-      q.params = this.params;
+      q.vars = this.vars;
       value(q);
       return `( ${q.toString()} )`;
     }
 
-    if (value instanceof CFQuery) {
-      return `( ${value.toString()} )`;
-    }
-
-    if (value && typeof value === 'object') {
-      if (value.constructor === Object) {
-        // If vanilla object, convert to JSON
-        value = JSON.stringify(value);
-      } else {
-        throw new Error('Unexpected parameter type');
-      }
-    }
-
-    this.params.push(value);
-    return `?${this.params.length}`;
+    this.vars.push(value);
+    return `?${this.vars.length}`;
   }
 
   /**
    * SELECT
    */
-  select(...fields: string[]): Pick<CFQuery, 'from' | 'where'> {
+  select(...fields: string[]): CallableQuery & Pick<CFQuery, 'from' | 'where'> {
     this.parts.push(`SELECT ${fields.join(', ')}`);
     return this;
   }
@@ -41,7 +35,7 @@ export class CFQuery {
   /**
    * INSERT
    */
-  insertInto(table: string): Pick<CFQuery, 'values'> {
+  insertInto(table: string): CallableQuery & Pick<CFQuery, 'values'> {
     this.parts.push(`INSERT INTO ${table}`);
     return this;
   }
@@ -49,7 +43,7 @@ export class CFQuery {
   /**
    * UPDATE
    */
-  update(table: string): Pick<CFQuery, 'set'> {
+  update(table: string): CallableQuery & Pick<CFQuery, 'set'> {
     this.parts.push(`UPDATE ${table}`);
     return this;
   }
@@ -57,7 +51,7 @@ export class CFQuery {
   /**
    * DELETE
    */
-  delete(table: string): Pick<CFQuery, 'where' | 'run' | 'first'> {
+  delete(table: string): CallableQuery & Pick<CFQuery, 'where'> {
     this.parts.push(`DELETE FROM ${table}`);
     return this;
   }
@@ -68,7 +62,7 @@ export class CFQuery {
   onConflictDo(
     field: string,
     action: 'UPDATE' | 'NOTHING' = 'UPDATE'
-  ): Pick<CFQuery, 'set' | 'run' | 'first'> {
+  ): CallableQuery & Pick<CFQuery, 'set'> {
     this.parts.push(`ON CONFLICT (${field}) DO ${action}`);
     return this;
   }
@@ -76,9 +70,7 @@ export class CFQuery {
   /**
    * FROM
    */
-  from(
-    table: string
-  ): Pick<CFQuery, 'where' | 'onConflictDo' | 'run' | 'first'> {
+  from(table: string): CallableQuery & Pick<CFQuery, 'where' | 'onConflictDo'> {
     this.parts.push(`FROM ${table}`);
     return this;
   }
@@ -89,35 +81,35 @@ export class CFQuery {
   set<T extends object>(
     row: T,
     operator: '=' | 'VALUES' = '='
-  ): ReturnType<CFQuery['from']> {
-    const { columns, valueGroups } = this.#setValues([row]);
+  ): CallableQuery & ReturnType<CFQuery['from']> {
+    const { columns, values } = this.#prepareValues([row]);
 
-    this.parts.push(`SET (${columns.join(', ')}) = ${valueGroups.join(', ')}`);
+    this.parts.push(`SET (${columns.join(', ')}) = ${this._var(values)}`);
     return this;
   }
 
   /**
    * VALUES
    */
-  values<T extends object>(rows: T | T[]): ReturnType<CFQuery['from']> {
-    const { columns, valueGroups } = this.#setValues(
+  values<T extends object>(
+    rows: T | T[]
+  ): CallableQuery & ReturnType<CFQuery['from']> {
+    const { columns, values } = this.#prepareValues(
       Array.isArray(rows) ? rows : [rows]
     );
-
-    this.parts.push(`(${columns.join(', ')}) VALUES ${valueGroups.join(', ')}`);
+    this.parts.push(`(${columns.join(', ')}) VALUES ${this._var(values)}`);
     return this;
   }
 
-  #setValues<T extends object>(rows: T[]) {
+  #prepareValues<T extends object>(rows: T | T[]) {
+    if (!Array.isArray(rows)) {
+      rows = [rows];
+    }
+
     const columns = Object.keys(rows[0]) as (keyof T)[];
+    const values = rows.map((row) => columns.map((k) => row[k]));
 
-    // Gather all columns
-    const valueGroups = rows.map((row) => {
-      const indexes = columns.map((k) => this._param(row[k]));
-      return `(${indexes.join(', ')})`;
-    });
-
-    return { columns: columns.map((c) => `"${c as string}"`), valueGroups };
+    return { columns: columns.map((c) => escapeId(c)), values };
   }
 
   /**
@@ -126,7 +118,7 @@ export class CFQuery {
   where(
     key: string,
     ...values: unknown[]
-  ): Pick<CFQuery, 'and' | 'or' | 'onConflictDo' | 'run' | 'first'> {
+  ): CallableQuery & Pick<CFQuery, 'and' | 'or' | 'onConflictDo'> {
     return this.#clause('WHERE', key, ...values);
   }
 
@@ -140,7 +132,7 @@ export class CFQuery {
 
   #clause(type: 'WHERE' | 'AND' | 'OR', key: string, ...values: unknown[]) {
     let i = 0;
-    const clause = key.replaceAll('?', () => this._param(values[i++]));
+    const clause = key.replaceAll('?', () => this._var(values[i++]));
     if (i !== values.length) {
       throw new Error('token <-> value mismatch');
     }
@@ -152,11 +144,13 @@ export class CFQuery {
     return this.parts.join(' ');
   }
 
-  toStatement(env: Env) {
-    // console.log('QUERY:', this.toString(), this.params);
+  // Stringify for SqlString
+  toSqlString() {
+    return compose(this.toString(), this.vars);
+  }
 
-    const statement = env.AppDB.prepare(this.toString());
-    return this.params.length ? statement.bind(...this.params) : statement;
+  toStatement(env: Env) {
+    return env.AppDB.prepare(this.toSqlString());
   }
 
   async run(env: Env) {

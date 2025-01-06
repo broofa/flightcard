@@ -56,13 +56,8 @@ export async function PostRockets(req: RouteRequest, env: Env) {
 
   // Pluck props to update
   const values = createRocket({
-    color: rocketProps.color,
-    diameter: rocketProps.diameter,
-    length: rocketProps.length,
-    manufacturer: rocketProps.manufacturer,
-    mass: rocketProps.mass,
+    extra: rocketProps.extra,
     name: rocketProps.name,
-    recovery: rocketProps.recovery,
     rocketID: rocketProps.rocketID,
     userID: rocketProps.userID,
   });

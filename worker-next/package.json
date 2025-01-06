@@ -15,12 +15,14 @@
   "private": true,
   "scripts": {
     "cf-codegen": "wrangler types",
-    "start": "wrangler dev --test-scheduled src/index.ts",
-    "deploy": "wrangler deploy && npm run db:migrate --remote",
     "db:do": "wrangler d1 execute -y flightcard --command",
-    "db:schema": "npm run db:do \"SELECT name, sql FROM sqlite_schema\"",
     "db:migrate:reset": "npm run db:do \"drop table migrations\"",
-    "db:migrate": "wrangler d1 migrations apply flightcard --local"
+    "db:migrate": "wrangler d1 migrations apply flightcard --local",
+    "db:schema": "npm run db:do \"SELECT name, sql FROM sqlite_schema\"",
+    "deploy": "wrangler deploy && npm run db:migrate --remote",
+    "start": "wrangler dev --test-scheduled src/index.ts",
+    "test": "npx -y tsx --test src/**/*.test.ts",
+    "test:watch": "npx -y tsx --test --watch src/**/*.test.ts"
   },
   "dependencies": {
     "@flightcard/common": "*",

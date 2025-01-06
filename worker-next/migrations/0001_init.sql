@@ -207,8 +207,7 @@ DROP TABLE IF EXISTS motors;
 CREATE TABLE IF NOT EXISTS motors (
   motorID TEXT PRIMARY KEY,
   flightID TEXT NOT NULL,
-  launchID TEXT NOT NULL,
-  name TEXT NOT NULL COLLATE NOCASE,
+  designation TEXT NOT NULL COLLATE NOCASE,
   -- JSON extra structured fields
   -- * {string} tcMotorID
   -- * {number} impulse (Ns)
@@ -220,8 +219,6 @@ CREATE TABLE IF NOT EXISTS motors (
 );
 
 CREATE INDEX IF NOT EXISTS motors_flightID ON motors (flightID);
-
-CREATE INDEX IF NOT EXISTS motors_launchID ON motors (launchID);
 
 CREATE TRIGGER IF NOT EXISTS motors_updatedAt
 AFTER
