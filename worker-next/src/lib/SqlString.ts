@@ -34,8 +34,6 @@ export function escapeSQL(val: unknown, stringifyObjects = false): string {
     case 'number':
       return String(val);
     case 'function':
-      // Maybe do this here?
-      // return escapeSQL(val(), stringifyObjects);
       throw new TypeError('Function values are not supported');
     case 'object':
       if (val instanceof Date) {

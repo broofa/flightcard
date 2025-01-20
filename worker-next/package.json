@@ -19,6 +19,8 @@
     "db:migrate:reset": "npm run db:do \"drop table migrations\"",
     "db:migrate": "wrangler d1 migrations apply flightcard --local",
     "db:schema": "npm run db:do \"SELECT name, sql FROM sqlite_schema\"",
+    "db:open": "sqlite3 $(find . -name \"*.sqlite\")",
+    "db:ui": "open -a \"db browser for sqlite\" $(find . -name \"*.sqlite\")",
     "deploy": "wrangler deploy && npm run db:migrate --remote",
     "start": "wrangler dev --test-scheduled src/index.ts",
     "test": "npx -y tsx --test src/**/*.test.ts",

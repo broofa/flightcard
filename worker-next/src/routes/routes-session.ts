@@ -16,15 +16,13 @@ export async function querySessionUser(req: Request, env: Env) {
     return null;
   }
 
-  const query = new CFQuery();
-  query
+  return await new CFQuery<UserModel>()
     .select('*')
     .from('users')
     .where('userID = ?', (q: CFQuery) => {
       q.select('userID').from('sessions').where('sessionID = ?', sessionID);
-    });
-
-  return await query.first<UserModel>(env);
+    })
+    .first(env);
 }
 
 export async function GetSession(req: RouteRequest, env: Env) {
@@ -33,12 +31,11 @@ export async function GetSession(req: RouteRequest, env: Env) {
     sessionID = getSessionID(req) ?? '';
   }
 
-  const query = new CFQuery()
+  const result = await new CFQuery<SessionModel>()
     .select('*')
     .from('sessions')
-    .where('sessionID = ?', sessionID);
-
-  const result = await query.first<SessionModel>(env);
+    .where('sessionID = ?', sessionID)
+    .first(env);
 
   return Response.json(result);
 }

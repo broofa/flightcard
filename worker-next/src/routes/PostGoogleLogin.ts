@@ -92,9 +92,9 @@ async function createSession(env: Env, user: UserModel) {
     })
     .run(env);
 
-  return await new CFQuery()
+  return await new CFQuery<SessionModel>()
     .select('*')
     .from('sessions')
     .where('sessionID = ?', sessionID)
-    .first<SessionModel>(env);
+    .first(env);
 }

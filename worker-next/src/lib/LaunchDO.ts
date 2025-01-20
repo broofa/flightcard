@@ -25,3 +25,8 @@ export class LaunchDO extends DurableObject {
     });
   }
 }
+
+async function dbFetch() {
+  const response = await fetch('https://example.com');
+  return response.text();
+}

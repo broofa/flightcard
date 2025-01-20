@@ -5,7 +5,7 @@ import { Use404 } from './routes/Use404';
 import { UseCors } from './routes/UseCors';
 import { UseError } from './routes/UseError';
 import { GetAdminMocks } from './routes/routes-admin';
-import { GetLaunchRealtime } from './routes/routes-launch-do';
+import { GetLaunchRealtime, GetLaunchState } from './routes/routes-launch-do';
 import { GetRocket, GetRockets, PostRockets } from './routes/routes-rockets';
 import {
   DeleteSession,
@@ -44,6 +44,7 @@ router.GET(/^\/rockets\/(?<rocketID>[\w-]+)$/, GetRocket);
 
 // Launch routes
 router.GET(/^\/launch\/(?<launchID>[\w-]+)\/realtime$/, GetLaunchRealtime);
+router.GET(/^\/launch\/(?<launchID>[\w-]+)\/state$/, GetLaunchState);
 
 // Admin routes
 router.GET(/^\/admin\/mocks$/, GetAdminMocks);

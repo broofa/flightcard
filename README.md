@@ -2,6 +2,25 @@
 
 An application for managing model rocketry launch events.
 
+## Realtime Architecture
+
+```mermaid
+flowchart LR
+  subgraph client
+    cache-client["cache(client)"]
+    page <--> cache-client
+  end
+
+  subgraph cloudflare
+    worker --> db["DB"]
+    do["DO"] --> db
+    worker --> do
+  end
+
+  client --> worker
+  do <--> cache-client
+```
+
 ## Schema
 
 ```mermaid

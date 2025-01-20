@@ -17,9 +17,9 @@ export async function upsertUser(env: Env, userModel: UserModel) {
     .run(env);
 
   // Return new user
-  return await new CFQuery()
+  return await new CFQuery<UserModel>()
     .select('*')
     .from('users')
     .where('email = ?', userModel.email)
-    .first<UserModel>(env);
+    .first(env);
 }

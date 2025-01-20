@@ -9,7 +9,7 @@ export type AttendeeModel = BaseModel & {
   launchID: string;
   userID: string;
   registeredByID?: string;
-  isOfficer?: boolean;
+  isOfficer: boolean;
   tosAcceptedAt?: number;
   extra?: AttendeeExtra;
 };

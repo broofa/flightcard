@@ -1,4 +1,8 @@
-import { createRocket, isRocketModel } from '@flightcard/models';
+import {
+  type RocketModel,
+  createRocket,
+  isRocketModel,
+} from '@flightcard/models';
 import { CFQuery } from '../lib/CFQuery';
 import type { RouteRequest } from '../lib/CloudflareRouter';
 import { querySessionUser } from './routes-session';
@@ -62,7 +66,7 @@ export async function PostRockets(req: RouteRequest, env: Env) {
     userID: rocketProps.userID,
   });
 
-  const query = new CFQuery()
+  const query = new CFQuery<RocketModel>()
     .insertInto('rockets')
     .values(values)
     .where('rocketID = ?', values.rocketID)

@@ -316,6 +316,7 @@ class MockGenerator {
       attendeeID: this.#mockID('attendee'),
       userID,
       launchID,
+      isOfficer: false,
       tosAcceptedAt: 1735936396671,
     });
     this.mocks.attendees.push(attendee);

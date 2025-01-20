@@ -10,8 +10,6 @@ export default function RocketsIndex() {
   const currentUser = useCurrentUser();
   const rockets = useUserRockets(currentUser?.userID);
 
-  console.log(modelStore);
-
   const router = useRouter();
 
   return (

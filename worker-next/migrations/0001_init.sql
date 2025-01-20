@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS attendees (
   -- JSON extra structured fields
   -- * {string} officerRole (registration, flight review, launch control, range safety)
   extra TEXT,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
   FOREIGN KEY (launchID) REFERENCES launches(launchID),
   FOREIGN KEY (userID) REFERENCES users(userID),
   FOREIGN KEY (registeredByID) REFERENCES attendees(attendeeID)
@@ -35,7 +35,7 @@ UPDATE
 UPDATE
   attendees
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -54,8 +54,8 @@ CREATE TABLE IF NOT EXISTS certs (
   expiresAt INTEGER,
   firstName TEXT COLLATE NOCASE,
   lastName TEXT COLLATE NOCASE,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS certs_organization_memberID ON certs (organization, memberID);
@@ -76,7 +76,7 @@ UPDATE
 UPDATE
   certs
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS flights (
   rack INTEGER,
   reviewedByUserID TEXT,
   rocketID TEXT NOT NULL,
-  userID TEXT createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  userID TEXT NOT NULL,
   "status" TEXT NOT NULL CHECK(
     "status" IN (
       'draft',
@@ -120,8 +120,8 @@ CREATE TABLE IF NOT EXISTS flights (
   -- * {boolean} isFirstFlight
   -- * {number 1-3} certFlightLevel
   extra TEXT,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
   FOREIGN KEY (launchedByUserID) REFERENCES users(userID),
   FOREIGN KEY (launchID) REFERENCES launches(launchID),
   FOREIGN KEY (padID) REFERENCES pads(padID),
@@ -148,7 +148,7 @@ UPDATE
 UPDATE
   flights
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -175,8 +175,8 @@ CREATE TABLE IF NOT EXISTS launches (
   -- * {string} description
   -- * {string} siteName
   extra TEXT,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000)
 );
 
 CREATE INDEX IF NOT EXISTS launches_club ON launches (club);
@@ -193,7 +193,7 @@ UPDATE
 UPDATE
   launches
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -214,8 +214,8 @@ CREATE TABLE IF NOT EXISTS motors (
   -- * {number} stage (1-n)
   -- * {number} delay (seconds)
   extra TEXT,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000)
 );
 
 CREATE INDEX IF NOT EXISTS motors_flightID ON motors (flightID);
@@ -228,7 +228,7 @@ UPDATE
 UPDATE
   motors
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -251,8 +251,8 @@ CREATE TABLE IF NOT EXISTS pads (
   -- * {number} maxImpulse (Ns)
   -- * {number} minImpulse (Ns)
   extra TEXT,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
   FOREIGN KEY (launchID) REFERENCES launches(launchID)
 );
 
@@ -266,7 +266,7 @@ UPDATE
 UPDATE
   pads
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -290,8 +290,8 @@ CREATE TABLE IF NOT EXISTS rockets (
   -- * {string} notes
   -- * {string} recovery
   extra TEXT,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
   FOREIGN KEY (userID) REFERENCES users(userID)
 );
 
@@ -305,7 +305,7 @@ UPDATE
 UPDATE
   rockets
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -319,9 +319,9 @@ DROP TABLE IF EXISTS sessions;
 CREATE TABLE IF NOT EXISTS sessions (
   sessionID TEXT PRIMARY KEY NOT NULL,
   userID TEXT NOT NULL,
-  expiresAt DATETIME NOT NULL,
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expiresAt INTEGER NOT NULL,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
   FOREIGN KEY (userID) REFERENCES users(userID)
 );
 
@@ -333,7 +333,7 @@ UPDATE
 UPDATE
   sessions
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
@@ -354,8 +354,8 @@ CREATE TABLE IF NOT EXISTS users (
   narID INTEGER,
   traID INTEGER,
   units TEXT NOT NULL DEFAULT 'si' CHECK(units IN ('si', 'us')),
-  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  createdAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
+  updatedAt INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000),
   FOREIGN KEY (hostID) REFERENCES users(userID)
 );
 
@@ -369,7 +369,7 @@ UPDATE
 UPDATE
   users
 SET
-  updatedAt = CURRENT_TIMESTAMP
+  updatedAt = unixepoch('subsec') * 1000
 WHERE
   rowid = OLD.rowid;
 
