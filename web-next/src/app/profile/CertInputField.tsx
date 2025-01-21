@@ -19,7 +19,7 @@ export function CertInputField({
 
   let certLabel: JSX.Element | undefined;
 
-  const isValid = certFetch.data && certFetch.data.expires > Date.now();
+  const isValid = certFetch.data && certFetch.data.expiresAt > Date.now();
 
   if (certFetch.isLoading) {
     certLabel = <BusySpinner className='absolute top-1 right-1' size='sm' />;
@@ -31,18 +31,18 @@ export function CertInputField({
     );
   } else if (!certFetch.data) {
     certLabel = undefined;
-  } else if (certFetch.data.expires < Date.now()) {
+  } else if (certFetch.data.expiresAt < Date.now()) {
     certLabel = (
       <div className='text-xs text-error absolute top-0 right-1'>
         {certFetch.data.firstName} {certFetch.data.lastName} - expired{' '}
-        {new Date(certFetch.data.expires).toLocaleDateString()}
+        {new Date(certFetch.data.expiresAt).toLocaleDateString()}
       </div>
     );
   } else {
     certLabel = (
       <div className='text-xs text-success absolute top-1 right-1'>
         {certFetch.data.firstName} {certFetch.data.lastName} - expires{' '}
-        {new Date(certFetch.data.expires).toLocaleDateString()}
+        {new Date(certFetch.data.expiresAt).toLocaleDateString()}
       </div>
     );
   }

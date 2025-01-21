@@ -1,17 +1,16 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_SESSION = 'session';
-
 export type SessionModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_SESSION;
+  _type?: ModelType.SESSION;
   expiresAt: number;
   sessionID: string; // PRIMARY KEY
   userID: string;
 };
 
 export function isSessionModel(v: unknown): v is SessionModel {
-  return (v as SessionModel)?._type === MODEL_TYPE_SESSION;
+  return (v as SessionModel)?._type === ModelType.SESSION;
 }
 
 export function createSession(
@@ -19,6 +18,6 @@ export function createSession(
 ): SessionModel {
   return {
     ...props,
-    _type: MODEL_TYPE_SESSION,
+    _type: ModelType.SESSION,
   };
 }

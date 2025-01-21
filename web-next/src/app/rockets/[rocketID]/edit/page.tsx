@@ -82,7 +82,7 @@ export default function RocketEditor() {
         <InputField
           label='Manufacturer'
           className='w-min'
-          value={fields.manufacturer ?? ''}
+          value={fields.extra?.manufacturer ?? ''}
           placeholder='e.g. "Mega Der Red Max" or "Scratch"'
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             updateField('manufacturer', e.target.value)
@@ -92,7 +92,7 @@ export default function RocketEditor() {
         <InputField
           label='Diameter'
           className='w-min'
-          value={fields.diameter ?? ''}
+          value={fields.extra?.diameter ?? ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             updateField('diameter', e.target.value)
           }
@@ -101,7 +101,7 @@ export default function RocketEditor() {
         <InputField
           label='Length'
           className='w-min'
-          value={fields.length ?? ''}
+          value={fields.extra?.length ?? ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             updateField('length', e.target.value)
           }
@@ -110,7 +110,7 @@ export default function RocketEditor() {
         <InputField
           label='Mass'
           className='w-min'
-          value={fields.mass ?? ''}
+          value={fields.extra?.mass ?? ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             updateField('mass', e.target.value)
           }

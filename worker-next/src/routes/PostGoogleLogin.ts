@@ -9,6 +9,7 @@ import {
   type UserModel,
   UserUnits,
 } from '@flightcard/models';
+import { ModelType } from '../../../models/src/ModelType';
 import { CFQuery } from '../lib/CFQuery';
 import { upsertUser } from '../lib/user-util';
 
@@ -41,7 +42,7 @@ export async function PostGoogleLogin(
 
   // Create / update user account
   const user = await upsertUser(env, {
-    _type: 'user',
+    _type: ModelType.USER,
     userID: crypto.randomUUID(),
     email: userInfo.email ?? toss('No email in Google profile?!?'),
     firstName: userInfo.given_name,

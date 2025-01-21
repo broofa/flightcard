@@ -3,11 +3,28 @@
 import Login from '@/app/Login';
 import { LoginProtected } from '@/app/LoginProtected';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useCurrentUser } from '../../lib/session_hooks';
+
+function useRealtimeLaunch() {
+  useEffect(() => {
+    const wsUrl = `${process.env.FC_API_ORIGIN}/launch/mock-launch-2/realtime`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+      console.log('Realtime connection established');
+    };
+    ws.onmessage = (event) => {
+      const payload = JSON.parse(event.data, (_, v) => v ?? undefined);
+      console.log('Realtime message:', payload);
+    };
+  }, []);
+  return null;
+}
 
 export default function Home() {
   const currentUser = useCurrentUser();
   const router = useRouter();
+  const realtimeConnection = useRealtimeLaunch();
 
   if (!currentUser) {
     return <Login />;

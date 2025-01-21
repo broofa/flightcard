@@ -1,10 +1,9 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_FLIGHT = 'flight';
-
 export type FlightModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_FLIGHT;
+  _type?: ModelType.FLIGHT;
 
   extra?: FlightExtra;
   flightID: string;
@@ -45,7 +44,7 @@ export type FlightExtra = {
 };
 
 export function FlightModel(v: unknown): v is FlightModel {
-  return (v as FlightModel)?._type === MODEL_TYPE_FLIGHT;
+  return (v as FlightModel)?._type === ModelType.FLIGHT;
 }
 
 export function createFlight(
@@ -53,7 +52,7 @@ export function createFlight(
 ): FlightModel {
   return {
     ...props,
-    _type: MODEL_TYPE_FLIGHT,
+    _type: ModelType.FLIGHT,
   };
 }
 

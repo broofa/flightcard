@@ -3,10 +3,12 @@ import type {
   AttendeeModel,
   BaseModel,
   FlightModel,
+  MotorModel,
   PadModel,
   RocketModel,
   UserModel,
 } from '@flightcard/models';
+import { ModelType } from '../../../models/src/ModelType';
 import { CFQuery } from '../lib/CFQuery';
 import type { RouteRequest } from '../lib/CloudflareRouter';
 
@@ -27,6 +29,10 @@ export async function GetLaunchRealtime(req: RouteRequest, env: Env) {
 export async function GetLaunchState(req: RouteRequest, env: Env) {
   const { launchID } = req.params as { launchID: string };
 
+  const launchQuery = new CFQuery<FlightModel>()
+    .select('*')
+    .from('launches')
+    .where('launchID = ?', launchID);
   const rocketQuery = new CFQuery<RocketModel>()
     .select('rockets.*')
     .from('rockets')
@@ -36,6 +42,12 @@ export async function GetLaunchState(req: RouteRequest, env: Env) {
   const flightQuery = new CFQuery<FlightModel>()
     .select('*')
     .from('flights')
+    .where('launchID = ?', launchID);
+  const motorQuery = new CFQuery<MotorModel>()
+    .select('motors.*')
+    .from('motors')
+    .join('flights')
+    .using('flightID')
     .where('launchID = ?', launchID);
   const attendeeQuery = new CFQuery<AttendeeModel>()
     .select('*')
@@ -49,32 +61,47 @@ export async function GetLaunchState(req: RouteRequest, env: Env) {
     .select('users.*')
     .from('users')
     .join('attendees')
-    .on('users.userID = attendees.userID')
+    .using('userID')
     .where('launchID = ?', launchID);
 
-  const [rockets, flights, attendees, pads, users] = await Promise.all([
-    rocketQuery.run(env),
-    flightQuery.run(env),
-    attendeeQuery.run(env),
-    padQuery.run(env),
-    userQuery.run(env),
-  ]);
+  const [attendees, flights, launches, motors, pads, rockets, users] =
+    await Promise.all([
+      attendeeQuery.run(env),
+      flightQuery.run(env),
+      launchQuery.run(env),
+      motorQuery.run(env),
+      padQuery.run(env),
+      rocketQuery.run(env),
+      userQuery.run(env),
+    ]);
 
-  return Response.json({
-    rockets: unpackResults(rockets),
-    flights: unpackResults(flights),
-    attendees: unpackResults(attendees),
-    pads: unpackResults(pads),
-    users: unpackResults(users),
-  });
+  return Response.json([
+    ...dbTidy(attendees, ModelType.ATTENDEE),
+    ...dbTidy(flights, ModelType.FLIGHT),
+    ...dbTidy(launches, ModelType.LAUNCH),
+    ...dbTidy(motors, ModelType.MOTOR),
+    ...dbTidy(pads, ModelType.PAD),
+    ...dbTidy(rockets, ModelType.ROCKET),
+    ...dbTidy(users, ModelType.USER),
+  ]);
 }
 
-function unpackResults<T extends BaseModel>(d1Result: D1Result<T>) {
+/**
+ * Tidy up db model results
+ */
+function dbTidy<T extends BaseModel>(d1Result: D1Result<T>, type: ModelType) {
   return d1Result.results.map((model) => {
-    const result = { ...model };
+    model._type = type;
+
     if ('extra' in model && typeof model.extra === 'string') {
       model.extra = JSON.parse(model.extra);
     }
+
+    // Remove nulls
+    for (const [k, v] of Object.entries(model)) {
+      if (v === null) delete model[k as keyof BaseModel];
+    }
+
     return model;
   });
 }

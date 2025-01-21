@@ -9,7 +9,6 @@ export function LoginProtected({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const currentUser = useCurrentUser();
-  console.log('currentUser', currentUser);
 
   if (!currentUser) {
     return (

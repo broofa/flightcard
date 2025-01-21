@@ -1,10 +1,9 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_ATTENDEE = 'attendee';
-
 export type AttendeeModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_ATTENDEE;
+  _type?: ModelType.ATTENDEE;
   attendeeID: string;
   launchID: string;
   userID: string;
@@ -30,7 +29,7 @@ enum AttendeeRole {
 }
 
 export function isAttendeeModel(v: unknown): v is AttendeeModel {
-  return (v as AttendeeModel)?._type === MODEL_TYPE_ATTENDEE;
+  return (v as AttendeeModel)?._type === ModelType.ATTENDEE;
 }
 
 export function createAttendee(
@@ -38,6 +37,6 @@ export function createAttendee(
 ): AttendeeModel {
   return {
     ...props,
-    _type: MODEL_TYPE_ATTENDEE,
+    _type: ModelType.ATTENDEE,
   };
 }

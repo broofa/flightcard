@@ -1,10 +1,9 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_PAD = 'launch';
-
 export type PadModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_PAD;
+  _type?: ModelType.PAD;
   padID: string;
   launchID: string;
   name?: string;
@@ -20,12 +19,12 @@ export type PadExtra = {
 };
 
 export function PadModel(v: unknown): v is PadModel {
-  return (v as PadModel)?._type === MODEL_TYPE_PAD;
+  return (v as PadModel)?._type === ModelType.PAD;
 }
 
 export function createPad(props: Optional<PadModel, '_type'>): PadModel {
   return {
     ...props,
-    _type: MODEL_TYPE_PAD,
+    _type: ModelType.PAD,
   };
 }

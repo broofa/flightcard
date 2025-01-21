@@ -1,7 +1,6 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
-
-export const MODEL_TYPE_ROCKET = 'rocket';
 
 // Subset of CSS named colors that are detected in rocket descriptions
 export const ROCKET_COLORS = [
@@ -38,7 +37,7 @@ export const ROCKET_COLORS = [
 ];
 
 export type RocketModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_ROCKET;
+  _type?: ModelType.ROCKET;
   name?: string;
   extra?: RocketExtra;
   rocketID: string;
@@ -65,7 +64,7 @@ export enum Recovery {
 }
 
 export function isRocketModel(v: unknown): v is RocketModel {
-  return (v as RocketModel)?._type === MODEL_TYPE_ROCKET;
+  return (v as RocketModel)?._type === ModelType.ROCKET;
 }
 
 export function createRocket(
@@ -73,6 +72,6 @@ export function createRocket(
 ): RocketModel {
   return {
     ...props,
-    _type: MODEL_TYPE_ROCKET,
+    _type: ModelType.ROCKET,
   };
 }

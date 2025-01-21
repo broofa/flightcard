@@ -31,25 +31,28 @@ export default function RocketsIndexPage() {
       <h1 className='text-2xl'>
         {rocket.name ?? 'Unamed'}{' '}
         <span className='text-base'>
-          ({rocket.manufacturer || 'scratch built'})
+          ({rocket.extra?.manufacturer || 'scratch built'})
         </span>
       </h1>
 
       <div className='grid grid-cols-3 gap-4'>
         <Field
           label=''
-          value={`${rocket.diameter} cm L x ${rocket.length} cm D`}
+          value={`${rocket.extra?.diameter} cm L x ${rocket.extra?.length} cm D`}
         />
-        <Field label='' value={rocket.mass + ' kg'} />
+        <Field label='' value={rocket.extra?.mass + ' kg'} />
         <Field
           className='capitalize'
           label='Recovery'
-          value={rocket.recovery}
+          value={rocket.extra?.recovery}
         />
         <div className='flex flex-col'>
-          <div>Color: {rocket.color}</div>
+          <div>Description: {rocket.extra?.description}</div>
           <div className='flex flex-row'>
-            <ColorChits colors={rocket.color} className='grow h-2' />
+            <ColorChits
+              colors={rocket.extra?.description || ''}
+              className='grow h-2'
+            />
           </div>
         </div>
       </div>

@@ -1,10 +1,9 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_CERT = 'cert';
-
 export type CertModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_CERT;
+  _type?: ModelType.CERT;
   certID: string;
   expiresAt: number;
   firstName: string;
@@ -27,12 +26,12 @@ export enum CertLevel {
 }
 
 export function isCertModel(v: unknown): v is CertModel {
-  return (v as CertModel)?._type === MODEL_TYPE_CERT;
+  return (v as CertModel)?._type === ModelType.CERT;
 }
 
 export function createCert(props: Optional<CertModel, '_type'>): CertModel {
   return {
     ...props,
-    _type: MODEL_TYPE_CERT,
+    _type: ModelType.CERT,
   };
 }

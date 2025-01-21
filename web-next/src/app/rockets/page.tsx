@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import Icon from '../../../lib/Icon';
-import { modelStore } from '../../../lib/model_store';
 import { useUserRockets } from '../../../lib/rocket_hooks';
 import { useCurrentUser } from '../../../lib/session_hooks';
 

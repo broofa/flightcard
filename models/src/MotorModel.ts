@@ -1,10 +1,9 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_MOTOR = 'motor';
-
 export type MotorModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_MOTOR;
+  _type?: ModelType.MOTOR;
   extra?: MotorExtra;
   flightID: string;
   motorID: string;
@@ -19,12 +18,12 @@ export type MotorExtra = {
 };
 
 export function MotorModel(v: unknown): v is MotorModel {
-  return (v as MotorModel)?._type === MODEL_TYPE_MOTOR;
+  return (v as MotorModel)?._type === ModelType.MOTOR;
 }
 
 export function createMotor(props: Optional<MotorModel, '_type'>): MotorModel {
   return {
     ...props,
-    _type: MODEL_TYPE_MOTOR,
+    _type: ModelType.MOTOR,
   };
 }

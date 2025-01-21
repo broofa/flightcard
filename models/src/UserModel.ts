@@ -1,10 +1,9 @@
 import type { BaseModel } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_USER = 'user';
-
 export type UserModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_USER;
+  _type?: ModelType.USER;
   avatarURL?: string;
   email: string;
   firstName?: string;
@@ -21,12 +20,12 @@ export enum UserUnits {
 }
 
 export function isUserModel(v: unknown): v is UserModel {
-  return (v as UserModel)?._type === MODEL_TYPE_USER;
+  return (v as UserModel)?._type === ModelType.USER;
 }
 
 export function createUser(props: Optional<UserModel, '_type'>): UserModel {
   return {
     ...props,
-    _type: MODEL_TYPE_USER,
+    _type: ModelType.USER,
   };
 }

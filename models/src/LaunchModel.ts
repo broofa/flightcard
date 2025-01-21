@@ -1,10 +1,9 @@
 import type { BaseModel, GPSLocation } from './BaseModel';
+import { ModelType } from './ModelType';
 import type { Optional } from './utility-types';
 
-export const MODEL_TYPE_LAUNCH = 'launch';
-
 export type LaunchModel = BaseModel & {
-  _type?: typeof MODEL_TYPE_LAUNCH;
+  _type?: ModelType.LAUNCH;
   name?: string;
   launchID: string;
 
@@ -24,8 +23,8 @@ export type LaunchExtra = {
   siteName?: string;
 };
 
-export function LaunchModel(v: unknown): v is LaunchModel {
-  return (v as LaunchModel)?._type === MODEL_TYPE_LAUNCH;
+export function isLaunchModel(v: unknown): v is LaunchModel {
+  return (v as LaunchModel)?._type === ModelType.LAUNCH;
 }
 
 export function createLaunch(
@@ -33,6 +32,6 @@ export function createLaunch(
 ): LaunchModel {
   return {
     ...props,
-    _type: MODEL_TYPE_LAUNCH,
+    _type: ModelType.LAUNCH,
   };
 }

@@ -15,7 +15,7 @@ export async function UseCors(req: RouteRequest) {
     res = await req.next();
   }
 
-  if (origin) {
+  if (origin && res?.status !== 101) {
     // Request is from a known origin, so set CORS headers
     res?.headers.set('Access-Control-Allow-Origin', origin);
     res?.headers.set('Access-Control-Allow-Methods', 'GET, POST, DELETE');

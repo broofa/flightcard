@@ -16,7 +16,7 @@
  */
 export function escapeSQL(val: unknown, stringifyObjects = false): string {
   // Would prefer to do Map/Set conversion lower down, inside the `case
-  // 'object'` block, but that causes val to become `unknown` due to
+  // 'object'` block, but that causes `val`'s to become `unknown` due to
   // https://github.com/microsoft/TypeScript/issues/27706
   if (val instanceof Map) {
     val = Object.fromEntries(val);
